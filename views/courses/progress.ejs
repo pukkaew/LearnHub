@@ -1,0 +1,582 @@
+<% layout('layout') -%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-chart-line mr-3 text-ruxchai-primary"></i>ความก้าวหน้าหลักสูตร
+                </h1>
+                <p class="mt-2 text-gray-600">ติดตามและวิเคราะห์ความก้าวหน้าการเรียนรู้</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="exportProgress()"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-download mr-2"></i>ส่งออกรายงาน
+                </button>
+                <button onclick="refreshData()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                    <i class="fas fa-sync mr-2"></i>รีเฟรชข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Info Card -->
+    <div class="bg-white rounded-lg shadow mb-8">
+        <div class="p-6">
+            <div class="flex items-center space-x-6">
+                <img id="course-image" class="h-24 w-32 object-cover rounded-lg" src="/images/course-placeholder.png" alt="Course Image">
+                <div class="flex-1">
+                    <h2 id="course-title" class="text-xl font-bold text-gray-900 mb-2">กำลังโหลด...</h2>
+                    <p id="course-code" class="text-sm text-gray-500 mb-1"></p>
+                    <p id="course-description" class="text-gray-600 line-clamp-2"></p>
+                    <div class="mt-3 flex items-center space-x-4 text-sm text-gray-500">
+                        <span><i class="fas fa-clock mr-1"></i><span id="duration">0</span> ชั่วโมง</span>
+                        <span><i class="fas fa-signal mr-1"></i><span id="difficulty">-</span></span>
+                        <span><i class="fas fa-users mr-1"></i><span id="enrolled-count">0</span> คน</span>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="relative inline-flex items-center justify-center w-24 h-24">
+                        <svg class="transform -rotate-90 w-24 h-24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="transparent"
+                                    class="text-gray-200" transform="translate(36, 36)"></circle>
+                            <circle id="progress-circle" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"
+                                    fill="transparent" stroke-linecap="round" class="text-ruxchai-primary"
+                                    transform="translate(36, 36)" stroke-dasharray="62.83" stroke-dashoffset="62.83"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="overall-progress" class="text-lg font-bold text-ruxchai-primary">0%</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">ความก้าวหน้ารวม</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-play-circle text-blue-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">เนื้อหาที่เริ่มแล้ว</dt>
+                            <dd class="text-2xl font-bold text-gray-900">
+                                <span id="started-materials">0</span>/<span id="total-materials">0</span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">เนื้อหาที่เสร็จแล้ว</dt>
+                            <dd class="text-2xl font-bold text-green-600" id="completed-materials">0</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock text-yellow-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">เวลาที่ใช้</dt>
+                            <dd class="text-2xl font-bold text-yellow-600" id="time-spent">0h 0m</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-star text-purple-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">คะแนนเฉลี่ย</dt>
+                            <dd class="text-2xl font-bold text-purple-600" id="average-score">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Progress Over Time -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-chart-line mr-2 text-ruxchai-primary"></i>ความก้าวหน้าตามเวลา
+            </h3>
+            <canvas id="progressChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Material Types Distribution -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-chart-pie mr-2 text-ruxchai-primary"></i>ประเภทเนื้อหา
+            </h3>
+            <canvas id="materialTypesChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Learning Path Timeline -->
+    <div class="bg-white shadow rounded-lg mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">
+                <i class="fas fa-route mr-2 text-ruxchai-primary"></i>เส้นทางการเรียนรู้
+            </h3>
+        </div>
+        <div class="p-6">
+            <div id="learning-timeline" class="space-y-4">
+                <!-- Timeline items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Material Progress Detail -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-list mr-2 text-ruxchai-primary"></i>รายละเอียดความก้าวหน้า
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <select id="filter-status" class="text-sm border-gray-300 rounded-md">
+                        <option value="">ทั้งหมด</option>
+                        <option value="completed">เสร็จแล้ว</option>
+                        <option value="in-progress">กำลังทำ</option>
+                        <option value="not-started">ยังไม่เริ่ม</option>
+                    </select>
+                    <select id="filter-type" class="text-sm border-gray-300 rounded-md">
+                        <option value="">ทุกประเภท</option>
+                        <option value="video">วิดีโอ</option>
+                        <option value="document">เอกสาร</option>
+                        <option value="text">บทความ</option>
+                        <option value="quiz">แบบทดสอบ</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เนื้อหา</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ความก้าวหน้า</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เวลาที่ใช้</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อัปเดทล่าสุด</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody id="materials-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Table rows will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+let courseId, progressData = [], materialsList = [];
+let progressChart, materialTypesChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    courseId = window.location.pathname.split('/')[2];
+    loadCourseData();
+    loadProgressData();
+    setupEventListeners();
+    initializeCharts();
+});
+
+async function loadCourseData() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}`);
+        const result = await response.json();
+
+        if (result.success) {
+            const course = result.data;
+            populateCourseInfo(course);
+        }
+    } catch (error) {
+        console.error('Error loading course data:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลหลักสูตร');
+    }
+}
+
+function populateCourseInfo(course) {
+    document.getElementById('course-title').textContent = course.course_name;
+    document.getElementById('course-code').textContent = course.course_code;
+    document.getElementById('course-description').textContent = course.description || '';
+    document.getElementById('duration').textContent = course.duration_hours || 0;
+    document.getElementById('difficulty').textContent = getDifficultyText(course.difficulty_level);
+
+    if (course.course_image) {
+        document.getElementById('course-image').src = course.course_image;
+    }
+}
+
+function getDifficultyText(level) {
+    const levels = {
+        'Beginner': 'เริ่มต้น',
+        'Intermediate': 'ปานกลาง',
+        'Advanced': 'ขั้นสูง'
+    };
+    return levels[level] || level;
+}
+
+async function loadProgressData() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/progress`);
+        const result = await response.json();
+
+        if (result.success) {
+            progressData = result.data;
+            updateProgressStats();
+            updateLearningTimeline();
+            updateMaterialsTable();
+            updateProgressCharts();
+        }
+    } catch (error) {
+        console.error('Error loading progress data:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลความก้าวหน้า');
+    }
+}
+
+function updateProgressStats() {
+    if (!progressData.materials) return;
+
+    const materials = progressData.materials;
+    const completed = materials.filter(m => m.is_completed).length;
+    const started = materials.filter(m => m.progress_percentage > 0).length;
+    const totalTime = materials.reduce((sum, m) => sum + (m.time_spent || 0), 0);
+    const overallProgress = materials.length > 0 ? Math.round((completed / materials.length) * 100) : 0;
+
+    // Update stats
+    document.getElementById('total-materials').textContent = materials.length;
+    document.getElementById('started-materials').textContent = started;
+    document.getElementById('completed-materials').textContent = completed;
+    document.getElementById('time-spent').textContent = formatDuration(totalTime);
+    document.getElementById('overall-progress').textContent = `${overallProgress}%`;
+
+    // Update average score
+    const scores = materials.filter(m => m.score !== null).map(m => m.score);
+    const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+    document.getElementById('average-score').textContent = avgScore ? `${avgScore.toFixed(1)}%` : 'N/A';
+
+    // Update enrollment count
+    document.getElementById('enrolled-count').textContent = progressData.enrollment_count || 0;
+
+    // Update progress circle
+    updateProgressCircle(overallProgress);
+}
+
+function updateProgressCircle(percentage) {
+    const circle = document.getElementById('progress-circle');
+    const circumference = 2 * Math.PI * 10; // radius = 10
+    const offset = circumference - (percentage / 100) * circumference;
+    circle.style.strokeDashoffset = offset;
+}
+
+function updateLearningTimeline() {
+    const timeline = document.getElementById('learning-timeline');
+    const materials = progressData.materials || [];
+
+    timeline.innerHTML = materials.map((material, index) => {
+        const isCompleted = material.is_completed;
+        const isInProgress = material.progress_percentage > 0 && !isCompleted;
+        const isNext = !isInProgress && !isCompleted && materials.slice(0, index).every(m => m.is_completed);
+
+        return `
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full ${
+                        isCompleted ? 'bg-green-500 text-white' :
+                        isInProgress ? 'bg-yellow-500 text-white' :
+                        isNext ? 'bg-ruxchai-primary text-white' :
+                        'bg-gray-300 text-gray-600'
+                    }">
+                        <i class="fas ${
+                            isCompleted ? 'fa-check' :
+                            isInProgress ? 'fa-play' :
+                            getMaterialIcon(material.material_type)
+                        }"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">${material.title}</h4>
+                            <p class="text-sm text-gray-500">${getMaterialTypeText(material.material_type)}</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            ${material.progress_percentage > 0 ? `
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-ruxchai-primary h-2 rounded-full" style="width: ${material.progress_percentage}%"></div>
+                                </div>
+                                <span class="text-xs text-gray-500">${material.progress_percentage}%</span>
+                            ` : ''}
+                            <button onclick="continueMaterial('${material.material_id}')"
+                                    class="text-sm text-ruxchai-primary hover:text-blue-700">
+                                ${isCompleted ? 'ทบทวน' : isInProgress ? 'ดำเนินการต่อ' : 'เริ่ม'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function getMaterialIcon(type) {
+    const icons = {
+        'video': 'fa-play',
+        'document': 'fa-file-pdf',
+        'text': 'fa-file-text',
+        'quiz': 'fa-question',
+        'audio': 'fa-music'
+    };
+    return icons[type] || 'fa-file';
+}
+
+function getMaterialTypeText(type) {
+    const types = {
+        'video': 'วิดีโอ',
+        'document': 'เอกสาร',
+        'text': 'บทความ',
+        'quiz': 'แบบทดสอบ',
+        'audio': 'เสียง'
+    };
+    return types[type] || type;
+}
+
+function updateMaterialsTable() {
+    const table = document.getElementById('materials-table');
+    const materials = progressData.materials || [];
+
+    table.innerHTML = materials.map(material => `
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <i class="fas ${getMaterialIcon(material.material_type)} text-gray-400 mr-3"></i>
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">${material.title}</div>
+                        <div class="text-sm text-gray-500">${material.description || ''}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(material.material_type)}">
+                    ${getMaterialTypeText(material.material_type)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(material)}">
+                    ${getStatusText(material)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                        <div class="bg-ruxchai-primary h-2 rounded-full" style="width: ${material.progress_percentage || 0}%"></div>
+                    </div>
+                    <span class="text-sm text-gray-600">${material.progress_percentage || 0}%</span>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                ${formatDuration(material.time_spent || 0)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                ${material.last_accessed ? formatDate(material.last_accessed) : 'ยังไม่เข้าใช้'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button onclick="continueMaterial('${material.material_id}')"
+                        class="text-ruxchai-primary hover:text-blue-700">
+                    ${material.is_completed ? 'ทบทวน' : material.progress_percentage > 0 ? 'ดำเนินการต่อ' : 'เริ่ม'}
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function getTypeColor(type) {
+    const colors = {
+        'video': 'bg-blue-100 text-blue-800',
+        'document': 'bg-red-100 text-red-800',
+        'text': 'bg-green-100 text-green-800',
+        'quiz': 'bg-purple-100 text-purple-800',
+        'audio': 'bg-yellow-100 text-yellow-800'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+}
+
+function getStatusColor(material) {
+    if (material.is_completed) return 'bg-green-100 text-green-800';
+    if (material.progress_percentage > 0) return 'bg-yellow-100 text-yellow-800';
+    return 'bg-gray-100 text-gray-800';
+}
+
+function getStatusText(material) {
+    if (material.is_completed) return 'เสร็จแล้ว';
+    if (material.progress_percentage > 0) return 'กำลังทำ';
+    return 'ยังไม่เริ่ม';
+}
+
+function initializeCharts() {
+    // Progress Chart
+    const progressCtx = document.getElementById('progressChart').getContext('2d');
+    progressChart = new Chart(progressCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'ความก้าวหน้า (%)',
+                data: [],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Material Types Chart
+    const materialTypesCtx = document.getElementById('materialTypesChart').getContext('2d');
+    materialTypesChart = new Chart(materialTypesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [
+                    '#3B82F6', '#EF4444', '#10B981', '#8B5CF6', '#F59E0B'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function updateProgressCharts() {
+    // Update progress over time chart
+    if (progressData.progress_history) {
+        progressChart.data.labels = progressData.progress_history.map(p => formatDate(p.date));
+        progressChart.data.datasets[0].data = progressData.progress_history.map(p => p.progress_percentage);
+        progressChart.update();
+    }
+
+    // Update material types chart
+    if (progressData.material_types) {
+        materialTypesChart.data.labels = progressData.material_types.map(t => getMaterialTypeText(t.type));
+        materialTypesChart.data.datasets[0].data = progressData.material_types.map(t => t.count);
+        materialTypesChart.update();
+    }
+}
+
+function continueMaterial(materialId) {
+    window.location.href = `/courses/${courseId}/content?content=${materialId}`;
+}
+
+function setupEventListeners() {
+    document.getElementById('filter-status').addEventListener('change', filterMaterials);
+    document.getElementById('filter-type').addEventListener('change', filterMaterials);
+}
+
+function filterMaterials() {
+    const statusFilter = document.getElementById('filter-status').value;
+    const typeFilter = document.getElementById('filter-type').value;
+
+    // Implementation for filtering would go here
+    updateMaterialsTable();
+}
+
+async function exportProgress() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/progress/export`, {
+            method: 'GET'
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `course-progress-${courseId}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            showSuccess('ส่งออกรายงานเรียบร้อยแล้ว');
+        }
+    } catch (error) {
+        showError('เกิดข้อผิดพลาดในการส่งออกรายงาน');
+    }
+}
+
+function refreshData() {
+    loadProgressData();
+    showSuccess('รีเฟรชข้อมูลแล้ว');
+}
+
+// Helper functions
+function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+</script>

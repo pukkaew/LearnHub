@@ -1,0 +1,922 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Test Results Report</h1>
+                <p class="text-gray-600 mt-2">Comprehensive analysis of test performance and results</p>
+            </div>
+            <div class="flex space-x-3">
+                <select id="date-range" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                    <option value="365">Last year</option>
+                    <option value="custom">Custom range</option>
+                </select>
+                <button onclick="exportReport()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+                <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Date Range Modal -->
+    <div id="date-range-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Select Date Range</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="start-date" class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                            <input type="date" id="start-date" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="end-date" class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                            <input type="date" id="end-date" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button onclick="closeDateRangeModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                            Cancel
+                        </button>
+                        <button onclick="applyDateRange()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-clipboard-list text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Attempts</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-attempts">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="attempts-trend">+12%</span> from last period
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Pass Rate</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="pass-rate">0%</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="pass-trend">+5.2%</span> from last period
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <i class="fas fa-percentage text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Average Score</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="average-score">0%</p>
+                    <p class="text-xs text-red-600 mt-1">
+                        <i class="fas fa-arrow-down"></i>
+                        <span id="score-trend">-1.8%</span> from last period
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-clock text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Avg. Time</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="average-time">0m</p>
+                    <p class="text-xs text-gray-600 mt-1">
+                        <i class="fas fa-minus"></i>
+                        <span id="time-trend">No change</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="filter-course" class="block text-sm font-medium text-gray-700 mb-2">Course</label>
+                <select id="filter-course" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Courses</option>
+                </select>
+            </div>
+            <div>
+                <label for="filter-test" class="block text-sm font-medium text-gray-700 mb-2">Test</label>
+                <select id="filter-test" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Tests</option>
+                </select>
+            </div>
+            <div>
+                <label for="filter-department" class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                <select id="filter-department" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Departments</option>
+                    <option value="IT">Information Technology</option>
+                    <option value="HR">Human Resources</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Sales">Sales</option>
+                </select>
+            </div>
+            <div>
+                <label for="filter-status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select id="filter-status" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Status</option>
+                    <option value="passed">Passed</option>
+                    <option value="failed">Failed</option>
+                    <option value="incomplete">Incomplete</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex justify-end mt-4 space-x-3">
+            <button onclick="clearFilters()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                Clear Filters
+            </button>
+            <button onclick="applyFilters()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Apply Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Score Distribution Chart -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Score Distribution</h3>
+            <canvas id="scoreDistributionChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Pass/Fail Trend Chart -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Pass/Fail Trend</h3>
+            <canvas id="passTrendChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Performance by Department -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance by Department</h3>
+            <canvas id="departmentChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Test Difficulty Analysis -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Test Difficulty Analysis</h3>
+            <canvas id="difficultyChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Performers Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Top Performers -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Top Performers</h3>
+                <p class="text-sm text-gray-600">Users with highest average scores</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rank</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tests</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-performers-table" class="divide-y divide-gray-200">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Most Challenging Tests -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Most Challenging Tests</h3>
+                <p class="text-sm text-gray-600">Tests with lowest average scores</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pass Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attempts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="challenging-tests-table" class="divide-y divide-gray-200">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Results Table -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Detailed Test Results</h3>
+                    <p class="text-sm text-gray-600">Complete list of all test attempts</p>
+                </div>
+                <div class="flex space-x-3">
+                    <input type="text" id="search-results" placeholder="Search results..."
+                           class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('user')">
+                            User <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('test')">
+                            Test <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('course')">
+                            Course <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('score')">
+                            Score <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('status')">
+                            Status <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('duration')">
+                            Duration <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('date')">
+                            Date <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="results-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+        <div class="px-6 py-3 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-700">
+                    Showing <span id="showing-from">1</span> to <span id="showing-to">10</span> of <span id="total-results">0</span> results
+                </span>
+                <div class="flex space-x-2">
+                    <button onclick="previousPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="prev-btn" disabled>
+                        Previous
+                    </button>
+                    <span class="px-3 py-1 text-sm">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="next-btn">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3">Loading report data...</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let reportData = {};
+let charts = {};
+let currentPage = 1;
+let itemsPerPage = 10;
+let sortField = '';
+let sortDirection = 'asc';
+let currentFilters = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadReportData();
+    loadFilterOptions();
+
+    // Event listeners
+    document.getElementById('date-range').addEventListener('change', handleDateRangeChange);
+    document.getElementById('search-results').addEventListener('input', debounce(searchResults, 500));
+
+    // Filter event listeners
+    document.getElementById('filter-course').addEventListener('change', updateTestFilter);
+});
+
+async function loadReportData() {
+    showLoading(true);
+
+    try {
+        const dateRange = document.getElementById('date-range').value;
+        const params = new URLSearchParams({
+            dateRange: dateRange,
+            ...currentFilters
+        });
+
+        const response = await fetch(`/reports/api/test-results?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+            reportData = data.data;
+            updateSummaryCards();
+            initializeCharts();
+            loadResultsTable();
+            loadTopPerformers();
+            loadChallengingTests();
+        } else {
+            showError('Failed to load report data');
+        }
+    } catch (error) {
+        console.error('Error loading report:', error);
+        showError('Error loading report data');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function loadFilterOptions() {
+    try {
+        const response = await fetch('/reports/api/filter-options');
+        const data = await response.json();
+
+        if (data.success) {
+            populateFilterOptions(data.options);
+        }
+    } catch (error) {
+        console.error('Error loading filter options:', error);
+    }
+}
+
+function populateFilterOptions(options) {
+    // Populate course filter
+    const courseSelect = document.getElementById('filter-course');
+    courseSelect.innerHTML = '<option value="">All Courses</option>';
+    options.courses.forEach(course => {
+        const option = document.createElement('option');
+        option.value = course.course_id;
+        option.textContent = course.title;
+        courseSelect.appendChild(option);
+    });
+
+    // Populate test filter
+    const testSelect = document.getElementById('filter-test');
+    testSelect.innerHTML = '<option value="">All Tests</option>';
+    options.tests.forEach(test => {
+        const option = document.createElement('option');
+        option.value = test.test_id;
+        option.textContent = test.title;
+        testSelect.appendChild(option);
+    });
+}
+
+function updateTestFilter() {
+    const selectedCourse = document.getElementById('filter-course').value;
+    const testSelect = document.getElementById('filter-test');
+
+    if (selectedCourse) {
+        // Filter tests by selected course
+        fetch(`/reports/api/tests-by-course?courseId=${selectedCourse}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    testSelect.innerHTML = '<option value="">All Tests</option>';
+                    data.tests.forEach(test => {
+                        const option = document.createElement('option');
+                        option.value = test.test_id;
+                        option.textContent = test.title;
+                        testSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading tests:', error));
+    } else {
+        // Reset to all tests
+        loadFilterOptions();
+    }
+}
+
+function updateSummaryCards() {
+    document.getElementById('total-attempts').textContent = reportData.summary.totalAttempts || 0;
+    document.getElementById('pass-rate').textContent = (reportData.summary.passRate || 0) + '%';
+    document.getElementById('average-score').textContent = (reportData.summary.averageScore || 0) + '%';
+    document.getElementById('average-time').textContent = formatDuration(reportData.summary.averageTime || 0);
+
+    // Update trends
+    updateTrend('attempts-trend', reportData.trends.attemptsTrend || 0);
+    updateTrend('pass-trend', reportData.trends.passTrend || 0);
+    updateTrend('score-trend', reportData.trends.scoreTrend || 0);
+    updateTrend('time-trend', reportData.trends.timeTrend || 0);
+}
+
+function updateTrend(elementId, percentage) {
+    const element = document.getElementById(elementId);
+    const parent = element.parentElement;
+
+    if (percentage > 0) {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-green-600');
+        element.innerHTML = `<i class="fas fa-arrow-up"></i> +${percentage.toFixed(1)}%`;
+    } else if (percentage < 0) {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-red-600');
+        element.innerHTML = `<i class="fas fa-arrow-down"></i> ${percentage.toFixed(1)}%`;
+    } else {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-gray-600');
+        element.innerHTML = `<i class="fas fa-minus"></i> No change`;
+    }
+}
+
+function initializeCharts() {
+    // Destroy existing charts
+    Object.values(charts).forEach(chart => chart.destroy());
+    charts = {};
+
+    // Score Distribution Chart
+    const scoreCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+    charts.scoreDistribution = new Chart(scoreCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20%', '21-40%', '41-60%', '61-80%', '81-100%'],
+            datasets: [{
+                label: 'Number of Attempts',
+                data: reportData.charts.scoreDistribution || [0, 0, 0, 0, 0],
+                backgroundColor: ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#10B981']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Pass/Fail Trend Chart
+    const trendCtx = document.getElementById('passTrendChart').getContext('2d');
+    charts.passTrend = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: reportData.charts.passTrend?.labels || [],
+            datasets: [{
+                label: 'Pass Rate (%)',
+                data: reportData.charts.passTrend?.passRates || [],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Average Score (%)',
+                data: reportData.charts.passTrend?.averageScores || [],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    // Department Performance Chart
+    const deptCtx = document.getElementById('departmentChart').getContext('2d');
+    charts.department = new Chart(deptCtx, {
+        type: 'horizontalBar',
+        data: {
+            labels: reportData.charts.department?.labels || [],
+            datasets: [{
+                label: 'Average Score (%)',
+                data: reportData.charts.department?.scores || [],
+                backgroundColor: '#6366F1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    // Test Difficulty Chart
+    const diffCtx = document.getElementById('difficultyChart').getContext('2d');
+    charts.difficulty = new Chart(diffCtx, {
+        type: 'bubble',
+        data: {
+            datasets: [{
+                label: 'Tests',
+                data: reportData.charts.difficulty || [],
+                backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                borderColor: '#3B82F6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'Average Score (%)' } },
+                y: { title: { display: true, text: 'Number of Attempts' } }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const point = context.raw;
+                            return `${point.testTitle}: Score ${point.x}%, ${point.y} attempts`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function loadTopPerformers() {
+    const tbody = document.getElementById('top-performers-table');
+    tbody.innerHTML = '';
+
+    const performers = reportData.topPerformers || [];
+    performers.forEach((performer, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                ${index + 1}
+                ${index === 0 ? '<i class="fas fa-crown text-yellow-500 ml-2"></i>' : ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 rounded-full" src="${performer.avatar || '/images/default-avatar.png'}" alt="">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">${performer.name}</p>
+                        <p class="text-sm text-gray-500">${performer.department || 'N/A'}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span class="font-medium">${performer.averageScore.toFixed(1)}%</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${performer.testCount}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    if (performers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No data available</td></tr>';
+    }
+}
+
+function loadChallengingTests() {
+    const tbody = document.getElementById('challenging-tests-table');
+    tbody.innerHTML = '';
+
+    const tests = reportData.challengingTests || [];
+    tests.forEach(test => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm font-medium text-gray-900">${test.title}</p>
+                <p class="text-sm text-gray-500">${test.course}</p>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span class="font-medium text-red-600">${test.averageScore.toFixed(1)}%</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span class="font-medium ${test.passRate < 50 ? 'text-red-600' : test.passRate < 70 ? 'text-yellow-600' : 'text-green-600'}">
+                    ${test.passRate.toFixed(1)}%
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${test.attempts}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    if (tests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No data available</td></tr>';
+    }
+}
+
+function loadResultsTable() {
+    const tbody = document.getElementById('results-table');
+    tbody.innerHTML = '';
+
+    const results = reportData.results || [];
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedResults = results.slice(start, end);
+
+    paginatedResults.forEach(result => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 rounded-full" src="${result.user.avatar || '/images/default-avatar.png'}" alt="">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">${result.user.name}</p>
+                        <p class="text-sm text-gray-500">${result.user.department || 'N/A'}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${result.test.title}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${result.course.title}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span class="text-gray-900">${result.score}%</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(result.status)}">
+                    ${result.status}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${formatDuration(result.duration)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${new Date(result.completed_at).toLocaleDateString()}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="viewDetails('${result.attempt_id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                    View
+                </button>
+                <button onclick="downloadCertificate('${result.attempt_id}')"
+                        class="text-green-600 hover:text-green-900 ${result.status !== 'passed' ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${result.status !== 'passed' ? 'disabled' : ''}>
+                    Certificate
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    updatePagination(results.length);
+}
+
+function getStatusColor(status) {
+    switch (status.toLowerCase()) {
+        case 'passed': return 'bg-green-100 text-green-800';
+        case 'failed': return 'bg-red-100 text-red-800';
+        case 'incomplete': return 'bg-yellow-100 text-yellow-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+
+function updatePagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const showingFrom = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const showingTo = Math.min(currentPage * itemsPerPage, totalItems);
+
+    document.getElementById('showing-from').textContent = showingFrom;
+    document.getElementById('showing-to').textContent = showingTo;
+    document.getElementById('total-results').textContent = totalItems;
+    document.getElementById('current-page').textContent = currentPage;
+    document.getElementById('total-pages').textContent = totalPages;
+
+    document.getElementById('prev-btn').disabled = currentPage <= 1;
+    document.getElementById('next-btn').disabled = currentPage >= totalPages;
+}
+
+function formatDuration(seconds) {
+    if (!seconds) return '0m';
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (hours > 0) {
+        return `${hours}h ${minutes % 60}m`;
+    }
+    return `${minutes}m`;
+}
+
+function handleDateRangeChange() {
+    const dateRange = document.getElementById('date-range').value;
+    if (dateRange === 'custom') {
+        document.getElementById('date-range-modal').classList.remove('hidden');
+    } else {
+        loadReportData();
+    }
+}
+
+function closeDateRangeModal() {
+    document.getElementById('date-range-modal').classList.add('hidden');
+    document.getElementById('date-range').value = '30'; // Reset to default
+}
+
+function applyDateRange() {
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+
+    if (startDate && endDate) {
+        currentFilters.startDate = startDate;
+        currentFilters.endDate = endDate;
+        loadReportData();
+        closeDateRangeModal();
+    } else {
+        showError('Please select both start and end dates');
+    }
+}
+
+function applyFilters() {
+    currentFilters = {
+        course: document.getElementById('filter-course').value,
+        test: document.getElementById('filter-test').value,
+        department: document.getElementById('filter-department').value,
+        status: document.getElementById('filter-status').value
+    };
+
+    // Remove empty filters
+    Object.keys(currentFilters).forEach(key => {
+        if (!currentFilters[key]) {
+            delete currentFilters[key];
+        }
+    });
+
+    currentPage = 1;
+    loadReportData();
+}
+
+function clearFilters() {
+    currentFilters = {};
+    document.getElementById('filter-course').value = '';
+    document.getElementById('filter-test').value = '';
+    document.getElementById('filter-department').value = '';
+    document.getElementById('filter-status').value = '';
+    loadReportData();
+}
+
+function searchResults() {
+    const searchTerm = document.getElementById('search-results').value.toLowerCase();
+
+    if (searchTerm) {
+        currentFilters.search = searchTerm;
+    } else {
+        delete currentFilters.search;
+    }
+
+    currentPage = 1;
+    loadReportData();
+}
+
+function sortTable(field) {
+    if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDirection = 'asc';
+    }
+
+    currentFilters.sortField = sortField;
+    currentFilters.sortDirection = sortDirection;
+    loadReportData();
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadResultsTable();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil((reportData.results || []).length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        loadResultsTable();
+    }
+}
+
+function refreshData() {
+    loadReportData();
+}
+
+async function exportReport() {
+    showLoading(true);
+
+    try {
+        const params = new URLSearchParams({
+            dateRange: document.getElementById('date-range').value,
+            ...currentFilters
+        });
+
+        const response = await fetch(`/reports/api/test-results/export?${params}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-results-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showSuccess('Report exported successfully');
+        } else {
+            showError('Failed to export report');
+        }
+    } catch (error) {
+        console.error('Error exporting report:', error);
+        showError('Error exporting report');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function viewDetails(attemptId) {
+    window.open(`/reports/test-attempt/${attemptId}`, '_blank');
+}
+
+async function downloadCertificate(attemptId) {
+    try {
+        const response = await fetch(`/certificates/download/${attemptId}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `certificate-${attemptId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } else {
+            showError('Certificate not available');
+        }
+    } catch (error) {
+        console.error('Error downloading certificate:', error);
+        showError('Error downloading certificate');
+    }
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    alert(message); // Replace with toast notification
+}
+
+function showError(message) {
+    alert('Error: ' + message); // Replace with toast notification
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+
+<%- include('../partials/footer') %>

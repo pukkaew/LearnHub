@@ -1,0 +1,998 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Create New Article</h1>
+            <p class="text-gray-600 mt-2">Share knowledge and insights with the LearnHub community</p>
+        </div>
+        <div class="flex space-x-3">
+            <button onclick="previewArticle()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-eye mr-2"></i>Preview
+            </button>
+            <button onclick="saveDraft()" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
+                <i class="fas fa-save mr-2"></i>Save Draft
+            </button>
+            <a href="/articles" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Articles
+            </a>
+        </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-4">
+            <div class="step-indicator active" data-step="1">
+                <div class="step-circle">1</div>
+                <span class="step-label">Basic Information</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label">Content & Media</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label">Settings & Tags</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="4">
+                <div class="step-circle">4</div>
+                <span class="step-label">Review & Publish</span>
+            </div>
+        </div>
+    </div>
+
+    <form id="article-form" enctype="multipart/form-data">
+        <!-- Step 1: Basic Information -->
+        <div id="step-1" class="step-content active">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+
+                <div class="space-y-6">
+                    <!-- Article Title -->
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                            Article Title <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="title" name="title" required
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter an engaging title for your article">
+                        <div class="mt-1 text-sm text-gray-500">
+                            <span id="title-count">0</span>/100 characters • A good title is clear and descriptive
+                        </div>
+                    </div>
+
+                    <!-- Article Summary -->
+                    <div>
+                        <label for="summary" class="block text-sm font-medium text-gray-700 mb-2">
+                            Summary <span class="text-red-500">*</span>
+                        </label>
+                        <textarea id="summary" name="summary" rows="3" required
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="Write a brief summary of your article (will be shown in article listings)"></textarea>
+                        <div class="mt-1 text-sm text-gray-500">
+                            <span id="summary-count">0</span>/300 characters • This helps readers understand what your article is about
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                                Category <span class="text-red-500">*</span>
+                            </label>
+                            <select id="category" name="category" required
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Category</option>
+                                <option value="technology">Technology</option>
+                                <option value="business">Business</option>
+                                <option value="design">Design</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="development">Development</option>
+                                <option value="data-science">Data Science</option>
+                                <option value="project-management">Project Management</option>
+                                <option value="leadership">Leadership</option>
+                                <option value="career">Career Development</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Reading Time -->
+                        <div>
+                            <label for="reading_time" class="block text-sm font-medium text-gray-700 mb-2">
+                                Estimated Reading Time
+                            </label>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" id="reading_time" name="reading_time" min="1" max="60"
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                <span class="text-sm text-gray-500">minutes</span>
+                            </div>
+                            <div class="mt-1 text-sm text-gray-500">Will be auto-calculated if left blank</div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Image -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <div id="image-preview" class="hidden">
+                                    <img id="preview-img" class="mx-auto h-32 w-auto rounded-lg" src="" alt="Preview">
+                                </div>
+                                <div id="upload-placeholder">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="featured_image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Upload an image</span>
+                                        <input id="featured_image" name="featured_image" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeImage()" class="mt-2 text-sm text-red-600 hover:text-red-800 hidden" id="remove-image-btn">
+                            Remove image
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <div></div>
+                    <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Content & Media -->
+        <div id="step-2" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Content & Media</h3>
+
+                <!-- Editor Toolbar -->
+                <div class="border border-gray-300 rounded-t-lg bg-gray-50 p-3">
+                    <div class="flex items-center space-x-2 flex-wrap">
+                        <button type="button" onclick="formatText('bold')" class="editor-btn" title="Bold">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button type="button" onclick="formatText('italic')" class="editor-btn" title="Italic">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button type="button" onclick="formatText('underline')" class="editor-btn" title="Underline">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                        <div class="w-px h-6 bg-gray-300"></div>
+                        <button type="button" onclick="formatText('insertUnorderedList')" class="editor-btn" title="Bullet List">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <button type="button" onclick="formatText('insertOrderedList')" class="editor-btn" title="Numbered List">
+                            <i class="fas fa-list-ol"></i>
+                        </button>
+                        <div class="w-px h-6 bg-gray-300"></div>
+                        <button type="button" onclick="insertLink()" class="editor-btn" title="Insert Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button type="button" onclick="insertImage()" class="editor-btn" title="Insert Image">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button type="button" onclick="insertCodeBlock()" class="editor-btn" title="Code Block">
+                            <i class="fas fa-code"></i>
+                        </button>
+                        <div class="w-px h-6 bg-gray-300"></div>
+                        <select onchange="formatHeading(this.value)" class="text-sm border border-gray-300 rounded px-2 py-1">
+                            <option value="">Heading</option>
+                            <option value="h1">Heading 1</option>
+                            <option value="h2">Heading 2</option>
+                            <option value="h3">Heading 3</option>
+                            <option value="h4">Heading 4</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Content Editor -->
+                <div>
+                    <div id="content-editor" contenteditable="true"
+                         class="w-full min-h-96 border border-t-0 border-gray-300 rounded-b-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 prose prose-blue max-w-none"
+                         placeholder="Start writing your article content here...">
+                    </div>
+                    <input type="hidden" id="content" name="content">
+                </div>
+
+                <!-- Word Count -->
+                <div class="mt-2 flex justify-between text-sm text-gray-500">
+                    <span>Use the toolbar above to format your content</span>
+                    <span id="word-count">0 words</span>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                    </button>
+                    <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Settings & Tags -->
+        <div id="step-3" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Settings & Tags</h3>
+
+                <div class="space-y-6">
+                    <!-- Tags -->
+                    <div>
+                        <label for="tags-input" class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                        <div class="border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+                            <div class="flex flex-wrap gap-2 mb-2" id="tags-container"></div>
+                            <input type="text" id="tags-input"
+                                   class="w-full border-0 focus:outline-none focus:ring-0 text-sm"
+                                   placeholder="Add tags (press Enter to add)">
+                        </div>
+                        <div class="mt-1 text-sm text-gray-500">Add relevant tags to help readers find your article</div>
+                        <input type="hidden" id="tags" name="tags">
+                    </div>
+
+                    <!-- Article Settings -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Difficulty Level -->
+                        <div>
+                            <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
+                            <select id="difficulty" name="difficulty"
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate" selected>Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+
+                        <!-- Language -->
+                        <div>
+                            <label for="language" class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                            <select id="language" name="language"
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                <option value="th" selected>ไทย (Thai)</option>
+                                <option value="en">English</option>
+                                <option value="zh">中文 (Chinese)</option>
+                                <option value="ja">日本語 (Japanese)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Visibility Settings -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Visibility</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="visibility" value="public" checked class="mr-2">
+                                <div>
+                                    <span class="font-medium">Public</span>
+                                    <p class="text-sm text-gray-500">Anyone can view this article</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="visibility" value="members" class="mr-2">
+                                <div>
+                                    <span class="font-medium">Members Only</span>
+                                    <p class="text-sm text-gray-500">Only registered members can view</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="visibility" value="private" class="mr-2">
+                                <div>
+                                    <span class="font-medium">Private</span>
+                                    <p class="text-sm text-gray-500">Only you can view this article</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Comments and Feedback -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Comments & Feedback</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="allow_comments" checked class="mr-2">
+                                <span class="text-sm">Allow comments on this article</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="allow_likes" checked class="mr-2">
+                                <span class="text-sm">Allow likes/reactions</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="moderate_comments" class="mr-2">
+                                <span class="text-sm">Moderate comments before publishing</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-md font-semibold text-gray-900 mb-3">SEO Settings</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                                <textarea id="meta_description" name="meta_description" rows="2"
+                                          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                                          placeholder="Brief description for search engines"></textarea>
+                                <div class="mt-1 text-sm text-gray-500">
+                                    <span id="meta-count">0</span>/160 characters recommended
+                                </div>
+                            </div>
+                            <div>
+                                <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">URL Slug</label>
+                                <input type="text" id="slug" name="slug"
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                                       placeholder="article-url-slug">
+                                <div class="mt-1 text-sm text-gray-500">Will be auto-generated if left blank</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                    </button>
+                    <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Review & Publish -->
+        <div id="step-4" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Review & Publish</h3>
+
+                <!-- Article Preview -->
+                <div class="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50">
+                    <div id="article-preview">
+                        <!-- Preview will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Publication Options -->
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Publication Status</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="status" value="published" class="mr-2">
+                                <div>
+                                    <span class="font-medium text-green-600">Publish Now</span>
+                                    <p class="text-sm text-gray-500">Make this article live immediately</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="status" value="scheduled" class="mr-2">
+                                <div>
+                                    <span class="font-medium text-blue-600">Schedule for Later</span>
+                                    <p class="text-sm text-gray-500">Choose when to publish this article</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="status" value="draft" checked class="mr-2">
+                                <div>
+                                    <span class="font-medium text-gray-600">Save as Draft</span>
+                                    <p class="text-sm text-gray-500">Save for editing later</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Scheduled Publication -->
+                    <div id="schedule-options" class="hidden">
+                        <label for="publish_date" class="block text-sm font-medium text-gray-700 mb-2">Publish Date & Time</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="date" id="publish_date" name="publish_date"
+                                   class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                            <input type="time" id="publish_time" name="publish_time"
+                                   class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Notification Options -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Notifications</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="notify_followers" checked class="mr-2">
+                                <span class="text-sm">Notify your followers</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="share_social" class="mr-2">
+                                <span class="text-sm">Share on social media</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="feature_article" class="mr-2">
+                                <span class="text-sm">Submit for featured articles</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                    </button>
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="saveDraft()" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700">
+                            <i class="fas fa-save mr-2"></i>Save Draft
+                        </button>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-rocket mr-2"></i>Publish Article
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Preview Modal -->
+<div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">Article Preview</h3>
+                    <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="modal-preview-content">
+                    <!-- Preview content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3">Creating article...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #E5E7EB;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.step-indicator.active .step-circle {
+    background-color: #3B82F6;
+    color: white;
+}
+
+.step-indicator.completed .step-circle {
+    background-color: #10B981;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.step-indicator.active .step-label {
+    color: #3B82F6;
+    font-weight: 500;
+}
+
+.step-line {
+    height: 2px;
+    background-color: #E5E7EB;
+    flex: 1;
+    margin-top: 20px;
+}
+
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+}
+
+.editor-btn {
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.editor-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.editor-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+#content-editor {
+    outline: none;
+}
+
+#content-editor:empty:before {
+    content: attr(placeholder);
+    color: #9ca3af;
+}
+
+.tag-item {
+    display: inline-flex;
+    items-center;
+    padding: 4px 8px;
+    background: #3b82f6;
+    color: white;
+    border-radius: 16px;
+    font-size: 0.875rem;
+}
+
+.tag-remove {
+    margin-left: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.tag-remove:hover {
+    opacity: 1;
+}
+
+.prose h1 { font-size: 2.25rem; font-weight: bold; margin: 1.5rem 0 1rem 0; }
+.prose h2 { font-size: 1.875rem; font-weight: bold; margin: 1.25rem 0 0.75rem 0; }
+.prose h3 { font-size: 1.5rem; font-weight: bold; margin: 1rem 0 0.5rem 0; }
+.prose h4 { font-size: 1.25rem; font-weight: bold; margin: 0.875rem 0 0.5rem 0; }
+.prose p { margin: 0.75rem 0; line-height: 1.7; }
+.prose ul, .prose ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+.prose li { margin: 0.25rem 0; }
+.prose a { color: #3b82f6; text-decoration: underline; }
+.prose code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; font-size: 0.875rem; }
+.prose pre { background: #f3f4f6; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+</style>
+
+<script>
+let currentStep = 1;
+let totalSteps = 4;
+let tags = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeForm();
+
+    // Event listeners
+    document.getElementById('title').addEventListener('input', updateTitleCount);
+    document.getElementById('summary').addEventListener('input', updateSummaryCount);
+    document.getElementById('meta_description').addEventListener('input', updateMetaCount);
+    document.getElementById('featured_image').addEventListener('change', handleImageUpload);
+    document.getElementById('content-editor').addEventListener('input', updateWordCount);
+    document.getElementById('tags-input').addEventListener('keypress', handleTagInput);
+    document.getElementById('article-form').addEventListener('submit', submitArticle);
+
+    // Publication status listeners
+    document.querySelectorAll('input[name="status"]').forEach(radio => {
+        radio.addEventListener('change', handleStatusChange);
+    });
+
+    // Auto-generate slug from title
+    document.getElementById('title').addEventListener('input', generateSlug);
+});
+
+function initializeForm() {
+    // Set default publish date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('publish_date').value = tomorrow.toISOString().split('T')[0];
+    document.getElementById('publish_time').value = '09:00';
+
+    updateWordCount();
+}
+
+function nextStep() {
+    if (validateCurrentStep()) {
+        if (currentStep < totalSteps) {
+            // Mark current step as completed
+            document.querySelector(`[data-step="${currentStep}"]`).classList.add('completed');
+
+            currentStep++;
+            updateStepDisplay();
+
+            if (currentStep === 4) {
+                generatePreview();
+            }
+        }
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStepDisplay();
+
+        // Remove completed class from next step
+        document.querySelector(`[data-step="${currentStep + 1}"]`)?.classList.remove('completed');
+    }
+}
+
+function updateStepDisplay() {
+    // Hide all step contents
+    document.querySelectorAll('.step-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Show current step content
+    document.getElementById(`step-${currentStep}`).classList.add('active');
+
+    // Update step indicators
+    document.querySelectorAll('.step-indicator').forEach(indicator => {
+        indicator.classList.remove('active');
+    });
+    document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+}
+
+function validateCurrentStep() {
+    const currentStepElement = document.getElementById(`step-${currentStep}`);
+    const requiredFields = currentStepElement.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+
+    // Additional validation for content editor
+    if (currentStep === 2) {
+        const content = document.getElementById('content-editor').innerHTML.trim();
+        if (!content || content === '') {
+            showError('Please add some content to your article');
+            isValid = false;
+        }
+    }
+
+    if (!isValid) {
+        showError('Please fill in all required fields');
+    }
+
+    return isValid;
+}
+
+function updateTitleCount() {
+    const title = document.getElementById('title').value;
+    document.getElementById('title-count').textContent = title.length;
+}
+
+function updateSummaryCount() {
+    const summary = document.getElementById('summary').value;
+    document.getElementById('summary-count').textContent = summary.length;
+}
+
+function updateMetaCount() {
+    const meta = document.getElementById('meta_description').value;
+    document.getElementById('meta-count').textContent = meta.length;
+}
+
+function generateSlug() {
+    const title = document.getElementById('title').value;
+    const slug = title.toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .trim('-'); // Remove leading/trailing hyphens
+
+    if (!document.getElementById('slug').value) {
+        document.getElementById('slug').value = slug;
+    }
+}
+
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('image-preview').classList.remove('hidden');
+            document.getElementById('upload-placeholder').classList.add('hidden');
+            document.getElementById('remove-image-btn').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeImage() {
+    document.getElementById('featured_image').value = '';
+    document.getElementById('image-preview').classList.add('hidden');
+    document.getElementById('upload-placeholder').classList.remove('hidden');
+    document.getElementById('remove-image-btn').classList.add('hidden');
+}
+
+// Rich Text Editor Functions
+function formatText(command) {
+    document.execCommand(command, false, null);
+    document.getElementById('content-editor').focus();
+    updateWordCount();
+}
+
+function formatHeading(tag) {
+    if (tag) {
+        document.execCommand('formatBlock', false, tag);
+        document.getElementById('content-editor').focus();
+    }
+}
+
+function insertLink() {
+    const url = prompt('Enter the URL:');
+    if (url) {
+        document.execCommand('createLink', false, url);
+        document.getElementById('content-editor').focus();
+    }
+}
+
+function insertImage() {
+    const url = prompt('Enter the image URL:');
+    if (url) {
+        document.execCommand('insertImage', false, url);
+        document.getElementById('content-editor').focus();
+    }
+}
+
+function insertCodeBlock() {
+    const code = prompt('Enter your code:');
+    if (code) {
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        const pre = document.createElement('pre');
+        const codeEl = document.createElement('code');
+        codeEl.textContent = code;
+        pre.appendChild(codeEl);
+        range.insertNode(pre);
+        document.getElementById('content-editor').focus();
+    }
+}
+
+function updateWordCount() {
+    const content = document.getElementById('content-editor').innerText;
+    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+    document.getElementById('word-count').textContent = words + ' words';
+
+    // Auto-calculate reading time if not set
+    if (!document.getElementById('reading_time').value) {
+        const readingTime = Math.max(1, Math.ceil(words / 200)); // 200 words per minute
+        document.getElementById('reading_time').value = readingTime;
+    }
+
+    // Update hidden content field
+    document.getElementById('content').value = document.getElementById('content-editor').innerHTML;
+}
+
+// Tag Management
+function handleTagInput(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const input = event.target;
+        const tag = input.value.trim().toLowerCase();
+
+        if (tag && !tags.includes(tag)) {
+            tags.push(tag);
+            renderTags();
+            input.value = '';
+            updateTagsField();
+        }
+    }
+}
+
+function renderTags() {
+    const container = document.getElementById('tags-container');
+    container.innerHTML = '';
+
+    tags.forEach(tag => {
+        const tagEl = document.createElement('div');
+        tagEl.className = 'tag-item';
+        tagEl.innerHTML = `
+            ${tag}
+            <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
+        `;
+        container.appendChild(tagEl);
+    });
+}
+
+function removeTag(tag) {
+    tags = tags.filter(t => t !== tag);
+    renderTags();
+    updateTagsField();
+}
+
+function updateTagsField() {
+    document.getElementById('tags').value = tags.join(',');
+}
+
+function handleStatusChange() {
+    const status = document.querySelector('input[name="status"]:checked').value;
+    const scheduleOptions = document.getElementById('schedule-options');
+
+    if (status === 'scheduled') {
+        scheduleOptions.classList.remove('hidden');
+    } else {
+        scheduleOptions.classList.add('hidden');
+    }
+}
+
+function generatePreview() {
+    const title = document.getElementById('title').value;
+    const summary = document.getElementById('summary').value;
+    const content = document.getElementById('content-editor').innerHTML;
+    const category = document.getElementById('category').value;
+    const readingTime = document.getElementById('reading_time').value;
+    const featuredImage = document.getElementById('preview-img').src;
+
+    const previewContainer = document.getElementById('article-preview');
+    previewContainer.innerHTML = `
+        <article class="max-w-4xl mx-auto">
+            ${featuredImage && featuredImage !== window.location.href ? `
+                <img src="${featuredImage}" alt="${title}" class="w-full h-64 object-cover rounded-lg mb-6">
+            ` : ''}
+
+            <header class="mb-6">
+                <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">${category}</span>
+                    ${readingTime ? `<span><i class="fas fa-clock mr-1"></i>${readingTime} min read</span>` : ''}
+                    <span><i class="fas fa-calendar mr-1"></i>${new Date().toLocaleDateString()}</span>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">${title}</h1>
+                <p class="text-xl text-gray-600">${summary}</p>
+            </header>
+
+            <div class="prose prose-blue max-w-none">
+                ${content}
+            </div>
+
+            ${tags.length > 0 ? `
+                <footer class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">Tags:</span>
+                        ${tags.map(tag => `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">${tag}</span>`).join('')}
+                    </div>
+                </footer>
+            ` : ''}
+        </article>
+    `;
+}
+
+function previewArticle() {
+    generatePreview();
+    const modalContent = document.getElementById('modal-preview-content');
+    modalContent.innerHTML = document.getElementById('article-preview').innerHTML;
+    document.getElementById('preview-modal').classList.remove('hidden');
+}
+
+function closePreview() {
+    document.getElementById('preview-modal').classList.add('hidden');
+}
+
+async function saveDraft() {
+    const formData = new FormData(document.getElementById('article-form'));
+    formData.set('status', 'draft');
+    formData.set('content', document.getElementById('content-editor').innerHTML);
+    formData.set('tags', tags.join(','));
+
+    showLoading(true);
+
+    try {
+        const response = await fetch('/articles/api/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess('Article saved as draft');
+        } else {
+            showError(data.message || 'Failed to save draft');
+        }
+    } catch (error) {
+        console.error('Error saving draft:', error);
+        showError('Error saving draft');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function submitArticle(event) {
+    event.preventDefault();
+
+    if (!validateCurrentStep()) {
+        return;
+    }
+
+    const formData = new FormData(document.getElementById('article-form'));
+    formData.set('content', document.getElementById('content-editor').innerHTML);
+    formData.set('tags', tags.join(','));
+
+    showLoading(true);
+
+    try {
+        const response = await fetch('/articles/api/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const status = document.querySelector('input[name="status"]:checked').value;
+            const message = status === 'published' ? 'Article published successfully!' :
+                           status === 'scheduled' ? 'Article scheduled for publication!' :
+                           'Article saved as draft!';
+
+            showSuccess(message);
+            setTimeout(() => {
+                window.location.href = '/articles';
+            }, 2000);
+        } else {
+            showError(data.message || 'Failed to create article');
+        }
+    } catch (error) {
+        console.error('Error creating article:', error);
+        showError('Error creating article');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    alert(message); // Replace with toast notification
+}
+
+function showError(message) {
+    alert('Error: ' + message); // Replace with toast notification
+}
+</script>
+
+<%- include('../partials/footer') %>

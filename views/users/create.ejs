@@ -1,0 +1,997 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Create New User</h1>
+            <p class="text-gray-600 mt-2">Add a new user to the LearnHub system</p>
+        </div>
+        <div class="flex space-x-3">
+            <button onclick="previewUser()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-eye mr-2"></i>Preview
+            </button>
+            <a href="/admin/users" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Users
+            </a>
+        </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-4">
+            <div class="step-indicator active" data-step="1">
+                <div class="step-circle">1</div>
+                <span class="step-label">Basic Information</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label">Role & Permissions</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label">Profile Details</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="4">
+                <div class="step-circle">4</div>
+                <span class="step-label">Review & Create</span>
+            </div>
+        </div>
+    </div>
+
+    <form id="create-user-form" enctype="multipart/form-data">
+        <!-- Step 1: Basic Information -->
+        <div id="step-1" class="step-content active">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Username -->
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            Username <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="username" name="username" required
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter unique username">
+                        <div class="mt-1 text-sm text-gray-500">This will be used for login</div>
+                        <div id="username-availability" class="mt-1 text-sm"></div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" required
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="user@example.com">
+                        <div id="email-availability" class="mt-1 text-sm"></div>
+                    </div>
+
+                    <!-- First Name -->
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="first_name" name="first_name" required
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter first name">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="last_name" name="last_name" required
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Enter last name">
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required
+                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Enter password">
+                            <button type="button" onclick="togglePassword('password')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <i class="fas fa-eye text-gray-400"></i>
+                            </button>
+                        </div>
+                        <div class="mt-1">
+                            <div class="text-sm text-gray-500">Password strength:</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div id="password-strength-bar" class="h-2 rounded-full transition-all duration-300"></div>
+                            </div>
+                            <div id="password-requirements" class="mt-2 text-sm">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-times text-red-500" id="length-check"></i>
+                                    <span>At least 8 characters</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-times text-red-500" id="uppercase-check"></i>
+                                    <span>At least one uppercase letter</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-times text-red-500" id="lowercase-check"></i>
+                                    <span>At least one lowercase letter</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-times text-red-500" id="number-check"></i>
+                                    <span>At least one number</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Confirm Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="confirm_password" name="confirm_password" required
+                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Confirm password">
+                            <button type="button" onclick="togglePassword('confirm_password')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <i class="fas fa-eye text-gray-400"></i>
+                            </button>
+                        </div>
+                        <div id="password-match" class="mt-1 text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Generate Password Option -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">Auto-generate secure password</h4>
+                            <p class="text-sm text-gray-600">Generate a random secure password and send it via email</p>
+                        </div>
+                        <button type="button" onclick="generatePassword()"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Generate
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <div></div>
+                    <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Role & Permissions -->
+        <div id="step-2" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Role & Permissions</h3>
+
+                <!-- User Role -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        User Role <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="role-card" data-role="student">
+                            <input type="radio" name="role" value="student" id="role-student" class="hidden" checked>
+                            <label for="role-student" class="block cursor-pointer">
+                                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-user-graduate text-2xl text-blue-600 mr-3"></i>
+                                        <h4 class="font-semibold">Student</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600">Can enroll in courses and take tests</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="role-card" data-role="instructor">
+                            <input type="radio" name="role" value="instructor" id="role-instructor" class="hidden">
+                            <label for="role-instructor" class="block cursor-pointer">
+                                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-chalkboard-teacher text-2xl text-green-600 mr-3"></i>
+                                        <h4 class="font-semibold">Instructor</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600">Can create and manage courses</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="role-card" data-role="admin">
+                            <input type="radio" name="role" value="admin" id="role-admin" class="hidden">
+                            <label for="role-admin" class="block cursor-pointer">
+                                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-user-shield text-2xl text-red-600 mr-3"></i>
+                                        <h4 class="font-semibold">Administrator</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600">Full system access and management</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department -->
+                <div class="mb-6">
+                    <label for="department" class="block text-sm font-medium text-gray-700 mb-2">
+                        Department
+                    </label>
+                    <select id="department" name="department"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Department</option>
+                        <option value="IT">Information Technology</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Custom Permissions (for non-admin users) -->
+                <div id="custom-permissions" class="mb-6 hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Custom Permissions</label>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="permissions[]" value="manage_courses" class="mr-2">
+                                <span class="text-sm">Manage Courses</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="permissions[]" value="manage_tests" class="mr-2">
+                                <span class="text-sm">Manage Tests</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="permissions[]" value="view_reports" class="mr-2">
+                                <span class="text-sm">View Reports</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="permissions[]" value="manage_users" class="mr-2">
+                                <span class="text-sm">Manage Users</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Account Settings</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_active" checked class="mr-2">
+                            <span class="text-sm">Account is active</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="email_verified" class="mr-2">
+                            <span class="text-sm">Email is verified</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="require_password_change" checked class="mr-2">
+                            <span class="text-sm">Require password change on first login</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="send_welcome_email" checked class="mr-2">
+                            <span class="text-sm">Send welcome email</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                    </button>
+                    <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Profile Details -->
+        <div id="step-3" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Profile Details</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Profile Picture -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                        <div class="flex items-center space-x-6">
+                            <div class="shrink-0">
+                                <img id="profile-preview" class="h-20 w-20 object-cover rounded-full border-2 border-gray-300"
+                                     src="/images/default-avatar.png" alt="Profile preview">
+                            </div>
+                            <div class="flex-1">
+                                <label for="profile_picture" class="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50">
+                                    Choose file
+                                </label>
+                                <input id="profile_picture" name="profile_picture" type="file" class="hidden" accept="image/*">
+                                <p class="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <input type="tel" id="phone" name="phone"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="+66 XX-XXX-XXXX">
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div>
+                        <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                        <input type="date" id="date_of_birth" name="date_of_birth"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Gender -->
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                        <select id="gender" name="gender"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer_not_to_say">Prefer not to say</option>
+                        </select>
+                    </div>
+
+                    <!-- Position/Title -->
+                    <div>
+                        <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Position/Title</label>
+                        <input type="text" id="position" name="position"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Job title or position">
+                    </div>
+
+                    <!-- Employee ID -->
+                    <div>
+                        <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
+                        <input type="text" id="employee_id" name="employee_id"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Employee ID (if applicable)">
+                    </div>
+
+                    <!-- Manager -->
+                    <div>
+                        <label for="manager_id" class="block text-sm font-medium text-gray-700 mb-2">Manager</label>
+                        <select id="manager_id" name="manager_id"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select Manager</option>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="md:col-span-2">
+                        <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Bio/Description</label>
+                        <textarea id="bio" name="bio" rows="4"
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="Brief description about the user"></textarea>
+                        <div class="mt-1 text-sm text-gray-500">
+                            <span id="bio-count">0</span>/500 characters
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                    </button>
+                    <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Review & Create -->
+        <div id="step-4" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Review & Create User</h3>
+
+                <div id="user-preview" class="space-y-6">
+                    <!-- User preview will be populated here -->
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                    </button>
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="saveDraft()" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700">
+                            <i class="fas fa-save mr-2"></i>Save Draft
+                        </button>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-user-plus mr-2"></i>Create User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Preview Modal -->
+<div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">User Preview</h3>
+                    <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="modal-preview-content">
+                    <!-- Preview content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3">Creating user...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #E5E7EB;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.step-indicator.active .step-circle {
+    background-color: #3B82F6;
+    color: white;
+}
+
+.step-indicator.completed .step-circle {
+    background-color: #10B981;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.step-indicator.active .step-label {
+    color: #3B82F6;
+    font-weight: 500;
+}
+
+.step-line {
+    height: 2px;
+    background-color: #E5E7EB;
+    flex: 1;
+    margin-top: 20px;
+}
+
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+}
+
+.role-card input[type="radio"]:checked + label > div {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+</style>
+
+<script>
+let currentStep = 1;
+let formData = new FormData();
+const totalSteps = 4;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize form
+    initializeForm();
+    loadManagers();
+
+    // Event listeners
+    document.getElementById('username').addEventListener('blur', checkUsernameAvailability);
+    document.getElementById('email').addEventListener('blur', checkEmailAvailability);
+    document.getElementById('password').addEventListener('input', checkPasswordStrength);
+    document.getElementById('confirm_password').addEventListener('input', checkPasswordMatch);
+    document.getElementById('profile_picture').addEventListener('change', previewProfilePicture);
+    document.getElementById('bio').addEventListener('input', updateBioCount);
+    document.getElementById('create-user-form').addEventListener('submit', submitUser);
+
+    // Role change handler
+    document.querySelectorAll('input[name="role"]').forEach(radio => {
+        radio.addEventListener('change', handleRoleChange);
+    });
+});
+
+function initializeForm() {
+    // Set default values
+    document.getElementById('require_password_change').checked = true;
+    document.getElementById('send_welcome_email').checked = true;
+    document.getElementById('is_active').checked = true;
+}
+
+async function loadManagers() {
+    try {
+        const response = await fetch('/users/api/managers');
+        const data = await response.json();
+
+        if (data.success) {
+            const managerSelect = document.getElementById('manager_id');
+            managerSelect.innerHTML = '<option value="">Select Manager</option>';
+
+            data.managers.forEach(manager => {
+                const option = document.createElement('option');
+                option.value = manager.user_id;
+                option.textContent = `${manager.first_name} ${manager.last_name} (${manager.username})`;
+                managerSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading managers:', error);
+    }
+}
+
+function nextStep() {
+    if (validateCurrentStep()) {
+        if (currentStep < totalSteps) {
+            // Mark current step as completed
+            document.querySelector(`[data-step="${currentStep}"]`).classList.add('completed');
+
+            currentStep++;
+            updateStepDisplay();
+
+            if (currentStep === 4) {
+                generatePreview();
+            }
+        }
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStepDisplay();
+
+        // Remove completed class from next step
+        document.querySelector(`[data-step="${currentStep + 1}"]`)?.classList.remove('completed');
+    }
+}
+
+function updateStepDisplay() {
+    // Hide all step contents
+    document.querySelectorAll('.step-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Show current step content
+    document.getElementById(`step-${currentStep}`).classList.add('active');
+
+    // Update step indicators
+    document.querySelectorAll('.step-indicator').forEach(indicator => {
+        indicator.classList.remove('active');
+    });
+    document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+}
+
+function validateCurrentStep() {
+    const currentStepElement = document.getElementById(`step-${currentStep}`);
+    const requiredFields = currentStepElement.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+
+    // Additional validation for specific steps
+    if (currentStep === 1) {
+        // Password validation
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        if (password !== confirmPassword) {
+            showError('Passwords do not match');
+            isValid = false;
+        }
+
+        if (!isPasswordStrong(password)) {
+            showError('Password does not meet security requirements');
+            isValid = false;
+        }
+    }
+
+    if (!isValid) {
+        showError('Please fill in all required fields correctly');
+    }
+
+    return isValid;
+}
+
+async function checkUsernameAvailability() {
+    const username = document.getElementById('username').value.trim();
+    const indicator = document.getElementById('username-availability');
+
+    if (!username) {
+        indicator.innerHTML = '';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/users/api/check-username?username=${encodeURIComponent(username)}`);
+        const data = await response.json();
+
+        if (data.available) {
+            indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Username available</span>';
+        } else {
+            indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Username already taken</span>';
+        }
+    } catch (error) {
+        console.error('Error checking username:', error);
+    }
+}
+
+async function checkEmailAvailability() {
+    const email = document.getElementById('email').value.trim();
+    const indicator = document.getElementById('email-availability');
+
+    if (!email) {
+        indicator.innerHTML = '';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/users/api/check-email?email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+
+        if (data.available) {
+            indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Email available</span>';
+        } else {
+            indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Email already registered</span>';
+        }
+    } catch (error) {
+        console.error('Error checking email:', error);
+    }
+}
+
+function checkPasswordStrength() {
+    const password = document.getElementById('password').value;
+    const strengthBar = document.getElementById('password-strength-bar');
+
+    const requirements = [
+        { id: 'length-check', test: password.length >= 8 },
+        { id: 'uppercase-check', test: /[A-Z]/.test(password) },
+        { id: 'lowercase-check', test: /[a-z]/.test(password) },
+        { id: 'number-check', test: /\d/.test(password) }
+    ];
+
+    let score = 0;
+    requirements.forEach(req => {
+        const element = document.getElementById(req.id);
+        if (req.test) {
+            element.className = 'fas fa-check text-green-500';
+            score++;
+        } else {
+            element.className = 'fas fa-times text-red-500';
+        }
+    });
+
+    // Update strength bar
+    const percentage = (score / requirements.length) * 100;
+    strengthBar.style.width = percentage + '%';
+
+    if (score <= 1) {
+        strengthBar.className = 'h-2 rounded-full bg-red-500 transition-all duration-300';
+    } else if (score <= 2) {
+        strengthBar.className = 'h-2 rounded-full bg-yellow-500 transition-all duration-300';
+    } else if (score <= 3) {
+        strengthBar.className = 'h-2 rounded-full bg-blue-500 transition-all duration-300';
+    } else {
+        strengthBar.className = 'h-2 rounded-full bg-green-500 transition-all duration-300';
+    }
+}
+
+function checkPasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const indicator = document.getElementById('password-match');
+
+    if (!confirmPassword) {
+        indicator.innerHTML = '';
+        return;
+    }
+
+    if (password === confirmPassword) {
+        indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Passwords match</span>';
+    } else {
+        indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Passwords do not match</span>';
+    }
+}
+
+function isPasswordStrong(password) {
+    return password.length >= 8 &&
+           /[A-Z]/.test(password) &&
+           /[a-z]/.test(password) &&
+           /\d/.test(password);
+}
+
+function generatePassword() {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+
+    document.getElementById('password').value = password;
+    document.getElementById('confirm_password').value = password;
+    checkPasswordStrength();
+    checkPasswordMatch();
+}
+
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = field.nextElementSibling.querySelector('i');
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.className = 'fas fa-eye-slash text-gray-400';
+    } else {
+        field.type = 'password';
+        icon.className = 'fas fa-eye text-gray-400';
+    }
+}
+
+function handleRoleChange() {
+    const selectedRole = document.querySelector('input[name="role"]:checked').value;
+    const customPermissions = document.getElementById('custom-permissions');
+
+    if (selectedRole === 'admin') {
+        customPermissions.classList.add('hidden');
+    } else {
+        customPermissions.classList.remove('hidden');
+    }
+
+    // Update role card styling
+    document.querySelectorAll('.role-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.querySelector(`[data-role="${selectedRole}"]`).classList.add('selected');
+}
+
+function previewProfilePicture() {
+    const file = document.getElementById('profile_picture').files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profile-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function updateBioCount() {
+    const bio = document.getElementById('bio').value;
+    const count = document.getElementById('bio-count');
+    count.textContent = bio.length;
+
+    if (bio.length > 500) {
+        count.parentElement.classList.add('text-red-500');
+    } else {
+        count.parentElement.classList.remove('text-red-500');
+    }
+}
+
+function generatePreview() {
+    const formData = new FormData(document.getElementById('create-user-form'));
+    const previewContainer = document.getElementById('user-preview');
+
+    const role = formData.get('role');
+    const roleName = role.charAt(0).toUpperCase() + role.slice(1);
+
+    previewContainer.innerHTML = `
+        <div class="border border-gray-200 rounded-lg p-4">
+            <div class="flex items-start space-x-4">
+                <img src="${document.getElementById('profile-preview').src}"
+                     alt="Profile" class="h-16 w-16 rounded-full object-cover border-2 border-gray-300">
+                <div class="flex-1">
+                    <h4 class="text-lg font-semibold text-gray-900">
+                        ${formData.get('first_name')} ${formData.get('last_name')}
+                    </h4>
+                    <p class="text-gray-600">@${formData.get('username')}</p>
+                    <p class="text-sm text-gray-500">${formData.get('email')}</p>
+                    <div class="mt-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${roleName}
+                        </span>
+                        ${formData.get('department') ? `
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 ml-2">
+                                ${formData.get('department')}
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+
+            ${formData.get('bio') ? `
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-sm text-gray-600">${formData.get('bio')}</p>
+                </div>
+            ` : ''}
+
+            <div class="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 text-sm">
+                ${formData.get('phone') ? `
+                    <div>
+                        <span class="font-medium text-gray-700">Phone:</span>
+                        <span class="text-gray-600 ml-2">${formData.get('phone')}</span>
+                    </div>
+                ` : ''}
+                ${formData.get('position') ? `
+                    <div>
+                        <span class="font-medium text-gray-700">Position:</span>
+                        <span class="text-gray-600 ml-2">${formData.get('position')}</span>
+                    </div>
+                ` : ''}
+                ${formData.get('employee_id') ? `
+                    <div>
+                        <span class="font-medium text-gray-700">Employee ID:</span>
+                        <span class="text-gray-600 ml-2">${formData.get('employee_id')}</span>
+                    </div>
+                ` : ''}
+                <div>
+                    <span class="font-medium text-gray-700">Status:</span>
+                    <span class="text-gray-600 ml-2">${formData.get('is_active') ? 'Active' : 'Inactive'}</span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <h5 class="font-medium text-gray-700 mb-2">Account Settings:</h5>
+                <div class="text-sm text-gray-600 space-y-1">
+                    ${formData.get('email_verified') ? '<div>✓ Email verified</div>' : '<div>✗ Email not verified</div>'}
+                    ${formData.get('require_password_change') ? '<div>✓ Requires password change on first login</div>' : ''}
+                    ${formData.get('send_welcome_email') ? '<div>✓ Welcome email will be sent</div>' : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function previewUser() {
+    generatePreview();
+    const modalContent = document.getElementById('modal-preview-content');
+    modalContent.innerHTML = document.getElementById('user-preview').innerHTML;
+    document.getElementById('preview-modal').classList.remove('hidden');
+}
+
+function closePreview() {
+    document.getElementById('preview-modal').classList.add('hidden');
+}
+
+async function submitUser(event) {
+    event.preventDefault();
+
+    if (!validateCurrentStep()) {
+        return;
+    }
+
+    showLoading(true);
+
+    try {
+        const formData = new FormData(document.getElementById('create-user-form'));
+
+        const response = await fetch('/users/api/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess('User created successfully!');
+            setTimeout(() => {
+                window.location.href = '/admin/users';
+            }, 2000);
+        } else {
+            showError(data.message || 'Failed to create user');
+        }
+    } catch (error) {
+        console.error('Error creating user:', error);
+        showError('Error creating user');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function saveDraft() {
+    showLoading(true);
+
+    try {
+        const formData = new FormData(document.getElementById('create-user-form'));
+        formData.append('is_draft', 'true');
+
+        const response = await fetch('/users/api/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess('Draft saved successfully!');
+        } else {
+            showError(data.message || 'Failed to save draft');
+        }
+    } catch (error) {
+        console.error('Error saving draft:', error);
+        showError('Error saving draft');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    // You can implement a toast notification system here
+    alert(message);
+}
+
+function showError(message) {
+    // You can implement a toast notification system here
+    alert('Error: ' + message);
+}
+</script>
+
+<%- include('../partials/footer') %>

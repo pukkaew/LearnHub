@@ -1,0 +1,646 @@
+<% layout('layout') -%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="lg:grid lg:grid-cols-4 lg:gap-8">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow sticky top-8">
+                <!-- Course Info -->
+                <div class="p-4 border-b border-gray-200">
+                    <img id="course-image" class="w-full h-32 object-cover rounded-lg mb-3" src="/images/course-placeholder.png" alt="Course Image">
+                    <h3 id="course-title" class="font-medium text-gray-900 truncate"></h3>
+                    <p id="course-code" class="text-sm text-gray-500"></p>
+                </div>
+
+                <!-- Progress -->
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">ความก้าวหน้า</span>
+                        <span id="progress-percentage" class="text-sm font-medium text-ruxchai-primary">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-ruxchai-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-500">
+                        <span id="completed-materials">0</span> จาก <span id="total-materials">0</span> เนื้อหา
+                    </div>
+                </div>
+
+                <!-- Course Navigation -->
+                <div class="p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-3">เนื้อหาหลักสูตร</h4>
+                    <nav id="course-navigation" class="space-y-1">
+                        <!-- Navigation items will be loaded here -->
+                    </nav>
+                </div>
+
+                <!-- Course Actions -->
+                <div class="p-4 border-t border-gray-200">
+                    <div class="space-y-2">
+                        <button id="bookmark-btn" onclick="toggleBookmark()"
+                                class="w-full flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i id="bookmark-icon" class="far fa-bookmark mr-2"></i>
+                            <span id="bookmark-text">บันทึก</span>
+                        </button>
+                        <button onclick="shareContent()"
+                                class="w-full flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-share mr-2"></i>แชร์
+                        </button>
+                        <button onclick="downloadContent()"
+                                class="w-full flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="mt-8 lg:mt-0 lg:col-span-3">
+            <!-- Content Header -->
+            <div class="bg-white rounded-lg shadow mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 id="content-title" class="text-2xl font-bold text-gray-900">กำลังโหลด...</h1>
+                            <p id="content-type" class="text-sm text-gray-500 mt-1"></p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button id="prev-btn" onclick="previousContent()" disabled
+                                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-chevron-left mr-2"></i>ก่อนหน้า
+                            </button>
+                            <button id="next-btn" onclick="nextContent()" disabled
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+                                ถัดไป<i class="fas fa-chevron-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Viewer -->
+                <div id="content-viewer" class="p-6">
+                    <!-- Content will be loaded here -->
+                </div>
+
+                <!-- Content Footer -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-500">ระยะเวลาที่ใช้:</span>
+                            <span id="time-spent" class="text-sm font-medium text-gray-900">00:00:00</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="resetProgress()"
+                                    class="text-sm text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-redo mr-1"></i>รีเซ็ตความก้าวหน้า
+                            </button>
+                            <button id="complete-btn" onclick="markAsCompleted()"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fas fa-check mr-2"></i>ทำเครื่องหมายเสร็จสิ้น
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discussion Section -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-comments mr-2 text-ruxchai-primary"></i>การสนทนา
+                    </h3>
+                </div>
+
+                <!-- Add Comment -->
+                <div class="p-6 border-b border-gray-200">
+                    <form id="comment-form" class="space-y-4">
+                        <div>
+                            <textarea id="comment-text" name="comment" rows="3" placeholder="แสดงความคิดเห็นหรือถามคำถาม..."
+                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:opacity-90">
+                                <i class="fas fa-paper-plane mr-2"></i>โพสต์ความคิดเห็น
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Comments List -->
+                <div id="comments-list" class="divide-y divide-gray-200">
+                    <!-- Comments will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Type Templates -->
+<script id="video-template" type="text/template">
+    <div class="aspect-w-16 aspect-h-9 mb-4">
+        <video id="content-video" class="w-full h-full rounded-lg" controls controlsList="nodownload">
+            <source src="{{video_url}}" type="video/mp4">
+            เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ
+        </video>
+    </div>
+    <div class="mt-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{title}}</h3>
+        <div class="prose max-w-none">{{description}}</div>
+    </div>
+</script>
+
+<script id="document-template" type="text/template">
+    <div class="bg-gray-50 rounded-lg p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+                <i class="fas fa-file-pdf text-red-500 text-2xl mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">{{title}}</h3>
+                    <p class="text-sm text-gray-500">{{file_size}} • PDF</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="openDocument('{{file_url}}')"
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-eye mr-2"></i>ดู
+                </button>
+                <button onclick="downloadFile('{{file_url}}', '{{title}}')"
+                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:opacity-90">
+                    <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="prose max-w-none">{{description}}</div>
+</script>
+
+<script id="text-template" type="text/template">
+    <div class="prose max-w-none">
+        <h3>{{title}}</h3>
+        {{content}}
+    </div>
+</script>
+
+<script id="quiz-template" type="text/template">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-question-circle text-blue-500 text-2xl mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-medium text-blue-900">{{title}}</h3>
+                    <p class="text-sm text-blue-700">แบบทดสอบความเข้าใจ</p>
+                </div>
+            </div>
+            <button onclick="startQuiz('{{quiz_id}}')"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <i class="fas fa-play mr-2"></i>เริ่มทำแบบทดสอบ
+            </button>
+        </div>
+        <div class="mt-3 text-sm text-blue-700">
+            <p>จำนวนข้อ: {{question_count}} ข้อ • เวลา: {{time_limit}} นาที</p>
+        </div>
+    </div>
+    <div class="prose max-w-none">{{description}}</div>
+</script>
+
+<script>
+let courseId, currentContentId, contentList = [], currentIndex = 0, timeTracker, startTime;
+
+document.addEventListener('DOMContentLoaded', function() {
+    courseId = window.location.pathname.split('/')[2];
+    loadCourseData();
+    loadCourseContent();
+    setupEventListeners();
+    startTimeTracking();
+});
+
+async function loadCourseData() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}`);
+        const result = await response.json();
+
+        if (result.success) {
+            const course = result.data;
+            document.getElementById('course-title').textContent = course.course_name;
+            document.getElementById('course-code').textContent = course.course_code;
+            if (course.course_image) {
+                document.getElementById('course-image').src = course.course_image;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading course data:', error);
+    }
+}
+
+async function loadCourseContent() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/materials`);
+        const result = await response.json();
+
+        if (result.success) {
+            contentList = result.data;
+            buildNavigation();
+            updateProgress();
+
+            // Load first content or content from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const contentId = urlParams.get('content');
+
+            if (contentId) {
+                const index = contentList.findIndex(item => item.material_id === contentId);
+                if (index !== -1) {
+                    currentIndex = index;
+                }
+            }
+
+            loadContentByIndex(currentIndex);
+        }
+    } catch (error) {
+        console.error('Error loading course content:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดเนื้อหา');
+    }
+}
+
+function buildNavigation() {
+    const nav = document.getElementById('course-navigation');
+    nav.innerHTML = '';
+
+    contentList.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = `flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+            index === currentIndex ? 'bg-ruxchai-primary text-white' : 'hover:bg-gray-100'
+        }`;
+
+        div.innerHTML = `
+            <div class="flex items-center flex-1 min-w-0">
+                <i class="fas ${getContentIcon(item.material_type)} mr-2 text-sm"></i>
+                <span class="text-sm truncate">${item.title}</span>
+            </div>
+            <div class="flex items-center ml-2">
+                ${item.is_completed ? '<i class="fas fa-check-circle text-green-500 text-sm"></i>' :
+                  '<i class="far fa-circle text-gray-400 text-sm"></i>'}
+            </div>
+        `;
+
+        div.addEventListener('click', () => {
+            currentIndex = index;
+            loadContentByIndex(currentIndex);
+            updateNavigation();
+        });
+
+        nav.appendChild(div);
+    });
+
+    updateTotalMaterials();
+}
+
+function getContentIcon(type) {
+    const icons = {
+        'video': 'fa-play-circle',
+        'document': 'fa-file-pdf',
+        'text': 'fa-file-text',
+        'quiz': 'fa-question-circle',
+        'audio': 'fa-music',
+        'image': 'fa-image'
+    };
+    return icons[type] || 'fa-file';
+}
+
+function updateNavigation() {
+    const navItems = document.querySelectorAll('#course-navigation > div');
+    navItems.forEach((item, index) => {
+        item.className = `flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+            index === currentIndex ? 'bg-ruxchai-primary text-white' : 'hover:bg-gray-100'
+        }`;
+    });
+}
+
+function loadContentByIndex(index) {
+    if (index < 0 || index >= contentList.length) return;
+
+    const content = contentList[index];
+    currentContentId = content.material_id;
+
+    // Update content header
+    document.getElementById('content-title').textContent = content.title;
+    document.getElementById('content-type').textContent = getContentTypeText(content.material_type);
+
+    // Update navigation buttons
+    document.getElementById('prev-btn').disabled = index === 0;
+    document.getElementById('next-btn').disabled = index === contentList.length - 1;
+
+    // Load content based on type
+    loadContentByType(content);
+
+    // Update URL without reload
+    const url = new URL(window.location);
+    url.searchParams.set('content', content.material_id);
+    window.history.replaceState({}, '', url);
+
+    // Track content view
+    trackContentView(content.material_id);
+}
+
+function getContentTypeText(type) {
+    const types = {
+        'video': 'วิดีโอ',
+        'document': 'เอกสาร',
+        'text': 'บทความ',
+        'quiz': 'แบบทดสอบ',
+        'audio': 'เสียง',
+        'image': 'รูปภาพ'
+    };
+    return types[type] || 'เนื้อหา';
+}
+
+function loadContentByType(content) {
+    const viewer = document.getElementById('content-viewer');
+    const templateId = `${content.material_type}-template`;
+    const template = document.getElementById(templateId);
+
+    if (template) {
+        let html = template.innerHTML;
+
+        // Replace template variables
+        Object.keys(content).forEach(key => {
+            const regex = new RegExp(`{{${key}}}`, 'g');
+            html = html.replace(regex, content[key] || '');
+        });
+
+        viewer.innerHTML = html;
+
+        // Setup content-specific functionality
+        setupContentHandlers(content);
+    } else {
+        // Fallback for unknown content types
+        viewer.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                <p class="text-gray-600">ไม่สามารถแสดงเนื้อหาประเภทนี้ได้</p>
+            </div>
+        `;
+    }
+}
+
+function setupContentHandlers(content) {
+    switch (content.material_type) {
+        case 'video':
+            setupVideoHandlers();
+            break;
+        case 'document':
+            // Document handlers are inline in template
+            break;
+        case 'quiz':
+            // Quiz handlers are inline in template
+            break;
+    }
+}
+
+function setupVideoHandlers() {
+    const video = document.getElementById('content-video');
+    if (video) {
+        video.addEventListener('timeupdate', function() {
+            const progress = (this.currentTime / this.duration) * 100;
+            if (progress > 80 && !contentList[currentIndex].is_completed) {
+                markCurrentContentCompleted();
+            }
+        });
+    }
+}
+
+function updateProgress() {
+    const completed = contentList.filter(item => item.is_completed).length;
+    const total = contentList.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    document.getElementById('progress-percentage').textContent = `${percentage}%`;
+    document.getElementById('progress-bar').style.width = `${percentage}%`;
+    document.getElementById('completed-materials').textContent = completed;
+}
+
+function updateTotalMaterials() {
+    document.getElementById('total-materials').textContent = contentList.length;
+}
+
+function previousContent() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        loadContentByIndex(currentIndex);
+        updateNavigation();
+    }
+}
+
+function nextContent() {
+    if (currentIndex < contentList.length - 1) {
+        currentIndex++;
+        loadContentByIndex(currentIndex);
+        updateNavigation();
+    }
+}
+
+async function markCurrentContentCompleted() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/progress/${currentContentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ is_completed: true })
+        });
+
+        if (response.ok) {
+            contentList[currentIndex].is_completed = true;
+            buildNavigation();
+            updateProgress();
+        }
+    } catch (error) {
+        console.error('Error marking content as completed:', error);
+    }
+}
+
+async function markAsCompleted() {
+    await markCurrentContentCompleted();
+    showSuccess('ทำเครื่องหมายเสร็จสิ้นแล้ว');
+}
+
+function startTimeTracking() {
+    startTime = Date.now();
+    timeTracker = setInterval(updateTimeSpent, 1000);
+}
+
+function updateTimeSpent() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const hours = Math.floor(elapsed / 3600);
+    const minutes = Math.floor((elapsed % 3600) / 60);
+    const seconds = elapsed % 60;
+
+    document.getElementById('time-spent').textContent =
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+async function trackContentView(contentId) {
+    try {
+        await fetch(`/courses/api/${courseId}/materials/${contentId}/view`, {
+            method: 'POST'
+        });
+    } catch (error) {
+        console.error('Error tracking content view:', error);
+    }
+}
+
+function setupEventListeners() {
+    // Comment form
+    document.getElementById('comment-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const comment = document.getElementById('comment-text').value.trim();
+        if (!comment) return;
+
+        try {
+            const response = await fetch(`/courses/api/${courseId}/discussions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    material_id: currentContentId,
+                    comment: comment
+                })
+            });
+
+            if (response.ok) {
+                document.getElementById('comment-text').value = '';
+                loadComments();
+                showSuccess('โพสต์ความคิดเห็นแล้ว');
+            }
+        } catch (error) {
+            showError('เกิดข้อผิดพลาดในการโพสต์ความคิดเห็น');
+        }
+    });
+
+    // Load comments initially
+    loadComments();
+}
+
+async function loadComments() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions?material_id=${currentContentId}`);
+        const result = await response.json();
+
+        if (result.success) {
+            displayComments(result.data);
+        }
+    } catch (error) {
+        console.error('Error loading comments:', error);
+    }
+}
+
+function displayComments(comments) {
+    const container = document.getElementById('comments-list');
+
+    if (comments.length === 0) {
+        container.innerHTML = `
+            <div class="p-6 text-center text-gray-500">
+                <i class="fas fa-comments text-gray-300 text-3xl mb-2"></i>
+                <p>ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็น!</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = comments.map(comment => `
+        <div class="p-6">
+            <div class="flex items-start space-x-3">
+                <img class="h-8 w-8 rounded-full" src="${comment.profile_image || '/images/default-avatar.png'}" alt="">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center space-x-2">
+                        <p class="text-sm font-medium text-gray-900">${comment.author_name}</p>
+                        <p class="text-xs text-gray-500">${formatDate(comment.created_date)}</p>
+                    </div>
+                    <p class="mt-1 text-sm text-gray-700">${comment.comment}</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleBookmark() {
+    // Implementation for bookmark functionality
+    const icon = document.getElementById('bookmark-icon');
+    const text = document.getElementById('bookmark-text');
+
+    if (icon.classList.contains('far')) {
+        icon.className = 'fas fa-bookmark mr-2';
+        text.textContent = 'บันทึกแล้ว';
+        showSuccess('บันทึกหลักสูตรแล้ว');
+    } else {
+        icon.className = 'far fa-bookmark mr-2';
+        text.textContent = 'บันทึก';
+        showSuccess('ยกเลิกการบันทึกแล้ว');
+    }
+}
+
+function shareContent() {
+    const url = window.location.href;
+
+    if (navigator.share) {
+        navigator.share({
+            title: document.getElementById('content-title').textContent,
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            showSuccess('คัดลอกลิงก์แล้ว');
+        });
+    }
+}
+
+function downloadContent() {
+    // Implementation for download functionality
+    showSuccess('กำลังเตรียมไฟล์ดาวน์โหลด...');
+}
+
+function resetProgress() {
+    if (confirm('คุณต้องการรีเซ็ตความก้าวหน้าของหลักสูตรนี้หรือไม่?')) {
+        // Implementation for reset progress
+        showSuccess('รีเซ็ตความก้าวหน้าแล้ว');
+    }
+}
+
+// Helper functions
+function openDocument(url) {
+    window.open(url, '_blank');
+}
+
+function downloadFile(url, filename) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function startQuiz(quizId) {
+    window.location.href = `/tests/${quizId}/take`;
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Cleanup
+window.addEventListener('beforeunload', function() {
+    if (timeTracker) {
+        clearInterval(timeTracker);
+    }
+});
+</script>

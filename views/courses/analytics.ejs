@@ -1,0 +1,696 @@
+<% layout('layout') -%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-chart-bar mr-3 text-ruxchai-primary"></i>การวิเคราะห์หลักสูตร
+                </h1>
+                <p id="course-title" class="mt-2 text-gray-600">กำลังโหลด...</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="exportAnalytics()"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-download mr-2"></i>ส่งออกรายงาน
+                </button>
+                <button onclick="refreshAnalytics()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                    <i class="fas fa-sync mr-2"></i>รีเฟรชข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">ช่วงเวลาที่ต้องการวิเคราะห์</h3>
+            <div class="flex items-center space-x-4">
+                <div>
+                    <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">วันที่เริ่มต้น</label>
+                    <input type="date" id="start-date" class="border-gray-300 rounded-md shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                </div>
+                <div>
+                    <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">วันที่สิ้นสุด</label>
+                    <input type="date" id="end-date" class="border-gray-300 rounded-md shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                </div>
+                <div class="pt-6">
+                    <button onclick="applyDateFilter()"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                        <i class="fas fa-filter mr-2"></i>กรองข้อมูล
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-users text-blue-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">ผู้ลงทะเบียนทั้งหมด</dt>
+                            <dd class="text-2xl font-bold text-blue-600" id="total-enrollments">-</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-center text-sm">
+                        <span id="enrollment-trend" class="flex items-center">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-green-600">+0%</span>
+                        </span>
+                        <span class="text-gray-500 ml-1">จากเดือนก่อน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-graduation-cap text-green-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">อัตราการจบหลักสูตร</dt>
+                            <dd class="text-2xl font-bold text-green-600" id="completion-rate">-</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-center text-sm">
+                        <span id="completion-trend" class="flex items-center">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-green-600">+0%</span>
+                        </span>
+                        <span class="text-gray-500 ml-1">จากเดือนก่อน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-star text-yellow-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">คะแนนเฉลี่ย</dt>
+                            <dd class="text-2xl font-bold text-yellow-600" id="average-score">-</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-center text-sm">
+                        <span id="score-trend" class="flex items-center">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-green-600">+0%</span>
+                        </span>
+                        <span class="text-gray-500 ml-1">จากเดือนก่อน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock text-purple-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">เวลาเฉลี่ยที่ใช้</dt>
+                            <dd class="text-2xl font-bold text-purple-600" id="average-time">-</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="flex items-center text-sm">
+                        <span id="time-trend" class="flex items-center">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-green-600">+0%</span>
+                        </span>
+                        <span class="text-gray-500 ml-1">จากเดือนก่อน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Enrollment Trends -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-chart-line mr-2 text-ruxchai-primary"></i>แนวโน้มการลงทะเบียน
+            </h3>
+            <canvas id="enrollmentChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Completion Progress -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-chart-pie mr-2 text-ruxchai-primary"></i>สถานะการเรียน
+            </h3>
+            <canvas id="completionChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Score Distribution -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-chart-bar mr-2 text-ruxchai-primary"></i>การกระจายของคะแนน
+            </h3>
+            <canvas id="scoreChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Department Performance -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <i class="fas fa-building mr-2 text-ruxchai-primary"></i>ผลงานตามแผนก
+            </h3>
+            <canvas id="departmentChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Learning Materials Analytics -->
+    <div class="bg-white shadow rounded-lg mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">
+                <i class="fas fa-book-open mr-2 text-ruxchai-primary"></i>การวิเคราะห์เนื้อหาการเรียน
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เนื้อหา</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การเข้าชม</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อัตราเสร็จสิ้น</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เวลาเฉลี่ย</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">คะแนนเฉลี่ย</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อัตราความพึงพอใจ</th>
+                    </tr>
+                </thead>
+                <tbody id="materials-analytics" class="bg-white divide-y divide-gray-200">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Top Learners -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-medal mr-2 text-ruxchai-primary"></i>ผู้เรียนยอดเยี่ยม
+                </h3>
+            </div>
+            <div class="p-6">
+                <div id="top-learners" class="space-y-4">
+                    <!-- Top learners will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Feedback -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-comments mr-2 text-ruxchai-primary"></i>ความคิดเห็นล่าสุด
+                </h3>
+            </div>
+            <div class="p-6">
+                <div id="recent-feedback" class="space-y-4">
+                    <!-- Recent feedback will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Bottlenecks -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">
+                <i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i>จุดที่พบปัญหาในการเรียน
+            </h3>
+        </div>
+        <div class="p-6">
+            <div id="bottlenecks-analysis" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Bottlenecks analysis will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let courseId, analyticsData = {};
+let enrollmentChart, completionChart, scoreChart, departmentChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    courseId = window.location.pathname.split('/')[2];
+    initializeDateRange();
+    loadCourseInfo();
+    loadAnalyticsData();
+    initializeCharts();
+});
+
+function initializeDateRange() {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 3); // Last 3 months
+
+    document.getElementById('start-date').value = startDate.toISOString().split('T')[0];
+    document.getElementById('end-date').value = endDate.toISOString().split('T')[0];
+}
+
+async function loadCourseInfo() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}`);
+        const result = await response.json();
+
+        if (result.success) {
+            document.getElementById('course-title').textContent =
+                `การวิเคราะห์หลักสูตร: ${result.data.course_name}`;
+        }
+    } catch (error) {
+        console.error('Error loading course info:', error);
+    }
+}
+
+async function loadAnalyticsData() {
+    try {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        const response = await fetch(`/courses/api/${courseId}/analytics?start_date=${startDate}&end_date=${endDate}`);
+        const result = await response.json();
+
+        if (result.success) {
+            analyticsData = result.data;
+            updateMetrics();
+            updateCharts();
+            updateMaterialsAnalytics();
+            updateTopPerformers();
+            updateBottlenecksAnalysis();
+        }
+    } catch (error) {
+        console.error('Error loading analytics data:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลการวิเคราะห์');
+    }
+}
+
+function updateMetrics() {
+    // Update key metrics
+    document.getElementById('total-enrollments').textContent = analyticsData.total_enrollments || 0;
+    document.getElementById('completion-rate').textContent = `${analyticsData.completion_rate || 0}%`;
+    document.getElementById('average-score').textContent = `${analyticsData.average_score || 0}%`;
+    document.getElementById('average-time').textContent = formatDuration(analyticsData.average_time || 0);
+
+    // Update trends
+    updateTrend('enrollment-trend', analyticsData.enrollment_trend || 0);
+    updateTrend('completion-trend', analyticsData.completion_trend || 0);
+    updateTrend('score-trend', analyticsData.score_trend || 0);
+    updateTrend('time-trend', analyticsData.time_trend || 0);
+}
+
+function updateTrend(elementId, percentage) {
+    const element = document.getElementById(elementId);
+    const isPositive = percentage >= 0;
+
+    element.innerHTML = `
+        <i class="fas ${isPositive ? 'fa-arrow-up' : 'fa-arrow-down'} ${isPositive ? 'text-green-500' : 'text-red-500'} mr-1"></i>
+        <span class="${isPositive ? 'text-green-600' : 'text-red-600'}">${isPositive ? '+' : ''}${percentage.toFixed(1)}%</span>
+    `;
+}
+
+function initializeCharts() {
+    // Enrollment Chart
+    const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
+    enrollmentChart = new Chart(enrollmentCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'การลงทะเบียนรายวัน',
+                data: [],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Completion Chart
+    const completionCtx = document.getElementById('completionChart').getContext('2d');
+    completionChart = new Chart(completionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['เสร็จสิ้น', 'กำลังเรียน', 'ยังไม่เริ่ม'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Score Distribution Chart
+    const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+    scoreChart = new Chart(scoreCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20%', '21-40%', '41-60%', '61-80%', '81-100%'],
+            datasets: [{
+                label: 'จำนวนผู้เรียน',
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: '#8B5CF6',
+                borderColor: '#7C3AED',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Department Chart
+    const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+    departmentChart = new Chart(departmentCtx, {
+        type: 'horizontalBar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'อัตราการจบหลักสูตร (%)',
+                data: [],
+                backgroundColor: '#10B981',
+                borderColor: '#059669',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+function updateCharts() {
+    // Update enrollment chart
+    if (analyticsData.enrollment_timeline) {
+        enrollmentChart.data.labels = analyticsData.enrollment_timeline.map(d => formatDate(d.date));
+        enrollmentChart.data.datasets[0].data = analyticsData.enrollment_timeline.map(d => d.count);
+        enrollmentChart.update();
+    }
+
+    // Update completion chart
+    if (analyticsData.completion_status) {
+        completionChart.data.datasets[0].data = [
+            analyticsData.completion_status.completed,
+            analyticsData.completion_status.in_progress,
+            analyticsData.completion_status.not_started
+        ];
+        completionChart.update();
+    }
+
+    // Update score distribution chart
+    if (analyticsData.score_distribution) {
+        scoreChart.data.datasets[0].data = analyticsData.score_distribution;
+        scoreChart.update();
+    }
+
+    // Update department chart
+    if (analyticsData.department_performance) {
+        departmentChart.data.labels = analyticsData.department_performance.map(d => d.department_name);
+        departmentChart.data.datasets[0].data = analyticsData.department_performance.map(d => d.completion_rate);
+        departmentChart.update();
+    }
+}
+
+function updateMaterialsAnalytics() {
+    const table = document.getElementById('materials-analytics');
+
+    if (!analyticsData.materials_analytics) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">ไม่มีข้อมูลการวิเคราะห์เนื้อหา</td>
+            </tr>
+        `;
+        return;
+    }
+
+    table.innerHTML = analyticsData.materials_analytics.map(material => `
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <i class="fas ${getMaterialIcon(material.material_type)} text-gray-400 mr-3"></i>
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">${material.title}</div>
+                        <div class="text-sm text-gray-500">${material.description || ''}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(material.material_type)}">
+                    ${getMaterialTypeText(material.material_type)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${material.view_count || 0}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: ${material.completion_rate || 0}%"></div>
+                    </div>
+                    <span class="text-sm text-gray-900">${material.completion_rate || 0}%</span>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDuration(material.avg_time_spent || 0)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${material.avg_score ? `${material.avg_score}%` : 'N/A'}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    ${renderRating(material.satisfaction_rate || 0)}
+                    <span class="ml-2 text-sm text-gray-500">${material.satisfaction_rate || 0}/5</span>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateTopPerformers() {
+    const topLearners = document.getElementById('top-learners');
+
+    if (!analyticsData.top_learners) {
+        topLearners.innerHTML = '<p class="text-gray-500 text-center">ไม่มีข้อมูลผู้เรียนยอดเยี่ยม</p>';
+        return;
+    }
+
+    topLearners.innerHTML = analyticsData.top_learners.map((learner, index) => `
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 w-8 h-8 bg-ruxchai-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    ${index + 1}
+                </div>
+                <img class="ml-3 h-8 w-8 rounded-full" src="${learner.profile_image || '/images/default-avatar.png'}" alt="">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900">${learner.name}</p>
+                    <p class="text-xs text-gray-500">${learner.department}</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm font-bold text-green-600">${learner.score}%</p>
+                <p class="text-xs text-gray-500">${formatDuration(learner.time_spent)}</p>
+            </div>
+        </div>
+    `).join('');
+
+    // Update recent feedback
+    const recentFeedback = document.getElementById('recent-feedback');
+
+    if (!analyticsData.recent_feedback) {
+        recentFeedback.innerHTML = '<p class="text-gray-500 text-center">ไม่มีความคิดเห็นล่าสุด</p>';
+        return;
+    }
+
+    recentFeedback.innerHTML = analyticsData.recent_feedback.map(feedback => `
+        <div class="border-l-4 border-blue-400 pl-4">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-medium text-gray-900">${feedback.learner_name}</p>
+                <div class="flex items-center">
+                    ${renderRating(feedback.rating)}
+                </div>
+            </div>
+            <p class="text-sm text-gray-600">"${feedback.comment}"</p>
+            <p class="text-xs text-gray-500 mt-1">${formatDate(feedback.created_date)}</p>
+        </div>
+    `).join('');
+}
+
+function updateBottlenecksAnalysis() {
+    const bottlenecks = document.getElementById('bottlenecks-analysis');
+
+    if (!analyticsData.bottlenecks) {
+        bottlenecks.innerHTML = '<p class="text-gray-500 text-center col-span-3">ไม่พบจุดที่มีปัญหาในการเรียน</p>';
+        return;
+    }
+
+    bottlenecks.innerHTML = analyticsData.bottlenecks.map(bottleneck => `
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex items-center mb-2">
+                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                <h4 class="text-sm font-medium text-yellow-800">${bottleneck.title}</h4>
+            </div>
+            <p class="text-sm text-yellow-700 mb-2">${bottleneck.description}</p>
+            <div class="flex items-center justify-between text-xs text-yellow-600">
+                <span>ผู้ที่ประสบปัญหา: ${bottleneck.affected_count} คน</span>
+                <span>อัตราการแก้ไข: ${bottleneck.resolution_rate}%</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Helper functions
+function getMaterialIcon(type) {
+    const icons = {
+        'video': 'fa-play-circle',
+        'document': 'fa-file-pdf',
+        'text': 'fa-file-text',
+        'quiz': 'fa-question-circle',
+        'audio': 'fa-music'
+    };
+    return icons[type] || 'fa-file';
+}
+
+function getMaterialTypeText(type) {
+    const types = {
+        'video': 'วิดีโอ',
+        'document': 'เอกสาร',
+        'text': 'บทความ',
+        'quiz': 'แบบทดสอบ',
+        'audio': 'เสียง'
+    };
+    return types[type] || type;
+}
+
+function getTypeColor(type) {
+    const colors = {
+        'video': 'bg-blue-100 text-blue-800',
+        'document': 'bg-red-100 text-red-800',
+        'text': 'bg-green-100 text-green-800',
+        'quiz': 'bg-purple-100 text-purple-800',
+        'audio': 'bg-yellow-100 text-yellow-800'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+}
+
+function renderRating(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+    let stars = '';
+    for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="fas fa-star text-yellow-400"></i>';
+    }
+    if (halfStar) {
+        stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="far fa-star text-yellow-400"></i>';
+    }
+
+    return stars;
+}
+
+function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function applyDateFilter() {
+    loadAnalyticsData();
+}
+
+async function exportAnalytics() {
+    try {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        const response = await fetch(`/courses/api/${courseId}/analytics/export?start_date=${startDate}&end_date=${endDate}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `course-analytics-${courseId}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            showSuccess('ส่งออกรายงานการวิเคราะห์เรียบร้อยแล้ว');
+        }
+    } catch (error) {
+        showError('เกิดข้อผิดพลาดในการส่งออกรายงาน');
+    }
+}
+
+function refreshAnalytics() {
+    loadAnalyticsData();
+    showSuccess('รีเฟรชข้อมูลการวิเคราะห์แล้ว');
+}
+</script>

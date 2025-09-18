@@ -1,0 +1,1045 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Department Performance</h1>
+                <p class="text-gray-600 mt-2">Analyze learning outcomes and engagement across departments</p>
+            </div>
+            <div class="flex space-x-3">
+                <select id="time-range" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="30">Last 30 days</option>
+                    <option value="90" selected>Last 90 days</option>
+                    <option value="180">Last 6 months</option>
+                    <option value="365">Last year</option>
+                </select>
+                <button onclick="compareMode()" id="compare-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                    <i class="fas fa-balance-scale mr-2"></i>Compare
+                </button>
+                <button onclick="exportReport()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Comparison Mode -->
+    <div id="compare-panel" class="bg-white rounded-lg shadow-sm p-6 mb-6 hidden">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Department Comparison</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Department A</label>
+                <select id="dept-a" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Department B</label>
+                <select id="dept-b" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Metric</label>
+                <select id="compare-metric" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="completion">Completion Rate</option>
+                    <option value="engagement">Engagement Score</option>
+                    <option value="test_performance">Test Performance</option>
+                    <option value="certifications">Certifications</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button onclick="runComparison()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    Compare
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-building text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Active Departments</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="active-departments">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="dept-trend">100%</span> participation
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Learners</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-learners">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="learners-trend">+8.5%</span> growth
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <i class="fas fa-trophy text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Top Performer</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="top-department">-</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-crown"></i>
+                        <span id="top-score">0%</span> completion
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-chart-line text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Avg Engagement</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="avg-engagement">0%</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="engagement-trend">+5.2%</span> improvement
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Rankings -->
+    <div class="bg-white rounded-lg shadow-sm mb-6">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Department Rankings</h3>
+                    <p class="text-sm text-gray-600">Ranked by overall performance score</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="changeRankingMetric('overall')" class="ranking-btn active" data-metric="overall">Overall</button>
+                    <button onclick="changeRankingMetric('completion')" class="ranking-btn" data-metric="completion">Completion</button>
+                    <button onclick="changeRankingMetric('engagement')" class="ranking-btn" data-metric="engagement">Engagement</button>
+                    <button onclick="changeRankingMetric('test_scores')" class="ranking-btn" data-metric="test_scores">Test Scores</button>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <canvas id="rankingChart" width="400" height="300"></canvas>
+                </div>
+                <div class="space-y-4" id="ranking-list">
+                    <!-- Dynamic ranking content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Completion Rates Comparison -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Course Completion Rates</h3>
+            <canvas id="completionChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Engagement Trends -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Engagement Trends Over Time</h3>
+            <canvas id="engagementChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Test Performance -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Test Performance by Department</h3>
+            <canvas id="testChart" width="400" height="300"></canvas>
+        </div>
+
+        <!-- Certification Progress -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Certification Achievement</h3>
+            <canvas id="certificationChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Detailed Department Analysis -->
+    <div class="bg-white rounded-lg shadow-sm mb-6">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Detailed Department Analysis</h3>
+            <p class="text-sm text-gray-600">Comprehensive metrics for each department</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('department')">
+                            Department <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('learners')">
+                            Learners <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('enrollments')">
+                            Enrollments <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('completion_rate')">
+                            Completion Rate <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('avg_score')">
+                            Avg Test Score <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('engagement')">
+                            Engagement <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('certificates')">
+                            Certificates <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="departments-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Learning Paths Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Popular Learning Paths -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Popular Learning Paths</h3>
+                <p class="text-sm text-gray-600">Most enrolled learning paths by department</p>
+            </div>
+            <div class="p-6">
+                <div id="learning-paths-chart">
+                    <canvas id="learningPathsChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Development -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Skills Development Progress</h3>
+                <p class="text-sm text-gray-600">Top skills being developed across departments</p>
+            </div>
+            <div class="p-6">
+                <div id="skills-progress" class="space-y-4">
+                    <!-- Dynamic skills content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Improvement Recommendations -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Improvement Recommendations</h3>
+            <p class="text-sm text-gray-600">AI-powered insights and suggestions</p>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- High Priority Actions -->
+                <div>
+                    <h4 class="text-md font-semibold text-red-700 mb-3 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>High Priority Actions
+                    </h4>
+                    <div id="high-priority-recommendations" class="space-y-3">
+                        <!-- Dynamic recommendations -->
+                    </div>
+                </div>
+
+                <!-- Growth Opportunities -->
+                <div>
+                    <h4 class="text-md font-semibold text-blue-700 mb-3 flex items-center">
+                        <i class="fas fa-lightbulb mr-2"></i>Growth Opportunities
+                    </h4>
+                    <div id="growth-opportunities" class="space-y-3">
+                        <!-- Dynamic opportunities -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Comparison Modal -->
+<div id="comparison-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">Department Comparison</h3>
+                    <button onclick="closeComparison()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="comparison-content">
+                    <!-- Comparison results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3">Loading department performance data...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.ranking-btn {
+    padding: 4px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #6b7280;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ranking-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.ranking-btn:hover:not(.active) {
+    background: #f9fafb;
+}
+
+.department-rank-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.department-rank-item:hover {
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+}
+
+.rank-medal {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.rank-1 { background: #fbbf24; color: white; }
+.rank-2 { background: #9ca3af; color: white; }
+.rank-3 { background: #d97706; color: white; }
+.rank-other { background: #e5e7eb; color: #374151; }
+
+.progress-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let performanceData = {};
+let charts = {};
+let isCompareMode = false;
+let currentRankingMetric = 'overall';
+let sortField = '';
+let sortDirection = 'asc';
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadPerformanceData();
+
+    // Event listeners
+    document.getElementById('time-range').addEventListener('change', loadPerformanceData);
+});
+
+async function loadPerformanceData() {
+    showLoading(true);
+
+    try {
+        const timeRange = document.getElementById('time-range').value;
+        const response = await fetch(`/reports/api/department-performance?timeRange=${timeRange}`);
+        const data = await response.json();
+
+        if (data.success) {
+            performanceData = data.data;
+            updateOverviewCards();
+            loadDepartmentRankings();
+            initializeCharts();
+            loadDepartmentsTable();
+            loadLearningPathsAnalysis();
+            loadSkillsProgress();
+            loadRecommendations();
+            loadFilterOptions();
+        } else {
+            showError('Failed to load performance data');
+        }
+    } catch (error) {
+        console.error('Error loading performance data:', error);
+        showError('Error loading performance data');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function updateOverviewCards() {
+    const overview = performanceData.overview || {};
+
+    document.getElementById('active-departments').textContent = overview.activeDepartments || 0;
+    document.getElementById('total-learners').textContent = overview.totalLearners || 0;
+    document.getElementById('top-department').textContent = overview.topDepartment || '-';
+    document.getElementById('avg-engagement').textContent = (overview.avgEngagement || 0) + '%';
+
+    // Update trends
+    document.getElementById('dept-trend').textContent = (overview.participationRate || 100) + '% participation';
+    document.getElementById('learners-trend').textContent = '+' + (overview.learnersGrowth || 0) + '% growth';
+    document.getElementById('top-score').textContent = (overview.topScore || 0) + '% completion';
+    document.getElementById('engagement-trend').textContent = '+' + (overview.engagementImprovement || 0) + '% improvement';
+}
+
+function loadDepartmentRankings() {
+    const rankings = performanceData.rankings?.[currentRankingMetric] || [];
+    const rankingList = document.getElementById('ranking-list');
+
+    rankingList.innerHTML = '';
+
+    rankings.forEach((dept, index) => {
+        const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
+
+        const item = document.createElement('div');
+        item.className = 'department-rank-item';
+        item.innerHTML = `
+            <div class="rank-medal ${rankClass}">
+                ${index + 1}
+            </div>
+            <div class="flex-1">
+                <div class="flex justify-between items-center mb-1">
+                    <h4 class="font-medium text-gray-900">${dept.name}</h4>
+                    <span class="text-sm font-bold ${getScoreColor(dept.score)}">${dept.score}${getScoreUnit(currentRankingMetric)}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill ${getProgressColor(index)}" style="width: ${(dept.score / rankings[0].score * 100)}%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>${dept.learners} learners</span>
+                    <span>${dept.change >= 0 ? '+' : ''}${dept.change}% change</span>
+                </div>
+            </div>
+        `;
+
+        rankingList.appendChild(item);
+    });
+}
+
+function getScoreColor(score) {
+    if (currentRankingMetric === 'overall') {
+        return score >= 80 ? 'text-green-600' : score >= 60 ? 'text-yellow-600' : 'text-red-600';
+    }
+    return score >= 75 ? 'text-green-600' : score >= 50 ? 'text-yellow-600' : 'text-red-600';
+}
+
+function getScoreUnit(metric) {
+    switch (metric) {
+        case 'completion':
+        case 'engagement':
+            return '%';
+        case 'test_scores':
+            return '%';
+        case 'overall':
+        default:
+            return '';
+    }
+}
+
+function getProgressColor(index) {
+    switch (index) {
+        case 0: return 'bg-yellow-400';
+        case 1: return 'bg-gray-400';
+        case 2: return 'bg-yellow-600';
+        default: return 'bg-blue-400';
+    }
+}
+
+function changeRankingMetric(metric) {
+    currentRankingMetric = metric;
+
+    // Update button states
+    document.querySelectorAll('.ranking-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-metric="${metric}"]`).classList.add('active');
+
+    // Update rankings and chart
+    loadDepartmentRankings();
+    updateRankingChart();
+}
+
+function initializeCharts() {
+    // Destroy existing charts
+    Object.values(charts).forEach(chart => chart.destroy());
+    charts = {};
+
+    // Ranking Chart
+    const rankingCtx = document.getElementById('rankingChart').getContext('2d');
+    charts.ranking = new Chart(rankingCtx, {
+        type: 'horizontalBar',
+        data: {
+            labels: (performanceData.rankings?.[currentRankingMetric] || []).map(d => d.name),
+            datasets: [{
+                label: 'Score',
+                data: (performanceData.rankings?.[currentRankingMetric] || []).map(d => d.score),
+                backgroundColor: '#3B82F6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Completion Chart
+    const completionCtx = document.getElementById('completionChart').getContext('2d');
+    charts.completion = new Chart(completionCtx, {
+        type: 'bar',
+        data: {
+            labels: (performanceData.completion?.labels || []),
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: performanceData.completion?.rates || [],
+                backgroundColor: '#10B981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    // Engagement Chart
+    const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+    charts.engagement = new Chart(engagementCtx, {
+        type: 'line',
+        data: {
+            labels: performanceData.engagement?.timeline || [],
+            datasets: (performanceData.engagement?.departments || []).map((dept, index) => ({
+                label: dept.name,
+                data: dept.data,
+                borderColor: getChartColor(index),
+                backgroundColor: getChartColor(index, 0.1),
+                tension: 0.4
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    // Test Performance Chart
+    const testCtx = document.getElementById('testChart').getContext('2d');
+    charts.test = new Chart(testCtx, {
+        type: 'radar',
+        data: {
+            labels: performanceData.testPerformance?.categories || [],
+            datasets: (performanceData.testPerformance?.departments || []).map((dept, index) => ({
+                label: dept.name,
+                data: dept.scores,
+                borderColor: getChartColor(index),
+                backgroundColor: getChartColor(index, 0.2),
+                pointBackgroundColor: getChartColor(index)
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    // Certification Chart
+    const certCtx = document.getElementById('certificationChart').getContext('2d');
+    charts.certification = new Chart(certCtx, {
+        type: 'doughnut',
+        data: {
+            labels: (performanceData.certifications?.departments || []).map(d => d.name),
+            datasets: [{
+                data: (performanceData.certifications?.departments || []).map(d => d.count),
+                backgroundColor: [
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+                    '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Learning Paths Chart
+    const pathsCtx = document.getElementById('learningPathsChart').getContext('2d');
+    charts.learningPaths = new Chart(pathsCtx, {
+        type: 'bar',
+        data: {
+            labels: (performanceData.learningPaths || []).map(p => p.name),
+            datasets: [{
+                label: 'Enrollments',
+                data: (performanceData.learningPaths || []).map(p => p.enrollments),
+                backgroundColor: '#8B5CF6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function updateRankingChart() {
+    if (charts.ranking) {
+        charts.ranking.data.labels = (performanceData.rankings?.[currentRankingMetric] || []).map(d => d.name);
+        charts.ranking.data.datasets[0].data = (performanceData.rankings?.[currentRankingMetric] || []).map(d => d.score);
+        charts.ranking.update();
+    }
+}
+
+function getChartColor(index, alpha = 1) {
+    const colors = [
+        '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+        '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'
+    ];
+    const color = colors[index % colors.length];
+
+    if (alpha === 1) return color;
+
+    // Convert hex to rgba
+    const r = parseInt(color.substr(1, 2), 16);
+    const g = parseInt(color.substr(3, 2), 16);
+    const b = parseInt(color.substr(5, 2), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function loadDepartmentsTable() {
+    const tbody = document.getElementById('departments-table');
+    tbody.innerHTML = '';
+
+    const departments = performanceData.departments || [];
+    departments.forEach(dept => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-${getDepartmentColor(dept.name)}-100 flex items-center justify-center">
+                            <i class="fas fa-building text-${getDepartmentColor(dept.name)}-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">${dept.name}</div>
+                        <div class="text-sm text-gray-500">${dept.description || ''}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dept.learners}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dept.enrollments}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span class="${getPerformanceColor(dept.completion_rate)}">${dept.completion_rate}%</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span class="${getPerformanceColor(dept.avg_score)}">${dept.avg_score}%</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span class="${getPerformanceColor(dept.engagement)}">${dept.engagement}%</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dept.certificates}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="viewDepartmentDetails('${dept.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                    Details
+                </button>
+                <button onclick="generateDepartmentReport('${dept.id}')" class="text-green-600 hover:text-green-900">
+                    Report
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function getDepartmentColor(deptName) {
+    const colors = ['blue', 'green', 'yellow', 'red', 'purple', 'indigo', 'pink', 'gray'];
+    const index = deptName.length % colors.length;
+    return colors[index];
+}
+
+function getPerformanceColor(score) {
+    if (score >= 75) return 'text-green-600';
+    if (score >= 50) return 'text-yellow-600';
+    return 'text-red-600';
+}
+
+function loadLearningPathsAnalysis() {
+    // Already handled in initializeCharts
+}
+
+function loadSkillsProgress() {
+    const container = document.getElementById('skills-progress');
+    container.innerHTML = '';
+
+    const skills = performanceData.skills || [];
+    skills.forEach(skill => {
+        const item = document.createElement('div');
+        item.className = 'flex justify-between items-center';
+        item.innerHTML = `
+            <div class="flex-1">
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-900">${skill.name}</span>
+                    <span class="text-sm text-gray-500">${skill.progress}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill bg-blue-500" style="width: ${skill.progress}%"></div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">${skill.learners} learners enrolled</div>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function loadRecommendations() {
+    // High Priority Recommendations
+    const highPriorityContainer = document.getElementById('high-priority-recommendations');
+    const highPriority = performanceData.recommendations?.highPriority || [];
+
+    highPriorityContainer.innerHTML = '';
+    highPriority.forEach(rec => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-red-50 border border-red-200 rounded-lg';
+        item.innerHTML = `
+            <div class="flex items-start">
+                <i class="fas fa-exclamation-circle text-red-600 mt-1 mr-2"></i>
+                <div class="flex-1">
+                    <h5 class="font-medium text-red-800">${rec.title}</h5>
+                    <p class="text-sm text-red-700 mt-1">${rec.description}</p>
+                    <div class="mt-2">
+                        <button onclick="implementRecommendation('${rec.id}')" class="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">
+                            Take Action
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        highPriorityContainer.appendChild(item);
+    });
+
+    // Growth Opportunities
+    const growthContainer = document.getElementById('growth-opportunities');
+    const growth = performanceData.recommendations?.growth || [];
+
+    growthContainer.innerHTML = '';
+    growth.forEach(opp => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-blue-50 border border-blue-200 rounded-lg';
+        item.innerHTML = `
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-blue-600 mt-1 mr-2"></i>
+                <div class="flex-1">
+                    <h5 class="font-medium text-blue-800">${opp.title}</h5>
+                    <p class="text-sm text-blue-700 mt-1">${opp.description}</p>
+                    <div class="mt-2">
+                        <button onclick="exploreOpportunity('${opp.id}')" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
+                            Explore
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        growthContainer.appendChild(item);
+    });
+}
+
+function loadFilterOptions() {
+    const departments = (performanceData.departments || []).map(d => d.name);
+
+    // Populate comparison selects
+    const deptASelect = document.getElementById('dept-a');
+    const deptBSelect = document.getElementById('dept-b');
+
+    deptASelect.innerHTML = '<option value="">Select Department</option>';
+    deptBSelect.innerHTML = '<option value="">Select Department</option>';
+
+    departments.forEach(dept => {
+        const optionA = document.createElement('option');
+        optionA.value = dept;
+        optionA.textContent = dept;
+        deptASelect.appendChild(optionA);
+
+        const optionB = document.createElement('option');
+        optionB.value = dept;
+        optionB.textContent = dept;
+        deptBSelect.appendChild(optionB);
+    });
+}
+
+function compareMode() {
+    isCompareMode = !isCompareMode;
+    const comparePanel = document.getElementById('compare-panel');
+    const compareBtn = document.getElementById('compare-btn');
+
+    if (isCompareMode) {
+        comparePanel.classList.remove('hidden');
+        compareBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Exit Compare';
+        compareBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700';
+    } else {
+        comparePanel.classList.add('hidden');
+        compareBtn.innerHTML = '<i class="fas fa-balance-scale mr-2"></i>Compare';
+        compareBtn.className = 'bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700';
+    }
+}
+
+async function runComparison() {
+    const deptA = document.getElementById('dept-a').value;
+    const deptB = document.getElementById('dept-b').value;
+    const metric = document.getElementById('compare-metric').value;
+
+    if (!deptA || !deptB) {
+        showError('Please select both departments to compare');
+        return;
+    }
+
+    if (deptA === deptB) {
+        showError('Please select different departments');
+        return;
+    }
+
+    showLoading(true);
+
+    try {
+        const response = await fetch('/reports/api/department-comparison', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deptA, deptB, metric })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            displayComparison(data.comparison);
+        } else {
+            showError('Failed to generate comparison');
+        }
+    } catch (error) {
+        console.error('Error running comparison:', error);
+        showError('Error running comparison');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function displayComparison(comparison) {
+    const content = document.getElementById('comparison-content');
+
+    content.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="text-center p-6 bg-blue-50 rounded-lg">
+                <h4 class="font-semibold text-blue-900">${comparison.deptA.name}</h4>
+                <div class="text-3xl font-bold text-blue-600 mt-2">${comparison.deptA.value}${comparison.unit}</div>
+                <p class="text-sm text-blue-700 mt-1">${comparison.deptA.description}</p>
+            </div>
+            <div class="text-center p-6 bg-green-50 rounded-lg">
+                <h4 class="font-semibold text-green-900">${comparison.deptB.name}</h4>
+                <div class="text-3xl font-bold text-green-600 mt-2">${comparison.deptB.value}${comparison.unit}</div>
+                <p class="text-sm text-green-700 mt-1">${comparison.deptB.description}</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+            <h5 class="font-medium text-gray-900 mb-2">Key Insights</h5>
+            <ul class="text-sm text-gray-700 space-y-1">
+                ${comparison.insights.map(insight => `<li>• ${insight}</li>`).join('')}
+            </ul>
+        </div>
+
+        <div class="text-center">
+            <canvas id="comparison-chart" width="400" height="200"></canvas>
+        </div>
+    `;
+
+    // Show modal
+    document.getElementById('comparison-modal').classList.remove('hidden');
+
+    // Create comparison chart
+    setTimeout(() => {
+        const ctx = document.getElementById('comparison-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [comparison.deptA.name, comparison.deptB.name],
+                datasets: [{
+                    label: comparison.metric,
+                    data: [comparison.deptA.value, comparison.deptB.value],
+                    backgroundColor: ['#3B82F6', '#10B981']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }, 100);
+}
+
+function closeComparison() {
+    document.getElementById('comparison-modal').classList.add('hidden');
+}
+
+function sortTable(field) {
+    if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDirection = 'asc';
+    }
+
+    performanceData.departments.sort((a, b) => {
+        let aValue = a[field];
+        let bValue = b[field];
+
+        if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (sortDirection === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+
+    loadDepartmentsTable();
+}
+
+function viewDepartmentDetails(deptId) {
+    window.open(`/reports/department/${deptId}`, '_blank');
+}
+
+function generateDepartmentReport(deptId) {
+    window.location.href = `/reports/department/${deptId}/report`;
+}
+
+function implementRecommendation(recId) {
+    alert('Implementation feature coming soon!');
+}
+
+function exploreOpportunity(oppId) {
+    alert('Exploration feature coming soon!');
+}
+
+async function exportReport() {
+    showLoading(true);
+
+    try {
+        const timeRange = document.getElementById('time-range').value;
+        const response = await fetch(`/reports/api/department-performance/export?timeRange=${timeRange}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `department-performance-${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showSuccess('Report exported successfully');
+        } else {
+            showError('Failed to export report');
+        }
+    } catch (error) {
+        console.error('Error exporting report:', error);
+        showError('Error exporting report');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    alert(message); // Replace with toast notification
+}
+
+function showError(message) {
+    alert('Error: ' + message); // Replace with toast notification
+}
+</script>
+
+<%- include('../partials/footer') %>

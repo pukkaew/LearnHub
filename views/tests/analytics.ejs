@@ -1,0 +1,654 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Test Analytics</h1>
+                <p class="text-gray-600 mt-2">Comprehensive analysis of test performance and statistics</p>
+            </div>
+            <div class="flex space-x-3">
+                <select id="time-range" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                    <option value="365">Last year</option>
+                </select>
+                <button onclick="exportReport()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-download mr-2"></i>Export Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-file-alt text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Tests</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-tests">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="tests-trend">+12%</span> from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Attempts</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-attempts">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="attempts-trend">+8.5%</span> from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <i class="fas fa-percentage text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Average Score</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="average-score">0%</p>
+                    <p class="text-xs text-red-600 mt-1">
+                        <i class="fas fa-arrow-down"></i>
+                        <span id="score-trend">-2.3%</span> from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-medal text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Pass Rate</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="pass-rate">0%</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="pass-trend">+5.7%</span> from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Test Performance Over Time -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Test Performance Over Time</h3>
+            <canvas id="performanceChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Score Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Score Distribution</h3>
+            <canvas id="scoreDistributionChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Test Attempts by Day -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Test Attempts by Day</h3>
+            <canvas id="attemptsChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Question Type Analysis -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Question Type Analysis</h3>
+            <canvas id="questionTypesChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Detailed Analytics Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Top Performing Tests -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Top Performing Tests</h3>
+                <p class="text-sm text-gray-600">Tests with highest average scores</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attempts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-tests-table" class="bg-white divide-y divide-gray-200">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Challenging Tests -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Most Challenging Tests</h3>
+                <p class="text-sm text-gray-600">Tests with lowest average scores</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Test Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attempts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="challenging-tests-table" class="bg-white divide-y divide-gray-200">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Performance -->
+    <div class="bg-white rounded-lg shadow-sm mb-6">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Department Performance Comparison</h3>
+            <p class="text-sm text-gray-600">Average test scores by department</p>
+        </div>
+        <div class="p-6">
+            <canvas id="departmentChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Detailed Statistics -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Detailed Test Statistics</h3>
+            <div class="mt-4 flex space-x-4">
+                <input type="text" id="search-tests" placeholder="Search tests..."
+                       class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                <select id="filter-status" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Status</option>
+                    <option value="Published">Published</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Archived">Archived</option>
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('title')">
+                            Test Name <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('course')">
+                            Course <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('attempts')">
+                            Attempts <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('avgScore')">
+                            Avg Score <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('passRate')">
+                            Pass Rate <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tests-analytics-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+        <div class="px-6 py-3 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-700">
+                    Showing <span id="showing-from">1</span> to <span id="showing-to">10</span> of <span id="total-records">0</span> results
+                </span>
+                <div class="flex space-x-2">
+                    <button onclick="previousPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="prev-btn" disabled>
+                        Previous
+                    </button>
+                    <span class="px-3 py-1 text-sm">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="next-btn">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3">Loading analytics...</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let analyticsData = {};
+let chartsInitialized = false;
+let charts = {};
+let currentPage = 1;
+let itemsPerPage = 10;
+let sortField = '';
+let sortDirection = 'asc';
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadAnalytics();
+
+    // Event listeners
+    document.getElementById('time-range').addEventListener('change', loadAnalytics);
+    document.getElementById('search-tests').addEventListener('input', debounce(filterTests, 500));
+    document.getElementById('filter-status').addEventListener('change', filterTests);
+});
+
+async function loadAnalytics() {
+    const timeRange = document.getElementById('time-range').value;
+    showLoading(true);
+
+    try {
+        const response = await fetch(`/tests/api/analytics?timeRange=${timeRange}`);
+        const data = await response.json();
+
+        if (data.success) {
+            analyticsData = data.data;
+            updateMetricCards();
+            initializeCharts();
+            loadTestsTable();
+        } else {
+            showError('Failed to load analytics data');
+        }
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+        showError('Error loading analytics data');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function updateMetricCards() {
+    document.getElementById('total-tests').textContent = analyticsData.metrics.totalTests || 0;
+    document.getElementById('total-attempts').textContent = analyticsData.metrics.totalAttempts || 0;
+    document.getElementById('average-score').textContent = (analyticsData.metrics.averageScore || 0) + '%';
+    document.getElementById('pass-rate').textContent = (analyticsData.metrics.passRate || 0) + '%';
+
+    updateTrend('tests-trend', analyticsData.trends.testsTrend || 0);
+    updateTrend('attempts-trend', analyticsData.trends.attemptsTrend || 0);
+    updateTrend('score-trend', analyticsData.trends.scoreTrend || 0);
+    updateTrend('pass-trend', analyticsData.trends.passTrend || 0);
+}
+
+function updateTrend(elementId, percentage) {
+    const element = document.getElementById(elementId);
+    const isPositive = percentage >= 0;
+    const parent = element.parentElement;
+
+    parent.className = parent.className.replace(/text-(green|red)-600/, `text-${isPositive ? 'green' : 'red'}-600`);
+    element.innerHTML = `<i class="fas ${isPositive ? 'fa-arrow-up' : 'fa-arrow-down'}"></i> ${Math.abs(percentage).toFixed(1)}%`;
+}
+
+function initializeCharts() {
+    if (chartsInitialized) {
+        Object.values(charts).forEach(chart => chart.destroy());
+    }
+
+    // Performance Over Time Chart
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    charts.performance = new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: analyticsData.performance?.labels || [],
+            datasets: [{
+                label: 'Average Score',
+                data: analyticsData.performance?.scores || [],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Pass Rate',
+                data: analyticsData.performance?.passRates || [],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Score Distribution Chart
+    const distributionCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+    charts.distribution = new Chart(distributionCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20%', '21-40%', '41-60%', '61-80%', '81-100%'],
+            datasets: [{
+                label: 'Number of Attempts',
+                data: analyticsData.scoreDistribution || [0, 0, 0, 0, 0],
+                backgroundColor: ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#10B981']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Test Attempts Chart
+    const attemptsCtx = document.getElementById('attemptsChart').getContext('2d');
+    charts.attempts = new Chart(attemptsCtx, {
+        type: 'bar',
+        data: {
+            labels: analyticsData.attempts?.labels || [],
+            datasets: [{
+                label: 'Test Attempts',
+                data: analyticsData.attempts?.data || [],
+                backgroundColor: '#8B5CF6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Question Types Chart
+    const questionTypesCtx = document.getElementById('questionTypesChart').getContext('2d');
+    charts.questionTypes = new Chart(questionTypesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Multiple Choice', 'True/False', 'Essay', 'Fill in Blank'],
+            datasets: [{
+                data: analyticsData.questionTypes || [0, 0, 0, 0],
+                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Department Performance Chart
+    const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+    charts.department = new Chart(departmentCtx, {
+        type: 'horizontalBar',
+        data: {
+            labels: analyticsData.departments?.labels || [],
+            datasets: [{
+                label: 'Average Score (%)',
+                data: analyticsData.departments?.scores || [],
+                backgroundColor: '#6366F1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Update top performing and challenging tests tables
+    updateTopTestsTable();
+    updateChallengingTestsTable();
+
+    chartsInitialized = true;
+}
+
+function updateTopTestsTable() {
+    const tbody = document.getElementById('top-tests-table');
+    tbody.innerHTML = '';
+
+    const topTests = analyticsData.topTests || [];
+    topTests.forEach(test => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${test.title}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.avgScore.toFixed(1)}%</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.attempts}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function updateChallengingTestsTable() {
+    const tbody = document.getElementById('challenging-tests-table');
+    tbody.innerHTML = '';
+
+    const challengingTests = analyticsData.challengingTests || [];
+    challengingTests.forEach(test => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${test.title}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.avgScore.toFixed(1)}%</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.attempts}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function loadTestsTable() {
+    const searchTerm = document.getElementById('search-tests').value.toLowerCase();
+    const statusFilter = document.getElementById('filter-status').value;
+
+    let filteredTests = analyticsData.tests || [];
+
+    if (searchTerm) {
+        filteredTests = filteredTests.filter(test =>
+            test.title.toLowerCase().includes(searchTerm) ||
+            test.course_title.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (statusFilter) {
+        filteredTests = filteredTests.filter(test => test.status === statusFilter);
+    }
+
+    if (sortField) {
+        filteredTests.sort((a, b) => {
+            let aValue = a[sortField];
+            let bValue = b[sortField];
+
+            if (typeof aValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+
+            if (sortDirection === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+    }
+
+    const totalRecords = filteredTests.length;
+    const totalPages = Math.ceil(totalRecords / itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedTests = filteredTests.slice(start, end);
+
+    const tbody = document.getElementById('tests-analytics-table');
+    tbody.innerHTML = '';
+
+    paginatedTests.forEach(test => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${test.title}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.course_title}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.attempts}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.avgScore ? test.avgScore.toFixed(1) : 0}%</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${test.passRate ? test.passRate.toFixed(1) : 0}%</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(test.status)}">
+                    ${test.status}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <a href="/tests/${test.test_id}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                <a href="/tests/${test.test_id}/edit" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    updatePagination(totalRecords, totalPages);
+}
+
+function getStatusColor(status) {
+    switch (status) {
+        case 'Published': return 'bg-green-100 text-green-800';
+        case 'Draft': return 'bg-yellow-100 text-yellow-800';
+        case 'Archived': return 'bg-gray-100 text-gray-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+
+function updatePagination(totalRecords, totalPages) {
+    const showingFrom = totalRecords === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const showingTo = Math.min(currentPage * itemsPerPage, totalRecords);
+
+    document.getElementById('showing-from').textContent = showingFrom;
+    document.getElementById('showing-to').textContent = showingTo;
+    document.getElementById('total-records').textContent = totalRecords;
+    document.getElementById('current-page').textContent = currentPage;
+    document.getElementById('total-pages').textContent = totalPages;
+
+    document.getElementById('prev-btn').disabled = currentPage <= 1;
+    document.getElementById('next-btn').disabled = currentPage >= totalPages;
+}
+
+function sortTable(field) {
+    if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDirection = 'asc';
+    }
+    loadTestsTable();
+}
+
+function filterTests() {
+    currentPage = 1;
+    loadTestsTable();
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadTestsTable();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil((analyticsData.tests || []).length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        loadTestsTable();
+    }
+}
+
+async function exportReport() {
+    const timeRange = document.getElementById('time-range').value;
+    showLoading(true);
+
+    try {
+        const response = await fetch(`/tests/api/analytics/export?timeRange=${timeRange}`);
+        const blob = await response.blob();
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `test-analytics-${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        showSuccess('Report exported successfully');
+    } catch (error) {
+        console.error('Error exporting report:', error);
+        showError('Failed to export report');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    // You can implement a toast notification system here
+    alert(message);
+}
+
+function showError(message) {
+    // You can implement a toast notification system here
+    alert('Error: ' + message);
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+
+<%- include('../partials/footer') %>

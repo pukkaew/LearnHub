@@ -1,0 +1,363 @@
+<% layout('layout') -%>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-plus-circle mr-3 text-ruxchai-primary"></i>สร้างหลักสูตรใหม่
+                </h1>
+                <p class="mt-2 text-gray-600">สร้างหลักสูตรการเรียนรู้สำหรับพนักงาน</p>
+            </div>
+            <a href="/courses" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>กลับไปรายการหลักสูตร
+            </a>
+        </div>
+    </div>
+
+    <!-- Course Creation Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form id="create-course-form" class="p-6 space-y-6">
+            <!-- Course Basic Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-info-circle mr-2 text-ruxchai-primary"></i>ข้อมูลพื้นฐาน
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="course_name" class="block text-sm font-medium text-gray-700 mb-2">ชื่อหลักสูตร <span class="text-red-500">*</span></label>
+                        <input type="text" id="course_name" name="course_name" required
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               placeholder="ระบุชื่อหลักสูตร">
+                    </div>
+
+                    <div>
+                        <label for="course_code" class="block text-sm font-medium text-gray-700 mb-2">รหัสหลักสูตร <span class="text-red-500">*</span></label>
+                        <input type="text" id="course_code" name="course_code" required
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               placeholder="เช่น CRS-001">
+                    </div>
+
+                    <div>
+                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่ <span class="text-red-500">*</span></label>
+                        <select id="category_id" name="category_id" required
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                            <option value="">เลือกหมวดหมู่</option>
+                            <!-- Categories will be loaded here -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="difficulty_level" class="block text-sm font-medium text-gray-700 mb-2">ระดับความยาก</label>
+                        <select id="difficulty_level" name="difficulty_level"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                            <option value="Beginner">เริ่มต้น</option>
+                            <option value="Intermediate">ปานกลาง</option>
+                            <option value="Advanced">ขั้นสูง</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="duration_hours" class="block text-sm font-medium text-gray-700 mb-2">ระยะเวลา (ชั่วโมง)</label>
+                        <input type="number" id="duration_hours" name="duration_hours" min="1" max="500"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               placeholder="เช่น 8">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายหลักสูตร</label>
+                        <textarea id="description" name="description" rows="4"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                  placeholder="อธิบายเนื้อหาและจุดประสงค์ของหลักสูตร"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Image -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-image mr-2 text-ruxchai-primary"></i>รูปภาพหลักสูตร
+                </h3>
+                <div class="flex items-center space-x-6">
+                    <div class="flex-shrink-0">
+                        <img id="course-image-preview" class="h-32 w-48 object-cover rounded-lg border-2 border-dashed border-gray-300"
+                             src="/images/course-placeholder.png" alt="Course Image Preview">
+                    </div>
+                    <div class="flex-1">
+                        <label for="course_image" class="block text-sm font-medium text-gray-700 mb-2">อัปโหลดรูปภาพ</label>
+                        <input type="file" id="course_image" name="course_image" accept="image/*"
+                               class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-ruxchai-primary file:text-white hover:file:bg-blue-700">
+                        <p class="text-xs text-gray-500 mt-1">ขนาดแนะนำ: 800x600 px, ไฟล์ไม่เกิน 2MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Settings -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-cogs mr-2 text-ruxchai-primary"></i>การตั้งค่าหลักสูตร
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="max_enrollments" class="block text-sm font-medium text-gray-700 mb-2">จำนวนผู้เรียนสูงสุด</label>
+                        <input type="number" id="max_enrollments" name="max_enrollments" min="1"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               placeholder="เช่น 50 (ปล่อยว่างหากไม่จำกัด)">
+                    </div>
+
+                    <div>
+                        <label for="passing_score" class="block text-sm font-medium text-gray-700 mb-2">คะแนนผ่าน (%)</label>
+                        <input type="number" id="passing_score" name="passing_score" min="0" max="100" value="70"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                    </div>
+
+                    <div>
+                        <label for="enrollment_start" class="block text-sm font-medium text-gray-700 mb-2">วันเริ่มลงทะเบียน</label>
+                        <input type="datetime-local" id="enrollment_start" name="enrollment_start"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                    </div>
+
+                    <div>
+                        <label for="enrollment_end" class="block text-sm font-medium text-gray-700 mb-2">วันสิ้นสุดการลงทะเบียน</label>
+                        <input type="datetime-local" id="enrollment_end" name="enrollment_end"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                    </div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="is_mandatory" name="is_mandatory"
+                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <span class="ml-2 text-sm text-gray-700">หลักสูตรบังคับ</span>
+                    </label>
+
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="allow_certificate" name="allow_certificate" checked
+                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <span class="ml-2 text-sm text-gray-700">ออกใบประกาศนียบัตร</span>
+                    </label>
+
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="is_public" name="is_public" checked
+                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <span class="ml-2 text-sm text-gray-700">เปิดให้ลงทะเบียนได้</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Prerequisites -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-list-check mr-2 text-ruxchai-primary"></i>หลักสูตรที่ต้องผ่านก่อน
+                </h3>
+                <div>
+                    <label for="prerequisites" class="block text-sm font-medium text-gray-700 mb-2">เลือกหลักสูตร</label>
+                    <select id="prerequisites" name="prerequisites" multiple
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary h-32">
+                        <!-- Prerequisites will be loaded here -->
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">กด Ctrl (หรือ Cmd) เพื่อเลือกหลายหลักสูตร</p>
+                </div>
+            </div>
+
+            <!-- Learning Objectives -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-bullseye mr-2 text-ruxchai-primary"></i>จุดประสงค์การเรียนรู้
+                </h3>
+                <div id="learning-objectives">
+                    <div class="learning-objective-item flex items-center space-x-3 mb-3">
+                        <input type="text" name="learning_objectives[]"
+                               class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               placeholder="ระบุจุดประสงค์การเรียนรู้">
+                        <button type="button" onclick="removeLearningObjective(this)"
+                                class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="addLearningObjective()"
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-plus mr-2"></i>เพิ่มจุดประสงค์
+                </button>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <a href="/courses"
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    ยกเลิก
+                </a>
+                <button type="button" onclick="saveDraft()"
+                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-save mr-2"></i>บันทึกร่าง
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                    <i class="fas fa-check mr-2"></i>สร้างหลักสูตร
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+    loadPrerequisites();
+    setupImagePreview();
+    setupFormSubmit();
+});
+
+async function loadCategories() {
+    try {
+        const response = await fetch('/courses/api/categories');
+        const result = await response.json();
+
+        if (result.success) {
+            const select = document.getElementById('category_id');
+            result.data.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.category_id;
+                option.textContent = category.category_name;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+async function loadPrerequisites() {
+    try {
+        const response = await fetch('/courses/api/list');
+        const result = await response.json();
+
+        if (result.success) {
+            const select = document.getElementById('prerequisites');
+            result.data.forEach(course => {
+                const option = document.createElement('option');
+                option.value = course.course_id;
+                option.textContent = `${course.course_code} - ${course.course_name}`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading prerequisites:', error);
+    }
+}
+
+function setupImagePreview() {
+    document.getElementById('course_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('course-image-preview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+function addLearningObjective() {
+    const container = document.getElementById('learning-objectives');
+    const div = document.createElement('div');
+    div.className = 'learning-objective-item flex items-center space-x-3 mb-3';
+    div.innerHTML = `
+        <input type="text" name="learning_objectives[]"
+               class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+               placeholder="ระบุจุดประสงค์การเรียนรู้">
+        <button type="button" onclick="removeLearningObjective(this)"
+                class="text-red-600 hover:text-red-800">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(div);
+}
+
+function removeLearningObjective(button) {
+    const container = document.getElementById('learning-objectives');
+    if (container.children.length > 1) {
+        button.closest('.learning-objective-item').remove();
+    }
+}
+
+function setupFormSubmit() {
+    document.getElementById('create-course-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        // Collect learning objectives
+        const objectives = Array.from(document.querySelectorAll('input[name="learning_objectives[]"]'))
+            .map(input => input.value.trim())
+            .filter(value => value);
+
+        // Collect prerequisites
+        const prerequisites = Array.from(document.getElementById('prerequisites').selectedOptions)
+            .map(option => option.value);
+
+        // Create course data object
+        const courseData = {
+            course_name: formData.get('course_name'),
+            course_code: formData.get('course_code'),
+            description: formData.get('description'),
+            category_id: formData.get('category_id'),
+            difficulty_level: formData.get('difficulty_level'),
+            duration_hours: formData.get('duration_hours'),
+            max_enrollments: formData.get('max_enrollments'),
+            passing_score: formData.get('passing_score'),
+            enrollment_start: formData.get('enrollment_start'),
+            enrollment_end: formData.get('enrollment_end'),
+            is_mandatory: formData.get('is_mandatory') ? true : false,
+            allow_certificate: formData.get('allow_certificate') ? true : false,
+            is_public: formData.get('is_public') ? true : false,
+            learning_objectives: objectives,
+            prerequisites: prerequisites
+        };
+
+        try {
+            // First create the course
+            const response = await fetch('/courses/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(courseData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Upload image if provided
+                const imageFile = formData.get('course_image');
+                if (imageFile && imageFile.size > 0) {
+                    const imageFormData = new FormData();
+                    imageFormData.append('course_image', imageFile);
+
+                    await fetch(`/courses/api/${result.data.course_id}/image`, {
+                        method: 'POST',
+                        body: imageFormData
+                    });
+                }
+
+                showSuccess('สร้างหลักสูตรเรียบร้อยแล้ว');
+                setTimeout(() => {
+                    window.location.href = `/courses/${result.data.course_id}`;
+                }, 1500);
+            } else {
+                showError(result.message || 'เกิดข้อผิดพลาดในการสร้างหลักสูตร');
+            }
+        } catch (error) {
+            showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        }
+    });
+}
+
+async function saveDraft() {
+    // Implementation for saving draft
+    showSuccess('บันทึกร่างเรียบร้อยแล้ว');
+}
+</script>

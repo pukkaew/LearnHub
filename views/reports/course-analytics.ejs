@@ -1,0 +1,939 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Course Analytics</h1>
+                <p class="text-gray-600 mt-2">Comprehensive insights into course performance and engagement</p>
+            </div>
+            <div class="flex space-x-3">
+                <select id="time-period" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                    <option value="365">Last year</option>
+                </select>
+                <button onclick="exportAnalytics()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+                <button onclick="refreshAnalytics()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-book text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Courses</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-courses">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="courses-trend">+5</span> new this month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Enrollments</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-enrollments">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="enrollments-trend">+12.5%</span> from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <i class="fas fa-graduation-cap text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Completion Rate</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="completion-rate">0%</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="completion-trend">+3.2%</span> from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-star text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Average Rating</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="average-rating">0.0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="rating-trend">+0.2</span> from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Enrollment Trends -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Enrollment Trends</h3>
+                <div class="flex space-x-2">
+                    <button onclick="changeEnrollmentView('daily')" class="trend-btn active" data-view="daily">Daily</button>
+                    <button onclick="changeEnrollmentView('weekly')" class="trend-btn" data-view="weekly">Weekly</button>
+                    <button onclick="changeEnrollmentView('monthly')" class="trend-btn" data-view="monthly">Monthly</button>
+                </div>
+            </div>
+            <canvas id="enrollmentChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Completion Rates -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Completion Rates by Course Category</h3>
+            <canvas id="completionChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Course Engagement -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Course Engagement Metrics</h3>
+            <canvas id="engagementChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Learning Progress Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Learning Progress Distribution</h3>
+            <canvas id="progressChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Performance Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Top Performing Courses -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Top Performing Courses</h3>
+                <p class="text-sm text-gray-600">Based on completion rate and ratings</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rank</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Completion</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-courses-table" class="bg-white divide-y divide-gray-200">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Courses Needing Attention -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Courses Needing Attention</h3>
+                <p class="text-sm text-gray-600">Low completion rates or ratings</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issue</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attention-courses-table" class="bg-white divide-y divide-gray-200">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructor Performance -->
+    <div class="bg-white rounded-lg shadow-sm mb-6">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Instructor Performance Summary</h3>
+            <p class="text-sm text-gray-600">Course creation and student satisfaction metrics</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortInstructors('name')">
+                            Instructor <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortInstructors('courses')">
+                            Courses Created <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortInstructors('enrollments')">
+                            Total Enrollments <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortInstructors('completion')">
+                            Avg Completion <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortInstructors('rating')">
+                            Avg Rating <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="instructors-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Detailed Course Analysis -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Detailed Course Analysis</h3>
+                    <p class="text-sm text-gray-600">Complete performance metrics for all courses</p>
+                </div>
+                <div class="flex space-x-3">
+                    <select id="course-category-filter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="instructor-filter" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Instructors</option>
+                    </select>
+                    <input type="text" id="search-courses" placeholder="Search courses..."
+                           class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortCourses('title')">
+                            Course <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortCourses('instructor')">
+                            Instructor <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortCourses('enrollments')">
+                            Enrollments <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortCourses('active')">
+                            Active Students <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortCourses('completion')">
+                            Completion Rate <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortCourses('rating')">
+                            Rating <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortCourses('revenue')">
+                            Revenue <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="courses-analysis-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+        <div class="px-6 py-3 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-700">
+                    Showing <span id="showing-from">1</span> to <span id="showing-to">10</span> of <span id="total-courses-count">0</span> courses
+                </span>
+                <div class="flex space-x-2">
+                    <button onclick="previousPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="prev-btn" disabled>
+                        Previous
+                    </button>
+                    <span class="px-3 py-1 text-sm">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="next-btn">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3">Loading analytics...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.trend-btn {
+    padding: 4px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #6b7280;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.trend-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.trend-btn:hover:not(.active) {
+    background: #f9fafb;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let analyticsData = {};
+let charts = {};
+let currentPage = 1;
+let itemsPerPage = 10;
+let sortField = '';
+let sortDirection = 'asc';
+let enrollmentView = 'daily';
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadAnalytics();
+
+    // Event listeners
+    document.getElementById('time-period').addEventListener('change', loadAnalytics);
+    document.getElementById('search-courses').addEventListener('input', debounce(filterCourses, 500));
+    document.getElementById('course-category-filter').addEventListener('change', filterCourses);
+    document.getElementById('instructor-filter').addEventListener('change', filterCourses);
+});
+
+async function loadAnalytics() {
+    showLoading(true);
+
+    try {
+        const timePeriod = document.getElementById('time-period').value;
+        const response = await fetch(`/reports/api/course-analytics?timePeriod=${timePeriod}`);
+        const data = await response.json();
+
+        if (data.success) {
+            analyticsData = data.data;
+            updateOverviewCards();
+            initializeCharts();
+            loadTopCourses();
+            loadAttentionCourses();
+            loadInstructorPerformance();
+            loadCourseAnalysis();
+            loadFilterOptions();
+        } else {
+            showError('Failed to load analytics data');
+        }
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+        showError('Error loading analytics data');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function updateOverviewCards() {
+    document.getElementById('total-courses').textContent = analyticsData.overview.totalCourses || 0;
+    document.getElementById('total-enrollments').textContent = analyticsData.overview.totalEnrollments || 0;
+    document.getElementById('completion-rate').textContent = (analyticsData.overview.completionRate || 0) + '%';
+    document.getElementById('average-rating').textContent = (analyticsData.overview.averageRating || 0).toFixed(1);
+
+    // Update trends
+    updateTrend('courses-trend', analyticsData.trends.coursesChange || 0, 'courses');
+    updateTrend('enrollments-trend', analyticsData.trends.enrollmentsChange || 0, 'percentage');
+    updateTrend('completion-trend', analyticsData.trends.completionChange || 0, 'percentage');
+    updateTrend('rating-trend', analyticsData.trends.ratingChange || 0, 'rating');
+}
+
+function updateTrend(elementId, value, type) {
+    const element = document.getElementById(elementId);
+    const parent = element.parentElement;
+
+    let displayValue;
+    switch (type) {
+        case 'percentage':
+            displayValue = (value >= 0 ? '+' : '') + value.toFixed(1) + '%';
+            break;
+        case 'rating':
+            displayValue = (value >= 0 ? '+' : '') + value.toFixed(1);
+            break;
+        case 'courses':
+            displayValue = (value >= 0 ? '+' : '') + value + ' new this month';
+            break;
+        default:
+            displayValue = value.toString();
+    }
+
+    if (value > 0) {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-green-600');
+        element.innerHTML = `<i class="fas fa-arrow-up"></i> ${displayValue}`;
+    } else if (value < 0) {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-red-600');
+        element.innerHTML = `<i class="fas fa-arrow-down"></i> ${displayValue}`;
+    } else {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-gray-600');
+        element.innerHTML = `<i class="fas fa-minus"></i> No change`;
+    }
+}
+
+function initializeCharts() {
+    // Destroy existing charts
+    Object.values(charts).forEach(chart => chart.destroy());
+    charts = {};
+
+    // Enrollment Trends Chart
+    const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
+    charts.enrollment = new Chart(enrollmentCtx, {
+        type: 'line',
+        data: {
+            labels: analyticsData.enrollment?.[enrollmentView]?.labels || [],
+            datasets: [{
+                label: 'New Enrollments',
+                data: analyticsData.enrollment?.[enrollmentView]?.data || [],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Completion Rates Chart
+    const completionCtx = document.getElementById('completionChart').getContext('2d');
+    charts.completion = new Chart(completionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: analyticsData.completion?.categories || [],
+            datasets: [{
+                data: analyticsData.completion?.rates || [],
+                backgroundColor: [
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
+                    '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Engagement Chart
+    const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+    charts.engagement = new Chart(engagementCtx, {
+        type: 'radar',
+        data: {
+            labels: ['Video Views', 'Quiz Attempts', 'Downloads', 'Forum Posts', 'Time Spent', 'Assignments'],
+            datasets: [{
+                label: 'Engagement Score',
+                data: analyticsData.engagement?.scores || [0, 0, 0, 0, 0, 0],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                pointBackgroundColor: '#10B981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Progress Distribution Chart
+    const progressCtx = document.getElementById('progressChart').getContext('2d');
+    charts.progress = new Chart(progressCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-25%', '26-50%', '51-75%', '76-99%', '100%'],
+            datasets: [{
+                label: 'Number of Students',
+                data: analyticsData.progressDistribution || [0, 0, 0, 0, 0],
+                backgroundColor: ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#10B981']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+function changeEnrollmentView(view) {
+    enrollmentView = view;
+
+    // Update button states
+    document.querySelectorAll('.trend-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+    // Update chart
+    if (charts.enrollment) {
+        charts.enrollment.data.labels = analyticsData.enrollment?.[view]?.labels || [];
+        charts.enrollment.data.datasets[0].data = analyticsData.enrollment?.[view]?.data || [];
+        charts.enrollment.update();
+    }
+}
+
+function loadTopCourses() {
+    const tbody = document.getElementById('top-courses-table');
+    tbody.innerHTML = '';
+
+    const topCourses = analyticsData.topCourses || [];
+    topCourses.forEach((course, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                ${index + 1}
+                ${index === 0 ? '<i class="fas fa-crown text-yellow-500 ml-2"></i>' : ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">${course.title}</p>
+                    <p class="text-sm text-gray-500">${course.category}</p>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span class="font-medium text-green-600">${course.completionRate}%</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div class="flex items-center">
+                    <span class="mr-1">${course.rating.toFixed(1)}</span>
+                    <div class="flex text-yellow-400">
+                        ${generateStarRating(course.rating)}
+                    </div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    if (topCourses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No data available</td></tr>';
+    }
+}
+
+function loadAttentionCourses() {
+    const tbody = document.getElementById('attention-courses-table');
+    tbody.innerHTML = '';
+
+    const attentionCourses = analyticsData.attentionCourses || [];
+    attentionCourses.forEach(course => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">${course.title}</p>
+                    <p class="text-sm text-gray-500">${course.instructor}</p>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getIssueColor(course.issue)}">
+                    ${course.issue}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
+                ${course.value}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="analyzeCourse('${course.course_id}')" class="text-blue-600 hover:text-blue-900">
+                    Analyze
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    if (attentionCourses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">All courses performing well</td></tr>';
+    }
+}
+
+function getIssueColor(issue) {
+    switch (issue.toLowerCase()) {
+        case 'low completion': return 'bg-red-100 text-red-800';
+        case 'low rating': return 'bg-orange-100 text-orange-800';
+        case 'low engagement': return 'bg-yellow-100 text-yellow-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+
+function loadInstructorPerformance() {
+    const tbody = document.getElementById('instructors-table');
+    tbody.innerHTML = '';
+
+    const instructors = analyticsData.instructors || [];
+    instructors.forEach(instructor => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 rounded-full" src="${instructor.avatar || '/images/default-avatar.png'}" alt="">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">${instructor.name}</p>
+                        <p class="text-sm text-gray-500">${instructor.department}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${instructor.coursesCount}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${instructor.totalEnrollments}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span class="text-${instructor.avgCompletion >= 70 ? 'green' : instructor.avgCompletion >= 50 ? 'yellow' : 'red'}-600">
+                    ${instructor.avgCompletion.toFixed(1)}%
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div class="flex items-center">
+                    <span class="mr-1">${instructor.avgRating.toFixed(1)}</span>
+                    <div class="flex text-yellow-400">
+                        ${generateStarRating(instructor.avgRating)}
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="viewInstructorDetails('${instructor.user_id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                    View
+                </button>
+                <button onclick="sendFeedback('${instructor.user_id}')" class="text-green-600 hover:text-green-900">
+                    Feedback
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function loadCourseAnalysis() {
+    const tbody = document.getElementById('courses-analysis-table');
+    tbody.innerHTML = '';
+
+    const courses = analyticsData.coursesDetailed || [];
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedCourses = courses.slice(start, end);
+
+    paginatedCourses.forEach(course => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">${course.title}</p>
+                    <p class="text-sm text-gray-500">${course.category}</p>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${course.instructor}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${course.enrollments}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${course.activeStudents}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span class="text-${course.completionRate >= 70 ? 'green' : course.completionRate >= 50 ? 'yellow' : 'red'}-600">
+                    ${course.completionRate}%
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div class="flex items-center">
+                    <span class="mr-1">${course.rating.toFixed(1)}</span>
+                    <div class="flex text-yellow-400 text-xs">
+                        ${generateStarRating(course.rating)}
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                ${course.revenue ? '$' + course.revenue.toLocaleString() : 'Free'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="viewCourseDetails('${course.course_id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                    Details
+                </button>
+                <button onclick="analyzeCourse('${course.course_id}')" class="text-green-600 hover:text-green-900">
+                    Analyze
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    updatePagination(courses.length);
+}
+
+function loadFilterOptions() {
+    // Load categories
+    const categorySelect = document.getElementById('course-category-filter');
+    const categories = [...new Set((analyticsData.coursesDetailed || []).map(c => c.category))];
+    categorySelect.innerHTML = '<option value="">All Categories</option>';
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categorySelect.appendChild(option);
+    });
+
+    // Load instructors
+    const instructorSelect = document.getElementById('instructor-filter');
+    const instructors = [...new Set((analyticsData.coursesDetailed || []).map(c => c.instructor))];
+    instructorSelect.innerHTML = '<option value="">All Instructors</option>';
+    instructors.forEach(instructor => {
+        const option = document.createElement('option');
+        option.value = instructor;
+        option.textContent = instructor;
+        instructorSelect.appendChild(option);
+    });
+}
+
+function generateStarRating(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    let html = '';
+
+    for (let i = 0; i < fullStars; i++) {
+        html += '<i class="fas fa-star"></i>';
+    }
+
+    if (hasHalfStar) {
+        html += '<i class="fas fa-star-half-alt"></i>';
+    }
+
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+        html += '<i class="far fa-star"></i>';
+    }
+
+    return html;
+}
+
+function updatePagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const showingFrom = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const showingTo = Math.min(currentPage * itemsPerPage, totalItems);
+
+    document.getElementById('showing-from').textContent = showingFrom;
+    document.getElementById('showing-to').textContent = showingTo;
+    document.getElementById('total-courses-count').textContent = totalItems;
+    document.getElementById('current-page').textContent = currentPage;
+    document.getElementById('total-pages').textContent = totalPages;
+
+    document.getElementById('prev-btn').disabled = currentPage <= 1;
+    document.getElementById('next-btn').disabled = currentPage >= totalPages;
+}
+
+function sortCourses(field) {
+    if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDirection = 'asc';
+    }
+
+    analyticsData.coursesDetailed.sort((a, b) => {
+        let aValue = a[field];
+        let bValue = b[field];
+
+        if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (sortDirection === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+
+    loadCourseAnalysis();
+}
+
+function sortInstructors(field) {
+    analyticsData.instructors.sort((a, b) => {
+        let aValue = a[field];
+        let bValue = b[field];
+
+        if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        return aValue > bValue ? 1 : -1;
+    });
+
+    loadInstructorPerformance();
+}
+
+function filterCourses() {
+    const searchTerm = document.getElementById('search-courses').value.toLowerCase();
+    const categoryFilter = document.getElementById('course-category-filter').value;
+    const instructorFilter = document.getElementById('instructor-filter').value;
+
+    let filteredCourses = analyticsData.coursesDetailed || [];
+
+    if (searchTerm) {
+        filteredCourses = filteredCourses.filter(course =>
+            course.title.toLowerCase().includes(searchTerm) ||
+            course.instructor.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (categoryFilter) {
+        filteredCourses = filteredCourses.filter(course => course.category === categoryFilter);
+    }
+
+    if (instructorFilter) {
+        filteredCourses = filteredCourses.filter(course => course.instructor === instructorFilter);
+    }
+
+    // Update the displayed data
+    analyticsData.coursesDetailed = filteredCourses;
+    currentPage = 1;
+    loadCourseAnalysis();
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadCourseAnalysis();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil((analyticsData.coursesDetailed || []).length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        loadCourseAnalysis();
+    }
+}
+
+function refreshAnalytics() {
+    loadAnalytics();
+}
+
+async function exportAnalytics() {
+    showLoading(true);
+
+    try {
+        const timePeriod = document.getElementById('time-period').value;
+        const response = await fetch(`/reports/api/course-analytics/export?timePeriod=${timePeriod}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `course-analytics-${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showSuccess('Analytics exported successfully');
+        } else {
+            showError('Failed to export analytics');
+        }
+    } catch (error) {
+        console.error('Error exporting analytics:', error);
+        showError('Error exporting analytics');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function viewCourseDetails(courseId) {
+    window.open(`/courses/${courseId}`, '_blank');
+}
+
+function analyzeCourse(courseId) {
+    window.location.href = `/reports/course-analysis/${courseId}`;
+}
+
+function viewInstructorDetails(instructorId) {
+    window.open(`/users/${instructorId}`, '_blank');
+}
+
+function sendFeedback(instructorId) {
+    // Implement feedback functionality
+    alert('Feedback feature coming soon!');
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    alert(message); // Replace with toast notification
+}
+
+function showError(message) {
+    alert('Error: ' + message); // Replace with toast notification
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+
+<%- include('../partials/footer') %>

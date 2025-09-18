@@ -1,0 +1,880 @@
+<% layout('layout') -%>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-plus-circle mr-3 text-ruxchai-primary"></i>สร้างข้อสอบใหม่
+                </h1>
+                <p class="mt-2 text-gray-600">สร้างข้อสอบและแบบทดสอบสำหรับประเมินความรู้</p>
+            </div>
+            <a href="/tests" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>กลับไปรายการข้อสอบ
+            </a>
+        </div>
+    </div>
+
+    <!-- Test Creation Form -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="p-6">
+            <!-- Progress Steps -->
+            <div class="mb-8">
+                <nav aria-label="Progress">
+                    <ol class="flex items-center">
+                        <li class="relative pr-8 sm:pr-20">
+                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div class="h-0.5 w-full bg-ruxchai-primary"></div>
+                            </div>
+                            <div class="relative w-8 h-8 flex items-center justify-center bg-ruxchai-primary rounded-full">
+                                <span class="text-white text-sm font-medium">1</span>
+                            </div>
+                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-900">ข้อมูลพื้นฐาน</span>
+                        </li>
+
+                        <li class="relative pr-8 sm:pr-20">
+                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div class="h-0.5 w-full bg-gray-200"></div>
+                            </div>
+                            <div class="relative w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full">
+                                <span class="text-gray-500 text-sm font-medium">2</span>
+                            </div>
+                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-500">การตั้งค่า</span>
+                        </li>
+
+                        <li class="relative">
+                            <div class="relative w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full">
+                                <span class="text-gray-500 text-sm font-medium">3</span>
+                            </div>
+                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-500">คำถาม</span>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+
+            <form id="create-test-form">
+                <!-- Step 1: Basic Information -->
+                <div id="step-1" class="step-content">
+                    <h3 class="text-lg font-medium text-gray-900 mb-6">
+                        <i class="fas fa-info-circle mr-2 text-ruxchai-primary"></i>ข้อมูลพื้นฐานของข้อสอบ
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label for="test_name" class="block text-sm font-medium text-gray-700 mb-2">ชื่อข้อสอบ <span class="text-red-500">*</span></label>
+                            <input type="text" id="test_name" name="test_name" required
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                   placeholder="ระบุชื่อข้อสอบ">
+                        </div>
+
+                        <div>
+                            <label for="test_code" class="block text-sm font-medium text-gray-700 mb-2">รหัสข้อสอบ <span class="text-red-500">*</span></label>
+                            <input type="text" id="test_code" name="test_code" required
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                   placeholder="เช่น TEST-001">
+                        </div>
+
+                        <div>
+                            <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่ <span class="text-red-500">*</span></label>
+                            <select id="category_id" name="category_id" required
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <option value="">เลือกหมวดหมู่</option>
+                                <option value="assessment">แบบประเมิน</option>
+                                <option value="quiz">แบบทดสอบย่อย</option>
+                                <option value="exam">สอบปลายภาค</option>
+                                <option value="certification">สอบใบรับรอง</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">หลักสูตรที่เกี่ยวข้อง</label>
+                            <select id="course_id" name="course_id"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <option value="">ไม่เกี่ยวข้องกับหลักสูตร</option>
+                                <!-- Courses will be loaded here -->
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="difficulty_level" class="block text-sm font-medium text-gray-700 mb-2">ระดับความยาก</label>
+                            <select id="difficulty_level" name="difficulty_level"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <option value="Easy">ง่าย</option>
+                                <option value="Medium" selected>ปานกลาง</option>
+                                <option value="Hard">ยาก</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายข้อสอบ</label>
+                            <textarea id="description" name="description" rows="4"
+                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                      placeholder="อธิบายรายละเอียดและจุดประสงค์ของข้อสอบ"></textarea>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="instructions" class="block text-sm font-medium text-gray-700 mb-2">คำแนะนำสำหรับผู้สอบ</label>
+                            <textarea id="instructions" name="instructions" rows="3"
+                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                      placeholder="คำแนะนำและเงื่อนไขสำหรับการทำข้อสอบ"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end mt-8">
+                        <button type="button" onclick="nextStep()"
+                                class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                            ถัดไป <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Test Settings -->
+                <div id="step-2" class="step-content hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-6">
+                        <i class="fas fa-cogs mr-2 text-ruxchai-primary"></i>การตั้งค่าข้อสอบ
+                    </h3>
+
+                    <div class="space-y-8">
+                        <!-- Time Settings -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h4 class="text-md font-medium text-gray-900 mb-4">การตั้งค่าเวลา</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label for="time_limit" class="block text-sm font-medium text-gray-700 mb-2">เวลาในการทำข้อสอบ (นาที)</label>
+                                    <input type="number" id="time_limit" name="time_limit" min="1" max="300"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                           placeholder="เช่น 60">
+                                </div>
+
+                                <div>
+                                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">วันเริ่มสอบ</label>
+                                    <input type="datetime-local" id="start_date" name="start_date"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                </div>
+
+                                <div>
+                                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">วันสิ้นสุดการสอบ</label>
+                                    <input type="datetime-local" id="end_date" name="end_date"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attempt Settings -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h4 class="text-md font-medium text-gray-900 mb-4">การตั้งค่าการทำข้อสอบ</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2">จำนวนครั้งที่ทำได้</label>
+                                    <input type="number" id="max_attempts" name="max_attempts" min="1" max="10" value="1"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                </div>
+
+                                <div>
+                                    <label for="passing_score" class="block text-sm font-medium text-gray-700 mb-2">คะแนนผ่าน (%)</label>
+                                    <input type="number" id="passing_score" name="passing_score" min="0" max="100" value="70"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                </div>
+
+                                <div>
+                                    <label for="question_order" class="block text-sm font-medium text-gray-700 mb-2">ลำดับคำถาม</label>
+                                    <select id="question_order" name="question_order"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <option value="fixed">ลำดับคงที่</option>
+                                        <option value="random">สุ่มลำดับ</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Display Settings -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h4 class="text-md font-medium text-gray-900 mb-4">การตั้งค่าการแสดงผล</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="show_score_immediately" name="show_score_immediately"
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">แสดงคะแนนทันทีหลังทำเสร็จ</span>
+                                    </label>
+
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="show_correct_answers" name="show_correct_answers"
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">แสดงเฉลยหลังทำเสร็จ</span>
+                                    </label>
+
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="allow_review" name="allow_review"
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">อนุญาตให้ทบทวนคำตอบ</span>
+                                    </label>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="require_camera" name="require_camera"
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">บังคับใช้กล้อง (Anti-cheating)</span>
+                                    </label>
+
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="prevent_copy_paste" name="prevent_copy_paste" checked
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">ป้องกันการคัดลอก-วาง</span>
+                                    </label>
+
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="track_tab_switching" name="track_tab_switching" checked
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">ติดตามการเปลี่ยนแท็บ</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Access Control -->
+                        <div>
+                            <h4 class="text-md font-medium text-gray-900 mb-4">การควบคุมการเข้าถึง</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="access_code" class="block text-sm font-medium text-gray-700 mb-2">รหัสเข้าสอบ (ไม่บังคับ)</label>
+                                    <input type="text" id="access_code" name="access_code"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                           placeholder="ระบุรหัสสำหรับเข้าทำข้อสอบ">
+                                </div>
+
+                                <div>
+                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">สถานะ</label>
+                                    <select id="status" name="status"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <option value="Draft">ร่าง</option>
+                                        <option value="Published">เผยแพร่</option>
+                                        <option value="Archived">เก็บถาวร</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-8">
+                        <button type="button" onclick="previousStep()"
+                                class="px-6 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-arrow-left mr-2"></i>ก่อนหน้า
+                        </button>
+                        <button type="button" onclick="nextStep()"
+                                class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                            ถัดไป <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Questions -->
+                <div id="step-3" class="step-content hidden">
+                    <h3 class="text-lg font-medium text-gray-900 mb-6">
+                        <i class="fas fa-question-circle mr-2 text-ruxchai-primary"></i>จัดการคำถาม
+                    </h3>
+
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-md font-medium text-gray-900">รายการคำถาม</h4>
+                            <div class="flex space-x-3">
+                                <button type="button" onclick="importQuestions()"
+                                        class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-upload mr-2"></i>นำเข้าจาก Question Bank
+                                </button>
+                                <button type="button" onclick="addQuestion()"
+                                        class="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                                    <i class="fas fa-plus mr-2"></i>เพิ่มคำถาม
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="questions-container" class="space-y-4">
+                            <!-- Questions will be added here -->
+                        </div>
+
+                        <div id="no-questions" class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                            <i class="fas fa-question-circle text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500">ยังไม่มีคำถาม</p>
+                            <p class="text-sm text-gray-400 mt-2">เริ่มต้นด้วยการเพิ่มคำถามแรก</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-8">
+                        <button type="button" onclick="previousStep()"
+                                class="px-6 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-arrow-left mr-2"></i>ก่อนหน้า
+                        </button>
+                        <div class="flex space-x-3">
+                            <button type="button" onclick="saveDraft()"
+                                    class="px-6 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-save mr-2"></i>บันทึกร่าง
+                            </button>
+                            <button type="submit"
+                                    class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                                <i class="fas fa-check mr-2"></i>สร้างข้อสอบ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Question Modal -->
+<div id="question-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-question-circle mr-2 text-ruxchai-primary"></i>เพิ่ม/แก้ไขคำถาม
+                </h3>
+                <button onclick="closeQuestionModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="question-form" class="space-y-4">
+                <input type="hidden" id="question-index">
+
+                <div>
+                    <label for="question-type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทคำถาม</label>
+                    <select id="question-type" name="question_type" onchange="changeQuestionType()"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <option value="multiple_choice">คำถามแบบตัวเลือก</option>
+                        <option value="true_false">ถูก/ผิด</option>
+                        <option value="essay">คำถามแบบเขียนตอบ</option>
+                        <option value="fill_blank">เติมคำในช่องว่าง</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="question-text" class="block text-sm font-medium text-gray-700 mb-2">คำถาม <span class="text-red-500">*</span></label>
+                    <textarea id="question-text" name="question_text" rows="3" required
+                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                              placeholder="ระบุคำถาม"></textarea>
+                </div>
+
+                <div>
+                    <label for="question-points" class="block text-sm font-medium text-gray-700 mb-2">คะแนน</label>
+                    <input type="number" id="question-points" name="points" min="1" max="100" value="1"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                </div>
+
+                <!-- Answer Options (for multiple choice) -->
+                <div id="answer-options" class="space-y-3">
+                    <label class="block text-sm font-medium text-gray-700">ตัวเลือก</label>
+                    <div id="options-container"></div>
+                    <button type="button" onclick="addOption()" class="text-sm text-ruxchai-primary hover:text-blue-700">
+                        <i class="fas fa-plus mr-1"></i>เพิ่มตัวเลือก
+                    </button>
+                </div>
+
+                <!-- True/False Options -->
+                <div id="true-false-options" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">คำตอบที่ถูกต้อง</label>
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="correct_answer" value="true" class="form-radio">
+                            <span class="ml-2">ถูก</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="correct_answer" value="false" class="form-radio">
+                            <span class="ml-2">ผิด</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Essay Answer -->
+                <div id="essay-answer" class="hidden">
+                    <label for="essay-sample" class="block text-sm font-medium text-gray-700 mb-2">คำตอบตัวอย่าง/เกณฑ์การให้คะแนน</label>
+                    <textarea id="essay-sample" name="sample_answer" rows="4"
+                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                              placeholder="ระบุคำตอบตัวอย่างหรือเกณฑ์การให้คะแนน"></textarea>
+                </div>
+
+                <!-- Fill Blank Answer -->
+                <div id="fill-blank-answer" class="hidden">
+                    <label for="blank-answers" class="block text-sm font-medium text-gray-700 mb-2">คำตอบที่ถูกต้อง (คั่นด้วยเครื่องหมายจุลภาค)</label>
+                    <input type="text" id="blank-answers" name="blank_answers"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                           placeholder="เช่น คำตอบ1, คำตอบ2, คำตอบ3">
+                </div>
+
+                <div>
+                    <label for="question-explanation" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายเพิ่มเติม</label>
+                    <textarea id="question-explanation" name="explanation" rows="2"
+                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                              placeholder="คำอธิบายเหตุผลของคำตอบที่ถูกต้อง"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeQuestionModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        ยกเลิก
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                        <i class="fas fa-save mr-2"></i>บันทึกคำถาม
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentStep = 1;
+let questions = [];
+let editingQuestionIndex = -1;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadCourses();
+    setupFormHandlers();
+    initializeFirstQuestion();
+});
+
+function loadCourses() {
+    // Load courses for selection
+    fetch('/courses/api/list')
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const select = document.getElementById('course_id');
+                result.data.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.course_id;
+                    option.textContent = `${course.course_code} - ${course.course_name}`;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading courses:', error));
+}
+
+function setupFormHandlers() {
+    document.getElementById('create-test-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await submitTest();
+    });
+
+    document.getElementById('question-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveQuestion();
+    });
+}
+
+function nextStep() {
+    if (validateCurrentStep()) {
+        hideStep(currentStep);
+        currentStep++;
+        showStep(currentStep);
+        updateProgressSteps();
+    }
+}
+
+function previousStep() {
+    hideStep(currentStep);
+    currentStep--;
+    showStep(currentStep);
+    updateProgressSteps();
+}
+
+function hideStep(step) {
+    document.getElementById(`step-${step}`).classList.add('hidden');
+}
+
+function showStep(step) {
+    document.getElementById(`step-${step}`).classList.remove('hidden');
+}
+
+function updateProgressSteps() {
+    for (let i = 1; i <= 3; i++) {
+        const stepElement = document.querySelector(`nav ol li:nth-child(${i}) .relative`);
+        const textElement = document.querySelector(`nav ol li:nth-child(${i}) span`);
+
+        if (i <= currentStep) {
+            stepElement.className = stepElement.className.replace('bg-gray-200', 'bg-ruxchai-primary');
+            stepElement.querySelector('span').className = 'text-white text-sm font-medium';
+            textElement.className = textElement.className.replace('text-gray-500', 'text-gray-900');
+        } else {
+            stepElement.className = stepElement.className.replace('bg-ruxchai-primary', 'bg-gray-200');
+            stepElement.querySelector('span').className = 'text-gray-500 text-sm font-medium';
+            textElement.className = textElement.className.replace('text-gray-900', 'text-gray-500');
+        }
+    }
+
+    // Update connecting lines
+    const lines = document.querySelectorAll('nav ol li .absolute.inset-0 div');
+    lines.forEach((line, index) => {
+        if (index < currentStep - 1) {
+            line.className = line.className.replace('bg-gray-200', 'bg-ruxchai-primary');
+        } else {
+            line.className = line.className.replace('bg-ruxchai-primary', 'bg-gray-200');
+        }
+    });
+}
+
+function validateCurrentStep() {
+    const requiredFields = document.querySelectorAll(`#step-${currentStep} [required]`);
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+
+    if (!isValid) {
+        showError('กรุณากรอกข้อมูลให้ครบถ้วน');
+    }
+
+    return isValid;
+}
+
+function initializeFirstQuestion() {
+    // Show the "no questions" state initially
+    updateQuestionsDisplay();
+}
+
+function addQuestion() {
+    editingQuestionIndex = -1;
+    resetQuestionForm();
+    changeQuestionType(); // Set up initial question type
+    document.getElementById('question-modal').classList.remove('hidden');
+}
+
+function editQuestion(index) {
+    editingQuestionIndex = index;
+    const question = questions[index];
+    populateQuestionForm(question);
+    document.getElementById('question-modal').classList.remove('hidden');
+}
+
+function deleteQuestion(index) {
+    if (confirm('คุณต้องการลบคำถามนี้หรือไม่?')) {
+        questions.splice(index, 1);
+        updateQuestionsDisplay();
+    }
+}
+
+function resetQuestionForm() {
+    document.getElementById('question-form').reset();
+    document.getElementById('question-type').value = 'multiple_choice';
+    document.getElementById('question-points').value = 1;
+}
+
+function populateQuestionForm(question) {
+    document.getElementById('question-type').value = question.question_type;
+    document.getElementById('question-text').value = question.question_text;
+    document.getElementById('question-points').value = question.points;
+    document.getElementById('question-explanation').value = question.explanation || '';
+
+    changeQuestionType();
+
+    // Populate answers based on question type
+    if (question.question_type === 'multiple_choice') {
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        question.options.forEach((option, index) => {
+            addOption(option.text, option.is_correct);
+        });
+    } else if (question.question_type === 'true_false') {
+        document.querySelector(`input[name="correct_answer"][value="${question.correct_answer}"]`).checked = true;
+    } else if (question.question_type === 'essay') {
+        document.getElementById('essay-sample').value = question.sample_answer || '';
+    } else if (question.question_type === 'fill_blank') {
+        document.getElementById('blank-answers').value = question.correct_answers ? question.correct_answers.join(', ') : '';
+    }
+}
+
+function changeQuestionType() {
+    const type = document.getElementById('question-type').value;
+
+    // Hide all answer sections
+    document.getElementById('answer-options').classList.add('hidden');
+    document.getElementById('true-false-options').classList.add('hidden');
+    document.getElementById('essay-answer').classList.add('hidden');
+    document.getElementById('fill-blank-answer').classList.add('hidden');
+
+    // Show relevant section
+    if (type === 'multiple_choice') {
+        document.getElementById('answer-options').classList.remove('hidden');
+        if (document.getElementById('options-container').children.length === 0) {
+            // Add default options
+            addOption('', false);
+            addOption('', false);
+        }
+    } else if (type === 'true_false') {
+        document.getElementById('true-false-options').classList.remove('hidden');
+    } else if (type === 'essay') {
+        document.getElementById('essay-answer').classList.remove('hidden');
+    } else if (type === 'fill_blank') {
+        document.getElementById('fill-blank-answer').classList.remove('hidden');
+    }
+}
+
+function addOption(text = '', isCorrect = false) {
+    const container = document.getElementById('options-container');
+    const optionIndex = container.children.length;
+
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'flex items-center space-x-2';
+    optionDiv.innerHTML = `
+        <input type="radio" name="correct_option" value="${optionIndex}" ${isCorrect ? 'checked' : ''}
+               class="form-radio">
+        <input type="text" name="option_text_${optionIndex}" value="${text}" required
+               class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+               placeholder="ตัวเลือกที่ ${optionIndex + 1}">
+        <button type="button" onclick="removeOption(this)" class="text-red-600 hover:text-red-800">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    container.appendChild(optionDiv);
+}
+
+function removeOption(button) {
+    const container = document.getElementById('options-container');
+    if (container.children.length > 2) {
+        button.parentElement.remove();
+        // Re-index options
+        Array.from(container.children).forEach((option, index) => {
+            const radio = option.querySelector('input[type="radio"]');
+            const text = option.querySelector('input[type="text"]');
+            const placeholder = option.querySelector('input[type="text"]');
+
+            radio.value = index;
+            text.name = `option_text_${index}`;
+            placeholder.placeholder = `ตัวเลือกที่ ${index + 1}`;
+        });
+    }
+}
+
+function saveQuestion() {
+    const formData = new FormData(document.getElementById('question-form'));
+    const questionType = formData.get('question_type');
+
+    const question = {
+        question_type: questionType,
+        question_text: formData.get('question_text'),
+        points: parseInt(formData.get('points')),
+        explanation: formData.get('explanation') || ''
+    };
+
+    // Handle answers based on question type
+    if (questionType === 'multiple_choice') {
+        const options = [];
+        const container = document.getElementById('options-container');
+        const correctIndex = parseInt(formData.get('correct_option'));
+
+        Array.from(container.children).forEach((option, index) => {
+            const text = option.querySelector('input[type="text"]').value;
+            if (text.trim()) {
+                options.push({
+                    text: text,
+                    is_correct: index === correctIndex
+                });
+            }
+        });
+
+        if (options.length < 2) {
+            showError('คำถามแบบตัวเลือกต้องมีอย่างน้อย 2 ตัวเลือก');
+            return;
+        }
+
+        if (correctIndex === undefined || correctIndex < 0) {
+            showError('กรุณาเลือกคำตอบที่ถูกต้อง');
+            return;
+        }
+
+        question.options = options;
+    } else if (questionType === 'true_false') {
+        question.correct_answer = formData.get('correct_answer');
+        if (!question.correct_answer) {
+            showError('กรุณาเลือกคำตอบที่ถูกต้อง');
+            return;
+        }
+    } else if (questionType === 'essay') {
+        question.sample_answer = formData.get('sample_answer');
+    } else if (questionType === 'fill_blank') {
+        const answers = formData.get('blank_answers');
+        if (!answers || !answers.trim()) {
+            showError('กรุณาระบุคำตอบที่ถูกต้อง');
+            return;
+        }
+        question.correct_answers = answers.split(',').map(a => a.trim()).filter(a => a);
+    }
+
+    // Add or update question
+    if (editingQuestionIndex >= 0) {
+        questions[editingQuestionIndex] = question;
+    } else {
+        questions.push(question);
+    }
+
+    updateQuestionsDisplay();
+    closeQuestionModal();
+    showSuccess('บันทึกคำถามเรียบร้อยแล้ว');
+}
+
+function updateQuestionsDisplay() {
+    const container = document.getElementById('questions-container');
+    const noQuestions = document.getElementById('no-questions');
+
+    if (questions.length === 0) {
+        container.classList.add('hidden');
+        noQuestions.classList.remove('hidden');
+        return;
+    }
+
+    container.classList.remove('hidden');
+    noQuestions.classList.add('hidden');
+
+    container.innerHTML = questions.map((question, index) => `
+        <div class="border border-gray-200 rounded-lg p-4">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="text-sm font-medium text-gray-900">คำถามที่ ${index + 1}</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getQuestionTypeColor(question.question_type)}">
+                            ${getQuestionTypeText(question.question_type)}
+                        </span>
+                        <span class="text-xs text-gray-500">${question.points} คะแนน</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">${question.question_text}</p>
+                    ${renderQuestionPreview(question)}
+                </div>
+                <div class="flex space-x-2 ml-4">
+                    <button onclick="editQuestion(${index})" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteQuestion(${index})" class="text-red-600 hover:text-red-800 text-sm">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getQuestionTypeColor(type) {
+    const colors = {
+        'multiple_choice': 'bg-blue-100 text-blue-800',
+        'true_false': 'bg-green-100 text-green-800',
+        'essay': 'bg-purple-100 text-purple-800',
+        'fill_blank': 'bg-yellow-100 text-yellow-800'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+}
+
+function getQuestionTypeText(type) {
+    const types = {
+        'multiple_choice': 'ตัวเลือก',
+        'true_false': 'ถูก/ผิด',
+        'essay': 'เขียนตอบ',
+        'fill_blank': 'เติมคำ'
+    };
+    return types[type] || type;
+}
+
+function renderQuestionPreview(question) {
+    if (question.question_type === 'multiple_choice') {
+        return `
+            <div class="space-y-1">
+                ${question.options.map((option, index) => `
+                    <div class="flex items-center space-x-2 text-sm">
+                        <span class="${option.is_correct ? 'text-green-600 font-medium' : 'text-gray-600'}">
+                            ${String.fromCharCode(65 + index)}. ${option.text}
+                            ${option.is_correct ? '<i class="fas fa-check ml-1"></i>' : ''}
+                        </span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else if (question.question_type === 'true_false') {
+        return `<p class="text-sm text-green-600 font-medium">คำตอบ: ${question.correct_answer === 'true' ? 'ถูก' : 'ผิด'}</p>`;
+    } else if (question.question_type === 'fill_blank') {
+        return `<p class="text-sm text-green-600 font-medium">คำตอบ: ${question.correct_answers.join(', ')}</p>`;
+    }
+    return '';
+}
+
+function closeQuestionModal() {
+    document.getElementById('question-modal').classList.add('hidden');
+    resetQuestionForm();
+}
+
+function importQuestions() {
+    // Implementation for importing questions from question bank
+    showSuccess('ฟีเจอร์นำเข้าคำถามจะเปิดใช้งานเร็วๆ นี้');
+}
+
+async function submitTest() {
+    if (questions.length === 0) {
+        showError('กรุณาเพิ่มคำถามอย่างน้อย 1 ข้อ');
+        return;
+    }
+
+    const formData = new FormData(document.getElementById('create-test-form'));
+
+    const testData = {
+        test_name: formData.get('test_name'),
+        test_code: formData.get('test_code'),
+        description: formData.get('description'),
+        instructions: formData.get('instructions'),
+        category_id: formData.get('category_id'),
+        course_id: formData.get('course_id') || null,
+        difficulty_level: formData.get('difficulty_level'),
+        time_limit: formData.get('time_limit') ? parseInt(formData.get('time_limit')) : null,
+        start_date: formData.get('start_date') || null,
+        end_date: formData.get('end_date') || null,
+        max_attempts: parseInt(formData.get('max_attempts')),
+        passing_score: parseInt(formData.get('passing_score')),
+        question_order: formData.get('question_order'),
+        show_score_immediately: formData.get('show_score_immediately') ? true : false,
+        show_correct_answers: formData.get('show_correct_answers') ? true : false,
+        allow_review: formData.get('allow_review') ? true : false,
+        require_camera: formData.get('require_camera') ? true : false,
+        prevent_copy_paste: formData.get('prevent_copy_paste') ? true : false,
+        track_tab_switching: formData.get('track_tab_switching') ? true : false,
+        access_code: formData.get('access_code') || null,
+        status: formData.get('status'),
+        questions: questions
+    };
+
+    try {
+        const response = await fetch('/tests/api', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(testData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('สร้างข้อสอบเรียบร้อยแล้ว');
+            setTimeout(() => {
+                window.location.href = `/tests/${result.data.test_id}`;
+            }, 1500);
+        } else {
+            showError(result.message || 'เกิดข้อผิดพลาดในการสร้างข้อสอบ');
+        }
+    } catch (error) {
+        showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    }
+}
+
+async function saveDraft() {
+    // Implementation for saving draft
+    showSuccess('บันทึกร่างเรียบร้อยแล้ว');
+}
+</script>

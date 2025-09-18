@@ -1,0 +1,1020 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">User Activity Report</h1>
+                <p class="text-gray-600 mt-2">Monitor user engagement, session patterns, and learning behaviors</p>
+            </div>
+            <div class="flex space-x-3">
+                <select id="time-period" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="today">Today</option>
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                </select>
+                <button onclick="realTimeMode()" id="realtime-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                    <i class="fas fa-broadcast-tower mr-2"></i>Live View
+                </button>
+                <button onclick="exportActivity()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Status Banner -->
+    <div id="realtime-banner" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 hidden">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="h-3 w-3 bg-green-500 rounded-full animate-pulse mr-3"></div>
+                <span class="text-blue-800 font-medium">Real-time monitoring active</span>
+                <span class="text-blue-600 text-sm ml-2">Updates every 30 seconds</span>
+            </div>
+            <button onclick="exitRealTime()" class="text-blue-600 hover:text-blue-800">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Activity Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Active Users</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="active-users">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="active-trend">+12%</span> vs yesterday
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-clock text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Avg Session Time</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="avg-session">0m</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="session-trend">+8m</span> vs yesterday
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <i class="fas fa-eye text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Page Views</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="page-views">0</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="views-trend">+15%</span> vs yesterday
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-mouse-pointer text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Engagement Rate</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="engagement-rate">0%</p>
+                    <p class="text-xs text-green-600 mt-1">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="engagement-trend">+3.2%</span> vs yesterday
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Search Panel -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="user-type" class="block text-sm font-medium text-gray-700 mb-2">User Type</label>
+                <select id="user-type" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Users</option>
+                    <option value="student">Students</option>
+                    <option value="instructor">Instructors</option>
+                    <option value="admin">Administrators</option>
+                </select>
+            </div>
+            <div>
+                <label for="department-filter" class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                <select id="department-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Departments</option>
+                    <option value="IT">Information Technology</option>
+                    <option value="HR">Human Resources</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Operations">Operations</option>
+                </select>
+            </div>
+            <div>
+                <label for="activity-type" class="block text-sm font-medium text-gray-700 mb-2">Activity Type</label>
+                <select id="activity-type" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Activities</option>
+                    <option value="course_view">Course Views</option>
+                    <option value="test_attempt">Test Attempts</option>
+                    <option value="video_watch">Video Watching</option>
+                    <option value="download">Downloads</option>
+                    <option value="forum_post">Forum Posts</option>
+                </select>
+            </div>
+            <div>
+                <label for="search-user" class="block text-sm font-medium text-gray-700 mb-2">Search User</label>
+                <input type="text" id="search-user" placeholder="Username or email..."
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+        <div class="flex justify-end mt-4 space-x-3">
+            <button onclick="clearFilters()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                Clear Filters
+            </button>
+            <button onclick="applyFilters()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Apply Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Activity Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- User Activity Timeline -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">User Activity Timeline</h3>
+                <div class="flex space-x-2">
+                    <button onclick="changeTimelineView('hourly')" class="timeline-btn active" data-view="hourly">Hourly</button>
+                    <button onclick="changeTimelineView('daily')" class="timeline-btn" data-view="daily">Daily</button>
+                </div>
+            </div>
+            <canvas id="activityTimelineChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Top Activities -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Top User Activities</h3>
+            <canvas id="topActivitiesChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Session Duration Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Session Duration Distribution</h3>
+            <canvas id="sessionChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Device & Browser Usage -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Device & Browser Usage</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Devices</h4>
+                    <canvas id="deviceChart" width="200" height="200"></canvas>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Browsers</h4>
+                    <canvas id="browserChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Users Live Feed -->
+    <div class="bg-white rounded-lg shadow-sm mb-6">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Currently Active Users</h3>
+                    <p class="text-sm text-gray-600">Users active in the last 5 minutes</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-500">Auto-refresh:</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="auto-refresh" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current Activity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Session Duration</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Action</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="active-users-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Detailed Activity Log -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Detailed Activity Log</h3>
+                    <p class="text-sm text-gray-600">Complete user activity history</p>
+                </div>
+                <div class="flex space-x-3">
+                    <select id="activity-level" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Activities</option>
+                        <option value="critical">Critical Only</option>
+                        <option value="learning">Learning Only</option>
+                        <option value="system">System Only</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortActivities('timestamp')">
+                            Timestamp <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortActivities('user')">
+                            User <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortActivities('activity')">
+                            Activity <i class="fas fa-sort ml-1"></i>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP Address</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Device</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-log-table" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+        </div>
+        <div class="px-6 py-3 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-700">
+                    Showing <span id="showing-from">1</span> to <span id="showing-to">20</span> of <span id="total-activities">0</span> activities
+                </span>
+                <div class="flex space-x-2">
+                    <button onclick="previousPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="prev-btn" disabled>
+                        Previous
+                    </button>
+                    <span class="px-3 py-1 text-sm">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="next-btn">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Detail Modal -->
+<div id="activity-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">Activity Details</h3>
+                    <button onclick="closeActivityModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="activity-detail-content">
+                    <!-- Activity details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-3">Loading activity data...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline-btn {
+    padding: 4px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #6b7280;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.timeline-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.timeline-btn:hover:not(.active) {
+    background: #f9fafb;
+}
+
+.activity-badge {
+    display: inline-flex;
+    items-center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-login { background-color: #dcfce7; color: #166534; }
+.badge-course { background-color: #dbeafe; color: #1e40af; }
+.badge-test { background-color: #fef3c7; color: #92400e; }
+.badge-video { background-color: #f3e8ff; color: #7c3aed; }
+.badge-download { background-color: #ecfdf5; color: #065f46; }
+.badge-forum { background-color: #fef2f2; color: #dc2626; }
+.badge-system { background-color: #f1f5f9; color: #475569; }
+
+.status-online {
+    background-color: #10b981;
+    animation: pulse 2s infinite;
+}
+
+.status-away { background-color: #f59e0b; }
+.status-offline { background-color: #6b7280; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let activityData = {};
+let charts = {};
+let currentPage = 1;
+let itemsPerPage = 20;
+let sortField = 'timestamp';
+let sortDirection = 'desc';
+let currentFilters = {};
+let isRealTime = false;
+let realTimeInterval = null;
+let timelineView = 'hourly';
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadActivityData();
+
+    // Event listeners
+    document.getElementById('time-period').addEventListener('change', loadActivityData);
+    document.getElementById('search-user').addEventListener('input', debounce(applyFilters, 500));
+    document.getElementById('activity-level').addEventListener('change', loadActivityLog);
+    document.getElementById('auto-refresh').addEventListener('change', handleAutoRefresh);
+});
+
+async function loadActivityData() {
+    showLoading(true);
+
+    try {
+        const timePeriod = document.getElementById('time-period').value;
+        const params = new URLSearchParams({
+            timePeriod: timePeriod,
+            ...currentFilters
+        });
+
+        const response = await fetch(`/reports/api/user-activity?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+            activityData = data.data;
+            updateOverviewCards();
+            initializeCharts();
+            loadActiveUsers();
+            loadActivityLog();
+        } else {
+            showError('Failed to load activity data');
+        }
+    } catch (error) {
+        console.error('Error loading activity data:', error);
+        showError('Error loading activity data');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function updateOverviewCards() {
+    const overview = activityData.overview || {};
+
+    document.getElementById('active-users').textContent = overview.activeUsers || 0;
+    document.getElementById('avg-session').textContent = formatDuration(overview.avgSessionTime || 0);
+    document.getElementById('page-views').textContent = (overview.pageViews || 0).toLocaleString();
+    document.getElementById('engagement-rate').textContent = (overview.engagementRate || 0) + '%';
+
+    // Update trends
+    updateTrend('active-trend', overview.activeTrend || 0);
+    updateTrend('session-trend', overview.sessionTrend || 0, 'time');
+    updateTrend('views-trend', overview.viewsTrend || 0);
+    updateTrend('engagement-trend', overview.engagementTrend || 0);
+}
+
+function updateTrend(elementId, value, type = 'percentage') {
+    const element = document.getElementById(elementId);
+    const parent = element.parentElement;
+
+    let displayValue;
+    if (type === 'time') {
+        displayValue = (value >= 0 ? '+' : '') + value + 'm';
+    } else if (type === 'percentage') {
+        displayValue = (value >= 0 ? '+' : '') + value + '%';
+    } else {
+        displayValue = (value >= 0 ? '+' : '') + value;
+    }
+
+    if (value > 0) {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-green-600');
+        element.innerHTML = `<i class="fas fa-arrow-up"></i> ${displayValue}`;
+    } else if (value < 0) {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-red-600');
+        element.innerHTML = `<i class="fas fa-arrow-down"></i> ${displayValue}`;
+    } else {
+        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-gray-600');
+        element.innerHTML = `<i class="fas fa-minus"></i> No change`;
+    }
+}
+
+function initializeCharts() {
+    // Destroy existing charts
+    Object.values(charts).forEach(chart => chart.destroy());
+    charts = {};
+
+    // Activity Timeline Chart
+    const timelineCtx = document.getElementById('activityTimelineChart').getContext('2d');
+    charts.timeline = new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+            labels: activityData.timeline?.[timelineView]?.labels || [],
+            datasets: [{
+                label: 'Active Users',
+                data: activityData.timeline?.[timelineView]?.data || [],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Top Activities Chart
+    const activitiesCtx = document.getElementById('topActivitiesChart').getContext('2d');
+    charts.activities = new Chart(activitiesCtx, {
+        type: 'bar',
+        data: {
+            labels: (activityData.topActivities || []).map(a => a.name),
+            datasets: [{
+                label: 'Count',
+                data: (activityData.topActivities || []).map(a => a.count),
+                backgroundColor: '#10B981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Session Duration Chart
+    const sessionCtx = document.getElementById('sessionChart').getContext('2d');
+    charts.session = new Chart(sessionCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-5min', '5-15min', '15-30min', '30-60min', '1h+'],
+            datasets: [{
+                label: 'Sessions',
+                data: activityData.sessionDistribution || [0, 0, 0, 0, 0],
+                backgroundColor: '#8B5CF6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Device Chart
+    const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+    charts.device = new Chart(deviceCtx, {
+        type: 'doughnut',
+        data: {
+            labels: (activityData.devices || []).map(d => d.name),
+            datasets: [{
+                data: (activityData.devices || []).map(d => d.count),
+                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { fontSize: 10 } }
+            }
+        }
+    });
+
+    // Browser Chart
+    const browserCtx = document.getElementById('browserChart').getContext('2d');
+    charts.browser = new Chart(browserCtx, {
+        type: 'doughnut',
+        data: {
+            labels: (activityData.browsers || []).map(b => b.name),
+            datasets: [{
+                data: (activityData.browsers || []).map(b => b.count),
+                backgroundColor: ['#8B5CF6', '#06B6D4', '#84CC16', '#F97316']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { fontSize: 10 } }
+            }
+        }
+    });
+}
+
+function changeTimelineView(view) {
+    timelineView = view;
+
+    // Update button states
+    document.querySelectorAll('.timeline-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+    // Update chart
+    if (charts.timeline) {
+        charts.timeline.data.labels = activityData.timeline?.[view]?.labels || [];
+        charts.timeline.data.datasets[0].data = activityData.timeline?.[view]?.data || [];
+        charts.timeline.update();
+    }
+}
+
+function loadActiveUsers() {
+    const tbody = document.getElementById('active-users-table');
+    tbody.innerHTML = '';
+
+    const activeUsers = activityData.activeUsers || [];
+    activeUsers.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 rounded-full" src="${user.avatar || '/images/default-avatar.png'}" alt="">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">${user.name}</p>
+                        <p class="text-sm text-gray-500">@${user.username}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="activity-badge ${getActivityBadgeClass(user.currentActivity.type)}">
+                    ${user.currentActivity.name}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.location || 'Unknown'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDuration(user.sessionDuration)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(user.lastAction).toLocaleTimeString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
+                    <span class="w-2 h-2 rounded-full mr-1 ${getStatusClass(user.status)}"></span>
+                    ${user.status}
+                </span>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    if (activeUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No active users</td></tr>';
+    }
+}
+
+function getActivityBadgeClass(type) {
+    const classes = {
+        login: 'badge-login',
+        course_view: 'badge-course',
+        test_attempt: 'badge-test',
+        video_watch: 'badge-video',
+        download: 'badge-download',
+        forum_post: 'badge-forum',
+        system: 'badge-system'
+    };
+    return classes[type] || 'badge-system';
+}
+
+function getStatusClass(status) {
+    const classes = {
+        online: 'status-online',
+        away: 'status-away',
+        offline: 'status-offline'
+    };
+    return classes[status] || 'status-offline';
+}
+
+function loadActivityLog() {
+    const tbody = document.getElementById('activity-log-table');
+    tbody.innerHTML = '';
+
+    const activities = activityData.activities || [];
+    const level = document.getElementById('activity-level').value;
+
+    let filteredActivities = activities;
+    if (level !== 'all') {
+        filteredActivities = activities.filter(a => a.level === level);
+    }
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedActivities = filteredActivities.slice(start, end);
+
+    paginatedActivities.forEach(activity => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                ${new Date(activity.timestamp).toLocaleString()}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <img class="h-6 w-6 rounded-full" src="${activity.user.avatar || '/images/default-avatar.png'}" alt="">
+                    <div class="ml-2">
+                        <p class="text-sm font-medium text-gray-900">${activity.user.name}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="activity-badge ${getActivityBadgeClass(activity.type)}">
+                    ${activity.activity}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${activity.details}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${activity.ipAddress}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${activity.device}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="viewActivityDetails('${activity.id}')" class="text-blue-600 hover:text-blue-900">
+                    View
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    updatePagination(filteredActivities.length);
+}
+
+function updatePagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const showingFrom = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const showingTo = Math.min(currentPage * itemsPerPage, totalItems);
+
+    document.getElementById('showing-from').textContent = showingFrom;
+    document.getElementById('showing-to').textContent = showingTo;
+    document.getElementById('total-activities').textContent = totalItems;
+    document.getElementById('current-page').textContent = currentPage;
+    document.getElementById('total-pages').textContent = totalPages;
+
+    document.getElementById('prev-btn').disabled = currentPage <= 1;
+    document.getElementById('next-btn').disabled = currentPage >= totalPages;
+}
+
+function applyFilters() {
+    currentFilters = {
+        userType: document.getElementById('user-type').value,
+        department: document.getElementById('department-filter').value,
+        activityType: document.getElementById('activity-type').value,
+        searchUser: document.getElementById('search-user').value
+    };
+
+    // Remove empty filters
+    Object.keys(currentFilters).forEach(key => {
+        if (!currentFilters[key]) {
+            delete currentFilters[key];
+        }
+    });
+
+    currentPage = 1;
+    loadActivityData();
+}
+
+function clearFilters() {
+    currentFilters = {};
+    document.getElementById('user-type').value = '';
+    document.getElementById('department-filter').value = '';
+    document.getElementById('activity-type').value = '';
+    document.getElementById('search-user').value = '';
+    loadActivityData();
+}
+
+function sortActivities(field) {
+    if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDirection = 'desc';
+    }
+
+    activityData.activities.sort((a, b) => {
+        let aValue = a[field] || '';
+        let bValue = b[field] || '';
+
+        if (field === 'user') {
+            aValue = a.user.name.toLowerCase();
+            bValue = b.user.name.toLowerCase();
+        } else if (field === 'timestamp') {
+            aValue = new Date(aValue).getTime();
+            bValue = new Date(bValue).getTime();
+        } else if (typeof aValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (sortDirection === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+
+    loadActivityLog();
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        loadActivityLog();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil((activityData.activities || []).length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        loadActivityLog();
+    }
+}
+
+function realTimeMode() {
+    isRealTime = !isRealTime;
+    const realtimeBtn = document.getElementById('realtime-btn');
+    const realtimeBanner = document.getElementById('realtime-banner');
+
+    if (isRealTime) {
+        realtimeBtn.innerHTML = '<i class="fas fa-stop mr-2"></i>Stop Live';
+        realtimeBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700';
+        realtimeBanner.classList.remove('hidden');
+
+        // Start real-time updates
+        realTimeInterval = setInterval(loadActivityData, 30000);
+    } else {
+        exitRealTime();
+    }
+}
+
+function exitRealTime() {
+    isRealTime = false;
+    const realtimeBtn = document.getElementById('realtime-btn');
+    const realtimeBanner = document.getElementById('realtime-banner');
+
+    realtimeBtn.innerHTML = '<i class="fas fa-broadcast-tower mr-2"></i>Live View';
+    realtimeBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700';
+    realtimeBanner.classList.add('hidden');
+
+    if (realTimeInterval) {
+        clearInterval(realTimeInterval);
+        realTimeInterval = null;
+    }
+}
+
+function handleAutoRefresh() {
+    const autoRefresh = document.getElementById('auto-refresh').checked;
+    if (autoRefresh && isRealTime) {
+        // Auto-refresh is already handled by real-time mode
+    } else if (autoRefresh) {
+        // Start periodic refresh for active users table only
+        setInterval(loadActiveUsers, 60000);
+    }
+}
+
+async function viewActivityDetails(activityId) {
+    try {
+        const response = await fetch(`/reports/api/activity/${activityId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayActivityDetails(data.activity);
+        } else {
+            showError('Failed to load activity details');
+        }
+    } catch (error) {
+        console.error('Error loading activity details:', error);
+        showError('Error loading activity details');
+    }
+}
+
+function displayActivityDetails(activity) {
+    const content = document.getElementById('activity-detail-content');
+
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">User</label>
+                    <div class="flex items-center mt-1">
+                        <img class="h-8 w-8 rounded-full" src="${activity.user.avatar || '/images/default-avatar.png'}" alt="">
+                        <div class="ml-2">
+                            <p class="text-sm font-medium">${activity.user.name}</p>
+                            <p class="text-xs text-gray-500">@${activity.user.username}</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Timestamp</label>
+                    <p class="mt-1 text-sm text-gray-900">${new Date(activity.timestamp).toLocaleString()}</p>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Activity</label>
+                <span class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getActivityBadgeClass(activity.type)}">
+                    ${activity.activity}
+                </span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Details</label>
+                <p class="mt-1 text-sm text-gray-900">${activity.details}</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">IP Address</label>
+                    <p class="mt-1 text-sm text-gray-900">${activity.ipAddress}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Location</label>
+                    <p class="mt-1 text-sm text-gray-900">${activity.location || 'Unknown'}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Device</label>
+                    <p class="mt-1 text-sm text-gray-900">${activity.device}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Browser</label>
+                    <p class="mt-1 text-sm text-gray-900">${activity.browser}</p>
+                </div>
+            </div>
+
+            ${activity.metadata ? `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Additional Information</label>
+                    <pre class="mt-1 text-xs bg-gray-100 p-3 rounded overflow-x-auto">${JSON.stringify(activity.metadata, null, 2)}</pre>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    document.getElementById('activity-modal').classList.remove('hidden');
+}
+
+function closeActivityModal() {
+    document.getElementById('activity-modal').classList.add('hidden');
+}
+
+async function exportActivity() {
+    showLoading(true);
+
+    try {
+        const timePeriod = document.getElementById('time-period').value;
+        const params = new URLSearchParams({
+            timePeriod: timePeriod,
+            ...currentFilters
+        });
+
+        const response = await fetch(`/reports/api/user-activity/export?${params}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `user-activity-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showSuccess('Activity report exported successfully');
+        } else {
+            showError('Failed to export report');
+        }
+    } catch (error) {
+        console.error('Error exporting report:', error);
+        showError('Error exporting report');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function formatDuration(minutes) {
+    if (!minutes) return '0m';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+
+    if (hours > 0) {
+        return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    alert(message); // Replace with toast notification
+}
+
+function showError(message) {
+    alert('Error: ' + message); // Replace with toast notification
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (realTimeInterval) {
+        clearInterval(realTimeInterval);
+    }
+});
+</script>
+
+<%- include('../partials/footer') %>

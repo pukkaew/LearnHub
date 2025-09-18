@@ -1,0 +1,906 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Knowledge Articles</h1>
+            <p class="text-gray-600 mt-2">Explore insights, tutorials, and best practices from our community</p>
+        </div>
+        <div class="flex space-x-3">
+            <% if (user && (user.role === 'instructor' || user.role === 'admin')) { %>
+                <a href="/articles/create" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Write Article
+                </a>
+            <% } %>
+            <button onclick="toggleView()" id="view-toggle" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-th-list mr-2"></i>List View
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="md:col-span-2">
+                <div class="relative">
+                    <input type="text" id="search-articles" placeholder="Search articles..."
+                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <select id="category-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Categories</option>
+                    <option value="technology">Technology</option>
+                    <option value="business">Business</option>
+                    <option value="design">Design</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="development">Development</option>
+                    <option value="data-science">Data Science</option>
+                    <option value="project-management">Project Management</option>
+                    <option value="leadership">Leadership</option>
+                    <option value="career">Career Development</option>
+                </select>
+            </div>
+            <div>
+                <select id="sort-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="trending">Trending</option>
+                    <option value="title">Title A-Z</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Advanced Filters Toggle -->
+        <div class="mt-4">
+            <button onclick="toggleAdvancedFilters()" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                <i class="fas fa-filter mr-1"></i>
+                <span id="advanced-toggle-text">Show Advanced Filters</span>
+                <i class="fas fa-chevron-down ml-1" id="advanced-toggle-icon"></i>
+            </button>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div id="advanced-filters" class="hidden mt-4 pt-4 border-t border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="author-filter" class="block text-sm font-medium text-gray-700 mb-1">Author</label>
+                    <select id="author-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Authors</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="difficulty-filter" class="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
+                    <select id="difficulty-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Levels</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="reading-time-filter" class="block text-sm font-medium text-gray-700 mb-1">Reading Time</label>
+                    <select id="reading-time-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Any Length</option>
+                        <option value="short">Short (< 5 min)</option>
+                        <option value="medium">Medium (5-15 min)</option>
+                        <option value="long">Long (> 15 min)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="tags-filter" class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                    <input type="text" id="tags-filter" placeholder="Enter tags..."
+                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex justify-end mt-4 space-x-2">
+                <button onclick="clearFilters()" class="text-sm text-gray-600 hover:text-gray-800">Clear All</button>
+                <button onclick="applyFilters()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Tags -->
+    <div class="mb-6">
+        <div class="flex items-center space-x-2 mb-3">
+            <i class="fas fa-tags text-gray-500"></i>
+            <span class="text-sm font-medium text-gray-700">Popular Tags:</span>
+        </div>
+        <div class="flex flex-wrap gap-2" id="popular-tags">
+            <!-- Popular tags will be loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="flex justify-between items-center mb-6">
+        <div class="text-sm text-gray-600">
+            Showing <span id="results-count">0</span> articles
+            <span id="search-query-display" class="hidden">for "<span id="search-term"></span>"</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-600">View:</span>
+            <div class="flex border border-gray-300 rounded-lg overflow-hidden">
+                <button onclick="setView('grid')" id="grid-view-btn" class="px-3 py-1 text-sm bg-blue-600 text-white">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button onclick="setView('list')" id="list-view-btn" class="px-3 py-1 text-sm bg-white text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles Container -->
+    <div id="articles-container">
+        <!-- Grid View -->
+        <div id="grid-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Articles will be populated here -->
+        </div>
+
+        <!-- List View -->
+        <div id="list-view" class="hidden space-y-4">
+            <!-- Articles will be populated here -->
+        </div>
+    </div>
+
+    <!-- Load More / Pagination -->
+    <div class="mt-8 text-center">
+        <button id="load-more-btn" onclick="loadMoreArticles()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 inline-flex items-center">
+            <i class="fas fa-plus mr-2"></i>Load More Articles
+        </button>
+
+        <!-- Pagination (alternative to load more) -->
+        <div id="pagination" class="hidden flex justify-center items-center space-x-2 mt-4">
+            <button onclick="previousPage()" id="prev-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50" disabled>
+                <i class="fas fa-chevron-left mr-1"></i>Previous
+            </button>
+            <span class="px-4 py-2 text-sm text-gray-600">
+                Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+            </span>
+            <button onclick="nextPage()" id="next-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Next<i class="fas fa-chevron-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- No Results Message -->
+    <div id="no-results" class="hidden text-center py-12">
+        <div class="max-w-md mx-auto">
+            <div class="text-gray-400 text-6xl mb-4">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No articles found</h3>
+            <p class="text-gray-600 mb-4">Try adjusting your search criteria or browse by category</p>
+            <button onclick="clearFilters()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Clear Filters
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Article Quick View Modal -->
+<div id="article-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 id="modal-title" class="text-xl font-semibold text-gray-900"></h3>
+                        <div id="modal-meta" class="flex items-center space-x-4 text-sm text-gray-600 mt-2">
+                            <!-- Meta information will be populated here -->
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="viewFullArticle()" id="view-full-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                            Read Full Article
+                        </button>
+                        <button onclick="closeArticleModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="modal-content">
+                    <!-- Article preview content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div id="loading" class="hidden text-center py-12">
+    <div class="inline-flex items-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-600">Loading articles...</span>
+    </div>
+</div>
+
+<style>
+.article-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.article-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.article-image {
+    background-size: cover;
+    background-position: center;
+    background-color: #f3f4f6;
+    position: relative;
+}
+
+.article-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+}
+
+.difficulty-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+}
+
+.difficulty-beginner { background-color: #dcfce7; color: #166534; }
+.difficulty-intermediate { background-color: #dbeafe; color: #1e40af; }
+.difficulty-advanced { background-color: #fef3c7; color: #92400e; }
+.difficulty-expert { background-color: #fce7f3; color: #be185d; }
+
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: #f3f4f6;
+    color: #374151;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tag-item:hover {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.article-stats {
+    display: flex;
+    align-items: center;
+    space: 1rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.article-stats > * {
+    display: flex;
+    align-items: center;
+}
+
+.article-stats i {
+    margin-right: 0.25rem;
+}
+
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #10b981);
+    z-index: 50;
+    transition: width 0.3s ease;
+}
+</style>
+
+<script>
+let articlesData = [];
+let filteredArticles = [];
+let currentView = 'grid';
+let currentPage = 1;
+let articlesPerPage = 12;
+let loadedArticles = 0;
+let isLoading = false;
+let currentFilters = {};
+let selectedArticleId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadArticles();
+    loadPopularTags();
+
+    // Event listeners
+    document.getElementById('search-articles').addEventListener('input', debounce(applyFilters, 500));
+    document.getElementById('category-filter').addEventListener('change', applyFilters);
+    document.getElementById('sort-filter').addEventListener('change', applyFilters);
+
+    // Advanced filter listeners
+    document.getElementById('author-filter').addEventListener('change', applyFilters);
+    document.getElementById('difficulty-filter').addEventListener('change', applyFilters);
+    document.getElementById('reading-time-filter').addEventListener('change', applyFilters);
+    document.getElementById('tags-filter').addEventListener('input', debounce(applyFilters, 500));
+});
+
+async function loadArticles() {
+    if (isLoading) return;
+
+    isLoading = true;
+    showLoading(true);
+
+    try {
+        const response = await fetch('/articles/api/list');
+        const data = await response.json();
+
+        if (data.success) {
+            articlesData = data.articles;
+            filteredArticles = [...articlesData];
+            loadAuthors();
+            applyFilters();
+        } else {
+            showError('Failed to load articles');
+        }
+    } catch (error) {
+        console.error('Error loading articles:', error);
+        showError('Error loading articles');
+    } finally {
+        isLoading = false;
+        showLoading(false);
+    }
+}
+
+function loadAuthors() {
+    const authors = [...new Set(articlesData.map(article => ({
+        id: article.author.user_id,
+        name: article.author.name
+    })).filter(Boolean))];
+
+    const authorSelect = document.getElementById('author-filter');
+    authorSelect.innerHTML = '<option value="">All Authors</option>';
+
+    authors.forEach(author => {
+        const option = document.createElement('option');
+        option.value = author.id;
+        option.textContent = author.name;
+        authorSelect.appendChild(option);
+    });
+}
+
+async function loadPopularTags() {
+    try {
+        const response = await fetch('/articles/api/popular-tags');
+        const data = await response.json();
+
+        if (data.success) {
+            const tagsContainer = document.getElementById('popular-tags');
+            tagsContainer.innerHTML = '';
+
+            data.tags.forEach(tag => {
+                const tagEl = document.createElement('button');
+                tagEl.className = 'tag-item';
+                tagEl.textContent = `${tag.name} (${tag.count})`;
+                tagEl.onclick = () => filterByTag(tag.name);
+                tagsContainer.appendChild(tagEl);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading popular tags:', error);
+    }
+}
+
+function applyFilters() {
+    const searchTerm = document.getElementById('search-articles').value.toLowerCase();
+    const category = document.getElementById('category-filter').value;
+    const author = document.getElementById('author-filter').value;
+    const difficulty = document.getElementById('difficulty-filter').value;
+    const readingTime = document.getElementById('reading-time-filter').value;
+    const tags = document.getElementById('tags-filter').value.toLowerCase();
+    const sortBy = document.getElementById('sort-filter').value;
+
+    // Update search query display
+    if (searchTerm) {
+        document.getElementById('search-term').textContent = searchTerm;
+        document.getElementById('search-query-display').classList.remove('hidden');
+    } else {
+        document.getElementById('search-query-display').classList.add('hidden');
+    }
+
+    filteredArticles = articlesData.filter(article => {
+        const matchesSearch = !searchTerm ||
+            article.title.toLowerCase().includes(searchTerm) ||
+            article.summary.toLowerCase().includes(searchTerm) ||
+            article.content.toLowerCase().includes(searchTerm);
+
+        const matchesCategory = !category || article.category === category;
+        const matchesAuthor = !author || article.author.user_id === author;
+        const matchesDifficulty = !difficulty || article.difficulty === difficulty;
+        const matchesReadingTime = !readingTime || checkReadingTime(article.reading_time, readingTime);
+        const matchesTags = !tags || article.tags.some(tag => tag.toLowerCase().includes(tags));
+
+        return matchesSearch && matchesCategory && matchesAuthor && matchesDifficulty && matchesReadingTime && matchesTags;
+    });
+
+    // Sort articles
+    sortArticles(sortBy);
+
+    // Update results count
+    document.getElementById('results-count').textContent = filteredArticles.length;
+
+    // Reset pagination
+    currentPage = 1;
+    loadedArticles = 0;
+
+    // Render articles
+    renderArticles();
+}
+
+function checkReadingTime(time, filter) {
+    switch (filter) {
+        case 'short': return time < 5;
+        case 'medium': return time >= 5 && time <= 15;
+        case 'long': return time > 15;
+        default: return true;
+    }
+}
+
+function sortArticles(sortBy) {
+    switch (sortBy) {
+        case 'newest':
+            filteredArticles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            break;
+        case 'oldest':
+            filteredArticles.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            break;
+        case 'popular':
+            filteredArticles.sort((a, b) => (b.views || 0) - (a.views || 0));
+            break;
+        case 'trending':
+            filteredArticles.sort((a, b) => (b.likes + b.comments || 0) - (a.likes + a.comments || 0));
+            break;
+        case 'title':
+            filteredArticles.sort((a, b) => a.title.localeCompare(b.title));
+            break;
+    }
+}
+
+function renderArticles() {
+    const gridContainer = document.getElementById('grid-view');
+    const listContainer = document.getElementById('list-view');
+
+    // Clear containers
+    gridContainer.innerHTML = '';
+    listContainer.innerHTML = '';
+
+    if (filteredArticles.length === 0) {
+        document.getElementById('no-results').classList.remove('hidden');
+        document.getElementById('load-more-btn').classList.add('hidden');
+        return;
+    } else {
+        document.getElementById('no-results').classList.add('hidden');
+    }
+
+    const articlesToShow = filteredArticles.slice(0, loadedArticles + articlesPerPage);
+    loadedArticles = articlesToShow.length;
+
+    articlesToShow.forEach(article => {
+        if (currentView === 'grid') {
+            gridContainer.appendChild(createArticleCard(article));
+        } else {
+            listContainer.appendChild(createArticleListItem(article));
+        }
+    });
+
+    // Show/hide load more button
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadedArticles >= filteredArticles.length) {
+        loadMoreBtn.classList.add('hidden');
+    } else {
+        loadMoreBtn.classList.remove('hidden');
+    }
+}
+
+function createArticleCard(article) {
+    const card = document.createElement('div');
+    card.className = 'article-card bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer';
+    card.onclick = () => quickViewArticle(article.article_id);
+
+    const imageUrl = article.featured_image || '/images/default-article.jpg';
+
+    card.innerHTML = `
+        <div class="article-image h-48" style="background-image: url('${imageUrl}')">
+            <div class="absolute top-3 left-3">
+                <span class="bg-white bg-opacity-90 px-2 py-1 rounded text-xs font-medium text-blue-600">
+                    ${getCategoryName(article.category)}
+                </span>
+            </div>
+            <div class="absolute top-3 right-3">
+                <span class="difficulty-badge difficulty-${article.difficulty}">
+                    ${article.difficulty}
+                </span>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                <img src="${article.author.avatar || '/images/default-avatar.png'}" alt="${article.author.name}"
+                     class="w-6 h-6 rounded-full">
+                <span>${article.author.name}</span>
+                <span>•</span>
+                <span>${new Date(article.created_at).toLocaleDateString()}</span>
+                <span>•</span>
+                <span><i class="fas fa-clock"></i> ${article.reading_time}m</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">${article.title}</h3>
+            <p class="text-gray-600 text-sm mb-4 line-clamp-3">${article.summary}</p>
+
+            <div class="flex flex-wrap gap-1 mb-4">
+                ${article.tags.slice(0, 3).map(tag => `
+                    <span class="tag-item" onclick="event.stopPropagation(); filterByTag('${tag}')">${tag}</span>
+                `).join('')}
+                ${article.tags.length > 3 ? `<span class="tag-item">+${article.tags.length - 3} more</span>` : ''}
+            </div>
+
+            <div class="article-stats justify-between">
+                <div class="flex space-x-4">
+                    <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
+                    <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                    <span><i class="fas fa-comment"></i> ${article.comments || 0}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="event.stopPropagation(); likeArticle('${article.article_id}')"
+                            class="text-gray-400 hover:text-red-500 transition-colors">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <button onclick="event.stopPropagation(); bookmarkArticle('${article.article_id}')"
+                            class="text-gray-400 hover:text-blue-500 transition-colors">
+                        <i class="fas fa-bookmark"></i>
+                    </button>
+                    <button onclick="event.stopPropagation(); shareArticle('${article.article_id}')"
+                            class="text-gray-400 hover:text-green-500 transition-colors">
+                        <i class="fas fa-share"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
+
+function createArticleListItem(article) {
+    const item = document.createElement('div');
+    item.className = 'article-card bg-white rounded-lg shadow-sm p-6 cursor-pointer';
+    item.onclick = () => quickViewArticle(article.article_id);
+
+    const imageUrl = article.featured_image || '/images/default-article.jpg';
+
+    item.innerHTML = `
+        <div class="flex space-x-6">
+            <div class="article-image w-32 h-20 rounded-lg flex-shrink-0" style="background-image: url('${imageUrl}')"></div>
+            <div class="flex-1">
+                <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                    <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-medium">
+                        ${getCategoryName(article.category)}
+                    </span>
+                    <span class="difficulty-badge difficulty-${article.difficulty}">
+                        ${article.difficulty}
+                    </span>
+                    <span>•</span>
+                    <span><i class="fas fa-clock"></i> ${article.reading_time}m</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">${article.title}</h3>
+                <p class="text-gray-600 mb-3 line-clamp-2">${article.summary}</p>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <div class="flex items-center space-x-2">
+                            <img src="${article.author.avatar || '/images/default-avatar.png'}" alt="${article.author.name}"
+                                 class="w-6 h-6 rounded-full">
+                            <span>${article.author.name}</span>
+                        </div>
+                        <span>•</span>
+                        <span>${new Date(article.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="article-stats">
+                        <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
+                        <span><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                        <span><i class="fas fa-comment"></i> ${article.comments || 0}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return item;
+}
+
+function getCategoryName(category) {
+    const categories = {
+        'technology': 'Technology',
+        'business': 'Business',
+        'design': 'Design',
+        'marketing': 'Marketing',
+        'development': 'Development',
+        'data-science': 'Data Science',
+        'project-management': 'Project Management',
+        'leadership': 'Leadership',
+        'career': 'Career'
+    };
+    return categories[category] || category;
+}
+
+function toggleView() {
+    currentView = currentView === 'grid' ? 'list' : 'grid';
+    setView(currentView);
+}
+
+function setView(view) {
+    currentView = view;
+
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    const gridBtn = document.getElementById('grid-view-btn');
+    const listBtn = document.getElementById('list-view-btn');
+    const toggleBtn = document.getElementById('view-toggle');
+
+    if (view === 'grid') {
+        gridView.classList.remove('hidden');
+        listView.classList.add('hidden');
+        gridBtn.className = 'px-3 py-1 text-sm bg-blue-600 text-white';
+        listBtn.className = 'px-3 py-1 text-sm bg-white text-gray-600 hover:bg-gray-50';
+        toggleBtn.innerHTML = '<i class="fas fa-th-list mr-2"></i>List View';
+    } else {
+        gridView.classList.add('hidden');
+        listView.classList.remove('hidden');
+        gridBtn.className = 'px-3 py-1 text-sm bg-white text-gray-600 hover:bg-gray-50';
+        listBtn.className = 'px-3 py-1 text-sm bg-blue-600 text-white';
+        toggleBtn.innerHTML = '<i class="fas fa-th mr-2"></i>Grid View';
+    }
+
+    renderArticles();
+}
+
+function toggleAdvancedFilters() {
+    const filters = document.getElementById('advanced-filters');
+    const toggleText = document.getElementById('advanced-toggle-text');
+    const toggleIcon = document.getElementById('advanced-toggle-icon');
+
+    if (filters.classList.contains('hidden')) {
+        filters.classList.remove('hidden');
+        toggleText.textContent = 'Hide Advanced Filters';
+        toggleIcon.className = 'fas fa-chevron-up ml-1';
+    } else {
+        filters.classList.add('hidden');
+        toggleText.textContent = 'Show Advanced Filters';
+        toggleIcon.className = 'fas fa-chevron-down ml-1';
+    }
+}
+
+function filterByTag(tagName) {
+    document.getElementById('tags-filter').value = tagName;
+    applyFilters();
+}
+
+function clearFilters() {
+    document.getElementById('search-articles').value = '';
+    document.getElementById('category-filter').value = '';
+    document.getElementById('author-filter').value = '';
+    document.getElementById('difficulty-filter').value = '';
+    document.getElementById('reading-time-filter').value = '';
+    document.getElementById('tags-filter').value = '';
+    document.getElementById('sort-filter').value = 'newest';
+
+    applyFilters();
+}
+
+function loadMoreArticles() {
+    renderArticles();
+}
+
+async function quickViewArticle(articleId) {
+    selectedArticleId = articleId;
+
+    try {
+        const response = await fetch(`/articles/api/${articleId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const article = data.article;
+            displayArticleModal(article);
+        } else {
+            showError('Failed to load article');
+        }
+    } catch (error) {
+        console.error('Error loading article:', error);
+        showError('Error loading article');
+    }
+}
+
+function displayArticleModal(article) {
+    document.getElementById('modal-title').textContent = article.title;
+
+    const metaContainer = document.getElementById('modal-meta');
+    metaContainer.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <img src="${article.author.avatar || '/images/default-avatar.png'}" alt="${article.author.name}"
+                 class="w-6 h-6 rounded-full">
+            <span>${article.author.name}</span>
+        </div>
+        <span>•</span>
+        <span>${new Date(article.created_at).toLocaleDateString()}</span>
+        <span>•</span>
+        <span><i class="fas fa-clock"></i> ${article.reading_time}m read</span>
+        <span>•</span>
+        <span class="difficulty-badge difficulty-${article.difficulty}">${article.difficulty}</span>
+    `;
+
+    const contentContainer = document.getElementById('modal-content');
+    const contentPreview = article.content.length > 500 ?
+        article.content.substring(0, 500) + '...' :
+        article.content;
+
+    contentContainer.innerHTML = `
+        ${article.featured_image ? `
+            <img src="${article.featured_image}" alt="${article.title}" class="w-full h-48 object-cover rounded-lg mb-6">
+        ` : ''}
+
+        <div class="prose prose-blue max-w-none mb-6">
+            <p class="text-xl text-gray-600 mb-4">${article.summary}</p>
+            <div>${contentPreview}</div>
+        </div>
+
+        ${article.tags.length > 0 ? `
+            <div class="border-t border-gray-200 pt-6">
+                <h4 class="font-medium text-gray-700 mb-2">Tags:</h4>
+                <div class="flex flex-wrap gap-2">
+                    ${article.tags.map(tag => `
+                        <span class="tag-item" onclick="filterByTag('${tag}'); closeArticleModal();">${tag}</span>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+    `;
+
+    document.getElementById('article-modal').classList.remove('hidden');
+}
+
+function viewFullArticle() {
+    if (selectedArticleId) {
+        window.open(`/articles/${selectedArticleId}`, '_blank');
+    }
+}
+
+function closeArticleModal() {
+    document.getElementById('article-modal').classList.add('hidden');
+    selectedArticleId = null;
+}
+
+async function likeArticle(articleId) {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/like`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update likes count in the UI
+            const article = articlesData.find(a => a.article_id === articleId);
+            if (article) {
+                article.likes = data.likes;
+                renderArticles();
+            }
+        }
+    } catch (error) {
+        console.error('Error liking article:', error);
+    }
+}
+
+async function bookmarkArticle(articleId) {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/bookmark`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess(data.bookmarked ? 'Article bookmarked' : 'Bookmark removed');
+        }
+    } catch (error) {
+        console.error('Error bookmarking article:', error);
+    }
+}
+
+function shareArticle(articleId) {
+    const article = articlesData.find(a => a.article_id === articleId);
+    if (article && navigator.share) {
+        navigator.share({
+            title: article.title,
+            text: article.summary,
+            url: `${window.location.origin}/articles/${articleId}`
+        });
+    } else {
+        // Fallback: copy to clipboard
+        const url = `${window.location.origin}/articles/${articleId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            showSuccess('Article link copied to clipboard');
+        });
+    }
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        // Implement pagination logic
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        // Implement pagination logic
+    }
+}
+
+function showLoading(show) {
+    const loading = document.getElementById('loading');
+    loading.classList.toggle('hidden', !show);
+}
+
+function showSuccess(message) {
+    // Implement toast notification
+    console.log(message);
+}
+
+function showError(message) {
+    // Implement toast notification
+    console.error(message);
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Utility CSS classes for line clamping
+const style = document.createElement('style');
+style.textContent = `
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+`;
+document.head.appendChild(style);
+</script>
+
+<%- include('../partials/footer') %>
