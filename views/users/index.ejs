@@ -1,0 +1,907 @@
+<%- include('../layouts/header') %>
+
+<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">จัดการผู้ใช้งาน</h1>
+                <p class="text-gray-600">ระบบจัดการสมาชิกและผู้ใช้งานในองค์กร</p>
+            </div>
+            <div class="flex space-x-3">
+                <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                    <i class="fas fa-download mr-2"></i>ส่งออกข้อมูล
+                </button>
+                <button id="addUserBtn" class="bg-ruxchai-main text-white px-6 py-3 rounded-lg hover:bg-ruxchai-main/90 transition-colors shadow-md">
+                    <i class="fas fa-plus mr-2"></i>เพิ่มผู้ใช้ใหม่
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-lg">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">ผู้ใช้ทั้งหมด</h3>
+                        <p id="totalUsers" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-lg">
+                        <i class="fas fa-user-check text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">ผู้ใช้ที่ใช้งานอยู่</h3>
+                        <p id="activeUsers" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 p-3 rounded-lg">
+                        <i class="fas fa-user-clock text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">รอการอนุมัติ</h3>
+                        <p id="pendingUsers" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-lg">
+                        <i class="fas fa-user-graduate text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">ลงทะเบียนใหม่</h3>
+                        <p id="newUsers" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchUsers" placeholder="ค้นหาผู้ใช้..."
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                </div>
+                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    <option value="">สถานะทั้งหมด</option>
+                    <option value="active">ใช้งานอยู่</option>
+                    <option value="inactive">ไม่ใช้งาน</option>
+                    <option value="pending">รอการอนุมัติ</option>
+                    <option value="suspended">ถูกระงับ</option>
+                </select>
+                <select id="roleFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    <option value="">บทบาททั้งหมด</option>
+                    <option value="admin">ผู้ดูแลระบบ</option>
+                    <option value="hr">HR</option>
+                    <option value="manager">ผู้จัดการ</option>
+                    <option value="employee">พนักงาน</option>
+                    <option value="learner">ผู้เรียน</option>
+                </select>
+                <select id="departmentFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    <option value="">แผนกทั้งหมด</option>
+                    <!-- Departments will be loaded dynamically -->
+                </select>
+                <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    <option value="latest">ล่าสุด</option>
+                    <option value="name_asc">ชื่อ A-Z</option>
+                    <option value="name_desc">ชื่อ Z-A</option>
+                    <option value="oldest">เก่าที่สุด</option>
+                    <option value="last_active">เข้าใช้ล่าสุด</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div id="bulkActions" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 hidden">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-700">เลือกแล้ว <span id="selectedCount">0</span> รายการ</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="bulkApproveBtn" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700">
+                        <i class="fas fa-check mr-2"></i>อนุมัติ
+                    </button>
+                    <button id="bulkSuspendBtn" class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700">
+                        <i class="fas fa-ban mr-2"></i>ระงับ
+                    </button>
+                    <button id="bulkDeleteBtn" class="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700">
+                        <i class="fas fa-trash mr-2"></i>ลบ
+                    </button>
+                    <button id="clearSelectionBtn" class="px-4 py-2 text-gray-600 border border-gray-300 text-sm rounded-lg hover:bg-gray-50">
+                        ยกเลิกการเลือก
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="p-4 text-left">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-ruxchai-main focus:ring-ruxchai-main">
+                            </th>
+                            <th class="p-4 text-left text-sm font-medium text-gray-900">ผู้ใช้</th>
+                            <th class="p-4 text-left text-sm font-medium text-gray-900">บทบาท</th>
+                            <th class="p-4 text-left text-sm font-medium text-gray-900">แผนก</th>
+                            <th class="p-4 text-left text-sm font-medium text-gray-900">สถานะ</th>
+                            <th class="p-4 text-left text-sm font-medium text-gray-900">เข้าใช้ล่าสุด</th>
+                            <th class="p-4 text-left text-sm font-medium text-gray-900">การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="divide-y divide-gray-200">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="p-8 text-center">
+                <div class="inline-flex items-center">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                    กำลังโหลดข้อมูล...
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="p-8 text-center hidden">
+                <i class="fas fa-users text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500">ไม่พบผู้ใช้งาน</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center space-x-2 mt-8">
+            <!-- Pagination will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">เพิ่มผู้ใช้ใหม่</h3>
+                <button id="closeAddModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="addUserForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ *</label>
+                        <input type="text" name="first_name" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล *</label>
+                        <input type="text" name="last_name" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล *</label>
+                        <input type="email" name="email" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                        <input type="tel" name="phone"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน *</label>
+                        <input type="password" name="password" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ยืนยันรหัสผ่าน *</label>
+                        <input type="password" name="confirm_password" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">บทบาท *</label>
+                        <select name="role" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                            <option value="">เลือกบทบาท</option>
+                            <option value="employee">พนักงาน</option>
+                            <option value="manager">ผู้จัดการ</option>
+                            <option value="hr">HR</option>
+                            <option value="admin">ผู้ดูแลระบบ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
+                        <select name="department_id"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                            <option value="">เลือกแผนก</option>
+                            <!-- Departments will be loaded dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่ง</label>
+                        <input type="text" name="position"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">วันเริ่มงาน</label>
+                        <input type="date" name="start_date"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" name="send_welcome_email" id="sendWelcomeEmail" checked
+                           class="rounded border-gray-300 text-ruxchai-main focus:ring-ruxchai-main mr-2">
+                    <label for="sendWelcomeEmail" class="text-sm text-gray-700">ส่งอีเมลยินดีต้อนรับ</label>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" id="cancelAdd" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                        เพิ่มผู้ใช้
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="editUserModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">แก้ไขข้อมูลผู้ใช้</h3>
+                <button id="closeEditModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="editUserForm" class="p-6 space-y-6">
+                <!-- Form content similar to add user but with edit data -->
+                <input type="hidden" name="user_id" id="editUserId">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ *</label>
+                        <input type="text" name="first_name" id="editFirstName" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล *</label>
+                        <input type="text" name="last_name" id="editLastName" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล *</label>
+                        <input type="email" name="email" id="editEmail" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                        <input type="tel" name="phone" id="editPhone"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">บทบาท *</label>
+                        <select name="role" id="editRole" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                            <option value="employee">พนักงาน</option>
+                            <option value="manager">ผู้จัดการ</option>
+                            <option value="hr">HR</option>
+                            <option value="admin">ผู้ดูแลระบบ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">สถานะ *</label>
+                        <select name="status" id="editStatus" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                            <option value="active">ใช้งานอยู่</option>
+                            <option value="inactive">ไม่ใช้งาน</option>
+                            <option value="pending">รอการอนุมัติ</option>
+                            <option value="suspended">ถูกระงับ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" id="cancelEdit" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                        บันทึกการแก้ไข
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentPage = 1;
+let users = [];
+let selectedUsers = [];
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadUsers();
+    loadDepartments();
+    setupEventListeners();
+});
+
+// Event listeners
+function setupEventListeners() {
+    // Add user modal
+    document.getElementById('addUserBtn').addEventListener('click', () => {
+        document.getElementById('addUserModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeAddModal').addEventListener('click', closeAddModal);
+    document.getElementById('cancelAdd').addEventListener('click', closeAddModal);
+
+    // Edit user modal
+    document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
+    document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
+
+    // Form submissions
+    document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
+    document.getElementById('editUserForm').addEventListener('submit', handleEditUser);
+
+    // Search and filters
+    document.getElementById('searchUsers').addEventListener('input', debounce(loadUsers, 300));
+    document.getElementById('statusFilter').addEventListener('change', loadUsers);
+    document.getElementById('roleFilter').addEventListener('change', loadUsers);
+    document.getElementById('departmentFilter').addEventListener('change', loadUsers);
+    document.getElementById('sortBy').addEventListener('change', loadUsers);
+
+    // Select all checkbox
+    document.getElementById('selectAll').addEventListener('change', handleSelectAll);
+
+    // Bulk actions
+    document.getElementById('bulkApproveBtn').addEventListener('click', () => handleBulkAction('approve'));
+    document.getElementById('bulkSuspendBtn').addEventListener('click', () => handleBulkAction('suspend'));
+    document.getElementById('bulkDeleteBtn').addEventListener('click', () => handleBulkAction('delete'));
+    document.getElementById('clearSelectionBtn').addEventListener('click', clearSelection);
+
+    // Export
+    document.getElementById('exportBtn').addEventListener('click', exportUsers);
+}
+
+// Load users
+async function loadUsers() {
+    try {
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('emptyState').classList.add('hidden');
+
+        const search = document.getElementById('searchUsers').value;
+        const status = document.getElementById('statusFilter').value;
+        const role = document.getElementById('roleFilter').value;
+        const department = document.getElementById('departmentFilter').value;
+        const sort = document.getElementById('sortBy').value;
+
+        const params = new URLSearchParams({
+            page: currentPage,
+            search,
+            status,
+            role,
+            department,
+            sort
+        });
+
+        const response = await fetch(`/users/api/list?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+            users = data.users;
+            displayUsers();
+            updateStats(data.stats);
+            updatePagination(data.pagination);
+
+            if (users.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+    } finally {
+        document.getElementById('loadingState').classList.add('hidden');
+    }
+}
+
+// Display users
+function displayUsers() {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = users.map(user => createUserRow(user)).join('');
+}
+
+// Create user row
+function createUserRow(user) {
+    const statusBadge = getStatusBadge(user.status);
+    const roleBadge = getRoleBadge(user.role);
+
+    return `
+        <tr class="hover:bg-gray-50">
+            <td class="p-4">
+                <input type="checkbox" class="user-checkbox rounded border-gray-300 text-ruxchai-main focus:ring-ruxchai-main"
+                       value="${user.user_id}" onchange="handleUserSelection(this)">
+            </td>
+            <td class="p-4">
+                <div class="flex items-center space-x-3">
+                    <img src="${user.profile_image || '/images/default-avatar.png'}"
+                         alt="${user.first_name} ${user.last_name}" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p class="font-medium text-gray-900">${user.first_name} ${user.last_name}</p>
+                        <p class="text-sm text-gray-500">${user.email}</p>
+                        ${user.phone ? `<p class="text-sm text-gray-500">${user.phone}</p>` : ''}
+                    </div>
+                </div>
+            </td>
+            <td class="p-4">${roleBadge}</td>
+            <td class="p-4">
+                <span class="text-sm text-gray-900">${user.department_name || '-'}</span>
+                ${user.position ? `<br><span class="text-sm text-gray-500">${user.position}</span>` : ''}
+            </td>
+            <td class="p-4">${statusBadge}</td>
+            <td class="p-4">
+                <span class="text-sm text-gray-900">${user.last_active ? formatDate(user.last_active) : 'ยังไม่เคยเข้าใช้'}</span>
+            </td>
+            <td class="p-4">
+                <div class="flex space-x-2">
+                    <button onclick="viewUser(${user.user_id})"
+                            class="text-blue-600 hover:text-blue-800 p-1" title="ดูรายละเอียด">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button onclick="editUser(${user.user_id})"
+                            class="text-green-600 hover:text-green-800 p-1" title="แก้ไข">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    ${user.status !== 'suspended' ? `
+                        <button onclick="suspendUser(${user.user_id})"
+                                class="text-red-600 hover:text-red-800 p-1" title="ระงับการใช้งาน">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    ` : `
+                        <button onclick="activateUser(${user.user_id})"
+                                class="text-green-600 hover:text-green-800 p-1" title="เปิดใช้งาน">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    `}
+                    <button onclick="deleteUser(${user.user_id})"
+                            class="text-red-600 hover:text-red-800 p-1" title="ลบ">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+// Status and role badges
+function getStatusBadge(status) {
+    const badges = {
+        active: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">ใช้งานอยู่</span>',
+        inactive: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">ไม่ใช้งาน</span>',
+        pending: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">รอการอนุมัติ</span>',
+        suspended: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">ถูกระงับ</span>'
+    };
+    return badges[status] || '';
+}
+
+function getRoleBadge(role) {
+    const badges = {
+        admin: '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">ผู้ดูแลระบบ</span>',
+        hr: '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">HR</span>',
+        manager: '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">ผู้จัดการ</span>',
+        employee: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">พนักงาน</span>',
+        learner: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">ผู้เรียน</span>'
+    };
+    return badges[role] || '';
+}
+
+// Load departments
+async function loadDepartments() {
+    try {
+        const response = await fetch('/departments/api/list');
+        const data = await response.json();
+
+        if (data.success) {
+            const departmentSelects = document.querySelectorAll('select[name="department_id"], #departmentFilter');
+
+            departmentSelects.forEach(select => {
+                if (select.id === 'departmentFilter') {
+                    select.innerHTML = '<option value="">แผนกทั้งหมด</option>' +
+                        data.departments.map(dept => `<option value="${dept.department_id}">${dept.name}</option>`).join('');
+                } else {
+                    select.innerHTML = '<option value="">เลือกแผนก</option>' +
+                        data.departments.map(dept => `<option value="${dept.department_id}">${dept.name}</option>`).join('');
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error loading departments:', error);
+    }
+}
+
+// Handle user selection
+function handleUserSelection(checkbox) {
+    const userId = parseInt(checkbox.value);
+
+    if (checkbox.checked) {
+        selectedUsers.push(userId);
+    } else {
+        selectedUsers = selectedUsers.filter(id => id !== userId);
+    }
+
+    updateBulkActions();
+}
+
+// Handle select all
+function handleSelectAll(e) {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        handleUserSelection(checkbox);
+    });
+}
+
+// Update bulk actions
+function updateBulkActions() {
+    const bulkActionsDiv = document.getElementById('bulkActions');
+    const selectedCount = document.getElementById('selectedCount');
+
+    selectedCount.textContent = selectedUsers.length;
+
+    if (selectedUsers.length > 0) {
+        bulkActionsDiv.classList.remove('hidden');
+    } else {
+        bulkActionsDiv.classList.add('hidden');
+    }
+}
+
+// Clear selection
+function clearSelection() {
+    selectedUsers = [];
+    document.getElementById('selectAll').checked = false;
+    document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
+    updateBulkActions();
+}
+
+// Handle add user
+async function handleAddUser(e) {
+    e.preventDefault();
+
+    try {
+        const formData = new FormData(e.target);
+
+        // Check password confirmation
+        if (formData.get('password') !== formData.get('confirm_password')) {
+            showMessage('รหัสผ่านไม่ตรงกัน', 'error');
+            return;
+        }
+
+        const response = await fetch('/users/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('เพิ่มผู้ใช้เรียบร้อยแล้ว', 'success');
+            closeAddModal();
+            loadUsers();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding user:', error);
+        showMessage('เกิดข้อผิดพลาดในการเพิ่มผู้ใช้', 'error');
+    }
+}
+
+// Edit user
+async function editUser(userId) {
+    try {
+        const response = await fetch(`/users/api/${userId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const user = data.user;
+
+            document.getElementById('editUserId').value = user.user_id;
+            document.getElementById('editFirstName').value = user.first_name;
+            document.getElementById('editLastName').value = user.last_name;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editPhone').value = user.phone || '';
+            document.getElementById('editRole').value = user.role;
+            document.getElementById('editStatus').value = user.status;
+
+            document.getElementById('editUserModal').classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error loading user:', error);
+        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+    }
+}
+
+// Handle edit user
+async function handleEditUser(e) {
+    e.preventDefault();
+
+    try {
+        const formData = new FormData(e.target);
+        const userId = formData.get('user_id');
+
+        const response = await fetch(`/users/${userId}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('แก้ไขข้อมูลเรียบร้อยแล้ว', 'success');
+            closeEditModal();
+            loadUsers();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error editing user:', error);
+        showMessage('เกิดข้อผิดพลาดในการแก้ไข', 'error');
+    }
+}
+
+// View user details
+function viewUser(userId) {
+    window.location.href = `/users/${userId}`;
+}
+
+// Suspend user
+async function suspendUser(userId) {
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะระงับการใช้งานของผู้ใช้นี้?')) return;
+
+    try {
+        const response = await fetch(`/users/${userId}/suspend`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('ระงับการใช้งานเรียบร้อยแล้ว', 'success');
+            loadUsers();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error suspending user:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Activate user
+async function activateUser(userId) {
+    try {
+        const response = await fetch(`/users/${userId}/activate`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('เปิดใช้งานเรียบร้อยแล้ว', 'success');
+            loadUsers();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error activating user:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Delete user
+async function deleteUser(userId) {
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้? การกระทำนี้ไม่สามารถยกเลิกได้')) return;
+
+    try {
+        const response = await fetch(`/users/${userId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('ลบผู้ใช้เรียบร้อยแล้ว', 'success');
+            loadUsers();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Handle bulk actions
+async function handleBulkAction(action) {
+    if (selectedUsers.length === 0) return;
+
+    const actionText = {
+        approve: 'อนุมัติ',
+        suspend: 'ระงับ',
+        delete: 'ลบ'
+    };
+
+    if (!confirm(`คุณแน่ใจหรือไม่ที่จะ${actionText[action]}ผู้ใช้ที่เลือก ${selectedUsers.length} คน?`)) return;
+
+    try {
+        const response = await fetch(`/users/bulk/${action}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ user_ids: selectedUsers })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage(`${actionText[action]}ผู้ใช้เรียบร้อยแล้ว`, 'success');
+            clearSelection();
+            loadUsers();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error performing bulk action:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Export users
+async function exportUsers() {
+    try {
+        const search = document.getElementById('searchUsers').value;
+        const status = document.getElementById('statusFilter').value;
+        const role = document.getElementById('roleFilter').value;
+        const department = document.getElementById('departmentFilter').value;
+
+        const params = new URLSearchParams({
+            search,
+            status,
+            role,
+            department,
+            format: 'excel'
+        });
+
+        window.open(`/users/export?${params}`, '_blank');
+    } catch (error) {
+        console.error('Error exporting users:', error);
+        showMessage('เกิดข้อผิดพลาดในการส่งออกข้อมูล', 'error');
+    }
+}
+
+// Close modals
+function closeAddModal() {
+    document.getElementById('addUserModal').classList.add('hidden');
+    document.getElementById('addUserForm').reset();
+}
+
+function closeEditModal() {
+    document.getElementById('editUserModal').classList.add('hidden');
+    document.getElementById('editUserForm').reset();
+}
+
+// Update stats
+function updateStats(stats) {
+    document.getElementById('totalUsers').textContent = stats.total || 0;
+    document.getElementById('activeUsers').textContent = stats.active || 0;
+    document.getElementById('pendingUsers').textContent = stats.pending || 0;
+    document.getElementById('newUsers').textContent = stats.new_this_month || 0;
+}
+
+// Update pagination
+function updatePagination(pagination) {
+    const container = document.getElementById('pagination');
+    container.innerHTML = '';
+
+    if (pagination.total_pages <= 1) return;
+
+    // Previous button
+    if (pagination.current_page > 1) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.onclick = () => goToPage(pagination.current_page - 1);
+        container.appendChild(prevBtn);
+    }
+
+    // Page numbers
+    for (let i = Math.max(1, pagination.current_page - 2);
+         i <= Math.min(pagination.total_pages, pagination.current_page + 2); i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = i === pagination.current_page
+            ? 'px-3 py-2 bg-ruxchai-main text-white rounded-lg'
+            : 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => goToPage(i);
+        container.appendChild(pageBtn);
+    }
+
+    // Next button
+    if (pagination.current_page < pagination.total_pages) {
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.onclick = () => goToPage(pagination.current_page + 1);
+        container.appendChild(nextBtn);
+    }
+}
+
+// Go to page
+function goToPage(page) {
+    currentPage = page;
+    loadUsers();
+}
+
+// Utility functions
+function formatDate(dateString) {
+    const options = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString('th-TH', options);
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+</script>
+
+<%- include('../layouts/footer') %>

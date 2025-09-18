@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Ruxchai LearnHub' %> - Ruxchai Learning Management System</title>
+
+    <!-- Tailwind CSS (Local) -->
+    <link rel="stylesheet" href="/css/tailwind.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <% if (locals.additionalCSS) { %>
+        <%- additionalCSS %>
+    <% } %>
+</head>
+<body class="bg-gray-50 font-thai">
+    <!-- Navigation -->
+    <nav class="ruxchai-gradient shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <img class="h-8 w-auto" src="/images/ruxchai-logo.png" alt="Ruxchai">
+                        <span class="ml-3 text-white text-xl font-bold">LearnHub</span>
+                    </div>
+
+                    <!-- Main Navigation -->
+                    <% if (locals.user) { %>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="/dashboard" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-tachometer-alt mr-2"></i>แดชบอร์ด
+                        </a>
+
+                        <% if (['Admin', 'Instructor', 'Learner'].includes(user.role)) { %>
+                        <a href="/courses" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-book mr-2"></i>คอร์สเรียน
+                        </a>
+                        <% } %>
+
+                        <% if (['Admin', 'Instructor', 'Learner'].includes(user.role)) { %>
+                        <a href="/tests" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-clipboard-list mr-2"></i>แบบทดสอบ
+                        </a>
+                        <% } %>
+
+                        <a href="/articles" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-newspaper mr-2"></i>บทความ
+                        </a>
+
+                        <% if (['Admin', 'HR'].includes(user.role)) { %>
+                        <a href="/users" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-users mr-2"></i>จัดการผู้ใช้
+                        </a>
+                        <% } %>
+
+                        <% if (['Admin', 'HR'].includes(user.role)) { %>
+                        <a href="/applicant/admin" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-user-tie mr-2"></i>ผู้สมัครงาน
+                        </a>
+                        <% } %>
+                    </div>
+                    <% } %>
+                </div>
+
+                <!-- Right side navigation -->
+                <div class="flex items-center space-x-4">
+                    <% if (locals.user) { %>
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button id="notifications-btn" class="text-white hover:text-blue-200 p-2 rounded-full transition-colors">
+                                <i class="fas fa-bell"></i>
+                                <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                            </button>
+                        </div>
+
+                        <!-- User Menu -->
+                        <div class="relative">
+                            <button id="user-menu-btn" class="flex items-center text-white hover:text-blue-200 transition-colors">
+                                <img class="h-8 w-8 rounded-full border-2 border-white/20" src="<%= user.profile_image || '/images/default-avatar.png' %>" alt="Profile">
+                                <span class="ml-2 hidden md:block"><%= user.first_name %> <%= user.last_name %></span>
+                                <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+
+                            <!-- User Dropdown -->
+                            <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <a href="/users/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user mr-2"></i>โปรไฟล์
+                                </a>
+                                <a href="/users/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-cog mr-2"></i>ตั้งค่า
+                                </a>
+                                <div class="border-t border-gray-100"></div>
+                                <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>ออกจากระบบ
+                                </button>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <a href="/auth/login" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <% if (locals.user) { %>
+                    <a href="/dashboard" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">แดชบอร์ด</a>
+                    <a href="/courses" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">คอร์สเรียน</a>
+                    <a href="/tests" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">แบบทดสอบ</a>
+                    <a href="/articles" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">บทความ</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        <!-- Flash Messages -->
+        <% if (locals.successMessage) { %>
+        <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 mx-4 mt-4">
+            <div class="flex justify-between items-center">
+                <span><i class="fas fa-check-circle mr-2"></i><%= successMessage %></span>
+                <button onclick="this.parentElement.parentElement.style.display='none'" class="text-green-700 hover:text-green-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (locals.errorMessage) { %>
+        <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 mx-4 mt-4">
+            <div class="flex justify-between items-center">
+                <span><i class="fas fa-exclamation-circle mr-2"></i><%= errorMessage %></span>
+                <button onclick="this.parentElement.parentElement.style.display='none'" class="text-red-700 hover:text-red-900">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Page Content -->
+        <%- body %>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center">
+                        <img class="h-8 w-auto" src="/images/ruxchai-logo.png" alt="Ruxchai">
+                        <span class="ml-3 text-xl font-bold">LearnHub</span>
+                    </div>
+                    <p class="mt-4 text-gray-300">
+                        ระบบจัดการการเรียนรู้ของ บริษัท รักษ์ชัย จำกัด (มหาชน)
+                        เพื่อพัฒนาความรู้และทักษะของพนักงานอย่างต่อเนื่อง
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-200 tracking-wider uppercase">เมนู</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="/dashboard" class="text-gray-300 hover:text-white transition-colors">แดชบอร์ด</a></li>
+                        <li><a href="/courses" class="text-gray-300 hover:text-white transition-colors">คอร์สเรียน</a></li>
+                        <li><a href="/tests" class="text-gray-300 hover:text-white transition-colors">แบบทดสอบ</a></li>
+                        <li><a href="/articles" class="text-gray-300 hover:text-white transition-colors">บทความ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-200 tracking-wider uppercase">ติดต่อ</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li class="text-gray-300">
+                            <i class="fas fa-envelope mr-2"></i>
+                            hr@ruxchai.co.th
+                        </li>
+                        <li class="text-gray-300">
+                            <i class="fas fa-phone mr-2"></i>
+                            02-XXX-XXXX
+                        </li>
+                        <li class="text-gray-300">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            Bangkok, Thailand
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t border-gray-700 pt-8">
+                <p class="text-center text-gray-400">
+                    &copy; <%= new Date().getFullYear() %> บริษัท รักษ์ชัย จำกัด (มหาชน). สงวนลิขสิทธิ์.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userMenu = document.getElementById('user-menu');
+            const notificationsBtn = document.getElementById('notifications-btn');
+
+            // User menu toggle
+            if (userMenuBtn && userMenu) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', function() {
+                    userMenu.classList.add('hidden');
+                });
+            }
+
+            // Auto-hide flash messages
+            setTimeout(() => {
+                const successMsg = document.getElementById('success-message');
+                const errorMsg = document.getElementById('error-message');
+                if (successMsg) successMsg.style.display = 'none';
+                if (errorMsg) errorMsg.style.display = 'none';
+            }, 5000);
+
+            // Load notifications
+            loadNotifications();
+        });
+
+        // Logout function
+        function logout() {
+            fetch('/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/auth/login';
+                }
+            });
+        }
+
+        // Load notifications
+        function loadNotifications() {
+            <% if (locals.user) { %>
+            fetch('/dashboard/api/notifications?limit=5')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.unreadCount > 0) {
+                        const badge = document.getElementById('notification-badge');
+                        badge.textContent = data.unreadCount;
+                        badge.classList.remove('hidden');
+                    }
+                });
+            <% } %>
+        }
+
+        // Global utilities
+        window.showSuccess = function(message) {
+            const alert = document.createElement('div');
+            alert.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            alert.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        };
+
+        window.showError = function(message) {
+            const alert = document.createElement('div');
+            alert.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            alert.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        };
+    </script>
+
+    <% if (locals.additionalJS) { %>
+        <%- additionalJS %>
+    <% } %>
+</body>
+</html>

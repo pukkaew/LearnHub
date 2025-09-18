@@ -1,0 +1,877 @@
+<% layout('layout') -%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="page-header bg-white shadow-sm rounded-lg mb-8 p-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">แบบทดสอบ</h1>
+                <p class="text-gray-600 mt-1">ทดสอบความรู้และทักษะของคุณ</p>
+            </div>
+            <% if (['Admin', 'Instructor'].includes(user.role_name)) { %>
+            <a href="/tests/create" class="btn-ruxchai-primary">
+                <i class="fas fa-plus mr-2"></i>สร้างแบบทดสอบ
+            </a>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Test Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-6 ruxchai-card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                        <i class="fas fa-clipboard-list text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">แบบทดสอบทั้งหมด</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="total-tests">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6 ruxchai-card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">ทำแล้ว</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="completed-tests">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6 ruxchai-card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
+                        <i class="fas fa-chart-line text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">คะแนนเฉลี่ย</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="average-score">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6 ruxchai-card">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                        <i class="fas fa-trophy text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">อันดับ</dt>
+                        <dd class="text-2xl font-semibold text-gray-900" id="user-rank">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ค้นหา</label>
+                <input type="text" id="search" placeholder="ชื่อแบบทดสอบ..."
+                       class="form-input-ruxchai">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่</label>
+                <select id="category" class="form-select-ruxchai">
+                    <option value="">ทุกหมวดหมู่</option>
+                    <!-- Categories will be loaded here -->
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">ระดับความยาก</label>
+                <select id="difficulty" class="form-select-ruxchai">
+                    <option value="">ทุกระดับ</option>
+                    <option value="easy">ง่าย</option>
+                    <option value="medium">ปานกลาง</option>
+                    <option value="hard">ยาก</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">สถานะ</label>
+                <select id="status" class="form-select-ruxchai">
+                    <option value="">ทั้งหมด</option>
+                    <option value="available">ทำได้</option>
+                    <option value="completed">ทำแล้ว</option>
+                    <option value="locked">ล็อค</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-between items-center">
+            <button id="clear-filters" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times mr-1"></i>ล้างตัวกรอง
+            </button>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-500">เรียงตาม:</span>
+                <select id="sort" class="form-select-ruxchai text-sm">
+                    <option value="created_at">ล่าสุด</option>
+                    <option value="title">ชื่อ</option>
+                    <option value="difficulty">ความยาก</option>
+                    <option value="attempts">ความนิยม</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Categories Tabs -->
+    <div class="bg-white rounded-lg shadow-sm mb-8">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8 px-6">
+                <button class="test-tab-btn active" data-tab="all">
+                    <i class="fas fa-th-list mr-2"></i>ทั้งหมด
+                </button>
+                <button class="test-tab-btn" data-tab="my-tests">
+                    <i class="fas fa-user mr-2"></i>แบบทดสอบของฉัน
+                </button>
+                <button class="test-tab-btn" data-tab="recent">
+                    <i class="fas fa-clock mr-2"></i>ล่าสุด
+                </button>
+                <button class="test-tab-btn" data-tab="popular">
+                    <i class="fas fa-fire mr-2"></i>ยอดนิยม
+                </button>
+                <% if (['Admin', 'Instructor'].includes(user.role_name)) { %>
+                <button class="test-tab-btn" data-tab="created">
+                    <i class="fas fa-edit mr-2"></i>ที่สร้าง
+                </button>
+                <% } %>
+            </nav>
+        </div>
+
+        <div class="p-6">
+            <!-- All Tests Tab -->
+            <div id="tab-all" class="test-tab-content">
+                <div id="all-tests" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Tests will be loaded here -->
+                </div>
+            </div>
+
+            <!-- My Tests Tab -->
+            <div id="tab-my-tests" class="test-tab-content hidden">
+                <div id="my-tests" class="space-y-4">
+                    <!-- My test attempts will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Recent Tests Tab -->
+            <div id="tab-recent" class="test-tab-content hidden">
+                <div id="recent-tests" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Recent tests will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Popular Tests Tab -->
+            <div id="tab-popular" class="test-tab-content hidden">
+                <div id="popular-tests" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Popular tests will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Created Tests Tab (for instructors) -->
+            <% if (['Admin', 'Instructor'].includes(user.role_name)) { %>
+            <div id="tab-created" class="test-tab-content hidden">
+                <div id="created-tests" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Created tests will be loaded here -->
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Load More Button -->
+            <div class="text-center mt-8">
+                <button id="load-more" class="btn-ruxchai-outline hidden">
+                    <i class="fas fa-plus mr-2"></i>โหลดเพิ่มเติม
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Start Modal -->
+<div id="test-start-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="modal-overlay"></div>
+        <div class="modal-content max-w-lg w-full p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                    <i class="fas fa-play text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">เริ่มทำแบบทดสอบ</h3>
+                <div id="test-info" class="text-left bg-gray-50 rounded-lg p-4 mb-6">
+                    <!-- Test information will be loaded here -->
+                </div>
+
+                <!-- Test Rules -->
+                <div class="text-left mb-6">
+                    <h4 class="font-medium text-gray-900 mb-2">กติกาการทำแบบทดสอบ:</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• ห้ามออกจากหน้าต่างการทำแบบทดสอบ</li>
+                        <li>• ห้ามใช้แหล่งข้อมูลภายนอก</li>
+                        <li>• เมื่อหมดเวลาจะส่งคำตอบอัตโนมัติ</li>
+                        <li>• สามารถทำได้เพียงครั้งเดียวเท่านั้น</li>
+                    </ul>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button id="start-test" class="flex-1 btn-ruxchai-primary">เริ่มทำแบบทดสอบ</button>
+                    <button id="cancel-test" class="flex-1 btn-ruxchai-outline">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Results Modal -->
+<div id="results-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="modal-overlay"></div>
+        <div class="modal-content max-w-2xl w-full p-6">
+            <div class="text-center mb-6">
+                <div id="result-icon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-4">
+                    <!-- Icon will be set based on score -->
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">ผลการทำแบบทดสอบ</h3>
+            </div>
+
+            <div id="test-results" class="space-y-4">
+                <!-- Results will be loaded here -->
+            </div>
+
+            <div class="mt-6 flex justify-center">
+                <button id="close-results" class="btn-ruxchai-primary">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+        <i class="fas fa-spinner fa-spin text-ruxchai-primary text-xl"></i>
+        <span class="text-gray-700">กำลังโหลดแบบทดสอบ...</span>
+    </div>
+</div>
+
+<script>
+let currentTab = 'all';
+let currentPage = 1;
+let currentFilters = {};
+let selectedTestId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTestPage();
+});
+
+async function initializeTestPage() {
+    try {
+        // Load initial data
+        await Promise.all([
+            loadTestStats(),
+            loadCategories(),
+            loadTests()
+        ]);
+
+        setupEventListeners();
+    } catch (error) {
+        console.error('Error initializing test page:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    } finally {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+}
+
+function setupEventListeners() {
+    // Search and filters
+    document.getElementById('search').addEventListener('input', debounce(handleFilterChange, 300));
+    document.getElementById('category').addEventListener('change', handleFilterChange);
+    document.getElementById('difficulty').addEventListener('change', handleFilterChange);
+    document.getElementById('status').addEventListener('change', handleFilterChange);
+    document.getElementById('sort').addEventListener('change', handleFilterChange);
+
+    // Tab switching
+    document.querySelectorAll('.test-tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            switchTestTab(this.dataset.tab);
+        });
+    });
+
+    // Clear filters
+    document.getElementById('clear-filters').addEventListener('click', clearFilters);
+
+    // Load more
+    document.getElementById('load-more').addEventListener('click', loadMoreTests);
+
+    // Modal events
+    document.getElementById('start-test').addEventListener('click', startTest);
+    document.getElementById('cancel-test').addEventListener('click', closeTestStartModal);
+    document.getElementById('close-results').addEventListener('click', closeResultsModal);
+}
+
+async function loadTestStats() {
+    try {
+        const response = await fetch('/tests/api/stats');
+        const data = await response.json();
+
+        if (data.success) {
+            updateTestStats(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading test stats:', error);
+    }
+}
+
+function updateTestStats(stats) {
+    document.getElementById('total-tests').textContent = stats.total_tests || '0';
+    document.getElementById('completed-tests').textContent = stats.completed_tests || '0';
+    document.getElementById('average-score').textContent = stats.average_score ? `${stats.average_score.toFixed(1)}%` : '-';
+    document.getElementById('user-rank').textContent = stats.user_rank ? `#${stats.user_rank}` : '-';
+}
+
+async function loadCategories() {
+    try {
+        const response = await fetch('/tests/api/categories');
+        const data = await response.json();
+
+        if (data.success) {
+            const select = document.getElementById('category');
+            select.innerHTML = '<option value="">ทุกหมวดหมู่</option>';
+
+            data.data.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.category_id;
+                option.textContent = category.category_name;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+async function loadTests(page = 1) {
+    try {
+        const params = new URLSearchParams({
+            page: page,
+            limit: 12,
+            tab: currentTab,
+            ...currentFilters
+        });
+
+        const response = await fetch(`/tests/api/list?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+            if (page === 1) {
+                updateTests(data.data);
+            } else {
+                appendTests(data.data);
+            }
+            updatePagination(data.pagination);
+        }
+    } catch (error) {
+        console.error('Error loading tests:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดแบบทดสอบ');
+    }
+}
+
+function updateTests(tests) {
+    const containerId = getContainerIdForTab(currentTab);
+    const container = document.getElementById(containerId);
+
+    if (!tests || tests.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-12">
+                <i class="fas fa-clipboard-list text-gray-300 text-4xl mb-4"></i>
+                <p class="text-gray-500">ไม่พบแบบทดสอบ</p>
+            </div>
+        `;
+        return;
+    }
+
+    if (currentTab === 'my-tests') {
+        container.innerHTML = tests.map(test => createMyTestItem(test)).join('');
+    } else {
+        container.innerHTML = tests.map(test => createTestCard(test)).join('');
+    }
+}
+
+function appendTests(tests) {
+    const containerId = getContainerIdForTab(currentTab);
+    const container = document.getElementById(containerId);
+
+    if (currentTab === 'my-tests') {
+        container.innerHTML += tests.map(test => createMyTestItem(test)).join('');
+    } else {
+        container.innerHTML += tests.map(test => createTestCard(test)).join('');
+    }
+}
+
+function createTestCard(test) {
+    const statusInfo = getTestStatus(test);
+
+    return `
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ruxchai-card">
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="badge-${getDifficultyColor(test.difficulty_level)}">
+                                ${getDifficultyText(test.difficulty_level)}
+                            </span>
+                            ${statusInfo.badge}
+                        </div>
+
+                        <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
+                            ${test.title}
+                        </h3>
+
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                            ${test.description || ''}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div class="flex items-center space-x-4">
+                        <span><i class="fas fa-question-circle mr-1"></i>${test.question_count} ข้อ</span>
+                        <span><i class="fas fa-clock mr-1"></i>${test.time_limit} นาที</span>
+                        <span><i class="fas fa-users mr-1"></i>${test.attempt_count || 0} คน</span>
+                    </div>
+                </div>
+
+                ${test.best_score !== null ? `
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>คะแนนสูงสุด</span>
+                            <span>${test.best_score}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-green-500" style="width: ${test.best_score}%"></div>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-user mr-1"></i>
+                        <span>${test.creator_name || 'ไม่ระบุ'}</span>
+                    </div>
+
+                    ${statusInfo.button}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function createMyTestItem(attempt) {
+    return `
+        <div class="bg-white rounded-lg shadow-sm p-6 ruxchai-card">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900">${attempt.test_title}</h4>
+                            <p class="text-gray-600 text-sm mt-1">${attempt.test_description || ''}</p>
+
+                            <div class="flex items-center space-x-4 mt-3 text-sm text-gray-500">
+                                <span><i class="fas fa-calendar mr-1"></i>${formatDate(attempt.attempted_at)}</span>
+                                <span><i class="fas fa-clock mr-1"></i>${attempt.time_taken} นาที</span>
+                                <span class="badge-${getScoreColor(attempt.score)}">${attempt.score}%</span>
+                            </div>
+                        </div>
+
+                        <div class="text-right">
+                            <div class="text-2xl font-bold ${getScoreTextColor(attempt.score)} mb-2">
+                                ${attempt.score}%
+                            </div>
+                            <div class="space-x-2">
+                                <button onclick="showTestResults('${attempt.attempt_id}')"
+                                        class="btn-ruxchai-outline text-sm">
+                                    <i class="fas fa-chart-line mr-1"></i>ดูผล
+                                </button>
+                                ${attempt.can_retake ? `
+                                    <button onclick="showTestStartModal('${attempt.test_id}')"
+                                            class="btn-ruxchai-primary text-sm">
+                                        <i class="fas fa-redo mr-1"></i>ทำใหม่
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function getTestStatus(test) {
+    if (test.is_completed) {
+        return {
+            badge: '<span class="badge-success">ทำแล้ว</span>',
+            button: `
+                <div class="flex space-x-2">
+                    <button onclick="showTestResults('${test.last_attempt_id}')" class="btn-ruxchai-outline text-sm">
+                        ดูผล
+                    </button>
+                    ${test.can_retake ? `
+                        <button onclick="showTestStartModal('${test.test_id}')" class="btn-ruxchai-primary text-sm">
+                            ทำใหม่
+                        </button>
+                    ` : ''}
+                </div>
+            `
+        };
+    } else if (test.is_locked) {
+        return {
+            badge: '<span class="badge-danger">ล็อค</span>',
+            button: '<span class="text-sm text-gray-500">ไม่สามารถทำได้</span>'
+        };
+    } else {
+        return {
+            badge: '<span class="badge-primary">พร้อมทำ</span>',
+            button: `<button onclick="showTestStartModal('${test.test_id}')" class="btn-ruxchai-primary text-sm">เริ่มทำ</button>`
+        };
+    }
+}
+
+function switchTestTab(tab) {
+    currentTab = tab;
+    currentPage = 1;
+
+    // Update tab buttons
+    document.querySelectorAll('.test-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+    // Update tab content
+    document.querySelectorAll('.test-tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+    // Load tests for the selected tab
+    loadTests(1);
+}
+
+function getContainerIdForTab(tab) {
+    const containers = {
+        'all': 'all-tests',
+        'my-tests': 'my-tests',
+        'recent': 'recent-tests',
+        'popular': 'popular-tests',
+        'created': 'created-tests'
+    };
+    return containers[tab] || 'all-tests';
+}
+
+function handleFilterChange() {
+    currentFilters = {
+        search: document.getElementById('search').value,
+        category: document.getElementById('category').value,
+        difficulty: document.getElementById('difficulty').value,
+        status: document.getElementById('status').value,
+        sort: document.getElementById('sort').value
+    };
+
+    currentPage = 1;
+    loadTests(1);
+}
+
+function clearFilters() {
+    document.getElementById('search').value = '';
+    document.getElementById('category').value = '';
+    document.getElementById('difficulty').value = '';
+    document.getElementById('status').value = '';
+    document.getElementById('sort').value = 'created_at';
+
+    currentFilters = {};
+    currentPage = 1;
+    loadTests(1);
+}
+
+async function loadMoreTests() {
+    currentPage++;
+    await loadTests(currentPage);
+}
+
+function updatePagination(pagination) {
+    const loadMoreBtn = document.getElementById('load-more');
+
+    if (pagination.page < pagination.totalPages) {
+        loadMoreBtn.classList.remove('hidden');
+    } else {
+        loadMoreBtn.classList.add('hidden');
+    }
+}
+
+async function showTestStartModal(testId) {
+    selectedTestId = testId;
+
+    try {
+        const response = await fetch(`/tests/api/${testId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateTestStartModal(data.data);
+            document.getElementById('test-start-modal').classList.remove('hidden');
+        } else {
+            showError('ไม่พบข้อมูลแบบทดสอบ');
+        }
+    } catch (error) {
+        console.error('Error loading test details:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลแบบทดสอบ');
+    }
+}
+
+function updateTestStartModal(test) {
+    const testInfo = document.getElementById('test-info');
+    testInfo.innerHTML = `
+        <div class="space-y-2">
+            <div class="flex justify-between">
+                <span class="text-gray-600">ชื่อแบบทดสอบ:</span>
+                <span class="font-medium">${test.title}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">จำนวนข้อ:</span>
+                <span class="font-medium">${test.question_count} ข้อ</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">เวลาที่ใช้:</span>
+                <span class="font-medium">${test.time_limit} นาที</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">คะแนนผ่าน:</span>
+                <span class="font-medium">${test.passing_score}%</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">ความยาก:</span>
+                <span class="badge-${getDifficultyColor(test.difficulty_level)}">${getDifficultyText(test.difficulty_level)}</span>
+            </div>
+        </div>
+    `;
+}
+
+function closeTestStartModal() {
+    selectedTestId = null;
+    document.getElementById('test-start-modal').classList.add('hidden');
+}
+
+async function startTest() {
+    if (!selectedTestId) return;
+
+    try {
+        const response = await fetch(`/tests/api/${selectedTestId}/start`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Redirect to test taking page
+            window.location.href = `/tests/${selectedTestId}/take?attempt_id=${data.data.attempt_id}`;
+        } else {
+            showError(data.message || 'ไม่สามารถเริ่มทำแบบทดสอบได้');
+        }
+    } catch (error) {
+        console.error('Error starting test:', error);
+        showError('เกิดข้อผิดพลาดในการเริ่มทำแบบทดสอบ');
+    }
+}
+
+async function showTestResults(attemptId) {
+    try {
+        const response = await fetch(`/tests/api/attempts/${attemptId}/results`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateResultsModal(data.data);
+            document.getElementById('results-modal').classList.remove('hidden');
+        } else {
+            showError('ไม่พบข้อมูลผลการทำแบบทดสอบ');
+        }
+    } catch (error) {
+        console.error('Error loading test results:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดผลการทำแบบทดสอบ');
+    }
+}
+
+function updateResultsModal(results) {
+    const resultIcon = document.getElementById('result-icon');
+    const testResults = document.getElementById('test-results');
+
+    // Set icon based on score
+    const score = results.score;
+    if (score >= 80) {
+        resultIcon.innerHTML = '<i class="fas fa-trophy text-yellow-500 text-3xl"></i>';
+        resultIcon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4';
+    } else if (score >= 60) {
+        resultIcon.innerHTML = '<i class="fas fa-medal text-blue-500 text-3xl"></i>';
+        resultIcon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4';
+    } else {
+        resultIcon.innerHTML = '<i class="fas fa-times-circle text-red-500 text-3xl"></i>';
+        resultIcon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4';
+    }
+
+    testResults.innerHTML = `
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="text-center">
+                    <div class="text-3xl font-bold ${getScoreTextColor(score)} mb-1">${score}%</div>
+                    <div class="text-sm text-gray-600">คะแนนที่ได้</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-gray-900 mb-1">${results.time_taken}</div>
+                    <div class="text-sm text-gray-600">นาที</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <div class="flex justify-between">
+                <span class="text-gray-600">ข้อถูก:</span>
+                <span class="font-medium text-green-600">${results.correct_answers}/${results.total_questions}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">ข้อผิด:</span>
+                <span class="font-medium text-red-600">${results.incorrect_answers}/${results.total_questions}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">ไม่ตอบ:</span>
+                <span class="font-medium text-gray-600">${results.unanswered}/${results.total_questions}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">คะแนนผ่าน:</span>
+                <span class="font-medium">${results.passing_score}%</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">ผลการทดสอบ:</span>
+                <span class="font-medium ${score >= results.passing_score ? 'text-green-600' : 'text-red-600'}">
+                    ${score >= results.passing_score ? 'ผ่าน' : 'ไม่ผ่าน'}
+                </span>
+            </div>
+        </div>
+
+        ${results.can_retake ? `
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p class="text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    คุณสามารถทำแบบทดสอบนี้ใหม่ได้
+                </p>
+            </div>
+        ` : ''}
+    `;
+}
+
+function closeResultsModal() {
+    document.getElementById('results-modal').classList.add('hidden');
+}
+
+// Utility functions
+function getDifficultyText(level) {
+    const texts = {
+        'easy': 'ง่าย',
+        'medium': 'ปานกลาง',
+        'hard': 'ยาก'
+    };
+    return texts[level] || 'ไม่ระบุ';
+}
+
+function getDifficultyColor(level) {
+    const colors = {
+        'easy': 'success',
+        'medium': 'warning',
+        'hard': 'danger'
+    };
+    return colors[level] || 'primary';
+}
+
+function getScoreColor(score) {
+    if (score >= 80) return 'success';
+    if (score >= 60) return 'warning';
+    return 'danger';
+}
+
+function getScoreTextColor(score) {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('th-TH');
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showSuccess(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+
+function showError(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+</script>
+
+<style>
+.test-tab-btn {
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.test-tab-btn:hover {
+    color: #1e40af;
+}
+
+.test-tab-btn.active {
+    color: #1e40af;
+    border-bottom-color: #1e40af;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>

@@ -1,0 +1,670 @@
+<%- include('../layouts/header') %>
+
+<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+            <div class="relative">
+                <!-- Cover Image -->
+                <div class="h-48 bg-gradient-to-r from-ruxchai-main to-ruxchai-secondary"></div>
+
+                <!-- Profile Info -->
+                <div class="relative px-6 pb-6">
+                    <div class="flex flex-col md:flex-row items-start md:items-end space-y-4 md:space-y-0 md:space-x-6">
+                        <!-- Avatar -->
+                        <div class="relative -mt-20">
+                            <img id="userAvatar" src="/images/default-avatar.png" alt="Profile"
+                                 class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-white">
+                            <button id="changeAvatarBtn" class="absolute bottom-2 right-2 bg-ruxchai-main text-white p-2 rounded-full hover:bg-ruxchai-main/90 transition-colors">
+                                <i class="fas fa-camera text-sm"></i>
+                            </button>
+                            <input type="file" id="avatarInput" accept="image/*" class="hidden">
+                        </div>
+
+                        <!-- User Info -->
+                        <div class="flex-1 pt-4">
+                            <h1 id="userName" class="text-3xl font-bold text-gray-900 mb-2">ชื่อผู้ใช้</h1>
+                            <p id="userTitle" class="text-lg text-gray-600 mb-4">ตำแหน่ง | แผนก</p>
+
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-envelope mr-2"></i>
+                                    <span id="userEmail">email@example.com</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone mr-2"></i>
+                                    <span id="userPhone">-</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar mr-2"></i>
+                                    <span>เข้าร่วมเมื่อ <span id="joinDate">-</span></span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span>เข้าใช้ล่าสุด <span id="lastActive">-</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-3">
+                            <button id="editProfileBtn" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>แก้ไขโปรไฟล์
+                            </button>
+                            <button id="changePasswordBtn" class="px-6 py-2 text-ruxchai-main border border-ruxchai-main rounded-lg hover:bg-ruxchai-main hover:text-white transition-colors">
+                                <i class="fas fa-key mr-2"></i>เปลี่ยนรหัสผ่าน
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- About Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">เกี่ยวกับฉัน</h2>
+                    <div id="aboutContent" class="text-gray-600">
+                        <p id="userBio">ยังไม่ได้เพิ่มข้อมูลเกี่ยวกับตัวเอง</p>
+                    </div>
+                    <button id="editAboutBtn" class="mt-4 text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                        <i class="fas fa-edit mr-1"></i>แก้ไข
+                    </button>
+                </div>
+
+                <!-- Learning Progress -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">ความคืบหน้าการเรียนรู้</h2>
+
+                    <!-- Progress Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-ruxchai-main" id="completedCourses">0</div>
+                            <div class="text-sm text-gray-500">คอร์สที่จบแล้ว</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="inProgressCourses">0</div>
+                            <div class="text-sm text-gray-500">กำลังเรียน</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600" id="totalTestsPassed">0</div>
+                            <div class="text-sm text-gray-500">ผ่านการทดสอบ</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600" id="totalBadges">0</div>
+                            <div class="text-sm text-gray-500">ได้รับ Badge</div>
+                        </div>
+                    </div>
+
+                    <!-- Current Courses -->
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">คอร์สที่กำลังเรียน</h3>
+                    <div id="currentCourses" class="space-y-4">
+                        <!-- Current courses will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">กิจกรรมล่าสุด</h2>
+                    <div id="recentActivity" class="space-y-4">
+                        <!-- Recent activities will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Articles Written -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">บทความที่เขียน</h2>
+                        <a href="/articles?author=me" class="text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                            ดูทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                    <div id="userArticles" class="space-y-4">
+                        <!-- User articles will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Skills & Expertise -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">ทักษะและความเชี่ยวชาญ</h3>
+                        <button id="editSkillsBtn" class="text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div id="userSkills" class="flex flex-wrap gap-2">
+                        <!-- Skills will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">ความสำเร็จ</h3>
+                    <div id="userAchievements" class="space-y-3">
+                        <!-- Achievements will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Certificates -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">ใบประกาศนียบัตร</h3>
+                    <div id="userCertificates" class="space-y-3">
+                        <!-- Certificates will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Learning Goals -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-900">เป้าหมายการเรียนรู้</h3>
+                        <button id="editGoalsBtn" class="text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div id="learningGoals" class="space-y-3">
+                        <!-- Learning goals will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">แก้ไขโปรไฟล์</h3>
+                <button id="closeEditModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="editProfileForm" class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ</label>
+                        <input type="text" name="first_name" id="editFirstName"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล</label>
+                        <input type="text" name="last_name" id="editLastName"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล</label>
+                        <input type="email" name="email" id="editEmail"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                        <input type="tel" name="phone" id="editPhone"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่ง</label>
+                        <input type="text" name="position" id="editPosition"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
+                        <select name="department_id" id="editDepartment"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                            <option value="">เลือกแผนก</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">เกี่ยวกับฉัน</label>
+                    <textarea name="bio" id="editBio" rows="4"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                              placeholder="เขียนข้อมูลเกี่ยวกับตัวคุณ..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" id="cancelEdit" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                        บันทึกการแก้ไข
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">เปลี่ยนรหัสผ่าน</h3>
+                <button id="closePasswordModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="changePasswordForm" class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่านปัจจุบัน</label>
+                    <input type="password" name="current_password" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่านใหม่</label>
+                    <input type="password" name="new_password" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ยืนยันรหัสผ่านใหม่</label>
+                    <input type="password" name="confirm_password" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" id="cancelPasswordChange" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                        เปลี่ยนรหัสผ่าน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let userId;
+let currentUser;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    userId = getUserIdFromUrl() || getCurrentUserId();
+    loadUserProfile();
+    loadUserProgress();
+    loadUserActivity();
+    loadUserArticles();
+    loadDepartments();
+    setupEventListeners();
+});
+
+// Event listeners
+function setupEventListeners() {
+    // Edit profile
+    document.getElementById('editProfileBtn').addEventListener('click', () => {
+        populateEditForm();
+        document.getElementById('editProfileModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
+    document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
+    document.getElementById('editProfileForm').addEventListener('submit', handleEditProfile);
+
+    // Change password
+    document.getElementById('changePasswordBtn').addEventListener('click', () => {
+        document.getElementById('changePasswordModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closePasswordModal').addEventListener('click', closePasswordModal);
+    document.getElementById('cancelPasswordChange').addEventListener('click', closePasswordModal);
+    document.getElementById('changePasswordForm').addEventListener('submit', handleChangePassword);
+
+    // Avatar change
+    document.getElementById('changeAvatarBtn').addEventListener('click', () => {
+        document.getElementById('avatarInput').click();
+    });
+
+    document.getElementById('avatarInput').addEventListener('change', handleAvatarChange);
+}
+
+// Get user ID from URL or current user
+function getUserIdFromUrl() {
+    const pathParts = window.location.pathname.split('/');
+    return pathParts[2] && pathParts[2] !== 'profile' ? pathParts[2] : null;
+}
+
+function getCurrentUserId() {
+    // This would be set by the server or stored in session
+    return window.currentUserId || null;
+}
+
+// Load user profile
+async function loadUserProfile() {
+    try {
+        const response = await fetch(`/users/api/${userId || 'me'}`);
+        const data = await response.json();
+
+        if (data.success) {
+            currentUser = data.user;
+            displayUserProfile(data.user);
+        } else {
+            showMessage('ไม่พบข้อมูลผู้ใช้', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+    }
+}
+
+// Display user profile
+function displayUserProfile(user) {
+    document.getElementById('userAvatar').src = user.profile_image || '/images/default-avatar.png';
+    document.getElementById('userName').textContent = `${user.first_name} ${user.last_name}`;
+    document.getElementById('userTitle').textContent = `${user.position || 'ไม่ระบุตำแหน่ง'} | ${user.department_name || 'ไม่ระบุแผนก'}`;
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('userPhone').textContent = user.phone || '-';
+    document.getElementById('joinDate').textContent = formatDate(user.created_at);
+    document.getElementById('lastActive').textContent = user.last_active ? formatDate(user.last_active) : 'ไม่เคยเข้าใช้';
+    document.getElementById('userBio').textContent = user.bio || 'ยังไม่ได้เพิ่มข้อมูลเกี่ยวกับตัวเอง';
+
+    // Hide edit buttons if not own profile
+    if (userId && userId !== getCurrentUserId()) {
+        document.getElementById('editProfileBtn').style.display = 'none';
+        document.getElementById('changePasswordBtn').style.display = 'none';
+        document.getElementById('changeAvatarBtn').style.display = 'none';
+        document.getElementById('editAboutBtn').style.display = 'none';
+        document.getElementById('editSkillsBtn').style.display = 'none';
+        document.getElementById('editGoalsBtn').style.display = 'none';
+    }
+
+    // Load user skills
+    if (user.skills && user.skills.length > 0) {
+        document.getElementById('userSkills').innerHTML = user.skills.map(skill =>
+            `<span class="px-3 py-1 bg-ruxchai-main/10 text-ruxchai-main text-sm rounded-full">${skill}</span>`
+        ).join('');
+    } else {
+        document.getElementById('userSkills').innerHTML = '<p class="text-gray-500 text-sm">ยังไม่ได้เพิ่มทักษะ</p>';
+    }
+}
+
+// Load user progress
+async function loadUserProgress() {
+    try {
+        const response = await fetch(`/users/api/${userId || 'me'}/progress`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayUserProgress(data.progress);
+        }
+    } catch (error) {
+        console.error('Error loading user progress:', error);
+    }
+}
+
+// Display user progress
+function displayUserProgress(progress) {
+    document.getElementById('completedCourses').textContent = progress.completed_courses || 0;
+    document.getElementById('inProgressCourses').textContent = progress.in_progress_courses || 0;
+    document.getElementById('totalTestsPassed').textContent = progress.tests_passed || 0;
+    document.getElementById('totalBadges').textContent = progress.badges_earned || 0;
+
+    // Current courses
+    const coursesContainer = document.getElementById('currentCourses');
+    if (progress.current_courses && progress.current_courses.length > 0) {
+        coursesContainer.innerHTML = progress.current_courses.map(course => `
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-medium text-gray-900">${course.title}</h4>
+                    <span class="text-sm text-gray-500">${course.progress || 0}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                    <div class="bg-ruxchai-main h-2 rounded-full" style="width: ${course.progress || 0}%"></div>
+                </div>
+                <p class="text-sm text-gray-600">${course.description || ''}</p>
+            </div>
+        `).join('');
+    } else {
+        coursesContainer.innerHTML = '<p class="text-gray-500">ยังไม่ได้ลงทะเบียนคอร์สใดๆ</p>';
+    }
+}
+
+// Load user activity
+async function loadUserActivity() {
+    try {
+        const response = await fetch(`/users/api/${userId || 'me'}/activity`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayUserActivity(data.activities);
+        }
+    } catch (error) {
+        console.error('Error loading user activity:', error);
+    }
+}
+
+// Display user activity
+function displayUserActivity(activities) {
+    const container = document.getElementById('recentActivity');
+
+    if (activities && activities.length > 0) {
+        container.innerHTML = activities.map(activity => `
+            <div class="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg">
+                <div class="flex-shrink-0 w-8 h-8 bg-ruxchai-main/10 rounded-full flex items-center justify-center">
+                    <i class="fas ${getActivityIcon(activity.type)} text-ruxchai-main text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-900">${activity.description}</p>
+                    <p class="text-xs text-gray-500">${formatDate(activity.created_at)}</p>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = '<p class="text-gray-500">ยังไม่มีกิจกรรม</p>';
+    }
+}
+
+// Get activity icon
+function getActivityIcon(type) {
+    const icons = {
+        course_completed: 'fa-graduation-cap',
+        test_passed: 'fa-check-circle',
+        article_published: 'fa-newspaper',
+        badge_earned: 'fa-medal',
+        login: 'fa-sign-in-alt'
+    };
+    return icons[type] || 'fa-circle';
+}
+
+// Load user articles
+async function loadUserArticles() {
+    try {
+        const response = await fetch(`/users/api/${userId || 'me'}/articles`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayUserArticles(data.articles);
+        }
+    } catch (error) {
+        console.error('Error loading user articles:', error);
+    }
+}
+
+// Display user articles
+function displayUserArticles(articles) {
+    const container = document.getElementById('userArticles');
+
+    if (articles && articles.length > 0) {
+        container.innerHTML = articles.map(article => `
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <h4 class="font-medium text-gray-900 mb-2">
+                    <a href="/articles/${article.article_id}" class="hover:text-ruxchai-main transition-colors">
+                        ${article.title}
+                    </a>
+                </h4>
+                <p class="text-sm text-gray-600 mb-2">${article.summary || ''}</p>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span>${formatDate(article.created_at)}</span>
+                    <div class="flex items-center space-x-3">
+                        <span><i class="fas fa-eye mr-1"></i>${article.views || 0}</span>
+                        <span><i class="fas fa-heart mr-1"></i>${article.likes || 0}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = '<p class="text-gray-500">ยังไม่ได้เขียนบทความ</p>';
+    }
+}
+
+// Load departments
+async function loadDepartments() {
+    try {
+        const response = await fetch('/departments/api/list');
+        const data = await response.json();
+
+        if (data.success) {
+            const select = document.getElementById('editDepartment');
+            select.innerHTML = '<option value="">เลือกแผนก</option>' +
+                data.departments.map(dept => `<option value="${dept.department_id}">${dept.name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading departments:', error);
+    }
+}
+
+// Populate edit form
+function populateEditForm() {
+    if (currentUser) {
+        document.getElementById('editFirstName').value = currentUser.first_name || '';
+        document.getElementById('editLastName').value = currentUser.last_name || '';
+        document.getElementById('editEmail').value = currentUser.email || '';
+        document.getElementById('editPhone').value = currentUser.phone || '';
+        document.getElementById('editPosition').value = currentUser.position || '';
+        document.getElementById('editDepartment').value = currentUser.department_id || '';
+        document.getElementById('editBio').value = currentUser.bio || '';
+    }
+}
+
+// Handle edit profile
+async function handleEditProfile(e) {
+    e.preventDefault();
+
+    try {
+        const formData = new FormData(e.target);
+
+        const response = await fetch(`/users/${userId || 'me'}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('แก้ไขโปรไฟล์เรียบร้อยแล้ว', 'success');
+            closeEditModal();
+            loadUserProfile();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error editing profile:', error);
+        showMessage('เกิดข้อผิดพลาดในการแก้ไข', 'error');
+    }
+}
+
+// Handle change password
+async function handleChangePassword(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    // Check password confirmation
+    if (formData.get('new_password') !== formData.get('confirm_password')) {
+        showMessage('รหัสผ่านใหม่ไม่ตรงกัน', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/users/change-password', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว', 'success');
+            closePasswordModal();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error changing password:', error);
+        showMessage('เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน', 'error');
+    }
+}
+
+// Handle avatar change
+async function handleAvatarChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        const response = await fetch('/users/upload-avatar', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('อัปโหลดรูปโปรไฟล์เรียบร้อยแล้ว', 'success');
+            document.getElementById('userAvatar').src = data.avatar_url;
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error uploading avatar:', error);
+        showMessage('เกิดข้อผิดพลาดในการอัปโหลด', 'error');
+    }
+}
+
+// Close modals
+function closeEditModal() {
+    document.getElementById('editProfileModal').classList.add('hidden');
+    document.getElementById('editProfileForm').reset();
+}
+
+function closePasswordModal() {
+    document.getElementById('changePasswordModal').classList.add('hidden');
+    document.getElementById('changePasswordForm').reset();
+}
+
+// Utility functions
+function formatDate(dateString) {
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+    return new Date(dateString).toLocaleDateString('th-TH', options);
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+</script>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,529 @@
+<% layout('layout') -%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    สวัสดี, <%= user.first_name %>!
+                </h1>
+                <p class="text-gray-600 mt-1">
+                    ยินดีต้อนรับสู่ระบบ LearnHub - วันที่ <%= new Date().toLocaleDateString('th-TH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    }) %>
+                </p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">ระดับ</p>
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold text-ruxchai-primary" id="user-level">-</span>
+                        <i class="fas fa-star text-yellow-400 ml-1"></i>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">คะแนน</p>
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold text-ruxchai-accent" id="user-points">-</span>
+                        <i class="fas fa-coins text-yellow-500 ml-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Courses Stats -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg ruxchai-card">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                            <i class="fas fa-book text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">คอร์สที่เรียน</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="enrolled-courses">-</div>
+                                <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                                    <span id="completed-courses">-</span>
+                                    <span class="text-gray-500 ml-1">เสร็จแล้ว</span>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tests Stats -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg ruxchai-card">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                            <i class="fas fa-clipboard-check text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">แบบทดสอบ</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-tests">-</div>
+                                <div class="ml-2 flex items-baseline text-sm font-semibold text-blue-600">
+                                    <span id="average-score">-</span>
+                                    <span class="text-gray-500 ml-1">คะแนนเฉลี่ย</span>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Articles Stats -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg ruxchai-card">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                            <i class="fas fa-newspaper text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">บทความ</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="published-articles">-</div>
+                                <div class="ml-2 flex items-baseline text-sm font-semibold text-purple-600">
+                                    <span id="article-views">-</span>
+                                    <span class="text-gray-500 ml-1">การดู</span>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges Stats -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg ruxchai-card">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
+                            <i class="fas fa-medal text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">เหรียญรางวัล</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900" id="total-badges">-</div>
+                                <div class="ml-2 flex items-baseline text-sm font-semibold text-yellow-600">
+                                    <i class="fas fa-trophy text-yellow-500"></i>
+                                    <span class="text-gray-500 ml-1">ได้รับ</span>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content Area -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Recent Courses -->
+            <div class="bg-white shadow-sm rounded-lg ruxchai-card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900">คอร์สล่าสุด</h3>
+                        <a href="/courses" class="text-ruxchai-primary hover:text-ruxchai-blue-700 text-sm font-medium">
+                            ดูทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="recent-courses" class="space-y-4">
+                        <!-- Courses will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Progress -->
+            <div class="bg-white shadow-sm rounded-lg ruxchai-card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">ความคืบหน้าการเรียน</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4" id="learning-progress">
+                        <!-- Progress will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Articles -->
+            <div class="bg-white shadow-sm rounded-lg ruxchai-card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900">บทความใหม่</h3>
+                        <a href="/articles" class="text-ruxchai-primary hover:text-ruxchai-blue-700 text-sm font-medium">
+                            ดูทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="recent-articles" class="space-y-4">
+                        <!-- Articles will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-8">
+            <!-- Notifications -->
+            <div class="bg-white shadow-sm rounded-lg ruxchai-card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900">แจ้งเตือน</h3>
+                        <button id="mark-all-read" class="text-sm text-ruxchai-primary hover:text-ruxchai-blue-700">
+                            อ่านทั้งหมด
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6 max-h-96 overflow-y-auto">
+                    <div id="notifications" class="space-y-3">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Badges -->
+            <div class="bg-white shadow-sm rounded-lg ruxchai-card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">เหรียญรางวัลของฉัน</h3>
+                </div>
+                <div class="p-6">
+                    <div id="my-badges" class="grid grid-cols-3 gap-4">
+                        <!-- Badges will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="bg-white shadow-sm rounded-lg ruxchai-card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">อันดับผู้เรียน</h3>
+                </div>
+                <div class="p-6">
+                    <div id="leaderboard" class="space-y-3">
+                        <!-- Leaderboard will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white shadow-sm rounded-lg ruxchai-card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">การดำเนินการด่วน</h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    <a href="/courses" class="flex items-center p-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-search text-blue-500 mr-3"></i>
+                        ค้นหาคอร์ส
+                    </a>
+                    <a href="/articles/create" class="flex items-center p-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-plus text-green-500 mr-3"></i>
+                        เขียนบทความ
+                    </a>
+                    <a href="/users/profile" class="flex items-center p-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-user text-purple-500 mr-3"></i>
+                        แก้ไขโปรไฟล์
+                    </a>
+                    <% if (['Admin', 'HR'].includes(user.role)) { %>
+                    <a href="/applicant/admin" class="flex items-center p-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-users text-orange-500 mr-3"></i>
+                        จัดการผู้สมัคร
+                    </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+        <i class="fas fa-spinner fa-spin text-ruxchai-primary text-xl"></i>
+        <span class="text-gray-700">กำลังโหลดข้อมูล...</span>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+});
+
+async function loadDashboardData() {
+    try {
+        // Load all dashboard data in parallel
+        const [statsResponse, coursesResponse, progressResponse, articlesResponse,
+               notificationsResponse, badgesResponse, leaderboardResponse] = await Promise.all([
+            fetch('/dashboard/api/stats'),
+            fetch('/dashboard/api/recent-courses'),
+            fetch('/dashboard/api/progress'),
+            fetch('/dashboard/api/recent-articles'),
+            fetch('/dashboard/api/notifications'),
+            fetch('/dashboard/api/my-badges'),
+            fetch('/dashboard/api/leaderboard')
+        ]);
+
+        const [stats, courses, progress, articles, notifications, badges, leaderboard] = await Promise.all([
+            statsResponse.json(),
+            coursesResponse.json(),
+            progressResponse.json(),
+            articlesResponse.json(),
+            notificationsResponse.json(),
+            badgesResponse.json(),
+            leaderboardResponse.json()
+        ]);
+
+        // Update stats
+        if (stats.success) {
+            updateStats(stats.data);
+        }
+
+        // Update recent courses
+        if (courses.success) {
+            updateRecentCourses(courses.data);
+        }
+
+        // Update learning progress
+        if (progress.success) {
+            updateLearningProgress(progress.data);
+        }
+
+        // Update recent articles
+        if (articles.success) {
+            updateRecentArticles(articles.data);
+        }
+
+        // Update notifications
+        if (notifications.success) {
+            updateNotifications(notifications.data);
+        }
+
+        // Update badges
+        if (badges.success) {
+            updateMyBadges(badges.data);
+        }
+
+        // Update leaderboard
+        if (leaderboard.success) {
+            updateLeaderboard(leaderboard.data);
+        }
+
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    } finally {
+        // Hide loading overlay
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+}
+
+function updateStats(data) {
+    document.getElementById('user-level').textContent = data.user_level || '1';
+    document.getElementById('user-points').textContent = (data.total_points || 0).toLocaleString();
+    document.getElementById('enrolled-courses').textContent = data.enrolled_courses || '0';
+    document.getElementById('completed-courses').textContent = data.completed_courses || '0';
+    document.getElementById('total-tests').textContent = data.total_tests || '0';
+    document.getElementById('average-score').textContent = data.average_score ? data.average_score.toFixed(1) + '%' : '-';
+    document.getElementById('published-articles').textContent = data.published_articles || '0';
+    document.getElementById('article-views').textContent = (data.article_views || 0).toLocaleString();
+    document.getElementById('total-badges').textContent = data.total_badges || '0';
+}
+
+function updateRecentCourses(courses) {
+    const container = document.getElementById('recent-courses');
+    if (!courses || courses.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีคอร์สที่เรียน</p>';
+        return;
+    }
+
+    container.innerHTML = courses.map(course => `
+        <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <img src="${course.thumbnail || '/images/course-default.jpg'}" alt="${course.title}" class="w-16 h-16 object-cover rounded-lg">
+            <div class="flex-1">
+                <h4 class="font-medium text-gray-900">${course.title}</h4>
+                <p class="text-sm text-gray-500">${course.instructor_name}</p>
+                <div class="mt-2">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-ruxchai-primary h-2 rounded-full" style="width: ${course.progress_percentage || 0}%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${course.progress_percentage || 0}% เสร็จสิ้น</p>
+                </div>
+            </div>
+            <a href="/courses/${course.course_id}" class="text-ruxchai-primary hover:text-ruxchai-blue-700">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    `).join('');
+}
+
+function updateLearningProgress(progress) {
+    const container = document.getElementById('learning-progress');
+    if (!progress || progress.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีความคืบหน้าการเรียน</p>';
+        return;
+    }
+
+    container.innerHTML = progress.map(item => `
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <h4 class="font-medium text-gray-900">${item.title}</h4>
+                <div class="mt-1">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: ${item.progress_percentage}%"></div>
+                    </div>
+                </div>
+            </div>
+            <span class="ml-4 text-sm font-medium text-gray-600">${item.progress_percentage}%</span>
+        </div>
+    `).join('');
+}
+
+function updateRecentArticles(articles) {
+    const container = document.getElementById('recent-articles');
+    if (!articles || articles.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีบทความใหม่</p>';
+        return;
+    }
+
+    container.innerHTML = articles.map(article => `
+        <div class="flex items-start space-x-4">
+            <div class="flex-1">
+                <h4 class="font-medium text-gray-900 hover:text-ruxchai-primary">
+                    <a href="/articles/${article.article_id}">${article.title}</a>
+                </h4>
+                <p class="text-sm text-gray-500 mt-1">${article.excerpt}</p>
+                <div class="flex items-center space-x-4 text-xs text-gray-400 mt-2">
+                    <span><i class="fas fa-user mr-1"></i>${article.author_name}</span>
+                    <span><i class="fas fa-calendar mr-1"></i>${new Date(article.published_at).toLocaleDateString('th-TH')}</span>
+                    <span><i class="fas fa-eye mr-1"></i>${article.view_count} การดู</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateNotifications(notifications) {
+    const container = document.getElementById('notifications');
+    if (!notifications || notifications.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">ไม่มีการแจ้งเตือน</p>';
+        return;
+    }
+
+    container.innerHTML = notifications.map(notif => `
+        <div class="flex items-start space-x-3 ${notif.is_read ? '' : 'bg-blue-50 -mx-3 px-3 py-2 rounded'}">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-bell text-blue-600 text-sm"></i>
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">${notif.title}</p>
+                <p class="text-sm text-gray-500">${notif.message}</p>
+                <p class="text-xs text-gray-400 mt-1">${timeAgo(notif.created_at)}</p>
+            </div>
+            ${!notif.is_read ? '<div class="w-2 h-2 bg-blue-500 rounded-full"></div>' : ''}
+        </div>
+    `).join('');
+}
+
+function updateMyBadges(badges) {
+    const container = document.getElementById('my-badges');
+    if (!badges || badges.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4 col-span-3">ยังไม่มีเหรียญรางวัล</p>';
+        return;
+    }
+
+    container.innerHTML = badges.slice(0, 6).map(badge => `
+        <div class="text-center">
+            <div class="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                <i class="fas ${badge.icon} text-white"></i>
+            </div>
+            <p class="text-xs font-medium text-gray-900">${badge.name}</p>
+        </div>
+    `).join('');
+}
+
+function updateLeaderboard(leaderboard) {
+    const container = document.getElementById('leaderboard');
+    if (!leaderboard || leaderboard.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีข้อมูลอันดับ</p>';
+        return;
+    }
+
+    container.innerHTML = leaderboard.map((user, index) => `
+        <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
+                    index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                    index === 1 ? 'bg-gray-100 text-gray-800' :
+                    index === 2 ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'
+                }">
+                    ${index + 1}
+                </span>
+            </div>
+            <img class="w-8 h-8 rounded-full" src="${user.profile_image || '/images/default-avatar.png'}" alt="${user.name}">
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">${user.name}</p>
+                <p class="text-xs text-gray-500">${user.points.toLocaleString()} คะแนน</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Mark all notifications as read
+document.getElementById('mark-all-read').addEventListener('click', async function() {
+    try {
+        const response = await fetch('/dashboard/api/notifications/mark-all-read', {
+            method: 'PUT'
+        });
+        const data = await response.json();
+        if (data.success) {
+            // Reload notifications
+            const notifResponse = await fetch('/dashboard/api/notifications');
+            const notifData = await notifResponse.json();
+            if (notifData.success) {
+                updateNotifications(notifData.data);
+            }
+        }
+    } catch (error) {
+        console.error('Error marking notifications as read:', error);
+    }
+});
+
+function timeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'เมื่อสักครู่';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} นาทีที่แล้ว`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ชั่วโมงที่แล้ว`;
+    return `${Math.floor(diffInSeconds / 86400)} วันที่แล้ว`;
+}
+</script>

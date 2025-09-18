@@ -1,0 +1,236 @@
+<% layout('layout') -%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-chart-bar mr-3 text-ruxchai-primary"></i>รายงานผลการเรียนรู้
+        </h1>
+        <p class="mt-2 text-gray-600">รายงานความก้าวหน้าและสถิติการเรียนรู้ของพนักงาน</p>
+    </div>
+
+    <!-- Report Categories -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Learning Progress Report -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-graduation-cap text-ruxchai-primary text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                ความก้าวหน้าการเรียน
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900">
+                                <a href="/reports/learning-progress" class="hover:text-ruxchai-primary">
+                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <div class="text-sm text-gray-500">
+                    ติดตามความคืบหน้าการเรียนของพนักงานแต่ละคน
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results Report -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clipboard-list text-green-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                ผลการทดสอบ
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900">
+                                <a href="/reports/test-results" class="hover:text-green-500">
+                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <div class="text-sm text-gray-500">
+                    สรุปผลคะแนนและสถิติการทดสอบ
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Analytics -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-chart-line text-blue-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                วิเคราะห์หลักสูตร
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900">
+                                <a href="/reports/course-analytics" class="hover:text-blue-500">
+                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <div class="text-sm text-gray-500">
+                    วิเคราะห์ประสิทธิภาพและความนิยมของหลักสูตร
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Performance -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-building text-purple-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                ผลงานแผนก
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900">
+                                <a href="/reports/department-performance" class="hover:text-purple-500">
+                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <div class="text-sm text-gray-500">
+                    เปรียบเทียบผลงานการเรียนรู้ระหว่างแผนก
+                </div>
+            </div>
+        </div>
+
+        <!-- User Activity -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-clock text-orange-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                กิจกรรมผู้ใช้
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900">
+                                <a href="/reports/user-activity" class="hover:text-orange-500">
+                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <div class="text-sm text-gray-500">
+                    ติดตามการเข้าใช้งานและกิจกรรมต่างๆ
+                </div>
+            </div>
+        </div>
+
+        <!-- Certification Report -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-certificate text-yellow-500 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                ใบประกาศนียบัตร
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900">
+                                <a href="/reports/certifications" class="hover:text-yellow-500">
+                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-3">
+                <div class="text-sm text-gray-500">
+                    รายงานการออกใบประกาศนียบัตรและสถิติ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Export Options -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">
+            <i class="fas fa-download mr-2 text-ruxchai-primary"></i>ส่งออกรายงานแบบด่วน
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <button onclick="exportReport('learning-progress')"
+                    class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-file-csv mr-2 text-green-500"></i>
+                ส่งออกความก้าวหน้า CSV
+            </button>
+            <button onclick="exportReport('test-results')"
+                    class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-file-csv mr-2 text-green-500"></i>
+                ส่งออกผลการทดสอบ CSV
+            </button>
+            <button onclick="exportReport('user-activity')"
+                    class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-file-csv mr-2 text-green-500"></i>
+                ส่งออกกิจกรรมผู้ใช้ CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+async function exportReport(reportType) {
+    try {
+        const response = await fetch(`/reports/export/${reportType}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'text/csv'
+            }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `${reportType}-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            showSuccess(`ส่งออกรายงาน ${reportType} สำเร็จ`);
+        } else {
+            throw new Error('ไม่สามารถส่งออกรายงานได้');
+        }
+    } catch (error) {
+        showError(error.message);
+    }
+}
+</script>

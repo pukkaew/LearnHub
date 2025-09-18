@@ -1,0 +1,814 @@
+<%- include('../layouts/header') %>
+
+<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Result Header -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-ruxchai-main to-ruxchai-secondary p-8 text-white">
+                <div class="text-center">
+                    <div class="w-24 h-24 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
+                        <i id="resultIcon" class="fas fa-check-circle text-4xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-2">ผลการทดสอบ</h1>
+                    <p id="resultMessage" class="text-xl opacity-90">คุณได้คะแนน</p>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- Score -->
+                    <div class="text-center">
+                        <div id="totalScore" class="text-4xl font-bold text-ruxchai-main mb-2">0%</div>
+                        <div class="text-sm text-gray-500">คะแนนรวม</div>
+                    </div>
+
+                    <!-- Correct Answers -->
+                    <div class="text-center">
+                        <div id="correctAnswers" class="text-4xl font-bold text-green-600 mb-2">0</div>
+                        <div class="text-sm text-gray-500">ตอบถูก</div>
+                    </div>
+
+                    <!-- Wrong Answers -->
+                    <div class="text-center">
+                        <div id="wrongAnswers" class="text-4xl font-bold text-red-600 mb-2">0</div>
+                        <div class="text-sm text-gray-500">ตอบผิด</div>
+                    </div>
+
+                    <!-- Time Taken -->
+                    <div class="text-center">
+                        <div id="timeTaken" class="text-4xl font-bold text-blue-600 mb-2">0</div>
+                        <div class="text-sm text-gray-500">เวลาที่ใช้ (นาที)</div>
+                    </div>
+                </div>
+
+                <!-- Pass/Fail Status -->
+                <div class="mt-8 text-center">
+                    <div id="passStatus" class="inline-flex items-center px-6 py-3 rounded-full text-lg font-medium">
+                        <i class="fas fa-circle mr-2"></i>
+                        <span>กำลังประเมินผล...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">ข้อมูลการทดสอบ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ชื่อข้อสอบ:</span>
+                        <span id="testTitle" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ตำแหน่งที่สมัคร:</span>
+                        <span id="positionTitle" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">จำนวนข้อคำถาม:</span>
+                        <span id="totalQuestions" class="font-medium">0 ข้อ</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">คะแนนผ่าน:</span>
+                        <span id="passingScore" class="font-medium">0%</span>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">วันที่ทำข้อสอบ:</span>
+                        <span id="testDate" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">เวลาเริ่ม:</span>
+                        <span id="startTime" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">เวลาสิ้นสุด:</span>
+                        <span id="endTime" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">สถานะการส่ง:</span>
+                        <span id="submissionType" class="font-medium">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">การวิเคราะห์ผลการทดสอบ</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Score Chart -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">การกระจายคะแนน</h3>
+                    <canvas id="scoreChart" width="400" height="300"></canvas>
+                </div>
+
+                <!-- Performance by Category -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">ผลงานตามหมวดหมู่</h3>
+                    <div id="categoryPerformance" class="space-y-4">
+                        <!-- Category performance will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Review -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-900">ทบทวนคำตอบ</h2>
+                <div class="flex space-x-2">
+                    <button id="showAllBtn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        ทั้งหมด
+                    </button>
+                    <button id="showCorrectBtn" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                        ถูก
+                    </button>
+                    <button id="showWrongBtn" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+                        ผิด
+                    </button>
+                    <button id="showMarkedBtn" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors">
+                        ทำเครื่องหมาย
+                    </button>
+                </div>
+            </div>
+
+            <div id="questionsReview" class="space-y-6">
+                <!-- Questions review will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">คำแนะนำ</h2>
+            <div id="recommendations" class="space-y-4">
+                <!-- Recommendations will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+            <button id="printResultBtn" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-print mr-2"></i>พิมพ์ผลการทดสอบ
+            </button>
+            <button id="shareResultBtn" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                <i class="fas fa-share mr-2"></i>แชร์ผลการทดสอบ
+            </button>
+            <a href="/applicants" class="px-8 py-3 text-ruxchai-main border border-ruxchai-main rounded-lg hover:bg-ruxchai-main hover:text-white transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>กลับหน้าหลัก
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Certificate Modal -->
+<div id="certificateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">ใบประกาศนียบัตร</h3>
+                <button id="closeCertificateModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="certificateContent" class="p-8">
+                <!-- Certificate will be generated here -->
+            </div>
+            <div class="flex justify-center space-x-4 p-6 border-t">
+                <button id="downloadCertificateBtn" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors">
+                    <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                </button>
+                <button id="printCertificateBtn" class="px-6 py-2 text-ruxchai-main border border-ruxchai-main rounded-lg hover:bg-ruxchai-main hover:text-white transition-colors">
+                    <i class="fas fa-print mr-2"></i>พิมพ์
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">แชร์ผลการทดสอบ</h3>
+                <button id="closeShareModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <button class="w-full flex items-center space-x-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            onclick="shareToFacebook()">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>แชร์ไปยัง Facebook</span>
+                    </button>
+                    <button class="w-full flex items-center space-x-3 px-4 py-3 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
+                            onclick="shareToTwitter()">
+                        <i class="fab fa-twitter"></i>
+                        <span>แชร์ไปยัง Twitter</span>
+                    </button>
+                    <button class="w-full flex items-center space-x-3 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                            onclick="shareToLine()">
+                        <i class="fab fa-line"></i>
+                        <span>แชร์ไปยัง LINE</span>
+                    </button>
+                    <div class="relative">
+                        <input type="text" id="resultUrl" readonly
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
+                        <button onclick="copyUrl()" class="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-ruxchai-main text-white text-sm rounded">
+                            คัดลอก
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Global variables
+let resultData = {};
+let questions = [];
+let currentFilter = 'all';
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadTestResult();
+    setupEventListeners();
+});
+
+// Event listeners
+function setupEventListeners() {
+    // Filter buttons
+    document.getElementById('showAllBtn').addEventListener('click', () => filterQuestions('all'));
+    document.getElementById('showCorrectBtn').addEventListener('click', () => filterQuestions('correct'));
+    document.getElementById('showWrongBtn').addEventListener('click', () => filterQuestions('wrong'));
+    document.getElementById('showMarkedBtn').addEventListener('click', () => filterQuestions('marked'));
+
+    // Action buttons
+    document.getElementById('printResultBtn').addEventListener('click', printResult);
+    document.getElementById('shareResultBtn').addEventListener('click', () => {
+        document.getElementById('resultUrl').value = window.location.href;
+        document.getElementById('shareModal').classList.remove('hidden');
+    });
+
+    // Modal close buttons
+    document.getElementById('closeCertificateModal').addEventListener('click', () => {
+        document.getElementById('certificateModal').classList.add('hidden');
+    });
+
+    document.getElementById('closeShareModal').addEventListener('click', () => {
+        document.getElementById('shareModal').classList.add('hidden');
+    });
+
+    // Certificate actions
+    document.getElementById('downloadCertificateBtn').addEventListener('click', downloadCertificate);
+    document.getElementById('printCertificateBtn').addEventListener('click', printCertificate);
+}
+
+// Load test result
+async function loadTestResult() {
+    try {
+        const resultId = getResultIdFromUrl();
+        const response = await fetch(`/applicants/api/results/${resultId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            resultData = data.result;
+            questions = data.questions;
+            displayResult();
+            displayChart();
+            displayQuestions();
+            displayRecommendations();
+
+            // Show certificate if passed
+            if (resultData.passed) {
+                setTimeout(() => showCertificate(), 2000);
+            }
+        } else {
+            showMessage('ไม่พบผลการทดสอบ', 'error');
+            setTimeout(() => window.location.href = '/applicants', 2000);
+        }
+    } catch (error) {
+        console.error('Error loading test result:', error);
+        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+    }
+}
+
+// Display result
+function displayResult() {
+    const score = resultData.score || 0;
+    const passed = resultData.passed;
+
+    // Update result icon and message
+    const resultIcon = document.getElementById('resultIcon');
+    const resultMessage = document.getElementById('resultMessage');
+
+    if (passed) {
+        resultIcon.className = 'fas fa-check-circle text-4xl text-green-500';
+        resultMessage.textContent = `ยินดีด้วย! คุณผ่านการทดสอบด้วยคะแนน ${score}%`;
+        resultMessage.className = 'text-xl opacity-90 text-green-100';
+    } else {
+        resultIcon.className = 'fas fa-times-circle text-4xl text-red-500';
+        resultMessage.textContent = `เสียใจด้วย คุณได้คะแนน ${score}% ไม่ผ่านเกณฑ์`;
+        resultMessage.className = 'text-xl opacity-90 text-red-100';
+    }
+
+    // Update score display
+    document.getElementById('totalScore').textContent = `${score}%`;
+    document.getElementById('correctAnswers').textContent = resultData.correct_answers || 0;
+    document.getElementById('wrongAnswers').textContent = resultData.wrong_answers || 0;
+    document.getElementById('timeTaken').textContent = Math.round((resultData.time_taken || 0) / 60);
+
+    // Update pass/fail status
+    const passStatus = document.getElementById('passStatus');
+    if (passed) {
+        passStatus.className = 'inline-flex items-center px-6 py-3 rounded-full text-lg font-medium bg-green-100 text-green-800';
+        passStatus.innerHTML = '<i class="fas fa-check-circle mr-2"></i><span>ผ่านการทดสอบ</span>';
+    } else {
+        passStatus.className = 'inline-flex items-center px-6 py-3 rounded-full text-lg font-medium bg-red-100 text-red-800';
+        passStatus.innerHTML = '<i class="fas fa-times-circle mr-2"></i><span>ไม่ผ่านการทดสอบ</span>';
+    }
+
+    // Update test information
+    document.getElementById('testTitle').textContent = resultData.test_title || '-';
+    document.getElementById('positionTitle').textContent = resultData.position_title || '-';
+    document.getElementById('totalQuestions').textContent = `${resultData.total_questions || 0} ข้อ`;
+    document.getElementById('passingScore').textContent = `${resultData.passing_score || 0}%`;
+    document.getElementById('testDate').textContent = formatDate(resultData.started_at);
+    document.getElementById('startTime').textContent = formatTime(resultData.started_at);
+    document.getElementById('endTime').textContent = formatTime(resultData.completed_at);
+
+    const submissionType = resultData.submission_type === 'auto' ? 'ส่งอัตโนมัติ' : 'ส่งด้วยตัวเอง';
+    document.getElementById('submissionType').textContent = submissionType;
+}
+
+// Display chart
+function displayChart() {
+    const ctx = document.getElementById('scoreChart').getContext('2d');
+
+    const score = resultData.score || 0;
+    const passingScore = resultData.passing_score || 70;
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['คะแนนที่ได้', 'คะแนนที่เหลือ'],
+            datasets: [{
+                data: [score, 100 - score],
+                backgroundColor: [
+                    score >= passingScore ? '#10B981' : '#EF4444',
+                    '#E5E7EB'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Display category performance
+    displayCategoryPerformance();
+}
+
+// Display category performance
+function displayCategoryPerformance() {
+    const container = document.getElementById('categoryPerformance');
+
+    if (resultData.category_scores && resultData.category_scores.length > 0) {
+        container.innerHTML = resultData.category_scores.map(category => `
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-medium text-gray-900">${category.name}</h4>
+                    <span class="text-sm font-medium ${category.score >= 70 ? 'text-green-600' : 'text-red-600'}">
+                        ${category.score}%
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="h-2 rounded-full ${category.score >= 70 ? 'bg-green-500' : 'bg-red-500'}"
+                         style="width: ${category.score}%"></div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">
+                    ${category.correct}/${category.total} ข้อ
+                </p>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = '<p class="text-gray-500">ไม่มีข้อมูลการแยกประเภท</p>';
+    }
+}
+
+// Display questions
+function displayQuestions() {
+    filterQuestions('all');
+}
+
+// Filter questions
+function filterQuestions(filter) {
+    currentFilter = filter;
+
+    // Update button states
+    document.querySelectorAll('[id$="Btn"]').forEach(btn => {
+        btn.classList.remove('bg-ruxchai-main', 'text-white');
+        btn.classList.add('bg-gray-100', 'text-gray-700');
+    });
+
+    const activeBtn = document.getElementById(`show${filter.charAt(0).toUpperCase() + filter.slice(1)}Btn`);
+    if (activeBtn) {
+        activeBtn.classList.remove('bg-gray-100', 'text-gray-700');
+        activeBtn.classList.add('bg-ruxchai-main', 'text-white');
+    }
+
+    // Filter and display questions
+    let filteredQuestions = questions;
+
+    switch (filter) {
+        case 'correct':
+            filteredQuestions = questions.filter(q => q.is_correct);
+            break;
+        case 'wrong':
+            filteredQuestions = questions.filter(q => !q.is_correct && q.user_answer !== null);
+            break;
+        case 'marked':
+            filteredQuestions = questions.filter(q => q.is_marked);
+            break;
+    }
+
+    displayFilteredQuestions(filteredQuestions);
+}
+
+// Display filtered questions
+function displayFilteredQuestions(questions) {
+    const container = document.getElementById('questionsReview');
+
+    if (questions.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">ไม่มีข้อคำถามในหมวดนี้</p>';
+        return;
+    }
+
+    container.innerHTML = questions.map((question, index) => createQuestionReview(question, index)).join('');
+}
+
+// Create question review
+function createQuestionReview(question, index) {
+    const isCorrect = question.is_correct;
+    const hasAnswer = question.user_answer !== null && question.user_answer !== '';
+
+    return `
+        <div class="border border-gray-200 rounded-lg p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-medium text-gray-900">
+                    ข้อที่ ${question.question_number}
+                    ${question.is_marked ? '<i class="fas fa-flag text-orange-500 ml-2"></i>' : ''}
+                </h3>
+                <div class="flex items-center space-x-2">
+                    ${hasAnswer ? `
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${
+                            isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${isCorrect ? 'ถูก' : 'ผิด'}
+                        </span>
+                    ` : `
+                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                            ไม่ตอบ
+                        </span>
+                    `}
+                    <span class="text-sm text-gray-500">${question.points || 1} คะแนน</span>
+                </div>
+            </div>
+
+            <!-- Question Content -->
+            <div class="prose max-w-none mb-4">
+                ${question.question_text}
+                ${question.question_image ? `<img src="${question.question_image}" alt="Question image" class="mt-2 max-w-full h-auto rounded-lg">` : ''}
+            </div>
+
+            <!-- Answer Options -->
+            <div class="space-y-3 mb-4">
+                ${displayQuestionAnswers(question)}
+            </div>
+
+            <!-- Explanation -->
+            ${question.explanation ? `
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-medium text-blue-900 mb-2">คำอธิบาย:</h4>
+                    <p class="text-blue-800">${question.explanation}</p>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+// Display question answers
+function displayQuestionAnswers(question) {
+    switch (question.type) {
+        case 'multiple_choice':
+            return question.options.map((option, index) => {
+                const isUserAnswer = question.user_answer == index;
+                const isCorrectAnswer = question.correct_answer == index;
+
+                let className = 'p-3 border rounded-lg ';
+                if (isCorrectAnswer) {
+                    className += 'bg-green-50 border-green-300 text-green-900';
+                } else if (isUserAnswer) {
+                    className += 'bg-red-50 border-red-300 text-red-900';
+                } else {
+                    className += 'bg-gray-50 border-gray-200 text-gray-700';
+                }
+
+                return `
+                    <div class="${className}">
+                        <div class="flex items-center justify-between">
+                            <span>${option}</span>
+                            <div class="flex space-x-2">
+                                ${isUserAnswer ? '<i class="fas fa-user text-blue-600" title="คำตอบของคุณ"></i>' : ''}
+                                ${isCorrectAnswer ? '<i class="fas fa-check text-green-600" title="คำตอบที่ถูก"></i>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        case 'true_false':
+            const userAnswer = question.user_answer;
+            const correctAnswer = question.correct_answer;
+
+            return ['true', 'false'].map(value => {
+                const label = value === 'true' ? 'ถูก' : 'ผิด';
+                const isUserAnswer = userAnswer === value;
+                const isCorrectAnswer = correctAnswer === value;
+
+                let className = 'p-3 border rounded-lg ';
+                if (isCorrectAnswer) {
+                    className += 'bg-green-50 border-green-300 text-green-900';
+                } else if (isUserAnswer) {
+                    className += 'bg-red-50 border-red-300 text-red-900';
+                } else {
+                    className += 'bg-gray-50 border-gray-200 text-gray-700';
+                }
+
+                return `
+                    <div class="${className}">
+                        <div class="flex items-center justify-between">
+                            <span>${label}</span>
+                            <div class="flex space-x-2">
+                                ${isUserAnswer ? '<i class="fas fa-user text-blue-600" title="คำตอบของคุณ"></i>' : ''}
+                                ${isCorrectAnswer ? '<i class="fas fa-check text-green-600" title="คำตอบที่ถูก"></i>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        case 'fill_blank':
+        case 'essay':
+            return `
+                <div class="space-y-3">
+                    <div class="p-3 border border-blue-200 rounded-lg bg-blue-50">
+                        <h5 class="font-medium text-blue-900 mb-1">คำตอบของคุณ:</h5>
+                        <p class="text-blue-800">${question.user_answer || 'ไม่ได้ตอบ'}</p>
+                    </div>
+                    <div class="p-3 border border-green-200 rounded-lg bg-green-50">
+                        <h5 class="font-medium text-green-900 mb-1">คำตอบที่ถูก:</h5>
+                        <p class="text-green-800">${question.correct_answer || 'ไม่มีข้อมูล'}</p>
+                    </div>
+                </div>
+            `;
+
+        default:
+            return '<p class="text-gray-500">ไม่สามารถแสดงคำตอบได้</p>';
+    }
+}
+
+// Display recommendations
+function displayRecommendations() {
+    const container = document.getElementById('recommendations');
+    const score = resultData.score || 0;
+    const passed = resultData.passed;
+
+    let recommendations = [];
+
+    if (passed) {
+        recommendations = [
+            {
+                icon: 'fas fa-trophy',
+                color: 'text-yellow-600',
+                title: 'ยินดีด้วย!',
+                description: 'คุณผ่านการทดสอบเรียบร้อยแล้ว ทีมงาน HR จะติดต่อกลับในเร็วๆ นี้'
+            },
+            {
+                icon: 'fas fa-certificate',
+                color: 'text-blue-600',
+                title: 'ใบประกาศนียบัตร',
+                description: 'คุณจะได้รับใบประกาศนียบัตรการผ่านการทดสอบ'
+            }
+        ];
+    } else {
+        recommendations = [
+            {
+                icon: 'fas fa-book',
+                color: 'text-blue-600',
+                title: 'ศึกษาเพิ่มเติม',
+                description: 'แนะนำให้ศึกษาเนื้อหาเพิ่มเติมในส่วนที่ยังไม่แข็งแกร่ง'
+            },
+            {
+                icon: 'fas fa-redo',
+                color: 'text-green-600',
+                title: 'ทำข้อสอบใหม่',
+                description: 'หากมีโอกาส คุณสามารถทำข้อสอบใหม่ได้ในอนาคต'
+            }
+        ];
+
+        if (score < 50) {
+            recommendations.push({
+                icon: 'fas fa-graduation-cap',
+                color: 'text-purple-600',
+                title: 'เข้าอบรม',
+                description: 'แนะนำให้เข้าอบรมพื้นฐานก่อนทำข้อสอบใหม่'
+            });
+        }
+    }
+
+    container.innerHTML = recommendations.map(rec => `
+        <div class="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg">
+            <div class="flex-shrink-0">
+                <i class="${rec.icon} ${rec.color} text-xl"></i>
+            </div>
+            <div>
+                <h4 class="font-medium text-gray-900">${rec.title}</h4>
+                <p class="text-gray-600">${rec.description}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Show certificate
+function showCertificate() {
+    if (!resultData.passed) return;
+
+    const certificateContent = `
+        <div class="certificate bg-gradient-to-br from-blue-50 to-purple-50 border-4 border-ruxchai-main rounded-lg p-12 text-center">
+            <div class="mb-8">
+                <img src="/images/ruxchai-logo.png" alt="Ruxchai Logo" class="w-24 h-24 mx-auto mb-4">
+                <h1 class="text-3xl font-bold text-ruxchai-main mb-2">RUXCHAI LEARNING HUB</h1>
+                <p class="text-gray-600">ใบประกาศนียบัตรการผ่านการทดสอบ</p>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">ใบประกาศนียบัตร</h2>
+                <p class="text-xl text-gray-700 mb-6">ขอแสดงความยินดีกับ</p>
+                <h3 class="text-3xl font-bold text-ruxchai-main mb-6">${resultData.applicant_name}</h3>
+                <p class="text-lg text-gray-700 mb-4">ที่ได้ผ่านการทดสอบ</p>
+                <h4 class="text-2xl font-semibold text-gray-900 mb-4">${resultData.test_title}</h4>
+                <p class="text-lg text-gray-700 mb-6">สำหรับตำแหน่ง ${resultData.position_title}</p>
+                <p class="text-xl font-semibold text-green-600">ด้วยคะแนน ${resultData.score}%</p>
+            </div>
+
+            <div class="flex justify-between items-end">
+                <div class="text-left">
+                    <p class="text-sm text-gray-600">วันที่ออกใบประกาศ</p>
+                    <p class="font-medium">${formatDate(new Date())}</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-32 h-16 border-b-2 border-gray-400 mb-2"></div>
+                    <p class="text-sm text-gray-600">ผู้อำนวยการ Ruxchai</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">หมายเลขใบประกาศ</p>
+                    <p class="font-medium">CERT-${resultData.result_id.toString().padStart(6, '0')}</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('certificateContent').innerHTML = certificateContent;
+    document.getElementById('certificateModal').classList.remove('hidden');
+}
+
+// Print functions
+function printResult() {
+    window.print();
+}
+
+function printCertificate() {
+    const printContent = document.getElementById('certificateContent').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>ใบประกาศนียบัตร</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                .certificate { background: linear-gradient(to bottom right, #eff6ff, #faf5ff); }
+                @media print { body { margin: 0; } }
+            </style>
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Download certificate
+function downloadCertificate() {
+    // This would typically convert the certificate to PDF
+    // For now, we'll just show a message
+    showMessage('กำลังเตรียมการดาวน์โหลด...', 'info');
+
+    // In a real implementation, you would use a library like jsPDF or html2canvas
+    setTimeout(() => {
+        showMessage('ดาวน์โหลดเสร็จสิ้น', 'success');
+    }, 2000);
+}
+
+// Share functions
+function shareToFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`ผมได้คะแนน ${resultData.score}% ในการทดสอบ ${resultData.test_title} ที่ Ruxchai!`);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+}
+
+function shareToTwitter() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`ผมได้คะแนน ${resultData.score}% ในการทดสอบ ${resultData.test_title} ที่ Ruxchai! #RuxchaiTest`);
+    window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+}
+
+function shareToLine() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`ผมได้คะแนน ${resultData.score}% ในการทดสอบ ${resultData.test_title} ที่ Ruxchai!`);
+    window.open(`https://social-plugins.line.me/lineit/share?url=${url}&text=${text}`, '_blank');
+}
+
+function copyUrl() {
+    const urlInput = document.getElementById('resultUrl');
+    urlInput.select();
+    document.execCommand('copy');
+    showMessage('คัดลอกลิงก์เรียบร้อยแล้ว', 'success');
+}
+
+// Utility functions
+function getResultIdFromUrl() {
+    const pathParts = window.location.pathname.split('/');
+    return pathParts[pathParts.length - 1];
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('th-TH', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+// Add print styles
+const printStyles = document.createElement('style');
+printStyles.textContent = `
+    @media print {
+        body * { visibility: hidden; }
+        .container, .container * { visibility: visible; }
+        .fixed { display: none; }
+        .no-print { display: none; }
+    }
+`;
+document.head.appendChild(printStyles);
+</script>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,568 @@
+<% layout('layout') -%>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-bell mr-3 text-ruxchai-primary"></i>การแจ้งเตือน
+                </h1>
+                <p class="mt-2 text-gray-600">จัดการการแจ้งเตือนและข้อความต่างๆ</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="markAllAsRead()"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i class="fas fa-check-double mr-2"></i>อ่านทั้งหมด
+                </button>
+                <% if (['Admin', 'HR'].includes(user.role)) { %>
+                <button onclick="showCreateModal()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                    <i class="fas fa-plus mr-2"></i>สร้างการแจ้งเตือน
+                </button>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="mb-6">
+        <nav class="flex space-x-8" aria-label="Tabs">
+            <button onclick="filterNotifications('all')"
+                    class="notification-tab active whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
+                    data-filter="all">
+                ทั้งหมด
+                <span id="count-all" class="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">0</span>
+            </button>
+            <button onclick="filterNotifications('unread')"
+                    class="notification-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
+                    data-filter="unread">
+                ยังไม่อ่าน
+                <span id="count-unread" class="ml-2 bg-red-100 text-red-800 py-0.5 px-2.5 rounded-full text-xs font-medium">0</span>
+            </button>
+            <button onclick="filterNotifications('info')"
+                    class="notification-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
+                    data-filter="info">
+                ข้อมูล
+                <span id="count-info" class="ml-2 bg-blue-100 text-blue-800 py-0.5 px-2.5 rounded-full text-xs font-medium">0</span>
+            </button>
+            <button onclick="filterNotifications('success')"
+                    class="notification-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
+                    data-filter="success">
+                สำเร็จ
+                <span id="count-success" class="ml-2 bg-green-100 text-green-800 py-0.5 px-2.5 rounded-full text-xs font-medium">0</span>
+            </button>
+            <button onclick="filterNotifications('warning')"
+                    class="notification-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
+                    data-filter="warning">
+                คำเตือน
+                <span id="count-warning" class="ml-2 bg-yellow-100 text-yellow-800 py-0.5 px-2.5 rounded-full text-xs font-medium">0</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Notifications List -->
+    <div id="notifications-container" class="space-y-4">
+        <!-- Notifications will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-12">
+        <i class="fas fa-bell-slash text-gray-400 text-6xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">ไม่มีการแจ้งเตือน</h3>
+        <p class="text-gray-500">ไม่พบการแจ้งเตือนในหมวดหมู่ที่เลือก</p>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination-container" class="mt-8">
+        <!-- Pagination will be loaded here -->
+    </div>
+</div>
+
+<!-- Create Notification Modal -->
+<% if (['Admin', 'HR'].includes(user.role)) { %>
+<div id="create-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-bell mr-2 text-ruxchai-primary"></i>สร้างการแจ้งเตือนใหม่
+                </h3>
+                <button onclick="hideCreateModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="create-notification-form" class="space-y-4">
+                <!-- Recipient Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ผู้รับการแจ้งเตือน</label>
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="recipient_type" value="all" class="form-radio">
+                            <span class="ml-2">ส่งให้ทุกคน</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="recipient_type" value="department" class="form-radio">
+                            <span class="ml-2">ส่งตามแผนก</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="recipient_type" value="specific" class="form-radio" checked>
+                            <span class="ml-2">เลือกผู้รับเฉพาะ</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Department Selection -->
+                <div id="department-selection" class="hidden">
+                    <label for="department" class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
+                    <select id="department" name="department" class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <option value="">เลือกแผนก</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Operations">Operations</option>
+                    </select>
+                </div>
+
+                <!-- User Selection -->
+                <div id="user-selection">
+                    <label for="user_ids" class="block text-sm font-medium text-gray-700 mb-2">เลือกผู้รับ</label>
+                    <select id="user_ids" name="user_ids" multiple class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary h-32">
+                        <!-- Users will be loaded here -->
+                    </select>
+                    <p class="text-sm text-gray-500 mt-1">กด Ctrl (หรือ Cmd) เพื่อเลือกหลายคน</p>
+                </div>
+
+                <!-- Notification Type -->
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทการแจ้งเตือน</label>
+                    <select id="type" name="type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <option value="info">ข้อมูล</option>
+                        <option value="success">สำเร็จ</option>
+                        <option value="warning">คำเตือน</option>
+                        <option value="error">ข้อผิดพลาด</option>
+                    </select>
+                </div>
+
+                <!-- Title -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">หัวข้อ</label>
+                    <input type="text" id="title" name="title" required
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                           placeholder="หัวข้อการแจ้งเตือน">
+                </div>
+
+                <!-- Message -->
+                <div>
+                    <label for="message" class="block text-sm font-medium text-gray-700 mb-2">ข้อความ</label>
+                    <textarea id="message" name="message" rows="4" required
+                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                              placeholder="ข้อความการแจ้งเตือน"></textarea>
+                </div>
+
+                <!-- Action URL (Optional) -->
+                <div>
+                    <label for="action_url" class="block text-sm font-medium text-gray-700 mb-2">ลิงก์ดำเนินการ (ไม่บังคับ)</label>
+                    <input type="url" id="action_url" name="action_url"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                           placeholder="https://example.com">
+                </div>
+
+                <!-- Expiry Date (Optional) -->
+                <div>
+                    <label for="expires_date" class="block text-sm font-medium text-gray-700 mb-2">วันหมดอายุ (ไม่บังคับ)</label>
+                    <input type="datetime-local" id="expires_date" name="expires_date"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="hideCreateModal()"
+                            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        ยกเลิก
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                        <i class="fas fa-paper-plane mr-2"></i>ส่งการแจ้งเตือน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<script>
+let currentFilter = 'all';
+let currentPage = 1;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotifications();
+    <% if (['Admin', 'HR'].includes(user.role)) { %>
+    loadUsers();
+    setupRecipientTypeHandlers();
+    setupCreateForm();
+    <% } %>
+});
+
+async function loadNotifications(page = 1) {
+    try {
+        const params = new URLSearchParams({
+            page: page,
+            limit: 10
+        });
+
+        if (currentFilter !== 'all') {
+            if (currentFilter === 'unread') {
+                params.append('unreadOnly', 'true');
+            } else {
+                params.append('type', currentFilter);
+            }
+        }
+
+        const response = await fetch(`/notifications?${params}`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            displayNotifications(result.data);
+            updateCounts(result.counts);
+            updatePagination(result.pagination);
+            currentPage = page;
+        } else {
+            showError(result.message);
+        }
+    } catch (error) {
+        showError('เกิดข้อผิดพลาดในการโหลดการแจ้งเตือน');
+    }
+}
+
+function displayNotifications(notifications) {
+    const container = document.getElementById('notifications-container');
+    const emptyState = document.getElementById('empty-state');
+
+    if (notifications.length === 0) {
+        container.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    container.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+
+    container.innerHTML = notifications.map(notification => `
+        <div class="notification-item ${!notification.is_read ? 'unread' : ''} bg-white shadow rounded-lg p-6 border-l-4 ${getNotificationBorderColor(notification.type)}"
+             data-id="${notification.notification_id}">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center">
+                        <i class="fas ${getNotificationIcon(notification.type)} ${getNotificationIconColor(notification.type)} mr-3"></i>
+                        <h3 class="text-lg font-medium text-gray-900">${notification.title}</h3>
+                        ${!notification.is_read ? '<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">ใหม่</span>' : ''}
+                    </div>
+                    <p class="mt-2 text-gray-600">${notification.message}</p>
+                    <div class="mt-3 flex items-center text-sm text-gray-500">
+                        <span><i class="fas fa-clock mr-1"></i>${formatDate(notification.created_date)}</span>
+                        ${notification.expires_date ? `<span class="ml-4"><i class="fas fa-hourglass-end mr-1"></i>หมดอายุ: ${formatDate(notification.expires_date)}</span>` : ''}
+                    </div>
+                    ${notification.action_url ? `
+                        <div class="mt-3">
+                            <a href="${notification.action_url}"
+                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white ruxchai-gradient hover:opacity-90">
+                                ดำเนินการ <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="ml-4 flex-shrink-0 flex space-x-2">
+                    ${!notification.is_read ? `
+                        <button onclick="markAsRead('${notification.notification_id}')"
+                                class="text-gray-400 hover:text-gray-600" title="ทำเครื่องหมายเป็นอ่านแล้ว">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    ` : ''}
+                    <button onclick="deleteNotification('${notification.notification_id}')"
+                            class="text-gray-400 hover:text-red-600" title="ลบการแจ้งเตือน">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getNotificationBorderColor(type) {
+    const colors = {
+        'info': 'border-blue-500',
+        'success': 'border-green-500',
+        'warning': 'border-yellow-500',
+        'error': 'border-red-500'
+    };
+    return colors[type] || 'border-gray-500';
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'info': 'fa-info-circle',
+        'success': 'fa-check-circle',
+        'warning': 'fa-exclamation-triangle',
+        'error': 'fa-times-circle'
+    };
+    return icons[type] || 'fa-bell';
+}
+
+function getNotificationIconColor(type) {
+    const colors = {
+        'info': 'text-blue-500',
+        'success': 'text-green-500',
+        'warning': 'text-yellow-500',
+        'error': 'text-red-500'
+    };
+    return colors[type] || 'text-gray-500';
+}
+
+function filterNotifications(filter) {
+    currentFilter = filter;
+    currentPage = 1;
+
+    // Update active tab
+    document.querySelectorAll('.notification-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+
+    loadNotifications();
+}
+
+async function markAsRead(notificationId) {
+    try {
+        const response = await fetch(`/notifications/${notificationId}/read`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            loadNotifications(currentPage);
+            showSuccess('ทำเครื่องหมายเป็นอ่านแล้ว');
+        } else {
+            showError(result.message);
+        }
+    } catch (error) {
+        showError('เกิดข้อผิดพลาดในการอัพเดทการแจ้งเตือน');
+    }
+}
+
+async function markAllAsRead() {
+    try {
+        const response = await fetch('/notifications/read-all', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            loadNotifications(currentPage);
+            showSuccess('ทำเครื่องหมายการแจ้งเตือนทั้งหมดเป็นอ่านแล้ว');
+        } else {
+            showError(result.message);
+        }
+    } catch (error) {
+        showError('เกิดข้อผิดพลาดในการอัพเดทการแจ้งเตือน');
+    }
+}
+
+async function deleteNotification(notificationId) {
+    if (!confirm('คุณต้องการลบการแจ้งเตือนนี้หรือไม่?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/notifications/${notificationId}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            loadNotifications(currentPage);
+            showSuccess('ลบการแจ้งเตือนแล้ว');
+        } else {
+            showError(result.message);
+        }
+    } catch (error) {
+        showError('เกิดข้อผิดพลาดในการลบการแจ้งเตือน');
+    }
+}
+
+function updateCounts(counts) {
+    Object.keys(counts).forEach(key => {
+        const element = document.getElementById(`count-${key}`);
+        if (element) {
+            element.textContent = counts[key];
+        }
+    });
+}
+
+function updatePagination(pagination) {
+    // Implementation for pagination
+    const container = document.getElementById('pagination-container');
+    // Add pagination HTML here if needed
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+<% if (['Admin', 'HR'].includes(user.role)) { %>
+// Modal and form functions
+function showCreateModal() {
+    document.getElementById('create-modal').classList.remove('hidden');
+}
+
+function hideCreateModal() {
+    document.getElementById('create-modal').classList.add('hidden');
+    document.getElementById('create-notification-form').reset();
+}
+
+async function loadUsers() {
+    try {
+        const response = await fetch('/users/api/all');
+        const result = await response.json();
+
+        if (result.success) {
+            const select = document.getElementById('user_ids');
+            select.innerHTML = result.data.map(user =>
+                `<option value="${user.user_id}">${user.first_name} ${user.last_name} (${user.department})</option>`
+            ).join('');
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
+
+function setupRecipientTypeHandlers() {
+    const recipientRadios = document.querySelectorAll('input[name="recipient_type"]');
+    const departmentSelection = document.getElementById('department-selection');
+    const userSelection = document.getElementById('user-selection');
+
+    recipientRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'department') {
+                departmentSelection.classList.remove('hidden');
+                userSelection.classList.add('hidden');
+            } else if (this.value === 'specific') {
+                departmentSelection.classList.add('hidden');
+                userSelection.classList.remove('hidden');
+            } else {
+                departmentSelection.classList.add('hidden');
+                userSelection.classList.add('hidden');
+            }
+        });
+    });
+}
+
+function setupCreateForm() {
+    document.getElementById('create-notification-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const recipientType = formData.get('recipient_type');
+
+        let requestData = {
+            title: formData.get('title'),
+            message: formData.get('message'),
+            type: formData.get('type'),
+            action_url: formData.get('action_url'),
+            expires_date: formData.get('expires_date')
+        };
+
+        if (recipientType === 'all') {
+            // Use broadcast endpoint
+            try {
+                const response = await fetch('/notifications/broadcast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideCreateModal();
+                    loadNotifications();
+                    showSuccess('ส่งการแจ้งเตือนสำเร็จ');
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('เกิดข้อผิดพลาดในการส่งการแจ้งเตือน');
+            }
+        } else {
+            // Use regular endpoint with user_ids
+            const userIds = Array.from(document.getElementById('user_ids').selectedOptions).map(option => option.value);
+            requestData.user_ids = userIds;
+
+            try {
+                const response = await fetch('/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideCreateModal();
+                    loadNotifications();
+                    showSuccess(result.message);
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('เกิดข้อผิดพลาดในการส่งการแจ้งเตือน');
+            }
+        }
+    });
+}
+<% } %>
+</script>
+
+<style>
+.notification-tab {
+    color: #6B7280;
+    border-color: transparent;
+}
+
+.notification-tab.active {
+    color: #3B82F6;
+    border-color: #3B82F6;
+}
+
+.notification-item.unread {
+    background-color: #FEFCE8;
+}
+</style>

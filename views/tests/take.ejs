@@ -1,0 +1,826 @@
+<% layout('layout') -%>
+
+<div class="min-h-screen bg-gray-50">
+    <!-- Test Header (Fixed) -->
+    <div class="fixed top-0 left-0 right-0 bg-white shadow-sm border-b z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <h1 id="test-title" class="text-xl font-semibold text-gray-900">แบบทดสอบ</h1>
+                    <span id="question-counter" class="text-sm text-gray-500">ข้อ 1 จาก 10</span>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <!-- Timer -->
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-clock text-gray-400"></i>
+                        <span id="timer" class="font-mono text-lg font-semibold text-ruxchai-primary">
+                            60:00
+                        </span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button id="submit-test" class="btn-ruxchai-secondary" onclick="showSubmitConfirmation()">
+                        <i class="fas fa-paper-plane mr-2"></i>ส่งคำตอบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Question Content -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-lg shadow-sm p-8 mb-6">
+                        <!-- Question -->
+                        <div id="question-content">
+                            <!-- Question will be loaded here -->
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                            <button id="prev-question" class="btn-ruxchai-outline" onclick="previousQuestion()" disabled>
+                                <i class="fas fa-chevron-left mr-2"></i>ข้อก่อนหน้า
+                            </button>
+
+                            <div class="flex space-x-2">
+                                <button id="flag-question" class="btn-ruxchai-outline" onclick="toggleFlag()">
+                                    <i class="fas fa-flag mr-1"></i>
+                                    <span id="flag-text">ทำเครื่องหมาย</span>
+                                </button>
+
+                                <button id="save-answer" class="btn-ruxchai-accent" onclick="saveAnswer()">
+                                    <i class="fas fa-save mr-1"></i>บันทึก
+                                </button>
+                            </div>
+
+                            <button id="next-question" class="btn-ruxchai-primary" onclick="nextQuestion()">
+                                ข้อถัดไป<i class="fas fa-chevron-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Navigator Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">ภาพรวมคำถาม</h3>
+
+                        <!-- Progress -->
+                        <div class="mb-6">
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span>ความคืบหน้า</span>
+                                <span id="progress-text">0/10</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Question Grid -->
+                        <div id="question-grid" class="grid grid-cols-5 gap-2 mb-6">
+                            <!-- Question numbers will be generated here -->
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-ruxchai-primary rounded"></div>
+                                <span>ข้อปัจจุบัน</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                <span>ตอบแล้ว</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-yellow-500 rounded"></div>
+                                <span>ทำเครื่องหมาย</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-gray-300 rounded"></div>
+                                <span>ยังไม่ตอบ</span>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="border-t border-gray-200 pt-4 space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span>ตอบแล้ว:</span>
+                                <span id="answered-count" class="font-semibold text-green-600">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>ทำเครื่องหมาย:</span>
+                                <span id="flagged-count" class="font-semibold text-yellow-600">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>ยังไม่ตอบ:</span>
+                                <span id="unanswered-count" class="font-semibold text-gray-600">10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Confirmation Modal -->
+<div id="submit-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="modal-overlay"></div>
+        <div class="modal-content max-w-lg w-full p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">ยืนยันการส่งคำตอบ</h3>
+
+                <div id="submit-summary" class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                    <!-- Submit summary will be shown here -->
+                </div>
+
+                <p class="text-sm text-gray-500 mb-6">
+                    เมื่อส่งคำตอบแล้วจะไม่สามารถแก้ไขได้อีก คุณแน่ใจหรือไม่?
+                </p>
+
+                <div class="flex space-x-3">
+                    <button id="confirm-submit" class="flex-1 btn-ruxchai-primary">ยืนยันส่งคำตอบ</button>
+                    <button id="cancel-submit" class="flex-1 btn-ruxchai-outline">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Warning Modal -->
+<div id="time-warning-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="modal-overlay"></div>
+        <div class="modal-content max-w-md w-full p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-clock text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">เหลือเวลาไม่มาก!</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    เหลือเวลาเพียง <span id="warning-time" class="font-semibold text-red-600">5 นาที</span>
+                    กรุณาตรวจสอบคำตอบและส่งให้เรียบร้อย
+                </p>
+                <button id="close-warning" class="btn-ruxchai-primary w-full">รับทราบ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Auto-save notification -->
+<div id="auto-save-notification" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+    <i class="fas fa-check mr-2"></i>บันทึกอัตโนมัติ
+</div>
+
+<script>
+let testData = null;
+let questions = [];
+let currentQuestionIndex = 0;
+let answers = {};
+let flaggedQuestions = new Set();
+let timeRemaining = 0;
+let timerInterval = null;
+let autoSaveInterval = null;
+let testAttemptId = '<%= locals.attemptId || "" %>';
+let isSubmitted = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (testAttemptId) {
+        initializeTest();
+    } else {
+        showError('ไม่พบข้อมูลการทำแบบทดสอบ');
+        window.location.href = '/tests';
+    }
+
+    setupEventListeners();
+    preventCheating();
+});
+
+function setupEventListeners() {
+    // Modal events
+    document.getElementById('confirm-submit').addEventListener('click', submitTest);
+    document.getElementById('cancel-submit').addEventListener('click', closeSubmitModal);
+    document.getElementById('close-warning').addEventListener('click', closeTimeWarning);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft' && !document.getElementById('prev-question').disabled) {
+            previousQuestion();
+        } else if (e.key === 'ArrowRight') {
+            nextQuestion();
+        } else if (e.key === 'Enter' && e.ctrlKey) {
+            saveAnswer();
+        } else if (e.key === 'f' && e.ctrlKey) {
+            e.preventDefault();
+            toggleFlag();
+        }
+    });
+
+    // Prevent refresh/close without confirmation
+    window.addEventListener('beforeunload', function(e) {
+        if (!isSubmitted) {
+            e.preventDefault();
+            e.returnValue = 'คุณแน่ใจว่าต้องการออกจากแบบทดสอบ? คำตอบที่ยังไม่ได้บันทึกจะหายไป';
+        }
+    });
+}
+
+async function initializeTest() {
+    try {
+        const response = await fetch(`/tests/api/attempts/${testAttemptId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            testData = data.data;
+            questions = testData.questions;
+            answers = testData.answers || {};
+            timeRemaining = testData.time_remaining * 60; // Convert to seconds
+
+            setupTestInterface();
+            loadQuestion(0);
+            startTimer();
+            startAutoSave();
+        } else {
+            showError('ไม่สามารถโหลดข้อมูลแบบทดสอบได้');
+        }
+    } catch (error) {
+        console.error('Error initializing test:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดแบบทดสอบ');
+    }
+}
+
+function setupTestInterface() {
+    // Set test title
+    document.getElementById('test-title').textContent = testData.test_title;
+
+    // Generate question grid
+    generateQuestionGrid();
+
+    // Update counters
+    updateCounters();
+}
+
+function generateQuestionGrid() {
+    const grid = document.getElementById('question-grid');
+    grid.innerHTML = '';
+
+    questions.forEach((question, index) => {
+        const button = document.createElement('button');
+        button.className = 'w-8 h-8 rounded text-sm font-medium transition-colors';
+        button.textContent = index + 1;
+        button.onclick = () => loadQuestion(index);
+
+        updateQuestionButtonStyle(button, index);
+        grid.appendChild(button);
+    });
+}
+
+function updateQuestionButtonStyle(button, index) {
+    // Remove all status classes
+    button.className = 'w-8 h-8 rounded text-sm font-medium transition-colors';
+
+    if (index === currentQuestionIndex) {
+        button.classList.add('bg-ruxchai-primary', 'text-white');
+    } else if (answers[questions[index].question_id]) {
+        button.classList.add('bg-green-500', 'text-white');
+    } else if (flaggedQuestions.has(questions[index].question_id)) {
+        button.classList.add('bg-yellow-500', 'text-white');
+    } else {
+        button.classList.add('bg-gray-300', 'text-gray-700', 'hover:bg-gray-400');
+    }
+}
+
+function loadQuestion(index) {
+    if (index < 0 || index >= questions.length) return;
+
+    currentQuestionIndex = index;
+    const question = questions[index];
+
+    // Update question counter
+    document.getElementById('question-counter').textContent = `ข้อ ${index + 1} จาก ${questions.length}`;
+
+    // Update navigation buttons
+    document.getElementById('prev-question').disabled = index === 0;
+    document.getElementById('next-question').textContent =
+        index === questions.length - 1 ? 'ข้อสุดท้าย' : 'ข้อถัดไป';
+
+    // Update flag button
+    const flagBtn = document.getElementById('flag-question');
+    const flagText = document.getElementById('flag-text');
+    if (flaggedQuestions.has(question.question_id)) {
+        flagBtn.classList.remove('btn-ruxchai-outline');
+        flagBtn.classList.add('btn-ruxchai-secondary');
+        flagText.textContent = 'ยกเลิกเครื่องหมาย';
+    } else {
+        flagBtn.classList.remove('btn-ruxchai-secondary');
+        flagBtn.classList.add('btn-ruxchai-outline');
+        flagText.textContent = 'ทำเครื่องหมาย';
+    }
+
+    // Load question content
+    renderQuestion(question);
+
+    // Update question grid
+    updateQuestionGrid();
+
+    // Update counters
+    updateCounters();
+}
+
+function renderQuestion(question) {
+    const container = document.getElementById('question-content');
+
+    let questionHtml = `
+        <div class="mb-6">
+            <div class="flex items-start justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900">
+                    ข้อ ${currentQuestionIndex + 1}. ${question.question_text}
+                </h2>
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <span>คะแนน: ${question.points || 1}</span>
+                    ${question.difficulty ? `<span class="badge-${getDifficultyColor(question.difficulty)}">${getDifficultyText(question.difficulty)}</span>` : ''}
+                </div>
+            </div>
+
+            ${question.question_image ? `
+                <div class="mb-4">
+                    <img src="${question.question_image}" alt="Question Image" class="max-w-full h-auto rounded-lg">
+                </div>
+            ` : ''}
+
+            ${question.question_description ? `
+                <div class="mb-4 text-gray-600">
+                    ${question.question_description}
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    // Render based on question type
+    switch (question.question_type) {
+        case 'multiple_choice':
+            questionHtml += renderMultipleChoice(question);
+            break;
+        case 'true_false':
+            questionHtml += renderTrueFalse(question);
+            break;
+        case 'fill_blank':
+            questionHtml += renderFillBlank(question);
+            break;
+        case 'essay':
+            questionHtml += renderEssay(question);
+            break;
+        default:
+            questionHtml += renderMultipleChoice(question);
+    }
+
+    container.innerHTML = questionHtml;
+
+    // Restore saved answer
+    restoreAnswer(question);
+}
+
+function renderMultipleChoice(question) {
+    const options = question.options || [];
+
+    return `
+        <div class="space-y-3">
+            ${options.map((option, index) => `
+                <label class="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                    <input type="radio" name="answer" value="${option.option_id}"
+                           class="mt-1 form-radio text-ruxchai-primary">
+                    <div class="flex-1">
+                        <span class="font-medium text-gray-900">${String.fromCharCode(65 + index)}.</span>
+                        <span class="ml-2">${option.option_text}</span>
+                        ${option.option_image ? `
+                            <img src="${option.option_image}" alt="Option ${index + 1}" class="mt-2 max-w-xs h-auto rounded">
+                        ` : ''}
+                    </div>
+                </label>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderTrueFalse(question) {
+    return `
+        <div class="space-y-3">
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <input type="radio" name="answer" value="true" class="form-radio text-ruxchai-primary">
+                <span>จริง</span>
+            </label>
+            <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <input type="radio" name="answer" value="false" class="form-radio text-ruxchai-primary">
+                <span>เท็จ</span>
+            </label>
+        </div>
+    `;
+}
+
+function renderFillBlank(question) {
+    return `
+        <div class="space-y-4">
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
+                <input type="text" name="answer"
+                       class="form-input-ruxchai"
+                       placeholder="กรอกคำตอบ...">
+            </div>
+        </div>
+    `;
+}
+
+function renderEssay(question) {
+    return `
+        <div class="space-y-4">
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
+                <textarea name="answer" rows="8"
+                          class="form-input-ruxchai"
+                          placeholder="เขียนคำตอบของคุณ..."></textarea>
+            </div>
+            <div class="text-sm text-gray-500">
+                คำแนะนำ: เขียนคำตอบให้ชัดเจนและครอบคลุมประเด็นที่ถาม
+            </div>
+        </div>
+    `;
+}
+
+function restoreAnswer(question) {
+    const savedAnswer = answers[question.question_id];
+    if (!savedAnswer) return;
+
+    switch (question.question_type) {
+        case 'multiple_choice':
+        case 'true_false':
+            const radio = document.querySelector(`input[name="answer"][value="${savedAnswer}"]`);
+            if (radio) radio.checked = true;
+            break;
+        case 'fill_blank':
+        case 'essay':
+            const input = document.querySelector('input[name="answer"], textarea[name="answer"]');
+            if (input) input.value = savedAnswer;
+            break;
+    }
+}
+
+function saveAnswer() {
+    const question = questions[currentQuestionIndex];
+    let answer = null;
+
+    switch (question.question_type) {
+        case 'multiple_choice':
+        case 'true_false':
+            const checked = document.querySelector('input[name="answer"]:checked');
+            answer = checked ? checked.value : null;
+            break;
+        case 'fill_blank':
+        case 'essay':
+            const input = document.querySelector('input[name="answer"], textarea[name="answer"]');
+            answer = input ? input.value.trim() : null;
+            break;
+    }
+
+    if (answer) {
+        answers[question.question_id] = answer;
+        showAutoSaveNotification();
+    } else {
+        delete answers[question.question_id];
+    }
+
+    updateQuestionGrid();
+    updateCounters();
+}
+
+function toggleFlag() {
+    const question = questions[currentQuestionIndex];
+
+    if (flaggedQuestions.has(question.question_id)) {
+        flaggedQuestions.delete(question.question_id);
+    } else {
+        flaggedQuestions.add(question.question_id);
+    }
+
+    loadQuestion(currentQuestionIndex); // Refresh to update flag button
+    updateQuestionGrid();
+    updateCounters();
+}
+
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        saveAnswer(); // Auto-save before moving
+        loadQuestion(currentQuestionIndex - 1);
+    }
+}
+
+function nextQuestion() {
+    if (currentQuestionIndex < questions.length - 1) {
+        saveAnswer(); // Auto-save before moving
+        loadQuestion(currentQuestionIndex + 1);
+    }
+}
+
+function updateQuestionGrid() {
+    const buttons = document.querySelectorAll('#question-grid button');
+    buttons.forEach((button, index) => {
+        updateQuestionButtonStyle(button, index);
+    });
+}
+
+function updateCounters() {
+    const answeredCount = Object.keys(answers).length;
+    const flaggedCount = flaggedQuestions.size;
+    const unansweredCount = questions.length - answeredCount;
+
+    document.getElementById('answered-count').textContent = answeredCount;
+    document.getElementById('flagged-count').textContent = flaggedCount;
+    document.getElementById('unanswered-count').textContent = unansweredCount;
+
+    // Update progress
+    const progressPercentage = (answeredCount / questions.length) * 100;
+    document.getElementById('progress-text').textContent = `${answeredCount}/${questions.length}`;
+    document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
+}
+
+function startTimer() {
+    updateTimerDisplay();
+
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+
+        // Show warning at 5 minutes
+        if (timeRemaining === 300) {
+            showTimeWarning();
+        }
+
+        // Auto-submit when time is up
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            autoSubmitTest();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    const timerElement = document.getElementById('timer');
+    timerElement.textContent = display;
+
+    // Change color based on time remaining
+    timerElement.className = 'font-mono text-lg font-semibold ';
+    if (timeRemaining <= 300) { // Last 5 minutes
+        timerElement.classList.add('text-red-600');
+    } else if (timeRemaining <= 600) { // Last 10 minutes
+        timerElement.classList.add('text-yellow-600');
+    } else {
+        timerElement.classList.add('text-ruxchai-primary');
+    }
+}
+
+function startAutoSave() {
+    autoSaveInterval = setInterval(async () => {
+        await autoSave();
+    }, 30000); // Auto-save every 30 seconds
+}
+
+async function autoSave() {
+    try {
+        await fetch(`/tests/api/attempts/${testAttemptId}/save-progress`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                answers: answers,
+                flagged_questions: Array.from(flaggedQuestions),
+                current_question: currentQuestionIndex
+            })
+        });
+    } catch (error) {
+        console.error('Auto-save failed:', error);
+    }
+}
+
+function showAutoSaveNotification() {
+    const notification = document.getElementById('auto-save-notification');
+    notification.classList.remove('hidden');
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 2000);
+}
+
+function showSubmitConfirmation() {
+    const answeredCount = Object.keys(answers).length;
+    const unansweredCount = questions.length - answeredCount;
+
+    document.getElementById('submit-summary').innerHTML = `
+        <div class="space-y-2">
+            <div class="flex justify-between">
+                <span>จำนวนข้อทั้งหมด:</span>
+                <span class="font-medium">${questions.length} ข้อ</span>
+            </div>
+            <div class="flex justify-between">
+                <span>ตอบแล้ว:</span>
+                <span class="font-medium text-green-600">${answeredCount} ข้อ</span>
+            </div>
+            <div class="flex justify-between">
+                <span>ยังไม่ตอบ:</span>
+                <span class="font-medium text-red-600">${unansweredCount} ข้อ</span>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('submit-modal').classList.remove('hidden');
+}
+
+function closeSubmitModal() {
+    document.getElementById('submit-modal').classList.add('hidden');
+}
+
+function showTimeWarning() {
+    document.getElementById('warning-time').textContent = '5 นาที';
+    document.getElementById('time-warning-modal').classList.remove('hidden');
+}
+
+function closeTimeWarning() {
+    document.getElementById('time-warning-modal').classList.add('hidden');
+}
+
+async function submitTest() {
+    try {
+        // Save current answer before submitting
+        saveAnswer();
+
+        const response = await fetch(`/tests/api/attempts/${testAttemptId}/submit`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                answers: answers,
+                time_taken: Math.floor((testData.time_limit * 60 - timeRemaining) / 60)
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            isSubmitted = true;
+            clearInterval(timerInterval);
+            clearInterval(autoSaveInterval);
+
+            // Redirect to results page
+            window.location.href = `/tests/${testData.test_id}/results?attempt_id=${testAttemptId}`;
+        } else {
+            showError(data.message || 'เกิดข้อผิดพลาดในการส่งคำตอบ');
+            closeSubmitModal();
+        }
+    } catch (error) {
+        console.error('Error submitting test:', error);
+        showError('เกิดข้อผิดพลาดในการส่งคำตอบ');
+        closeSubmitModal();
+    }
+}
+
+async function autoSubmitTest() {
+    try {
+        saveAnswer();
+
+        await fetch(`/tests/api/attempts/${testAttemptId}/submit`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                answers: answers,
+                time_taken: testData.time_limit,
+                auto_submit: true
+            })
+        });
+
+        isSubmitted = true;
+        clearInterval(autoSaveInterval);
+
+        // Show time up message and redirect
+        alert('หมดเวลาทำแบบทดสอบ ระบบจะส่งคำตอบอัตโนมัติ');
+        window.location.href = `/tests/${testData.test_id}/results?attempt_id=${testAttemptId}`;
+    } catch (error) {
+        console.error('Error auto-submitting test:', error);
+        showError('เกิดข้อผิดพลาดในการส่งคำตอบอัตโนมัติ');
+    }
+}
+
+function preventCheating() {
+    // Disable right-click context menu
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Disable common developer shortcuts
+    document.addEventListener('keydown', function(e) {
+        // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        if (e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
+
+    // Detect window focus/blur (user switching tabs)
+    let blurCount = 0;
+    window.addEventListener('blur', function() {
+        blurCount++;
+        if (blurCount >= 3) {
+            if (confirm('ตรวจพบการออกจากหน้าต่างบ่อยครั้ง คุณต้องการส่งคำตอบหรือไม่?')) {
+                submitTest();
+            }
+        }
+    });
+}
+
+// Utility functions
+function getDifficultyText(level) {
+    const texts = {
+        'easy': 'ง่าย',
+        'medium': 'ปานกลาง',
+        'hard': 'ยาก'
+    };
+    return texts[level] || 'ปานกลาง';
+}
+
+function getDifficultyColor(level) {
+    const colors = {
+        'easy': 'success',
+        'medium': 'warning',
+        'hard': 'danger'
+    };
+    return colors[level] || 'warning';
+}
+
+function showError(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 5000);
+}
+</script>
+
+<style>
+/* Hide scrollbar when not needed to prevent cheating indicators */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Prevent text selection to reduce cheating */
+.question-content {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Form radio button styling */
+.form-radio {
+    width: 1rem;
+    height: 1rem;
+    color: #1e40af;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+}
+
+.form-radio:checked {
+    background-color: #1e40af;
+    border-color: #1e40af;
+}
+
+.form-radio:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.2);
+}
+</style>

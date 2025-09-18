@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(node:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"Checking syntax of $file\")",
+      "Bash(done)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(npm run build-css-prod:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(.node_modules.bintailwindcss -i ./src/input.css -o ./public/css/tailwind.css --minify)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

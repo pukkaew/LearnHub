@@ -1,0 +1,936 @@
+<% layout('layout') -%>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Course Header -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div class="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                    <div class="flex-shrink-0">
+                        <img id="course-thumbnail" src="/images/course-default.jpg"
+                             alt="Course Thumbnail"
+                             class="w-full md:w-48 h-32 md:h-32 object-cover rounded-lg">
+                    </div>
+
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span id="category-badge" class="badge-primary">หมวดหมู่</span>
+                            <span id="difficulty-badge" class="badge-warning">ระดับความยาก</span>
+                        </div>
+
+                        <h1 id="course-title" class="text-2xl font-bold text-gray-900 mb-2">ชื่อคอร์ส</h1>
+
+                        <p id="course-description" class="text-gray-600 mb-4">คำอธิบายคอร์ส</p>
+
+                        <div class="flex items-center space-x-6 text-sm text-gray-500 mb-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-user mr-1"></i>
+                                <span id="instructor-name">ผู้สอน</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span id="course-duration">0 ชั่วโมง</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-users mr-1"></i>
+                                <span id="enrolled-count">0 คน</span>
+                            </div>
+                            <div id="rating-display" class="flex items-center">
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span id="rating-text" class="text-gray-600 ml-1">(0)</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar (if enrolled) -->
+                        <div id="progress-section" class="hidden mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>ความคืบหน้าการเรียน</span>
+                                <span id="progress-percentage">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Content Tabs -->
+            <div class="bg-white rounded-lg shadow-sm mb-8">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8 px-6">
+                        <button class="tab-btn active" data-tab="overview">
+                            <i class="fas fa-info-circle mr-2"></i>ภาพรวม
+                        </button>
+                        <button class="tab-btn" data-tab="curriculum">
+                            <i class="fas fa-list mr-2"></i>หลักสูตร
+                        </button>
+                        <button class="tab-btn" data-tab="materials">
+                            <i class="fas fa-file-alt mr-2"></i>เอกสาร
+                        </button>
+                        <button class="tab-btn" data-tab="discussions">
+                            <i class="fas fa-comments mr-2"></i>การอภิปราย
+                        </button>
+                        <button class="tab-btn" data-tab="reviews">
+                            <i class="fas fa-star mr-2"></i>รีวิว
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="p-6">
+                    <!-- Overview Tab -->
+                    <div id="tab-overview" class="tab-content">
+                        <div class="prose max-w-none">
+                            <h3>เกี่ยวกับคอร์สนี้</h3>
+                            <div id="course-full-description">
+                                <!-- Full description will be loaded here -->
+                            </div>
+
+                            <h3>วัตถุประสงค์การเรียนรู้</h3>
+                            <ul id="learning-objectives">
+                                <!-- Learning objectives will be loaded here -->
+                            </ul>
+
+                            <h3>ความต้องการพื้นฐาน</h3>
+                            <div id="prerequisites">
+                                <!-- Prerequisites will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Curriculum Tab -->
+                    <div id="tab-curriculum" class="tab-content hidden">
+                        <div id="course-curriculum">
+                            <!-- Curriculum will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Materials Tab -->
+                    <div id="tab-materials" class="tab-content hidden">
+                        <div id="course-materials">
+                            <!-- Materials will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Discussions Tab -->
+                    <div id="tab-discussions" class="tab-content hidden">
+                        <div id="course-discussions">
+                            <!-- Discussions will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div id="tab-reviews" class="tab-content hidden">
+                        <div id="course-reviews">
+                            <!-- Reviews will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Enrollment Card -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div id="enrollment-status" class="text-center">
+                    <!-- Enrollment status will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Course Info -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">ข้อมูลคอร์ส</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ระดับความยาก:</span>
+                        <span id="sidebar-difficulty" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ระยะเวลา:</span>
+                        <span id="sidebar-duration" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ภาษา:</span>
+                        <span class="font-medium">ไทย</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ใบประกาศนียบัตร:</span>
+                        <span class="font-medium text-green-600">
+                            <i class="fas fa-check mr-1"></i>มี
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">วันที่เผยแพร่:</span>
+                        <span id="publish-date" class="font-medium">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">อัพเดทล่าสุด:</span>
+                        <span id="update-date" class="font-medium">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructor Info -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">ผู้สอน</h3>
+                <div id="instructor-info">
+                    <!-- Instructor info will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Related Courses -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">คอร์สที่เกี่ยวข้อง</h3>
+                <div id="related-courses" class="space-y-3">
+                    <!-- Related courses will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enrollment Modal -->
+<div id="enrollment-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="modal-overlay"></div>
+        <div class="modal-content max-w-md w-full p-6">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                    <i class="fas fa-graduation-cap text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">ลงทะเบียนเรียนคอร์ส</h3>
+                <p class="text-sm text-gray-500 mb-6">คุณต้องการลงทะเบียนเรียนคอร์สนี้หรือไม่?</p>
+
+                <!-- Prerequisites Check -->
+                <div id="prerequisites-check" class="hidden mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                    <p class="text-sm text-yellow-800 mb-2">คอร์สนี้ต้องเรียนคอร์สพื้นฐานก่อน:</p>
+                    <ul id="prerequisite-list" class="text-sm text-yellow-700">
+                        <!-- Prerequisites will be listed here -->
+                    </ul>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button id="confirm-enrollment" class="flex-1 btn-ruxchai-primary">ยืนยันการลงทะเบียน</button>
+                    <button id="cancel-enrollment" class="flex-1 btn-ruxchai-outline">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Modal -->
+<div id="rating-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="modal-overlay"></div>
+        <div class="modal-content max-w-lg w-full p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">ให้คะแนนและรีวิวคอร์ส</h3>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">คะแนน</label>
+                <div class="flex space-x-1">
+                    <button class="star-rating text-2xl text-gray-300 hover:text-yellow-400" data-rating="1">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-rating text-2xl text-gray-300 hover:text-yellow-400" data-rating="2">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-rating text-2xl text-gray-300 hover:text-yellow-400" data-rating="3">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-rating text-2xl text-gray-300 hover:text-yellow-400" data-rating="4">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-rating text-2xl text-gray-300 hover:text-yellow-400" data-rating="5">
+                        <i class="fas fa-star"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">รีวิว (ไม่บังคับ)</label>
+                <textarea id="review-text" rows="4"
+                          class="form-input-ruxchai"
+                          placeholder="แบ่งปันประสบการณ์การเรียนในคอร์สนี้..."></textarea>
+            </div>
+
+            <div class="flex space-x-3">
+                <button id="submit-rating" class="flex-1 btn-ruxchai-primary">ส่งคะแนน</button>
+                <button id="cancel-rating" class="flex-1 btn-ruxchai-outline">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let courseId = '<%= locals.courseId || "" %>';
+let currentRating = 0;
+let courseData = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (courseId) {
+        loadCourseDetail();
+    }
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            switchTab(this.dataset.tab);
+        });
+    });
+
+    // Modal events
+    document.getElementById('confirm-enrollment').addEventListener('click', enrollInCourse);
+    document.getElementById('cancel-enrollment').addEventListener('click', closeEnrollmentModal);
+
+    // Rating events
+    document.querySelectorAll('.star-rating').forEach(star => {
+        star.addEventListener('click', function() {
+            currentRating = parseInt(this.dataset.rating);
+            updateStarDisplay();
+        });
+    });
+
+    document.getElementById('submit-rating').addEventListener('click', submitRating);
+    document.getElementById('cancel-rating').addEventListener('click', closeRatingModal);
+}
+
+async function loadCourseDetail() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            courseData = data.data;
+            updateCourseDisplay(courseData);
+
+            // Load additional data
+            await Promise.all([
+                loadCurriculum(),
+                loadMaterials(),
+                loadDiscussions(),
+                loadReviews(),
+                loadRelatedCourses()
+            ]);
+        } else {
+            showError('ไม่พบข้อมูลคอร์ส');
+        }
+    } catch (error) {
+        console.error('Error loading course detail:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลคอร์ส');
+    }
+}
+
+function updateCourseDisplay(course) {
+    // Header
+    document.getElementById('course-thumbnail').src = course.thumbnail || '/images/course-default.jpg';
+    document.getElementById('course-title').textContent = course.title;
+    document.getElementById('course-description').textContent = course.description;
+    document.getElementById('instructor-name').textContent = course.instructor_name || 'ไม่ระบุ';
+    document.getElementById('course-duration').textContent = `${course.duration_hours || 0} ชั่วโมง`;
+    document.getElementById('enrolled-count').textContent = `${course.enrolled_count || 0} คน`;
+
+    // Badges
+    document.getElementById('category-badge').textContent = course.category_name || 'ทั่วไป';
+    document.getElementById('difficulty-badge').textContent = getDifficultyText(course.difficulty_level);
+    document.getElementById('difficulty-badge').className = `badge-${getDifficultyColor(course.difficulty_level)}`;
+
+    // Rating
+    updateRatingDisplay(course.rating, course.rating_count);
+
+    // Progress (if enrolled)
+    if (course.enrollment_status === 'active' && course.progress_percentage > 0) {
+        document.getElementById('progress-section').classList.remove('hidden');
+        document.getElementById('progress-percentage').textContent = `${course.progress_percentage}%`;
+        document.getElementById('progress-fill').style.width = `${course.progress_percentage}%`;
+    }
+
+    // Sidebar info
+    document.getElementById('sidebar-difficulty').textContent = getDifficultyText(course.difficulty_level);
+    document.getElementById('sidebar-duration').textContent = `${course.duration_hours || 0} ชั่วโมง`;
+    document.getElementById('publish-date').textContent = formatDate(course.created_at);
+    document.getElementById('update-date').textContent = formatDate(course.updated_at);
+
+    // Overview content
+    document.getElementById('course-full-description').innerHTML = course.full_description || course.description;
+
+    // Learning objectives
+    const objectives = course.learning_objectives ? JSON.parse(course.learning_objectives) : [];
+    document.getElementById('learning-objectives').innerHTML = objectives.map(obj => `<li>${obj}</li>`).join('');
+
+    // Prerequisites
+    const prerequisites = course.prerequisites_text || 'ไม่มีความต้องการพื้นฐานพิเศษ';
+    document.getElementById('prerequisites').innerHTML = prerequisites;
+
+    // Enrollment status
+    updateEnrollmentStatus(course);
+
+    // Instructor info
+    updateInstructorInfo(course);
+}
+
+function updateRatingDisplay(rating, count) {
+    const ratingDisplay = document.getElementById('rating-display');
+    const ratingText = document.getElementById('rating-text');
+
+    if (rating && count > 0) {
+        const stars = ratingDisplay.querySelectorAll('.fas.fa-star');
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+
+        stars.forEach((star, index) => {
+            star.className = 'fas fa-star';
+            if (index < fullStars) {
+                star.classList.add('text-yellow-400');
+            } else if (index === fullStars && hasHalfStar) {
+                star.classList.add('text-yellow-400');
+            } else {
+                star.classList.add('text-gray-300');
+            }
+        });
+
+        ratingText.textContent = `${rating.toFixed(1)} (${count} รีวิว)`;
+    } else {
+        ratingText.textContent = 'ยังไม่มีรีวิว';
+    }
+}
+
+function updateEnrollmentStatus(course) {
+    const container = document.getElementById('enrollment-status');
+
+    if (course.enrollment_status === 'active') {
+        container.innerHTML = `
+            <div class="space-y-4">
+                <div class="text-center">
+                    <i class="fas fa-graduation-cap text-green-500 text-3xl mb-2"></i>
+                    <p class="text-green-600 font-semibold">คุณได้ลงทะเบียนเรียนแล้ว</p>
+                </div>
+                <a href="/courses/${course.course_id}/content" class="btn-ruxchai-primary w-full text-center block">
+                    <i class="fas fa-play mr-2"></i>เข้าเรียน
+                </a>
+                ${course.progress_percentage === 100 ? `
+                    <button onclick="showRatingModal()" class="btn-ruxchai-outline w-full">
+                        <i class="fas fa-star mr-2"></i>ให้คะแนนคอร์ส
+                    </button>
+                ` : ''}
+            </div>
+        `;
+    } else if (course.enrollment_status === 'completed') {
+        container.innerHTML = `
+            <div class="space-y-4">
+                <div class="text-center">
+                    <i class="fas fa-trophy text-yellow-500 text-3xl mb-2"></i>
+                    <p class="text-yellow-600 font-semibold">เรียนจบแล้ว</p>
+                </div>
+                <a href="/courses/${course.course_id}/certificate" class="btn-ruxchai-primary w-full text-center block">
+                    <i class="fas fa-certificate mr-2"></i>ดาวน์โหลดใบประกาศนียบัตร
+                </a>
+                <button onclick="showRatingModal()" class="btn-ruxchai-outline w-full">
+                    <i class="fas fa-star mr-2"></i>ให้คะแนนคอร์ส
+                </button>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="space-y-4">
+                <div class="text-center">
+                    <i class="fas fa-book text-ruxchai-primary text-3xl mb-2"></i>
+                    <p class="text-gray-600">เริ่มเรียนคอร์สนี้</p>
+                </div>
+                <button onclick="showEnrollmentModal()" class="btn-ruxchai-primary w-full">
+                    <i class="fas fa-user-plus mr-2"></i>ลงทะเบียนเรียน
+                </button>
+            </div>
+        `;
+    }
+}
+
+function updateInstructorInfo(course) {
+    const container = document.getElementById('instructor-info');
+    container.innerHTML = `
+        <div class="flex items-start space-x-3">
+            <img src="${course.instructor_avatar || '/images/default-avatar.png'}"
+                 alt="${course.instructor_name}"
+                 class="w-12 h-12 rounded-full">
+            <div>
+                <h4 class="font-semibold text-gray-900">${course.instructor_name || 'ไม่ระบุ'}</h4>
+                <p class="text-sm text-gray-600">${course.instructor_title || 'ผู้สอน'}</p>
+                <p class="text-sm text-gray-500 mt-1">${course.instructor_bio || 'ไม่มีข้อมูลประวัติ'}</p>
+            </div>
+        </div>
+    `;
+}
+
+async function loadCurriculum() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/curriculum`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateCurriculumDisplay(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading curriculum:', error);
+    }
+}
+
+function updateCurriculumDisplay(curriculum) {
+    const container = document.getElementById('course-curriculum');
+
+    if (!curriculum || curriculum.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">ยังไม่มีหลักสูตรที่กำหนด</p>';
+        return;
+    }
+
+    container.innerHTML = curriculum.map((section, index) => `
+        <div class="border rounded-lg mb-4">
+            <div class="bg-gray-50 px-4 py-3 border-b">
+                <h4 class="font-semibold text-gray-900">
+                    ${index + 1}. ${section.title}
+                </h4>
+                <p class="text-sm text-gray-600">${section.description || ''}</p>
+            </div>
+            <div class="p-4">
+                ${section.lessons ? section.lessons.map((lesson, lessonIndex) => `
+                    <div class="flex items-center justify-between py-2 ${lessonIndex > 0 ? 'border-t border-gray-100' : ''}">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas ${lesson.type === 'video' ? 'fa-play-circle' : lesson.type === 'document' ? 'fa-file-alt' : 'fa-book'} text-gray-400"></i>
+                            <span>${lesson.title}</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>${lesson.duration || '0'} นาที</span>
+                            ${lesson.completed ? '<i class="fas fa-check-circle text-green-500"></i>' : ''}
+                        </div>
+                    </div>
+                `).join('') : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadMaterials() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/materials`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateMaterialsDisplay(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading materials:', error);
+    }
+}
+
+function updateMaterialsDisplay(materials) {
+    const container = document.getElementById('course-materials');
+
+    if (!materials || materials.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">ยังไม่มีเอกสารประกอบการเรียน</p>';
+        return;
+    }
+
+    container.innerHTML = materials.map(material => `
+        <div class="flex items-center justify-between p-4 border rounded-lg mb-3">
+            <div class="flex items-center space-x-3">
+                <i class="fas ${getFileIcon(material.file_type)} text-ruxchai-primary"></i>
+                <div>
+                    <h5 class="font-medium text-gray-900">${material.title}</h5>
+                    <p class="text-sm text-gray-500">${material.description || ''}</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-500">${formatFileSize(material.file_size)}</span>
+                <a href="${material.file_url}" target="_blank" class="btn-ruxchai-outline text-sm">
+                    <i class="fas fa-download mr-1"></i>ดาวน์โหลด
+                </a>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadDiscussions() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateDiscussionsDisplay(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading discussions:', error);
+    }
+}
+
+function updateDiscussionsDisplay(discussions) {
+    const container = document.getElementById('course-discussions');
+
+    if (!discussions || discussions.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-comments text-gray-300 text-4xl mb-4"></i>
+                <p class="text-gray-500 mb-4">ยังไม่มีการอภิปราย</p>
+                <button class="btn-ruxchai-primary">เริ่มการอภิปราย</button>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = discussions.map(discussion => `
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <div class="flex items-start space-x-3">
+                <img src="${discussion.author_avatar || '/images/default-avatar.png'}"
+                     alt="${discussion.author_name}"
+                     class="w-10 h-10 rounded-full">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-1">
+                        <h5 class="font-medium text-gray-900">${discussion.author_name}</h5>
+                        <span class="text-sm text-gray-500">${timeAgo(discussion.created_at)}</span>
+                    </div>
+                    <p class="text-gray-700 mb-2">${discussion.content}</p>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <button class="hover:text-ruxchai-primary">
+                            <i class="fas fa-reply mr-1"></i>ตอบกลับ
+                        </button>
+                        <span><i class="fas fa-heart mr-1"></i>${discussion.likes || 0}</span>
+                        <span>${discussion.replies || 0} ตอบกลับ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadReviews() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/reviews`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateReviewsDisplay(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+    }
+}
+
+function updateReviewsDisplay(reviews) {
+    const container = document.getElementById('course-reviews');
+
+    if (!reviews || reviews.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">ยังไม่มีรีวิว</p>';
+        return;
+    }
+
+    container.innerHTML = reviews.map(review => `
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <div class="flex items-start space-x-3">
+                <img src="${review.user_avatar || '/images/default-avatar.png'}"
+                     alt="${review.user_name}"
+                     class="w-10 h-10 rounded-full">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <h5 class="font-medium text-gray-900">${review.user_name}</h5>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex text-yellow-400">
+                                    ${generateStars(review.rating)}
+                                </div>
+                                <span class="text-sm text-gray-500">${timeAgo(review.created_at)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${review.review_text ? `<p class="text-gray-700">${review.review_text}</p>` : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadRelatedCourses() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/related`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateRelatedCoursesDisplay(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading related courses:', error);
+    }
+}
+
+function updateRelatedCoursesDisplay(courses) {
+    const container = document.getElementById('related-courses');
+
+    if (!courses || courses.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">ไม่มีคอร์สที่เกี่ยวข้อง</p>';
+        return;
+    }
+
+    container.innerHTML = courses.map(course => `
+        <div class="flex space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <img src="${course.thumbnail || '/images/course-default.jpg'}"
+                 alt="${course.title}"
+                 class="w-16 h-12 object-cover rounded">
+            <div class="flex-1 min-w-0">
+                <h5 class="font-medium text-sm text-gray-900 line-clamp-2">
+                    <a href="/courses/${course.course_id}" class="hover:text-ruxchai-primary">
+                        ${course.title}
+                    </a>
+                </h5>
+                <p class="text-xs text-gray-500 mt-1">${course.instructor_name}</p>
+                <div class="flex items-center space-x-2 mt-1 text-xs text-gray-500">
+                    <span>${course.duration_hours}h</span>
+                    ${course.rating ? `<span><i class="fas fa-star text-yellow-400"></i> ${course.rating}</span>` : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+}
+
+function showEnrollmentModal() {
+    document.getElementById('enrollment-modal').classList.remove('hidden');
+}
+
+function closeEnrollmentModal() {
+    document.getElementById('enrollment-modal').classList.add('hidden');
+}
+
+async function enrollInCourse() {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/enroll`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess('ลงทะเบียนเรียนสำเร็จ');
+            closeEnrollmentModal();
+            // Reload course data
+            loadCourseDetail();
+        } else {
+            showError(data.message || 'เกิดข้อผิดพลาดในการลงทะเบียน');
+        }
+    } catch (error) {
+        console.error('Error enrolling in course:', error);
+        showError('เกิดข้อผิดพลาดในการลงทะเบียน');
+    }
+}
+
+function showRatingModal() {
+    document.getElementById('rating-modal').classList.remove('hidden');
+}
+
+function closeRatingModal() {
+    document.getElementById('rating-modal').classList.add('hidden');
+    currentRating = 0;
+    updateStarDisplay();
+    document.getElementById('review-text').value = '';
+}
+
+function updateStarDisplay() {
+    document.querySelectorAll('.star-rating').forEach((star, index) => {
+        if (index < currentRating) {
+            star.classList.remove('text-gray-300');
+            star.classList.add('text-yellow-400');
+        } else {
+            star.classList.remove('text-yellow-400');
+            star.classList.add('text-gray-300');
+        }
+    });
+}
+
+async function submitRating() {
+    if (currentRating === 0) {
+        showError('กรุณาให้คะแนน');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/courses/api/${courseId}/rate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                rating: currentRating,
+                review: document.getElementById('review-text').value
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess('ส่งคะแนนสำเร็จ');
+            closeRatingModal();
+            // Reload reviews
+            loadReviews();
+            loadCourseDetail();
+        } else {
+            showError(data.message || 'เกิดข้อผิดพลาดในการส่งคะแนน');
+        }
+    } catch (error) {
+        console.error('Error submitting rating:', error);
+        showError('เกิดข้อผิดพลาดในการส่งคะแนน');
+    }
+}
+
+// Utility functions
+function getDifficultyText(level) {
+    const texts = {
+        'beginner': 'เริ่มต้น',
+        'intermediate': 'ปานกลาง',
+        'advanced': 'ขั้นสูง'
+    };
+    return texts[level] || 'ไม่ระบุ';
+}
+
+function getDifficultyColor(level) {
+    const colors = {
+        'beginner': 'success',
+        'intermediate': 'warning',
+        'advanced': 'danger'
+    };
+    return colors[level] || 'primary';
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('th-TH');
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function getFileIcon(fileType) {
+    const icons = {
+        'pdf': 'fa-file-pdf',
+        'doc': 'fa-file-word',
+        'docx': 'fa-file-word',
+        'xls': 'fa-file-excel',
+        'xlsx': 'fa-file-excel',
+        'ppt': 'fa-file-powerpoint',
+        'pptx': 'fa-file-powerpoint',
+        'image': 'fa-file-image',
+        'video': 'fa-file-video',
+        'audio': 'fa-file-audio'
+    };
+    return icons[fileType] || 'fa-file';
+}
+
+function generateStars(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            stars += '<i class="fas fa-star"></i>';
+        } else {
+            stars += '<i class="far fa-star"></i>';
+        }
+    }
+    return stars;
+}
+
+function timeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return 'เมื่อสักครู่';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} นาทีที่แล้ว`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ชั่วโมงที่แล้ว`;
+    return `${Math.floor(diffInSeconds / 86400)} วันที่แล้ว`;
+}
+
+function showSuccess(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+
+function showError(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+</script>
+
+<style>
+.tab-btn {
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: #1e40af;
+}
+
+.tab-btn.active {
+    color: #1e40af;
+    border-bottom-color: #1e40af;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.prose {
+    max-width: none;
+}
+
+.prose h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #111827;
+}
+
+.prose ul {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.prose li {
+    margin-bottom: 0.25rem;
+}
+</style>

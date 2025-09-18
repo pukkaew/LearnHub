@@ -1,0 +1,703 @@
+<%- include('../layouts/header') %>
+
+<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">แก้ไขบทความ</h1>
+                <p class="text-gray-600">ปรับปรุงเนื้อหาบทความของคุณ</p>
+            </div>
+            <a href="/articles" class="text-ruxchai-main hover:text-ruxchai-main/80 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>กลับไปหน้าบทความ
+            </a>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <!-- Form Header -->
+            <div class="bg-gradient-to-r from-ruxchai-main to-ruxchai-secondary p-6">
+                <div class="flex items-center justify-between">
+                    <div class="text-white">
+                        <h2 class="text-xl font-bold mb-1">แก้ไขเนื้อหา</h2>
+                        <p class="opacity-90">อัปเดตข้อมูลบทความของคุณ</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button id="previewBtn" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>ดูตัวอย่าง
+                        </button>
+                        <button id="saveBtn" class="px-4 py-2 bg-white text-ruxchai-main rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-save mr-2"></i>บันทึก
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <form id="editArticleForm" class="p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Content -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Title -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">หัวข้อบทความ *</label>
+                            <input type="text" name="title" id="articleTitle" required
+                                   class="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                        </div>
+
+                        <!-- Summary -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">สรุปเนื้อหา</label>
+                            <textarea name="summary" id="articleSummary" rows="3"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                                      placeholder="สรุปสั้นๆ ของบทความ..."></textarea>
+                        </div>
+
+                        <!-- Content Editor -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">เนื้อหาบทความ *</label>
+                            <div class="border border-gray-300 rounded-lg overflow-hidden">
+                                <!-- Editor Toolbar -->
+                                <div id="toolbar" class="bg-gray-50 border-b border-gray-300 p-2">
+                                    <!-- Quill toolbar will be here -->
+                                </div>
+                                <!-- Editor Content -->
+                                <div id="articleEditor" style="height: 500px;"></div>
+                            </div>
+                            <input type="hidden" name="content" id="articleContent">
+                        </div>
+
+                        <!-- Tags -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">แท็ก</label>
+                            <input type="text" name="tags" id="articleTags"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                                   placeholder="แยกแท็กด้วยเครื่องหมายจุลภาค เช่น javascript, programming, tutorial">
+                            <p class="text-sm text-gray-500 mt-1">แยกแท็กด้วยเครื่องหมายจุลภาค</p>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Publication Settings -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">การเผยแพร่</h3>
+
+                            <div class="space-y-4">
+                                <!-- Status -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">สถานะ</label>
+                                    <select name="status" id="articleStatus"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                        <option value="draft">ร่าง</option>
+                                        <option value="published">เผยแพร่</option>
+                                        <option value="pending">รอการอนุมัติ</option>
+                                    </select>
+                                </div>
+
+                                <!-- Category -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่ *</label>
+                                    <select name="category" id="articleCategory" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                        <option value="">เลือกหมวดหมู่</option>
+                                        <option value="technology">เทคโนโลยี</option>
+                                        <option value="business">ธุรกิจ</option>
+                                        <option value="management">การจัดการ</option>
+                                        <option value="development">การพัฒนา</option>
+                                        <option value="design">ดีไซน์</option>
+                                        <option value="marketing">การตลาด</option>
+                                        <option value="finance">การเงิน</option>
+                                        <option value="other">อื่นๆ</option>
+                                    </select>
+                                </div>
+
+                                <!-- Publish Date -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">วันที่เผยแพร่</label>
+                                    <input type="datetime-local" name="publish_date" id="publishDate"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Featured Image -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">รูปปก</h3>
+
+                            <div class="space-y-4">
+                                <!-- Current Image -->
+                                <div id="currentImageContainer" class="hidden">
+                                    <img id="currentImage" src="" alt="Current featured image" class="w-full h-32 object-cover rounded-lg">
+                                    <button type="button" id="removeImageBtn" class="mt-2 text-sm text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash mr-1"></i>ลบรูปภาพ
+                                    </button>
+                                </div>
+
+                                <!-- Upload New Image -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">อัปโหลดรูปใหม่</label>
+                                    <input type="file" name="featured_image" id="featuredImageInput" accept="image/*"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                    <p class="text-sm text-gray-500 mt-1">รองรับ JPG, PNG, GIF (สูงสุด 5MB)</p>
+                                </div>
+
+                                <!-- Image Preview -->
+                                <div id="imagePreview" class="hidden">
+                                    <img id="previewImage" src="" alt="Image preview" class="w-full h-32 object-cover rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SEO Settings -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">การตั้งค่า SEO</h3>
+
+                            <div class="space-y-4">
+                                <!-- Meta Description -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายสำหรับ SEO</label>
+                                    <textarea name="meta_description" id="metaDescription" rows="3"
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                                              placeholder="คำอธิบายสำหรับเครื่องมือค้นหา..."
+                                              maxlength="160"></textarea>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        <span id="metaCharCount">0</span>/160 ตัวอักษร
+                                    </p>
+                                </div>
+
+                                <!-- Slug -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">URL Slug</label>
+                                    <input type="text" name="slug" id="articleSlug"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                                           placeholder="url-friendly-name">
+                                    <p class="text-sm text-gray-500 mt-1">จะใช้เป็น URL ของบทความ</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">สถิติ</h3>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">การดู</span>
+                                    <span id="viewsCount" class="text-sm font-medium">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">ไลค์</span>
+                                    <span id="likesCount" class="text-sm font-medium">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">ความคิดเห็น</span>
+                                    <span id="commentsCount" class="text-sm font-medium">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">แก้ไขล่าสุด</span>
+                                    <span id="lastModified" class="text-sm font-medium">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between items-center pt-8 border-t border-gray-200">
+                    <div class="flex space-x-3">
+                        <button type="button" id="deleteBtn" class="px-6 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>ลบบทความ
+                        </button>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="button" id="cancelBtn" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            ยกเลิก
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors">
+                            <i class="fas fa-save mr-2"></i>บันทึกการแก้ไข
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">ดูตัวอย่างบทความ</h3>
+                <button id="closePreviewModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="previewContent" class="p-6">
+                <!-- Preview content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<script>
+// Global variables
+let quill;
+let articleId;
+let originalData = {};
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    articleId = window.location.pathname.split('/')[2];
+    initializeEditor();
+    loadArticle();
+    setupEventListeners();
+});
+
+// Initialize Quill editor
+function initializeEditor() {
+    quill = new Quill('#articleEditor', {
+        theme: 'snow',
+        modules: {
+            toolbar: {
+                container: '#toolbar',
+                handlers: {
+                    image: imageHandler
+                }
+            }
+        }
+    });
+
+    // Custom toolbar
+    const toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', imageHandler);
+
+    // Setup toolbar HTML
+    document.getElementById('toolbar').innerHTML = `
+        <span class="ql-formats">
+            <select class="ql-header">
+                <option selected=""></option>
+                <option value="1"></option>
+                <option value="2"></option>
+                <option value="3"></option>
+            </select>
+        </span>
+        <span class="ql-formats">
+            <button class="ql-bold"></button>
+            <button class="ql-italic"></button>
+            <button class="ql-underline"></button>
+            <button class="ql-strike"></button>
+        </span>
+        <span class="ql-formats">
+            <select class="ql-color"></select>
+            <select class="ql-background"></select>
+        </span>
+        <span class="ql-formats">
+            <button class="ql-list" value="ordered"></button>
+            <button class="ql-list" value="bullet"></button>
+            <button class="ql-indent" value="-1"></button>
+            <button class="ql-indent" value="+1"></button>
+        </span>
+        <span class="ql-formats">
+            <button class="ql-blockquote"></button>
+            <button class="ql-code-block"></button>
+        </span>
+        <span class="ql-formats">
+            <button class="ql-link"></button>
+            <button class="ql-image"></button>
+            <button class="ql-video"></button>
+        </span>
+        <span class="ql-formats">
+            <button class="ql-clean"></button>
+        </span>
+    `;
+}
+
+// Image handler for Quill
+function imageHandler() {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = () => {
+        const file = input.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/upload/image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const range = quill.getSelection();
+                    quill.insertEmbed(range.index, 'image', result.url);
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading image:', error);
+                showMessage('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ', 'error');
+            });
+        }
+    };
+}
+
+// Event listeners
+function setupEventListeners() {
+    // Form submission
+    document.getElementById('editArticleForm').addEventListener('submit', handleSaveArticle);
+
+    // Buttons
+    document.getElementById('saveBtn').addEventListener('click', handleSaveArticle);
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        if (confirm('คุณแน่ใจหรือไม่ที่จะยกเลิก? การเปลี่ยนแปลงที่ยังไม่ได้บันทึกจะหายไป')) {
+            window.location.href = '/articles';
+        }
+    });
+    document.getElementById('deleteBtn').addEventListener('click', handleDeleteArticle);
+
+    // Preview
+    document.getElementById('previewBtn').addEventListener('click', showPreview);
+    document.getElementById('closePreviewModal').addEventListener('click', () => {
+        document.getElementById('previewModal').classList.add('hidden');
+    });
+
+    // Image upload
+    document.getElementById('featuredImageInput').addEventListener('change', handleImageUpload);
+    document.getElementById('removeImageBtn').addEventListener('click', removeCurrentImage);
+
+    // Title to slug generation
+    document.getElementById('articleTitle').addEventListener('input', generateSlugFromTitle);
+
+    // Meta description character count
+    document.getElementById('metaDescription').addEventListener('input', updateMetaCharCount);
+
+    // Auto-save every 30 seconds
+    setInterval(autoSave, 30000);
+}
+
+// Load article data
+async function loadArticle() {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/edit`);
+        const data = await response.json();
+
+        if (data.success) {
+            originalData = data.article;
+            populateForm(data.article);
+        } else {
+            showMessage('ไม่พบบทความที่ต้องการแก้ไข', 'error');
+            setTimeout(() => window.location.href = '/articles', 2000);
+        }
+    } catch (error) {
+        console.error('Error loading article:', error);
+        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+    }
+}
+
+// Populate form with article data
+function populateForm(article) {
+    document.getElementById('articleTitle').value = article.title;
+    document.getElementById('articleSummary').value = article.summary || '';
+    document.getElementById('articleCategory').value = article.category;
+    document.getElementById('articleStatus').value = article.status;
+    document.getElementById('articleTags').value = article.tags ? article.tags.join(', ') : '';
+    document.getElementById('metaDescription').value = article.meta_description || '';
+    document.getElementById('articleSlug').value = article.slug || '';
+
+    if (article.publish_date) {
+        const date = new Date(article.publish_date);
+        document.getElementById('publishDate').value = date.toISOString().slice(0, 16);
+    }
+
+    // Set editor content
+    if (article.content) {
+        quill.root.innerHTML = article.content;
+    }
+
+    // Featured image
+    if (article.featured_image) {
+        document.getElementById('currentImage').src = article.featured_image;
+        document.getElementById('currentImageContainer').classList.remove('hidden');
+    }
+
+    // Stats
+    document.getElementById('viewsCount').textContent = article.views || 0;
+    document.getElementById('likesCount').textContent = article.likes || 0;
+    document.getElementById('commentsCount').textContent = article.comments || 0;
+    document.getElementById('lastModified').textContent = formatDate(article.updated_at);
+
+    updateMetaCharCount();
+}
+
+// Handle save article
+async function handleSaveArticle(e) {
+    if (e) e.preventDefault();
+
+    try {
+        const formData = new FormData();
+
+        // Get form data
+        formData.append('title', document.getElementById('articleTitle').value);
+        formData.append('summary', document.getElementById('articleSummary').value);
+        formData.append('content', quill.root.innerHTML);
+        formData.append('category', document.getElementById('articleCategory').value);
+        formData.append('status', document.getElementById('articleStatus').value);
+        formData.append('tags', document.getElementById('articleTags').value);
+        formData.append('meta_description', document.getElementById('metaDescription').value);
+        formData.append('slug', document.getElementById('articleSlug').value);
+        formData.append('publish_date', document.getElementById('publishDate').value);
+
+        // Featured image
+        const imageFile = document.getElementById('featuredImageInput').files[0];
+        if (imageFile) {
+            formData.append('featured_image', imageFile);
+        }
+
+        const response = await fetch(`/articles/${articleId}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('บันทึกการแก้ไขเรียบร้อยแล้ว', 'success');
+
+            // Update original data
+            originalData = { ...originalData, ...data.article };
+
+            // Redirect if published
+            if (data.article.status === 'published') {
+                setTimeout(() => {
+                    window.location.href = `/articles/${articleId}`;
+                }, 1500);
+            }
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving article:', error);
+        showMessage('เกิดข้อผิดพลาดในการบันทึก', 'error');
+    }
+}
+
+// Handle delete article
+async function handleDeleteArticle() {
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบบทความนี้? การกระทำนี้ไม่สามารถยกเลิกได้')) return;
+
+    try {
+        const response = await fetch(`/articles/${articleId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('ลบบทความเรียบร้อยแล้ว', 'success');
+            setTimeout(() => {
+                window.location.href = '/articles';
+            }, 1500);
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting article:', error);
+        showMessage('เกิดข้อผิดพลาดในการลบ', 'error');
+    }
+}
+
+// Show preview
+function showPreview() {
+    const title = document.getElementById('articleTitle').value;
+    const summary = document.getElementById('articleSummary').value;
+    const content = quill.root.innerHTML;
+    const category = document.getElementById('articleCategory').value;
+
+    const previewHTML = `
+        <div class="article-preview">
+            <div class="mb-6">
+                <div class="flex items-center space-x-2 mb-4">
+                    <span class="px-3 py-1 bg-ruxchai-main text-white text-sm rounded-full">
+                        ${getCategoryName(category)}
+                    </span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">${title}</h1>
+                ${summary ? `<div class="text-lg text-gray-600 mb-6 p-4 bg-gray-50 rounded-lg border-l-4 border-ruxchai-main">${summary}</div>` : ''}
+            </div>
+            <div class="prose prose-lg max-w-none">
+                ${content}
+            </div>
+        </div>
+    `;
+
+    document.getElementById('previewContent').innerHTML = previewHTML;
+    document.getElementById('previewModal').classList.remove('hidden');
+}
+
+// Handle image upload
+function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImage').src = e.target.result;
+            document.getElementById('imagePreview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Remove current image
+function removeCurrentImage() {
+    document.getElementById('currentImageContainer').classList.add('hidden');
+    // Add a hidden input to mark image for removal
+    const removeInput = document.createElement('input');
+    removeInput.type = 'hidden';
+    removeInput.name = 'remove_image';
+    removeInput.value = 'true';
+    document.getElementById('editArticleForm').appendChild(removeInput);
+}
+
+// Generate slug from title
+function generateSlugFromTitle() {
+    const title = document.getElementById('articleTitle').value;
+    const slug = title
+        .toLowerCase()
+        .replace(/[^\u0E00-\u0E7Fa-z0-9\s-]/g, '') // Keep Thai, English, numbers, spaces, hyphens
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+        .trim();
+
+    document.getElementById('articleSlug').value = slug;
+}
+
+// Update meta description character count
+function updateMetaCharCount() {
+    const text = document.getElementById('metaDescription').value;
+    const charCount = document.getElementById('metaCharCount');
+    charCount.textContent = text.length;
+
+    if (text.length > 160) {
+        charCount.classList.add('text-red-500');
+    } else {
+        charCount.classList.remove('text-red-500');
+    }
+}
+
+// Auto-save functionality
+async function autoSave() {
+    const currentData = {
+        title: document.getElementById('articleTitle').value,
+        summary: document.getElementById('articleSummary').value,
+        content: quill.root.innerHTML,
+        category: document.getElementById('articleCategory').value,
+        tags: document.getElementById('articleTags').value
+    };
+
+    // Check if data has changed
+    const hasChanged = Object.keys(currentData).some(key =>
+        currentData[key] !== (originalData[key] || '')
+    );
+
+    if (hasChanged && currentData.title.trim()) {
+        try {
+            const formData = new FormData();
+            Object.keys(currentData).forEach(key => {
+                formData.append(key, currentData[key]);
+            });
+            formData.append('auto_save', 'true');
+
+            await fetch(`/articles/${articleId}/autosave`, {
+                method: 'POST',
+                body: formData
+            });
+
+            // Show subtle auto-save indicator
+            showAutoSaveIndicator();
+        } catch (error) {
+            console.error('Auto-save failed:', error);
+        }
+    }
+}
+
+// Show auto-save indicator
+function showAutoSaveIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'fixed top-4 right-4 bg-green-500 text-white px-3 py-1 rounded text-sm z-50';
+    indicator.textContent = 'บันทึกอัตโนมัติ';
+    document.body.appendChild(indicator);
+
+    setTimeout(() => {
+        indicator.remove();
+    }, 2000);
+}
+
+// Utility functions
+function getCategoryName(category) {
+    const categories = {
+        technology: 'เทคโนโลยี',
+        business: 'ธุรกิจ',
+        management: 'การจัดการ',
+        development: 'การพัฒนา',
+        design: 'ดีไซน์',
+        marketing: 'การตลาด',
+        finance: 'การเงิน',
+        other: 'อื่นๆ'
+    };
+    return categories[category] || category;
+}
+
+function formatDate(dateString) {
+    const options = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString('th-TH', options);
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+// Warn about unsaved changes
+window.addEventListener('beforeunload', function(e) {
+    const currentData = {
+        title: document.getElementById('articleTitle').value,
+        summary: document.getElementById('articleSummary').value,
+        content: quill.root.innerHTML,
+        category: document.getElementById('articleCategory').value,
+        tags: document.getElementById('articleTags').value
+    };
+
+    const hasChanged = Object.keys(currentData).some(key =>
+        currentData[key] !== (originalData[key] || '')
+    );
+
+    if (hasChanged) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+</script>
+
+<%- include('../layouts/footer') %>

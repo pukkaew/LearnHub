@@ -1,0 +1,659 @@
+<% layout('layout') -%>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Results Header -->
+    <div class="text-center mb-8">
+        <div id="result-icon" class="mx-auto flex items-center justify-center h-20 w-20 rounded-full mb-6">
+            <!-- Icon will be set based on score -->
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">ผลการทำแบบทดสอบ</h1>
+        <p id="test-title" class="text-gray-600">ชื่อแบบทดสอบ</p>
+    </div>
+
+    <!-- Score Summary -->
+    <div class="bg-white rounded-lg shadow-sm p-8 mb-8 ruxchai-card">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="text-center">
+                <div id="final-score" class="text-5xl font-bold mb-2">0%</div>
+                <div class="text-gray-600">คะแนนที่ได้</div>
+            </div>
+            <div class="text-center">
+                <div id="time-taken" class="text-3xl font-semibold text-gray-900 mb-2">0</div>
+                <div class="text-gray-600">นาที</div>
+            </div>
+            <div class="text-center">
+                <div id="pass-status" class="text-2xl font-semibold mb-2">-</div>
+                <div class="text-gray-600">ผลการทดสอบ</div>
+            </div>
+        </div>
+
+        <!-- Detailed Breakdown -->
+        <div class="border-t border-gray-200 pt-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                    <div id="correct-answers" class="text-2xl font-semibold text-green-600">0</div>
+                    <div class="text-sm text-gray-600">ข้อถูก</div>
+                </div>
+                <div>
+                    <div id="incorrect-answers" class="text-2xl font-semibold text-red-600">0</div>
+                    <div class="text-sm text-gray-600">ข้อผิด</div>
+                </div>
+                <div>
+                    <div id="unanswered" class="text-2xl font-semibold text-gray-600">0</div>
+                    <div class="text-sm text-gray-600">ไม่ตอบ</div>
+                </div>
+                <div>
+                    <div id="total-questions" class="text-2xl font-semibold text-blue-600">0</div>
+                    <div class="text-sm text-gray-600">ข้อทั้งหมด</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Analysis -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8 ruxchai-card">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">การวิเคราะห์ผลการทำงาน</h3>
+
+        <div class="space-y-6">
+            <!-- Score Chart -->
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3">การเปรียบเทียบคะแนน</h4>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <canvas id="score-chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Category Performance -->
+            <div id="category-performance">
+                <h4 class="font-medium text-gray-900 mb-3">ผลการทำงานตามหมวดหมู่</h4>
+                <div id="category-breakdown" class="space-y-3">
+                    <!-- Category breakdown will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Difficulty Analysis -->
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3">การวิเคราะห์ตามระดับความยาก</h4>
+                <div id="difficulty-analysis" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Difficulty analysis will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Review -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8 ruxchai-card">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">รายละเอียดคำถาม</h3>
+            <div class="flex space-x-2">
+                <button id="show-all" class="btn-ruxchai-outline text-sm">ทั้งหมด</button>
+                <button id="show-incorrect" class="btn-ruxchai-secondary text-sm">ข้อผิด</button>
+                <button id="show-correct" class="btn-ruxchai-accent text-sm">ข้อถูก</button>
+            </div>
+        </div>
+
+        <div id="question-review" class="space-y-6">
+            <!-- Question review will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/tests" class="btn-ruxchai-outline text-center">
+            <i class="fas fa-list mr-2"></i>กลับไปแบบทดสอบ
+        </a>
+
+        <button id="retake-test" class="btn-ruxchai-primary hidden">
+            <i class="fas fa-redo mr-2"></i>ทำแบบทดสอบใหม่
+        </button>
+
+        <button id="download-certificate" class="btn-ruxchai-accent hidden">
+            <i class="fas fa-certificate mr-2"></i>ดาวน์โหลดใบประกาศนียบัตร
+        </button>
+
+        <button id="print-results" class="btn-ruxchai-outline">
+            <i class="fas fa-print mr-2"></i>พิมพ์ผลการทดสอบ
+        </button>
+    </div>
+
+    <!-- Share Results -->
+    <div class="mt-8 text-center">
+        <p class="text-gray-600 mb-4">แชร์ผลการทดสอบของคุณ</p>
+        <div class="flex justify-center space-x-4">
+            <button onclick="shareResults('facebook')" class="text-blue-600 hover:text-blue-700">
+                <i class="fab fa-facebook text-xl"></i>
+            </button>
+            <button onclick="shareResults('twitter')" class="text-blue-400 hover:text-blue-500">
+                <i class="fab fa-twitter text-xl"></i>
+            </button>
+            <button onclick="shareResults('line')" class="text-green-500 hover:text-green-600">
+                <i class="fab fa-line text-xl"></i>
+            </button>
+            <button onclick="copyShareLink()" class="text-gray-600 hover:text-gray-700">
+                <i class="fas fa-link text-xl"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+        <i class="fas fa-spinner fa-spin text-ruxchai-primary text-xl"></i>
+        <span class="text-gray-700">กำลังโหลดผลการทดสอบ...</span>
+    </div>
+</div>
+
+<script>
+let testResults = null;
+let attemptId = '<%= locals.attemptId || "" %>';
+let scoreChart = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (attemptId) {
+        loadTestResults();
+    } else {
+        showError('ไม่พบข้อมูลผลการทดสอบ');
+        window.location.href = '/tests';
+    }
+
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Question filter buttons
+    document.getElementById('show-all').addEventListener('click', () => filterQuestions('all'));
+    document.getElementById('show-incorrect').addEventListener('click', () => filterQuestions('incorrect'));
+    document.getElementById('show-correct').addEventListener('click', () => filterQuestions('correct'));
+
+    // Action buttons
+    document.getElementById('retake-test').addEventListener('click', retakeTest);
+    document.getElementById('download-certificate').addEventListener('click', downloadCertificate);
+    document.getElementById('print-results').addEventListener('click', printResults);
+}
+
+async function loadTestResults() {
+    try {
+        const response = await fetch(`/tests/api/attempts/${attemptId}/results`);
+        const data = await response.json();
+
+        if (data.success) {
+            testResults = data.data;
+            displayResults();
+        } else {
+            showError('ไม่สามารถโหลดผลการทดสอบได้');
+        }
+    } catch (error) {
+        console.error('Error loading test results:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดผลการทดสอบ');
+    } finally {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+}
+
+function displayResults() {
+    const results = testResults;
+
+    // Update header
+    document.getElementById('test-title').textContent = results.test_title;
+
+    // Update result icon
+    updateResultIcon(results.score, results.passing_score);
+
+    // Update score summary
+    document.getElementById('final-score').textContent = `${results.score}%`;
+    document.getElementById('final-score').className = `text-5xl font-bold mb-2 ${getScoreColor(results.score)}`;
+
+    document.getElementById('time-taken').textContent = results.time_taken || '0';
+
+    const passed = results.score >= results.passing_score;
+    document.getElementById('pass-status').textContent = passed ? 'ผ่าน' : 'ไม่ผ่าน';
+    document.getElementById('pass-status').className = `text-2xl font-semibold mb-2 ${passed ? 'text-green-600' : 'text-red-600'}`;
+
+    // Update detailed breakdown
+    document.getElementById('correct-answers').textContent = results.correct_answers;
+    document.getElementById('incorrect-answers').textContent = results.incorrect_answers;
+    document.getElementById('unanswered').textContent = results.unanswered;
+    document.getElementById('total-questions').textContent = results.total_questions;
+
+    // Display performance analysis
+    displayPerformanceAnalysis();
+
+    // Display question review
+    displayQuestionReview();
+
+    // Show action buttons based on results
+    updateActionButtons();
+
+    // Create score chart
+    createScoreChart();
+}
+
+function updateResultIcon(score, passingScore) {
+    const resultIcon = document.getElementById('result-icon');
+
+    if (score >= 90) {
+        resultIcon.innerHTML = '<i class="fas fa-trophy text-yellow-500 text-4xl"></i>';
+        resultIcon.className = 'mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-yellow-100 mb-6';
+    } else if (score >= passingScore) {
+        resultIcon.innerHTML = '<i class="fas fa-medal text-blue-500 text-4xl"></i>';
+        resultIcon.className = 'mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-blue-100 mb-6';
+    } else {
+        resultIcon.innerHTML = '<i class="fas fa-times-circle text-red-500 text-4xl"></i>';
+        resultIcon.className = 'mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-100 mb-6';
+    }
+}
+
+function displayPerformanceAnalysis() {
+    const results = testResults;
+
+    // Category performance
+    if (results.category_performance && results.category_performance.length > 0) {
+        const categoryContainer = document.getElementById('category-breakdown');
+        categoryContainer.innerHTML = results.category_performance.map(category => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                    <h5 class="font-medium text-gray-900">${category.category_name}</h5>
+                    <p class="text-sm text-gray-600">${category.correct}/${category.total} ข้อ</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-lg font-semibold ${getScoreColor(category.percentage)}">${category.percentage}%</div>
+                    <div class="w-24 bg-gray-200 rounded-full h-2 mt-1">
+                        <div class="bg-ruxchai-primary h-2 rounded-full" style="width: ${category.percentage}%"></div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        document.getElementById('category-performance').style.display = 'none';
+    }
+
+    // Difficulty analysis
+    if (results.difficulty_analysis) {
+        const difficultyContainer = document.getElementById('difficulty-analysis');
+        const difficulties = ['easy', 'medium', 'hard'];
+
+        difficultyContainer.innerHTML = difficulties.map(level => {
+            const data = results.difficulty_analysis[level];
+            if (!data) return '';
+
+            return `
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-sm font-medium text-gray-600 mb-2">${getDifficultyText(level)}</div>
+                    <div class="text-2xl font-bold ${getScoreColor(data.percentage)} mb-1">${data.percentage}%</div>
+                    <div class="text-xs text-gray-500">${data.correct}/${data.total} ข้อ</div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+function displayQuestionReview() {
+    const container = document.getElementById('question-review');
+    const questions = testResults.questions || [];
+
+    container.innerHTML = questions.map((question, index) => {
+        const isCorrect = question.is_correct;
+        const userAnswer = question.user_answer;
+        const correctAnswer = question.correct_answer;
+
+        return `
+            <div class="question-item border rounded-lg p-4 ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}"
+                 data-status="${isCorrect ? 'correct' : 'incorrect'}">
+                <div class="flex items-start justify-between mb-3">
+                    <h4 class="font-medium text-gray-900">
+                        ข้อ ${index + 1}. ${question.question_text}
+                    </h4>
+                    <div class="flex items-center space-x-2">
+                        <span class="badge-${getDifficultyColor(question.difficulty)}">${getDifficultyText(question.difficulty)}</span>
+                        <div class="flex items-center">
+                            <i class="fas ${isCorrect ? 'fa-check text-green-500' : 'fa-times text-red-500'} mr-1"></i>
+                            <span class="text-sm font-medium ${isCorrect ? 'text-green-600' : 'text-red-600'}">
+                                ${question.points || 1} คะแนน
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                ${question.question_image ? `
+                    <div class="mb-3">
+                        <img src="${question.question_image}" alt="Question Image" class="max-w-xs h-auto rounded">
+                    </div>
+                ` : ''}
+
+                <div class="space-y-3">
+                    ${renderAnswerOptions(question)}
+                </div>
+
+                ${question.explanation ? `
+                    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                        <h5 class="font-medium text-blue-900 mb-1">คำอธิบาย:</h5>
+                        <p class="text-blue-800 text-sm">${question.explanation}</p>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function renderAnswerOptions(question) {
+    const userAnswer = question.user_answer;
+    const correctAnswer = question.correct_answer;
+
+    switch (question.question_type) {
+        case 'multiple_choice':
+            return question.options.map(option => {
+                const isUserAnswer = option.option_id === userAnswer;
+                const isCorrectAnswer = option.option_id === correctAnswer;
+
+                let classes = 'p-2 rounded border ';
+                if (isCorrectAnswer) {
+                    classes += 'border-green-500 bg-green-100';
+                } else if (isUserAnswer && !isCorrectAnswer) {
+                    classes += 'border-red-500 bg-red-100';
+                } else {
+                    classes += 'border-gray-200';
+                }
+
+                return `
+                    <div class="${classes}">
+                        <div class="flex items-center space-x-2">
+                            ${isUserAnswer ? '<i class="fas fa-arrow-right text-blue-500"></i>' : '<div class="w-4"></div>'}
+                            ${isCorrectAnswer ? '<i class="fas fa-check text-green-500"></i>' : '<div class="w-4"></div>'}
+                            <span>${option.option_text}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        case 'true_false':
+            const options = [
+                { value: 'true', text: 'จริง' },
+                { value: 'false', text: 'เท็จ' }
+            ];
+
+            return options.map(option => {
+                const isUserAnswer = option.value === userAnswer;
+                const isCorrectAnswer = option.value === correctAnswer;
+
+                let classes = 'p-2 rounded border ';
+                if (isCorrectAnswer) {
+                    classes += 'border-green-500 bg-green-100';
+                } else if (isUserAnswer && !isCorrectAnswer) {
+                    classes += 'border-red-500 bg-red-100';
+                } else {
+                    classes += 'border-gray-200';
+                }
+
+                return `
+                    <div class="${classes}">
+                        <div class="flex items-center space-x-2">
+                            ${isUserAnswer ? '<i class="fas fa-arrow-right text-blue-500"></i>' : '<div class="w-4"></div>'}
+                            ${isCorrectAnswer ? '<i class="fas fa-check text-green-500"></i>' : '<div class="w-4"></div>'}
+                            <span>${option.text}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        case 'fill_blank':
+        case 'essay':
+            return `
+                <div class="space-y-2">
+                    <div class="p-3 border rounded ${question.is_correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}">
+                        <h5 class="font-medium text-sm mb-1">คำตอบของคุณ:</h5>
+                        <p class="text-gray-900">${userAnswer || 'ไม่ได้ตอบ'}</p>
+                    </div>
+                    <div class="p-3 border border-green-500 bg-green-50 rounded">
+                        <h5 class="font-medium text-sm mb-1">คำตอบที่ถูกต้อง:</h5>
+                        <p class="text-gray-900">${correctAnswer}</p>
+                    </div>
+                </div>
+            `;
+
+        default:
+            return '<p class="text-gray-500">ไม่สามารถแสดงตัวเลือกได้</p>';
+    }
+}
+
+function filterQuestions(filter) {
+    const questions = document.querySelectorAll('.question-item');
+    const buttons = document.querySelectorAll('#show-all, #show-incorrect, #show-correct');
+
+    // Update button states
+    buttons.forEach(btn => btn.classList.remove('btn-ruxchai-primary'));
+    buttons.forEach(btn => btn.classList.add('btn-ruxchai-outline'));
+
+    if (filter === 'all') {
+        document.getElementById('show-all').classList.remove('btn-ruxchai-outline');
+        document.getElementById('show-all').classList.add('btn-ruxchai-primary');
+        questions.forEach(q => q.style.display = 'block');
+    } else if (filter === 'incorrect') {
+        document.getElementById('show-incorrect').classList.remove('btn-ruxchai-outline');
+        document.getElementById('show-incorrect').classList.add('btn-ruxchai-primary');
+        questions.forEach(q => {
+            q.style.display = q.dataset.status === 'correct' ? 'none' : 'block';
+        });
+    } else if (filter === 'correct') {
+        document.getElementById('show-correct').classList.remove('btn-ruxchai-outline');
+        document.getElementById('show-correct').classList.add('btn-ruxchai-primary');
+        questions.forEach(q => {
+            q.style.display = q.dataset.status === 'incorrect' ? 'none' : 'block';
+        });
+    }
+}
+
+function updateActionButtons() {
+    const results = testResults;
+
+    // Show retake button if allowed
+    if (results.can_retake) {
+        document.getElementById('retake-test').classList.remove('hidden');
+    }
+
+    // Show certificate button if passed and certificate is available
+    if (results.score >= results.passing_score && results.has_certificate) {
+        document.getElementById('download-certificate').classList.remove('hidden');
+    }
+}
+
+function createScoreChart() {
+    const ctx = document.getElementById('score-chart').getContext('2d');
+    const results = testResults;
+
+    scoreChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['ถูก', 'ผิด', 'ไม่ตอบ'],
+            datasets: [{
+                data: [results.correct_answers, results.incorrect_answers, results.unanswered],
+                backgroundColor: ['#10b981', '#ef4444', '#6b7280'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+async function retakeTest() {
+    if (confirm('คุณต้องการทำแบบทดสอบใหม่หรือไม่?')) {
+        try {
+            const response = await fetch(`/tests/api/${testResults.test_id}/start`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = `/tests/${testResults.test_id}/take?attempt_id=${data.data.attempt_id}`;
+            } else {
+                showError(data.message || 'ไม่สามารถเริ่มทำแบบทดสอบใหม่ได้');
+            }
+        } catch (error) {
+            console.error('Error starting retake:', error);
+            showError('เกิดข้อผิดพลาดในการเริ่มทำแบบทดสอบใหม่');
+        }
+    }
+}
+
+async function downloadCertificate() {
+    try {
+        const response = await fetch(`/tests/api/${testResults.test_id}/certificate?attempt_id=${attemptId}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `certificate-${testResults.test_title}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } else {
+            showError('ไม่สามารถดาวน์โหลดใบประกาศนียบัตรได้');
+        }
+    } catch (error) {
+        console.error('Error downloading certificate:', error);
+        showError('เกิดข้อผิดพลาดในการดาวน์โหลดใบประกาศนียบัตร');
+    }
+}
+
+function printResults() {
+    window.print();
+}
+
+function shareResults(platform) {
+    const score = testResults.score;
+    const testTitle = testResults.test_title;
+    const text = `ฉันได้คะแนน ${score}% ในแบบทดสอบ "${testTitle}" บน Ruxchai LearnHub!`;
+    const url = window.location.href;
+
+    switch (platform) {
+        case 'facebook':
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`);
+            break;
+        case 'twitter':
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`);
+            break;
+        case 'line':
+            window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
+            break;
+    }
+}
+
+function copyShareLink() {
+    const text = `ฉันได้คะแนน ${testResults.score}% ในแบบทดสอบ "${testResults.test_title}" บน Ruxchai LearnHub! ${window.location.href}`;
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showSuccess('คัดลอกลิงก์แล้ว');
+        });
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showSuccess('คัดลอกลิงก์แล้ว');
+    }
+}
+
+// Utility functions
+function getScoreColor(score) {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+}
+
+function getDifficultyText(level) {
+    const texts = {
+        'easy': 'ง่าย',
+        'medium': 'ปานกลาง',
+        'hard': 'ยาก'
+    };
+    return texts[level] || 'ปานกลาง';
+}
+
+function getDifficultyColor(level) {
+    const colors = {
+        'easy': 'success',
+        'medium': 'warning',
+        'hard': 'danger'
+    };
+    return colors[level] || 'warning';
+}
+
+function showSuccess(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+
+function showError(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+</script>
+
+<style>
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .page-break {
+        page-break-before: always;
+    }
+
+    body {
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+}
+
+/* Question item animations */
+.question-item {
+    transition: all 0.3s ease;
+}
+
+.question-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Score chart container */
+#score-chart {
+    max-height: 300px;
+}
+
+/* Social share buttons */
+.fab {
+    transition: transform 0.2s ease;
+}
+
+.fab:hover {
+    transform: scale(1.2);
+}
+</style>
