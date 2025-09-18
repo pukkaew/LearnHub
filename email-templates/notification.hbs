@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - Ruxchai LearnHub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .content p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            margin: 20px 0;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+        .notification-content {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📢 {{title}}</h1>
+        </div>
+
+        <div class="content">
+            <h2>สวัสดี {{name}}</h2>
+
+            <div class="notification-content">
+                <p>{{message}}</p>
+            </div>
+
+            {{#if actionUrl}}
+                <p style="text-align: center;">
+                    <a href="{{actionUrl}}" class="btn">{{actionText}}</a>
+                </p>
+            {{/if}}
+
+            <p><small>การแจ้งเตือนนี้ส่งเมื่อ: {{createdAt}}</small></p>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Ruxchai LearnHub. สงวนลิขสิทธิ์.</p>
+        </div>
+    </div>
+</body>
+</html>

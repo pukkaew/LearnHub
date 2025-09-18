@@ -527,3 +527,20 @@ function timeAgo(dateString) {
     return `${Math.floor(diffInSeconds / 86400)} วันที่แล้ว`;
 }
 </script>
+
+<!-- Socket.IO Client -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/dashboard-widgets.js"></script>
+<script>
+// Initialize real-time dashboard after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DashboardManager !== 'undefined') {
+        const dashboard = new DashboardManager({
+            userId: '<%= user.user_id %>',
+            departmentId: '<%= user.department_id || null %>',
+            socketUrl: window.location.origin
+        });
+        dashboard.init();
+    }
+});
+</script>

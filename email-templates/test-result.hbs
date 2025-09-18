@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลการทดสอบ - {{testTitle}}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: {{#if passed}}linear-gradient(135deg, #4facfe 0%, #00f2fe 100%){{else}}linear-gradient(135deg, #fa709a 0%, #fee140 100%){{/if}};
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .content p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .btn {
+            display: inline-block;
+            background: {{#if passed}}linear-gradient(135deg, #4facfe 0%, #00f2fe 100%){{else}}linear-gradient(135deg, #fa709a 0%, #fee140 100%){{/if}};
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            margin: 20px 10px;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+        .result-card {
+            background: {{#if passed}}#e8f5e8{{else}}#ffeaea{{/if}};
+            border: 1px solid {{#if passed}}#4caf50{{else}}#f44336{{/if}};
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: {{#if passed}}linear-gradient(135deg, #4caf50, #8bc34a){{else}}linear-gradient(135deg, #f44336, #ff9800){{/if}};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+            background: {{#if passed}}#4caf50{{else}}#f44336{{/if}};
+            margin: 10px 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{#if passed}}🎉 ยินดีด้วย!{{else}}📚 ลองใหม่อีกครั้ง{{/if}}</h1>
+        </div>
+
+        <div class="content">
+            <h2>สวัสดี {{name}}</h2>
+
+            <p>ผลการทดสอบ <strong>{{testTitle}}</strong> ของคุณออกมาแล้ว</p>
+
+            <div class="result-card">
+                <div class="score-circle">
+                    {{percentage}}%
+                </div>
+
+                <h3>{{#if passed}}ผ่านการทดสอบ{{else}}ไม่ผ่านการทดสอบ{{/if}}</h3>
+                <div class="status-badge">
+                    {{#if passed}}PASSED{{else}}FAILED{{/if}}
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">{{score}}</div>
+                        <div class="stat-label">คะแนนที่ได้</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{totalScore}}</div>
+                        <div class="stat-label">คะแนนเต็ม</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{passingScore}}</div>
+                        <div class="stat-label">คะแนนผ่าน</div>
+                    </div>
+                </div>
+            </div>
+
+            <p><strong>วันที่ทำการทดสอบ:</strong> {{completedAt}}</p>
+
+            {{#if passed}}
+                <p>🎊 ขอแสดงความยินดี! คุณผ่านการทดสอบเรียบร้อยแล้ว</p>
+
+                {{#if certificateUrl}}
+                    <p>คุณสามารถดาวน์โหลดใบประกาศนียบัตรได้แล้ว:</p>
+                    <p style="text-align: center;">
+                        <a href="{{certificateUrl}}" class="btn">ดาวน์โหลดใบประกาศนียบัตร</a>
+                    </p>
+                {{/if}}
+            {{else}}
+                <p>💪 อย่าท้อแท้! คุณสามารถทบทวนเนื้อหาและทำการทดสอบใหม่ได้</p>
+
+                <h4>คำแนะนำสำหรับการเตรียมตัว:</h4>
+                <ul>
+                    <li>ทบทวนเนื้อหาส่วนที่ยังไม่เข้าใจ</li>
+                    <li>ฝึกทำแบบทดสอบเพิ่มเติม</li>
+                    <li>ศึกษาจากตัวอย่างและกรณีศึกษา</li>
+                    <li>ปรึกษาผู้สอนหากมีข้อสงสัย</li>
+                </ul>
+            {{/if}}
+
+            <p style="text-align: center;">
+                <a href="{{testUrl}}" class="btn">ดูรายละเอียดผลการทดสอบ</a>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>หากคุณมีคำถามเกี่ยวกับผลการทดสอบ กรุณาติดต่อผู้สอนหรือแอดมิน</p>
+            <p>© 2024 Ruxchai LearnHub. สงวนลิขสิทธิ์.</p>
+        </div>
+    </div>
+</body>
+</html>

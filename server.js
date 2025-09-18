@@ -5,6 +5,8 @@ const path = require('path');
 const morgan = require('morgan');
 const compression = require('compression');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
 
 // Import middleware
@@ -24,6 +26,18 @@ const reportRoutes = require('./routes/reportRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: process.env.NODE_ENV === 'production'
+            ? ["https://your-domain.com"]
+            : ["http://localhost:3000"],
+        methods: ["GET", "POST"],
+        credentials: true
+    },
+    transports: ['websocket', 'polling']
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Trust proxy for accurate IP addresses
@@ -203,8 +217,167 @@ app.use((req, res) => {
     }
 });
 
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+    console.log('👤 User connected:', socket.id);
+
+    // Join user to their personal room for private notifications
+    socket.on('join-user-room', (userId) => {
+        if (userId) {
+            socket.join(`user-${userId}`);
+            console.log(`👤 User ${userId} joined personal room`);
+        }
+    });
+
+    // Join department room for department-wide notifications
+    socket.on('join-department-room', (departmentId) => {
+        if (departmentId) {
+            socket.join(`dept-${departmentId}`);
+            console.log(`🏢 User joined department ${departmentId} room`);
+        }
+    });
+
+    // Handle dashboard data requests
+    socket.on('request-dashboard-data', async (userId) => {
+        try {
+            const dashboardData = await getDashboardData(userId);
+            socket.emit('dashboard-data', dashboardData);
+        } catch (error) {
+            console.error('Dashboard data error:', error);
+            socket.emit('dashboard-error', { message: 'Failed to load dashboard data' });
+        }
+    });
+
+    // Handle test-taking events
+    socket.on('test-start', (data) => {
+        socket.join(`test-${data.testId}`);
+        socket.emit('test-started', { testId: data.testId, startTime: new Date() });
+    });
+
+    socket.on('test-submit', (data) => {
+        socket.leave(`test-${data.testId}`);
+        socket.emit('test-submitted', { testId: data.testId, submitTime: new Date() });
+    });
+
+    // Handle activity tracking
+    socket.on('user-activity', (data) => {
+        // Broadcast user activity to department
+        if (data.departmentId) {
+            socket.to(`dept-${data.departmentId}`).emit('department-activity', {
+                userId: data.userId,
+                activity: data.activity,
+                timestamp: new Date()
+            });
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('👤 User disconnected:', socket.id);
+    });
+});
+
+// Real-time dashboard data function
+async function getDashboardData(userId) {
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('userId', userId)
+            .query(`
+                SELECT
+                    (SELECT COUNT(*) FROM Courses WHERE status = 'active') as totalCourses,
+                    (SELECT COUNT(*) FROM Tests WHERE status = 'active') as totalTests,
+                    (SELECT COUNT(*) FROM Users WHERE isActive = 1) as totalUsers,
+                    (SELECT COUNT(*) FROM UserCourses WHERE userId = @userId AND status = 'completed') as completedCourses,
+                    (SELECT COUNT(*) FROM TestResults WHERE userId = @userId) as completedTests,
+                    (SELECT AVG(CAST(score AS FLOAT)) FROM TestResults WHERE userId = @userId) as averageScore,
+                    (SELECT COUNT(*) FROM Notifications WHERE userId = @userId AND isRead = 0) as unreadNotifications
+            `);
+
+        const stats = result.recordset[0];
+
+        // Get recent activities
+        const activitiesResult = await pool.request()
+            .input('userId', userId)
+            .query(`
+                SELECT TOP 10
+                    activityType,
+                    description,
+                    createdAt,
+                    metadata
+                FROM UserActivities
+                WHERE userId = @userId
+                ORDER BY createdAt DESC
+            `);
+
+        // Get upcoming tests
+        const testsResult = await pool.request()
+            .input('userId', userId)
+            .query(`
+                SELECT TOP 5
+                    t.testId,
+                    t.title,
+                    t.startDate,
+                    t.endDate,
+                    c.title as courseTitle
+                FROM Tests t
+                INNER JOIN Courses c ON t.courseId = c.courseId
+                LEFT JOIN TestResults tr ON t.testId = tr.testId AND tr.userId = @userId
+                WHERE t.status = 'active'
+                AND t.startDate <= GETDATE()
+                AND t.endDate >= GETDATE()
+                AND tr.testId IS NULL
+                ORDER BY t.startDate ASC
+            `);
+
+        // Get progress data
+        const progressResult = await pool.request()
+            .input('userId', userId)
+            .query(`
+                SELECT
+                    c.title,
+                    uc.progress,
+                    uc.lastAccessDate
+                FROM UserCourses uc
+                INNER JOIN Courses c ON uc.courseId = c.courseId
+                WHERE uc.userId = @userId
+                AND uc.status IN ('in_progress', 'completed')
+                ORDER BY uc.lastAccessDate DESC
+            `);
+
+        return {
+            stats,
+            activities: activitiesResult.recordset,
+            upcomingTests: testsResult.recordset,
+            courseProgress: progressResult.recordset,
+            timestamp: new Date()
+        };
+    } catch (error) {
+        console.error('Dashboard data error:', error);
+        throw error;
+    }
+}
+
+// Broadcast functions for real-time updates
+function broadcastNotification(userId, notification) {
+    io.to(`user-${userId}`).emit('new-notification', notification);
+}
+
+function broadcastDepartmentUpdate(departmentId, update) {
+    io.to(`dept-${departmentId}`).emit('department-update', update);
+}
+
+function broadcastTestUpdate(testId, update) {
+    io.to(`test-${testId}`).emit('test-update', update);
+}
+
+// Make Socket.IO accessible to routes
+app.set('io', io);
+app.set('broadcastNotification', broadcastNotification);
+app.set('broadcastDepartmentUpdate', broadcastDepartmentUpdate);
+app.set('broadcastTestUpdate', broadcastTestUpdate);
+
 // Start server
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 Ruxchai LearnHub Server is running on port ${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Local URL: http://localhost:${PORT}`);
@@ -222,17 +395,21 @@ const server = app.listen(PORT, () => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
     console.log('🛑 SIGTERM received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('✅ Process terminated');
-        process.exit(0);
+    io.close(() => {
+        server.close(() => {
+            console.log('✅ Process terminated');
+            process.exit(0);
+        });
     });
 });
 
 process.on('SIGINT', () => {
     console.log('\n🛑 SIGINT received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('✅ Process terminated');
-        process.exit(0);
+    io.close(() => {
+        server.close(() => {
+            console.log('✅ Process terminated');
+            process.exit(0);
+        });
     });
 });
 

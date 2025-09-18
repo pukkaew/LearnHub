@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยินดีต้อนรับสู่ Ruxchai LearnHub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .content p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            margin: 20px 0;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 ยินดีต้อนรับสู่ Ruxchai LearnHub</h1>
+        </div>
+
+        <div class="content">
+            <h2>สวัสดี {{name}}!</h2>
+
+            <p>ยินดีต้อนรับสู่ <strong>Ruxchai LearnHub</strong> - แพลตฟอร์มการเรียนรู้ออนไลน์ที่จะช่วยพัฒนาทักษะและความรู้ของคุณ</p>
+
+            <p>บัญชีของคุณได้ถูกสร้างเรียบร้อยแล้วด้วยอีเมล: <strong>{{email}}</strong></p>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">📚</div>
+                    <h4>หลักสูตรหลากหลาย</h4>
+                    <p>เรียนรู้จากหลักสูตรคุณภาพสูง</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🏆</div>
+                    <h4>ใบประกาศนียบัตร</h4>
+                    <p>รับใบประกาศนียบัตรเมื่อเรียนจบ</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h4>ติดตามความก้าวหน้า</h4>
+                    <p>ดูผลการเรียนแบบเรียลไทม์</p>
+                </div>
+            </div>
+
+            <p>เริ่มต้นการเรียนรู้ของคุณวันนี้!</p>
+
+            <p style="text-align: center;">
+                <a href="{{loginUrl}}" class="btn">เข้าสู่ระบบ</a>
+            </p>
+
+            <p><strong>เคล็ดลับการใช้งาน:</strong></p>
+            <ul>
+                <li>อัปเดตโปรไฟล์ของคุณให้ครบถ้วน</li>
+                <li>สำรวจหลักสูตรต่างๆ ที่เปิดให้ลงทะเบียน</li>
+                <li>ติดตามการแจ้งเตือนเพื่อไม่พลาดข้อมูลสำคัญ</li>
+                <li>ทำแบบทดสอบเพื่อวัดความเข้าใจ</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>หากคุณมีคำถามหรือต้องการความช่วยเหลือ กรุณาติดต่อ: <a href="mailto:{{supportEmail}}">{{supportEmail}}</a></p>
+            <p>© 2024 Ruxchai LearnHub. สงวนลิขสิทธิ์.</p>
+        </div>
+    </div>
+</body>
+</html>

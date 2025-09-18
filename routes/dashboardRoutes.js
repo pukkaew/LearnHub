@@ -15,6 +15,12 @@ router.get('/api/stats', dashboardController.getQuickStats);
 router.get('/api/notifications', dashboardController.getNotifications);
 router.get('/api/activities', dashboardController.getActivityLogs);
 router.get('/api/user-stats', dashboardController.getUserStats);
+router.get('/api/real-time-data', dashboardController.getRealTimeData);
+
+// Socket.io real-time endpoints
+router.post('/api/activity-tracking', dashboardController.trackUserActivity);
+router.get('/api/leaderboard', dashboardController.getLeaderboard);
+router.get('/api/upcoming-events', dashboardController.getUpcomingEvents);
 
 // Notification management
 router.put('/api/notifications/:notification_id/read', dashboardController.markNotificationAsRead);

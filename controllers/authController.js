@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const ActivityLog = require('../models/ActivityLog');
+const JWTUtils = require('../utils/jwtUtils');
+const { poolPromise } = require('../config/database');
 
 const authController = {
     async renderLogin(req, res) {
@@ -58,7 +60,61 @@ const authController = {
             await User.updateLastLogin(user.user_id, req.ip);
             await User.resetFailedLogin(user.user_id);
 
-            // Store user data in session
+            // Prepare user data for JWT
+            const userData = {
+                userId: user.user_id,
+                employeeId: user.employee_id,
+                email: user.email,
+                role: user.role_name,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                profileImage: user.profile_image,
+                departmentId: user.department_id,
+                positionId: user.position_id,
+                departmentName: user.department_name,
+                positionName: user.position_name,
+                isActive: user.is_active
+            };
+
+            // Generate JWT tokens
+            const tokens = JWTUtils.generateTokenPair(userData);
+
+            // Store refresh token in database
+            const pool = await poolPromise;
+            await pool.request()
+                .input('userId', user.user_id)
+                .input('refreshToken', tokens.refreshToken)
+                .input('expiresAt', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) // 7 days
+                .input('deviceInfo', JSON.stringify({
+                    userAgent: req.get('User-Agent'),
+                    ip: req.ip,
+                    fingerprint: JWTUtils.createFingerprint(req)
+                }))
+                .query(`
+                    INSERT INTO RefreshTokens (userId, token, expiresAt, deviceInfo, createdAt, isActive)
+                    VALUES (@userId, @refreshToken, @expiresAt, @deviceInfo, GETDATE(), 1)
+                `);
+
+            // Set cookies for web interface
+            const cookieOptions = {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict'
+            };
+
+            if (remember) {
+                cookieOptions.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+            } else {
+                cookieOptions.maxAge = 24 * 60 * 60 * 1000; // 24 hours
+            }
+
+            res.cookie('accessToken', tokens.accessToken, cookieOptions);
+            res.cookie('refreshToken', tokens.refreshToken, {
+                ...cookieOptions,
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days for refresh token
+            });
+
+            // Also store user data in session for compatibility
             req.session.user = {
                 user_id: user.user_id,
                 employee_id: user.employee_id,
@@ -73,20 +129,15 @@ const authController = {
                 position_name: user.position_name
             };
 
-            // Set session options
-            if (remember) {
-                req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
-            } else {
-                req.session.cookie.maxAge = 24 * 60 * 60 * 1000; // 24 hours
-            }
-
-            req.session.lastActivity = Date.now();
-
             await ActivityLog.logLogin(user.user_id, req.ip, req.get('User-Agent'), req.sessionID, true);
 
             res.json({
                 success: true,
                 message: 'เข้าสู่ระบบสำเร็จ',
+                data: {
+                    user: userData,
+                    tokens: tokens
+                },
                 redirectTo: '/dashboard'
             });
 
@@ -101,18 +152,35 @@ const authController = {
 
     async logout(req, res) {
         try {
-            const userId = req.session?.user?.user_id;
+            const userId = req.session?.user?.user_id || req.user?.userId;
+            const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
             if (userId) {
                 await ActivityLog.logLogout(userId, req.ip, req.get('User-Agent'), req.sessionID);
+
+                // Invalidate refresh token if it exists
+                if (refreshToken) {
+                    const pool = await poolPromise;
+                    await pool.request()
+                        .input('refreshToken', refreshToken)
+                        .input('userId', userId)
+                        .query(`
+                            UPDATE RefreshTokens
+                            SET isActive = 0, updatedAt = GETDATE()
+                            WHERE token = @refreshToken AND userId = @userId
+                        `);
+                }
             }
+
+            // Clear JWT cookies
+            res.clearCookie('accessToken');
+            res.clearCookie('refreshToken');
+            res.clearCookie('connect.sid'); // Clear session cookie
 
             req.session.destroy((err) => {
                 if (err) {
                     console.error('Session destroy error:', err);
                 }
-
-                res.clearCookie('connect.sid'); // Clear session cookie
 
                 if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
                     res.json({
@@ -502,6 +570,168 @@ const authController = {
             layout: 'auth',
             token: token
         });
+    },
+
+    // JWT-specific methods
+    async refreshToken(req, res) {
+        try {
+            const { refreshToken } = req.body;
+
+            if (!refreshToken) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'ไม่พบ Refresh Token',
+                    error: 'NO_REFRESH_TOKEN'
+                });
+            }
+
+            // Verify refresh token
+            const decoded = JWTUtils.verifyRefreshToken(refreshToken);
+
+            // Check if refresh token exists in database and is valid
+            const pool = await poolPromise;
+            const tokenResult = await pool.request()
+                .input('userId', decoded.userId)
+                .input('refreshToken', refreshToken)
+                .query(`
+                    SELECT rt.tokenId, rt.isActive, rt.expiresAt
+                    FROM RefreshTokens rt
+                    WHERE rt.userId = @userId
+                    AND rt.token = @refreshToken
+                    AND rt.isActive = 1
+                    AND rt.expiresAt > GETDATE()
+                `);
+
+            if (tokenResult.recordset.length === 0) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Refresh Token ไม่ถูกต้องหรือหมดอายุ',
+                    error: 'INVALID_REFRESH_TOKEN'
+                });
+            }
+
+            // Get user data
+            const userResult = await pool.request()
+                .input('userId', decoded.userId)
+                .query(`
+                    SELECT
+                        u.userId,
+                        u.email,
+                        u.firstName,
+                        u.lastName,
+                        u.role,
+                        u.departmentId,
+                        u.isActive
+                    FROM Users u
+                    WHERE u.userId = @userId AND u.isActive = 1
+                `);
+
+            if (userResult.recordset.length === 0) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'ผู้ใช้ไม่มีอยู่ในระบบ',
+                    error: 'USER_NOT_FOUND'
+                });
+            }
+
+            const user = userResult.recordset[0];
+
+            // Generate new token pair
+            const tokens = JWTUtils.generateTokenPair(user);
+
+            // Store new refresh token in database
+            await pool.request()
+                .input('userId', user.userId)
+                .input('refreshToken', tokens.refreshToken)
+                .input('expiresAt', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) // 7 days
+                .query(`
+                    INSERT INTO RefreshTokens (userId, token, expiresAt, createdAt, isActive)
+                    VALUES (@userId, @refreshToken, @expiresAt, GETDATE(), 1)
+                `);
+
+            // Invalidate old refresh token
+            await pool.request()
+                .input('refreshToken', refreshToken)
+                .query(`
+                    UPDATE RefreshTokens
+                    SET isActive = 0, updatedAt = GETDATE()
+                    WHERE token = @refreshToken
+                `);
+
+            res.json({
+                success: true,
+                message: 'ต่ออายุโทเคนเรียบร้อย',
+                data: tokens
+            });
+
+        } catch (error) {
+            console.error('Refresh token error:', error);
+            return res.status(401).json({
+                success: false,
+                message: 'ไม่สามารถต่ออายุโทเคนได้',
+                error: 'REFRESH_TOKEN_ERROR'
+            });
+        }
+    },
+
+    async generateApiKey(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { name, permissions, expiresIn } = req.body;
+
+            if (!name) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณาระบุชื่อ API Key'
+                });
+            }
+
+            const apiKey = JWTUtils.generateApiKey();
+            const expiresAt = expiresIn ? new Date(Date.now() + expiresIn * 24 * 60 * 60 * 1000) : null;
+
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('userId', userId)
+                .input('apiKey', apiKey)
+                .input('name', name)
+                .input('permissions', JSON.stringify(permissions || []))
+                .input('expiresAt', expiresAt)
+                .query(`
+                    INSERT INTO ApiKeys (userId, apiKey, name, permissions, expiresAt, createdAt, isActive)
+                    OUTPUT INSERTED.apiKeyId
+                    VALUES (@userId, @apiKey, @name, @permissions, @expiresAt, GETDATE(), 1)
+                `);
+
+            await ActivityLog.create({
+                user_id: userId,
+                action: 'API_Key_Generated',
+                table_name: 'api_keys',
+                record_id: result.recordset[0].apiKeyId,
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                description: `Generated API key: ${name}`,
+                severity: 'Info',
+                module: 'API'
+            });
+
+            res.json({
+                success: true,
+                message: 'สร้าง API Key เรียบร้อย',
+                data: {
+                    apiKeyId: result.recordset[0].apiKeyId,
+                    apiKey: apiKey,
+                    name: name,
+                    expiresAt: expiresAt
+                }
+            });
+
+        } catch (error) {
+            console.error('Generate API key error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการสร้าง API Key'
+            });
+        }
     }
 };
 

@@ -1,6 +1,7 @@
 const Dashboard = require('../models/Dashboard');
 const Notification = require('../models/Notification');
 const ActivityLog = require('../models/ActivityLog');
+const { poolPromise } = require('../config/database');
 
 const dashboardController = {
     async getDashboard(req, res) {
@@ -339,6 +340,203 @@ const dashboardController = {
             res.status(500).json({
                 success: false,
                 message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลสุขภาพระบบ'
+            });
+        }
+    },
+
+    async getRealTimeData(req, res) {
+        try {
+            const userId = req.user.userId;
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('userId', userId)
+                .query(`
+                    SELECT
+                        (SELECT COUNT(*) FROM Courses WHERE status = 'active') as totalCourses,
+                        (SELECT COUNT(*) FROM Tests WHERE status = 'active') as totalTests,
+                        (SELECT COUNT(*) FROM Users WHERE isActive = 1) as totalUsers,
+                        (SELECT COUNT(*) FROM UserCourses WHERE userId = @userId AND status = 'completed') as completedCourses,
+                        (SELECT COUNT(*) FROM TestResults WHERE userId = @userId) as completedTests,
+                        (SELECT AVG(CAST(score AS FLOAT)) FROM TestResults WHERE userId = @userId) as averageScore,
+                        (SELECT COUNT(*) FROM Notifications WHERE userId = @userId AND isRead = 0) as unreadNotifications
+                `);
+
+            res.json({
+                success: true,
+                data: result.recordset[0],
+                timestamp: new Date()
+            });
+
+        } catch (error) {
+            console.error('Get real-time data error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลแบบเรียลไทม์'
+            });
+        }
+    },
+
+    async trackUserActivity(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { activity, metadata } = req.body;
+            const io = req.app.get('io');
+            const broadcastDepartmentUpdate = req.app.get('broadcastDepartmentUpdate');
+
+            await ActivityLog.create({
+                user_id: userId,
+                action: activity.type,
+                table_name: activity.table || 'user_activity',
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                session_id: req.sessionID,
+                description: activity.description,
+                severity: 'Info',
+                module: activity.module || 'Dashboard',
+                metadata: JSON.stringify(metadata)
+            });
+
+            // Broadcast to user's department if applicable
+            if (req.user.departmentId) {
+                broadcastDepartmentUpdate(req.user.departmentId, {
+                    type: 'user-activity',
+                    userId: userId,
+                    activity: activity,
+                    timestamp: new Date()
+                });
+            }
+
+            res.json({
+                success: true,
+                message: 'บันทึกกิจกรรมเรียบร้อย'
+            });
+
+        } catch (error) {
+            console.error('Track user activity error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการบันทึกกิจกรรม'
+            });
+        }
+    },
+
+    async getLeaderboard(req, res) {
+        try {
+            const { type = 'points', limit = 10 } = req.query;
+            const pool = await poolPromise;
+
+            let query = '';
+            if (type === 'points') {
+                query = `
+                    SELECT TOP ${parseInt(limit)}
+                        u.userId,
+                        u.firstName,
+                        u.lastName,
+                        u.profileImage,
+                        up.totalPoints,
+                        up.currentLevel,
+                        d.name as departmentName
+                    FROM Users u
+                    LEFT JOIN UserProfiles up ON u.userId = up.userId
+                    LEFT JOIN Departments d ON u.departmentId = d.departmentId
+                    WHERE u.isActive = 1
+                    ORDER BY up.totalPoints DESC
+                `;
+            } else if (type === 'tests') {
+                query = `
+                    SELECT TOP ${parseInt(limit)}
+                        u.userId,
+                        u.firstName,
+                        u.lastName,
+                        u.profileImage,
+                        COUNT(tr.testResultId) as completedTests,
+                        AVG(CAST(tr.score AS FLOAT)) as averageScore,
+                        d.name as departmentName
+                    FROM Users u
+                    LEFT JOIN TestResults tr ON u.userId = tr.userId
+                    LEFT JOIN Departments d ON u.departmentId = d.departmentId
+                    WHERE u.isActive = 1
+                    GROUP BY u.userId, u.firstName, u.lastName, u.profileImage, d.name
+                    ORDER BY COUNT(tr.testResultId) DESC, AVG(CAST(tr.score AS FLOAT)) DESC
+                `;
+            }
+
+            const result = await pool.request().query(query);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+
+        } catch (error) {
+            console.error('Get leaderboard error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดลีดเดอร์บอร์ด'
+            });
+        }
+    },
+
+    async getUpcomingEvents(req, res) {
+        try {
+            const userId = req.user.userId;
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('userId', userId)
+                .query(`
+                    SELECT TOP 10
+                        'test' as eventType,
+                        t.testId as eventId,
+                        t.title,
+                        t.description,
+                        t.startDate as eventDate,
+                        t.endDate,
+                        c.title as courseName,
+                        'fas fa-clipboard-check' as icon,
+                        'bg-blue-100 text-blue-800' as badgeClass
+                    FROM Tests t
+                    INNER JOIN Courses c ON t.courseId = c.courseId
+                    LEFT JOIN UserCourses uc ON c.courseId = uc.courseId AND uc.userId = @userId
+                    LEFT JOIN TestResults tr ON t.testId = tr.testId AND tr.userId = @userId
+                    WHERE t.status = 'active'
+                    AND t.startDate > GETDATE()
+                    AND (uc.userId IS NOT NULL OR c.isPublic = 1)
+                    AND tr.testId IS NULL
+
+                    UNION ALL
+
+                    SELECT TOP 10
+                        'course' as eventType,
+                        c.courseId as eventId,
+                        c.title,
+                        c.description,
+                        c.startDate as eventDate,
+                        c.endDate,
+                        NULL as courseName,
+                        'fas fa-book' as icon,
+                        'bg-green-100 text-green-800' as badgeClass
+                    FROM Courses c
+                    LEFT JOIN UserCourses uc ON c.courseId = uc.courseId AND uc.userId = @userId
+                    WHERE c.status = 'active'
+                    AND c.startDate > GETDATE()
+                    AND (uc.userId IS NULL OR uc.status = 'not_started')
+                    AND (c.isPublic = 1 OR uc.userId IS NOT NULL)
+
+                    ORDER BY eventDate ASC
+                `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+
+        } catch (error) {
+            console.error('Get upcoming events error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดกิจกรรมที่กำลังจะมาถึง'
             });
         }
     }

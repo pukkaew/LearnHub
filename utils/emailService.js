@@ -1,357 +1,313 @@
 const nodemailer = require('nodemailer');
+const handlebars = require('handlebars');
 const fs = require('fs').promises;
 const path = require('path');
 
 class EmailService {
     constructor() {
         this.transporter = null;
-        this.initializeTransporter();
+        this.templates = new Map();
+        this.init();
     }
 
-    initializeTransporter() {
-        this.transporter = nodemailer.createTransporter({
-            host: process.env.SMTP_HOST || 'localhost',
-            port: process.env.SMTP_PORT || 587,
-            secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            },
-            tls: {
-                rejectUnauthorized: false
+    async init() {
+        try {
+            // Create transporter based on environment
+            if (process.env.NODE_ENV === 'production') {
+                // Production: Use real SMTP service
+                this.transporter = nodemailer.createTransporter({
+                    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+                    port: parseInt(process.env.SMTP_PORT) || 587,
+                    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS
+                    },
+                    tls: {
+                        rejectUnauthorized: false
+                    }
+                });
+            } else {
+                // Development: Use Ethereal Email for testing
+                const testAccount = await nodemailer.createTestAccount();
+                this.transporter = nodemailer.createTransporter({
+                    host: 'smtp.ethereal.email',
+                    port: 587,
+                    secure: false,
+                    auth: {
+                        user: testAccount.user,
+                        pass: testAccount.pass
+                    }
+                });
+                console.log('📧 Email service initialized with test account:', testAccount.user);
             }
+
+            // Verify transporter
+            await this.transporter.verify();
+            console.log('📧 Email service is ready');
+
+            // Preload templates
+            await this.loadTemplates();
+
+        } catch (error) {
+            console.error('❌ Email service initialization failed:', error);
+            this.transporter = null;
+        }
+    }
+
+    async loadTemplates() {
+        const templatesDir = path.join(__dirname, '../email-templates');
+
+        try {
+            const templateFiles = await fs.readdir(templatesDir);
+
+            for (const file of templateFiles) {
+                if (file.endsWith('.hbs')) {
+                    const templateName = path.basename(file, '.hbs');
+                    const templatePath = path.join(templatesDir, file);
+                    const templateContent = await fs.readFile(templatePath, 'utf-8');
+                    const compiledTemplate = handlebars.compile(templateContent);
+                    this.templates.set(templateName, compiledTemplate);
+                }
+            }
+
+            console.log(`📧 Loaded ${this.templates.size} email templates`);
+        } catch (error) {
+            console.warn('⚠️ Could not load email templates:', error.message);
+        }
+    }
+
+    async sendEmail(options) {
+        if (!this.transporter) {
+            throw new Error('Email service not initialized');
+        }
+
+        const defaultOptions = {
+            from: process.env.SMTP_FROM || '"Ruxchai LearnHub" <noreply@ruxchai.com>',
+        };
+
+        const mailOptions = { ...defaultOptions, ...options };
+
+        try {
+            const info = await this.transporter.sendMail(mailOptions);
+
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(info));
+            }
+
+            return {
+                success: true,
+                messageId: info.messageId,
+                previewUrl: process.env.NODE_ENV !== 'production' ? nodemailer.getTestMessageUrl(info) : null
+            };
+        } catch (error) {
+            console.error('❌ Email send failed:', error);
+            throw error;
+        }
+    }
+
+    async sendTemplateEmail(templateName, to, subject, data) {
+        const template = this.templates.get(templateName);
+
+        if (!template) {
+            throw new Error(`Template '${templateName}' not found`);
+        }
+
+        const html = template(data);
+
+        return await this.sendEmail({
+            to,
+            subject,
+            html
         });
     }
 
-    async loadTemplate(templateName, variables = {}) {
-        try {
-            const templatePath = path.join(__dirname, '../templates/email', `${templateName}.html`);
-            let template = await fs.readFile(templatePath, 'utf8');
-
-            // Replace variables in template
-            Object.keys(variables).forEach(key => {
-                const regex = new RegExp(`{{${key}}}`, 'g');
-                template = template.replace(regex, variables[key]);
-            });
-
-            return template;
-        } catch (error) {
-            console.error('Error loading email template:', error);
-            return null;
-        }
-    }
-
+    // Specific email methods
     async sendWelcomeEmail(user) {
-        try {
-            const template = await this.loadTemplate('welcome', {
-                name: `${user.first_name} ${user.last_name}`,
-                email: user.email,
-                login_url: `${process.env.APP_URL}/login`,
-                company_name: 'Ruxchai Learning Hub',
-                support_email: process.env.SUPPORT_EMAIL || 'support@ruxchai.com'
-            });
-
-            if (!template) {
-                throw new Error('Welcome email template not found');
-            }
-
-            const mailOptions = {
-                from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                to: user.email,
-                subject: 'ยินดีต้อนรับสู่ Ruxchai Learning Hub',
-                html: template
-            };
-
-            await this.transporter.sendMail(mailOptions);
-            console.log('Welcome email sent successfully to:', user.email);
-            return true;
-        } catch (error) {
-            console.error('Error sending welcome email:', error);
-            return false;
-        }
+        return await this.sendTemplateEmail('welcome', user.email, 'ยินดีต้อนรับสู่ Ruxchai LearnHub', {
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            loginUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/login`,
+            supportEmail: process.env.SUPPORT_EMAIL || 'support@ruxchai.com'
+        });
     }
 
     async sendPasswordResetEmail(user, resetToken) {
-        try {
-            const resetUrl = `${process.env.APP_URL}/reset-password?token=${resetToken}`;
+        const resetUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
-            const template = await this.loadTemplate('password-reset', {
-                name: `${user.first_name} ${user.last_name}`,
-                reset_url: resetUrl,
-                expiry_time: '1 ชั่วโมง',
-                support_email: process.env.SUPPORT_EMAIL || 'support@ruxchai.com'
-            });
-
-            if (!template) {
-                throw new Error('Password reset email template not found');
-            }
-
-            const mailOptions = {
-                from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                to: user.email,
-                subject: 'รีเซ็ตรหัสผ่าน - Ruxchai Learning Hub',
-                html: template
-            };
-
-            await this.transporter.sendMail(mailOptions);
-            console.log('Password reset email sent successfully to:', user.email);
-            return true;
-        } catch (error) {
-            console.error('Error sending password reset email:', error);
-            return false;
-        }
+        return await this.sendTemplateEmail('password-reset', user.email, 'รีเซ็ตรหัสผ่าน - Ruxchai LearnHub', {
+            name: `${user.firstName} ${user.lastName}`,
+            resetUrl,
+            expiryTime: '1 ชั่วโมง',
+            supportEmail: process.env.SUPPORT_EMAIL || 'support@ruxchai.com'
+        });
     }
 
     async sendCourseEnrollmentEmail(user, course) {
-        try {
-            const template = await this.loadTemplate('course-enrollment', {
-                name: `${user.first_name} ${user.last_name}`,
-                course_title: course.title,
-                course_description: course.description,
-                course_url: `${process.env.APP_URL}/courses/${course.course_id}`,
-                instructor: course.instructor_name || 'ทีมผู้สอน',
-                start_date: this.formatDate(course.start_date)
-            });
-
-            if (!template) {
-                throw new Error('Course enrollment email template not found');
-            }
-
-            const mailOptions = {
-                from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                to: user.email,
-                subject: `ลงทะเบียนคอร์ส "${course.title}" เรียบร้อยแล้ว`,
-                html: template
-            };
-
-            await this.transporter.sendMail(mailOptions);
-            console.log('Course enrollment email sent successfully to:', user.email);
-            return true;
-        } catch (error) {
-            console.error('Error sending course enrollment email:', error);
-            return false;
-        }
+        return await this.sendTemplateEmail('course-enrollment', user.email, `ลงทะเบียนเรียนหลักสูตร: ${course.title}`, {
+            name: `${user.firstName} ${user.lastName}`,
+            courseTitle: course.title,
+            courseDescription: course.description,
+            courseUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/courses/${course.courseId}`,
+            startDate: course.startDate ? new Date(course.startDate).toLocaleDateString('th-TH') : 'ยังไม่กำหนด'
+        });
     }
 
-    async sendTestInvitationEmail(applicant, test) {
-        try {
-            const template = await this.loadTemplate('test-invitation', {
-                name: `${applicant.first_name} ${applicant.last_name}`,
-                position_title: applicant.position_title,
-                test_title: test.title,
-                test_url: `${process.env.APP_URL}/applicants/test/${test.test_id}?token=${applicant.test_token}`,
-                time_limit: test.time_limit,
-                passing_score: test.passing_score,
-                instructions: test.instructions || 'กรุณาอ่านคำแนะนำการทำข้อสอบให้ครบถ้วนก่อนเริ่มทำ',
-                deadline: this.formatDate(applicant.test_deadline)
-            });
-
-            if (!template) {
-                throw new Error('Test invitation email template not found');
-            }
-
-            const mailOptions = {
-                from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                to: applicant.email,
-                subject: `เชิญทำข้อสอบสำหรับตำแหน่ง ${applicant.position_title}`,
-                html: template
-            };
-
-            await this.transporter.sendMail(mailOptions);
-            console.log('Test invitation email sent successfully to:', applicant.email);
-            return true;
-        } catch (error) {
-            console.error('Error sending test invitation email:', error);
-            return false;
-        }
+    async sendTestNotificationEmail(user, test, course) {
+        return await this.sendTemplateEmail('test-notification', user.email, `การทดสอบใหม่: ${test.title}`, {
+            name: `${user.firstName} ${user.lastName}`,
+            testTitle: test.title,
+            testDescription: test.description,
+            courseTitle: course.title,
+            testUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/tests/${test.testId}`,
+            startDate: test.startDate ? new Date(test.startDate).toLocaleDateString('th-TH') : 'ยังไม่กำหนด',
+            endDate: test.endDate ? new Date(test.endDate).toLocaleDateString('th-TH') : 'ยังไม่กำหนด',
+            duration: test.duration ? `${test.duration} นาที` : 'ไม่จำกัดเวลา'
+        });
     }
 
-    async sendTestResultEmail(applicant, result) {
-        try {
-            const template = await this.loadTemplate('test-result', {
-                name: `${applicant.first_name} ${applicant.last_name}`,
-                position_title: applicant.position_title,
-                test_title: result.test_title,
-                score: result.score,
-                passing_score: result.passing_score,
-                passed: result.passed ? 'ผ่าน' : 'ไม่ผ่าน',
-                result_url: `${process.env.APP_URL}/applicants/results/${result.result_id}`,
-                next_steps: result.passed ?
-                    'ทีมงาน HR จะติดต่อกลับภายใน 3-5 วันทำการ' :
-                    'ขอบคุณสำหรับความสนใจ หากมีโอกาสในอนาคตเราจะติดต่อกลับ'
-            });
+    async sendTestResultEmail(user, test, result) {
+        const passed = result.score >= test.passingScore;
 
-            if (!template) {
-                throw new Error('Test result email template not found');
-            }
-
-            const mailOptions = {
-                from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                to: applicant.email,
-                subject: `ผลการทดสอบสำหรับตำแหน่ง ${applicant.position_title}`,
-                html: template
-            };
-
-            await this.transporter.sendMail(mailOptions);
-            console.log('Test result email sent successfully to:', applicant.email);
-            return true;
-        } catch (error) {
-            console.error('Error sending test result email:', error);
-            return false;
-        }
+        return await this.sendTemplateEmail('test-result', user.email, `ผลการทดสอบ: ${test.title}`, {
+            name: `${user.firstName} ${user.lastName}`,
+            testTitle: test.title,
+            score: result.score,
+            totalScore: test.totalScore,
+            percentage: Math.round((result.score / test.totalScore) * 100),
+            passed,
+            passingScore: test.passingScore,
+            completedAt: new Date(result.completedAt).toLocaleDateString('th-TH'),
+            testUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/tests/${test.testId}/results/${result.testResultId}`,
+            certificateUrl: passed && test.certificateTemplate ?
+                `${process.env.BASE_URL || 'http://localhost:3000'}/certificates/${result.testResultId}` : null
+        });
     }
 
-    async sendCertificateEmail(user, certificate) {
-        try {
-            const template = await this.loadTemplate('certificate', {
-                name: `${user.first_name} ${user.last_name}`,
-                course_title: certificate.course_title,
-                completion_date: this.formatDate(certificate.completion_date),
-                certificate_url: `${process.env.APP_URL}/certificates/${certificate.certificate_id}`,
-                certificate_number: certificate.certificate_number
-            });
-
-            if (!template) {
-                throw new Error('Certificate email template not found');
-            }
-
-            const mailOptions = {
-                from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                to: user.email,
-                subject: `ใบประกาศนียบัตรสำหรับคอร์ส "${certificate.course_title}"`,
-                html: template
-            };
-
-            await this.transporter.sendMail(mailOptions);
-            console.log('Certificate email sent successfully to:', user.email);
-            return true;
-        } catch (error) {
-            console.error('Error sending certificate email:', error);
-            return false;
-        }
+    async sendCertificateEmail(user, certificate, course) {
+        return await this.sendTemplateEmail('certificate', user.email, `ใบประกาศนียบัตร: ${course.title}`, {
+            name: `${user.firstName} ${user.lastName}`,
+            courseTitle: course.title,
+            certificateId: certificate.certificateId,
+            issueDate: new Date(certificate.issueDate).toLocaleDateString('th-TH'),
+            certificateUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/certificates/${certificate.certificateId}`,
+            downloadUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/certificates/${certificate.certificateId}/download`
+        });
     }
 
     async sendNotificationEmail(user, notification) {
-        try {
-            const template = await this.loadTemplate('notification', {
-                name: `${user.first_name} ${user.last_name}`,
-                title: notification.title,
-                message: notification.message,
-                action_url: notification.action_url,
-                action_text: notification.action_text || 'ดูรายละเอียด'
-            });
+        let templateName = 'notification';
+        let subject = notification.title;
 
-            if (!template) {
-                throw new Error('Notification email template not found');
+        // Choose template based on notification type
+        switch (notification.type) {
+            case 'announcement':
+                templateName = 'announcement';
+                break;
+            case 'reminder':
+                templateName = 'reminder';
+                break;
+            case 'achievement':
+                templateName = 'achievement';
+                break;
+        }
+
+        return await this.sendTemplateEmail(templateName, user.email, subject, {
+            name: `${user.firstName} ${user.lastName}`,
+            title: notification.title,
+            message: notification.message,
+            actionUrl: notification.actionUrl,
+            actionText: notification.actionText || 'ดูรายละเอียด',
+            createdAt: new Date(notification.createdAt).toLocaleDateString('th-TH')
+        });
+    }
+
+    async sendBulkEmail(recipients, subject, templateName, data) {
+        const results = [];
+
+        for (const recipient of recipients) {
+            try {
+                const personalizedData = {
+                    ...data,
+                    name: `${recipient.firstName} ${recipient.lastName}`,
+                    email: recipient.email
+                };
+
+                const result = await this.sendTemplateEmail(templateName, recipient.email, subject, personalizedData);
+                results.push({ email: recipient.email, success: true, result });
+            } catch (error) {
+                results.push({ email: recipient.email, success: false, error: error.message });
             }
-
-            const mailOptions = {
-                from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                to: user.email,
-                subject: notification.title,
-                html: template
-            };
-
-            await this.transporter.sendMail(mailOptions);
-            console.log('Notification email sent successfully to:', user.email);
-            return true;
-        } catch (error) {
-            console.error('Error sending notification email:', error);
-            return false;
         }
+
+        return results;
     }
 
-    async sendBulkEmail(recipients, subject, template, variables = {}) {
-        try {
-            const emailPromises = recipients.map(async (recipient) => {
-                try {
-                    const personalizedVariables = {
-                        ...variables,
-                        name: `${recipient.first_name} ${recipient.last_name}`,
-                        email: recipient.email
-                    };
+    async sendAdminNotificationEmail(subject, message, data = {}) {
+        const adminEmails = process.env.ADMIN_EMAILS ?
+            process.env.ADMIN_EMAILS.split(',') :
+            ['admin@ruxchai.com'];
 
-                    const htmlContent = await this.loadTemplate(template, personalizedVariables);
-
-                    if (!htmlContent) {
-                        throw new Error(`Template ${template} not found`);
-                    }
-
-                    const mailOptions = {
-                        from: `"Ruxchai Learning Hub" <${process.env.SMTP_FROM}>`,
-                        to: recipient.email,
-                        subject: subject,
-                        html: htmlContent
-                    };
-
-                    await this.transporter.sendMail(mailOptions);
-                    return { email: recipient.email, status: 'sent' };
-                } catch (error) {
-                    console.error(`Error sending email to ${recipient.email}:`, error);
-                    return { email: recipient.email, status: 'failed', error: error.message };
-                }
-            });
-
-            const results = await Promise.all(emailPromises);
-
-            const summary = {
-                total: results.length,
-                sent: results.filter(r => r.status === 'sent').length,
-                failed: results.filter(r => r.status === 'failed').length,
-                results: results
-            };
-
-            console.log('Bulk email send summary:', summary);
-            return summary;
-        } catch (error) {
-            console.error('Error sending bulk email:', error);
-            return {
-                total: recipients.length,
-                sent: 0,
-                failed: recipients.length,
-                error: error.message
-            };
-        }
+        return await this.sendEmail({
+            to: adminEmails,
+            subject: `[Admin] ${subject}`,
+            html: `
+                <h2>${subject}</h2>
+                <p>${message}</p>
+                ${data.details ? `<pre>${JSON.stringify(data.details, null, 2)}</pre>` : ''}
+                <hr>
+                <p><small>ส่งจากระบบ Ruxchai LearnHub เมื่อ ${new Date().toLocaleString('th-TH')}</small></p>
+            `
+        });
     }
 
-    async verifyConnection() {
+    async testConnection() {
+        if (!this.transporter) {
+            throw new Error('Email service not initialized');
+        }
+
         try {
             await this.transporter.verify();
-            console.log('SMTP connection verified successfully');
-            return true;
+            return { success: true, message: 'Email service is working' };
         } catch (error) {
-            console.error('SMTP connection verification failed:', error);
-            return false;
+            return { success: false, message: error.message };
         }
     }
 
-    formatDate(date) {
-        if (!date) return '';
+    // Queue system for high-volume emails
+    emailQueue = [];
+    processing = false;
 
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            timeZone: 'Asia/Bangkok'
-        };
+    async queueEmail(emailData) {
+        this.emailQueue.push(emailData);
 
-        return new Date(date).toLocaleDateString('th-TH', options);
+        if (!this.processing) {
+            this.processQueue();
+        }
     }
 
-    formatDateTime(date) {
-        if (!date) return '';
+    async processQueue() {
+        this.processing = true;
 
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: 'Asia/Bangkok'
-        };
+        while (this.emailQueue.length > 0) {
+            const emailData = this.emailQueue.shift();
 
-        return new Date(date).toLocaleDateString('th-TH', options);
+            try {
+                await this.sendEmail(emailData);
+                console.log(`📧 Queued email sent to: ${emailData.to}`);
+
+                // Rate limiting: wait 100ms between emails
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (error) {
+                console.error(`📧 Queued email failed for: ${emailData.to}`, error);
+            }
+        }
+
+        this.processing = false;
     }
 }
 
-module.exports = new EmailService();
+// Singleton instance
+const emailService = new EmailService();
+
+module.exports = emailService;
