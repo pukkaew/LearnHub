@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Ruxchai LearnHub - ระบบสอบออนไลน์' %></title>
+
+    <!-- Prevent caching for security -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- CSS -->
+    <link href="/css/tailwind.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Security headers to prevent cheating -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
+    <style>
+        /* Disable common cheating methods */
+        * {
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Allow selection only in input fields */
+        input, textarea, [contenteditable="true"] {
+            -webkit-user-select: text;
+            -khtml-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Hide context menu */
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Prevent printing */
+        @media print {
+            body {
+                display: none;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Ruxchai branding */
+        .ruxchai-primary {
+            color: #2563eb;
+        }
+
+        .ruxchai-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        }
+
+        /* Full screen mode styles */
+        .fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            background: white !important;
+        }
+
+        /* Security warning overlay */
+        .security-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(239, 68, 68, 0.9);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Security Warning (hidden by default) -->
+    <div id="security-warning" class="security-overlay hidden">
+        <div class="text-center">
+            <i class="fas fa-shield-alt text-6xl mb-4"></i>
+            <div class="text-2xl mb-2">ตรวจพบการกระทำที่ไม่เหมาะสม</div>
+            <div class="text-lg">กรุณาปฏิบัติตามกฎการสอบ</div>
+        </div>
+    </div>
+
+    <!-- Test Taking Content -->
+    <%- body %>
+
+    <!-- Global JavaScript -->
+    <script>
+        // Global security monitoring
+        let securityViolations = 0;
+        let isTestActive = false;
+        let tabSwitchCount = 0;
+        let windowBlurCount = 0;
+
+        // Disable common cheating shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Ctrl+P, etc.
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.key === 's') ||
+                (e.ctrlKey && e.key === 'p') ||
+                (e.ctrlKey && e.key === 'r') ||
+                e.key === 'F5'
+            ) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isTestActive) {
+                    logSecurityViolation('keyboard_shortcut', `Attempted to use: ${e.key}`);
+                }
+                return false;
+            }
+        });
+
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            if (isTestActive) {
+                logSecurityViolation('right_click', 'Right-click attempted');
+            }
+            return false;
+        });
+
+        // Monitor tab switching
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isTestActive) {
+                tabSwitchCount++;
+                logSecurityViolation('tab_switch', `Tab switch #${tabSwitchCount}`);
+                showSecurityWarning('ตรวจพบการเปลี่ยนแท็บ');
+            }
+        });
+
+        // Monitor window blur (losing focus)
+        window.addEventListener('blur', function() {
+            if (isTestActive) {
+                windowBlurCount++;
+                logSecurityViolation('window_blur', `Window blur #${windowBlurCount}`);
+                showSecurityWarning('ตรวจพบการออกจากหน้าต่างการสอบ');
+            }
+        });
+
+        // Disable text selection on specific elements
+        document.addEventListener('selectstart', function(e) {
+            if (e.target.classList.contains('no-select') || e.target.closest('.no-select')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Monitor copy attempts
+        document.addEventListener('copy', function(e) {
+            if (isTestActive) {
+                logSecurityViolation('copy_attempt', 'Copy operation attempted');
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Monitor paste attempts
+        document.addEventListener('paste', function(e) {
+            if (isTestActive && !e.target.matches('input, textarea, [contenteditable="true"]')) {
+                logSecurityViolation('paste_attempt', 'Paste operation attempted');
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Functions for security monitoring
+        function logSecurityViolation(type, details) {
+            securityViolations++;
+
+            // Send to server
+            fetch('/tests/api/security-violation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: type,
+                    details: details,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
+                })
+            }).catch(console.error);
+
+            // Show warning after multiple violations
+            if (securityViolations >= 3) {
+                showSecurityWarning('ตรวจพบการกระทำที่ไม่เหมาะสมหลายครั้ง');
+            }
+        }
+
+        function showSecurityWarning(message) {
+            const warning = document.getElementById('security-warning');
+            if (warning) {
+                warning.querySelector('.text-lg').textContent = message;
+                warning.classList.remove('hidden');
+
+                setTimeout(() => {
+                    warning.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // Fullscreen monitoring
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+
+        // Monitor fullscreen changes
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && isTestActive) {
+                logSecurityViolation('exit_fullscreen', 'Exited fullscreen mode');
+                showSecurityWarning('กรุณาเข้าสู่โหมดเต็มจอ');
+            }
+        });
+
+        // Global utility functions
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' :
+                           type === 'error' ? 'bg-red-500' :
+                           type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+
+            toast.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation' : 'info'}-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Slide in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+
+            // Slide out and remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Prevent page unload during test
+        window.addEventListener('beforeunload', function(e) {
+            if (isTestActive) {
+                const message = 'คุณแน่ใจหรือไม่ที่จะออกจากการสอบ? ความคืบหน้าจะถูกบันทึกไว้';
+                e.returnValue = message;
+                return message;
+            }
+        });
+
+        // Initialize test security
+        function initializeTestSecurity() {
+            isTestActive = true;
+            securityViolations = 0;
+            tabSwitchCount = 0;
+            windowBlurCount = 0;
+
+            // Force fullscreen for security
+            enterFullscreen();
+
+            // Log test start
+            fetch('/tests/api/session-start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    screen: {
+                        width: screen.width,
+                        height: screen.height,
+                        colorDepth: screen.colorDepth
+                    }
+                })
+            }).catch(console.error);
+        }
+
+        function finalizeTestSecurity() {
+            isTestActive = false;
+            exitFullscreen();
+
+            // Log test end
+            fetch('/tests/api/session-end', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    securityViolations: securityViolations,
+                    tabSwitches: tabSwitchCount,
+                    windowBlurs: windowBlurCount
+                })
+            }).catch(console.error);
+        }
+    </script>
+</body>
+</html>
