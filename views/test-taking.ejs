@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทำแบบทดสอบ - <%= test.title %></title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/mobile-responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .test-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .test-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .test-info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .timer {
+            background: #fed7e2;
+            color: #c53030;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .timer.warning {
+            background: #fbb6ce;
+            animation: pulse 1s infinite;
+        }
+
+        .timer.critical {
+            background: #fc8181;
+            animation: pulse 0.5s infinite;
+        }
+
+        .question-navigation {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .question-number {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .question-number:hover {
+            border-color: #3182ce;
+            background: #ebf8ff;
+        }
+
+        .question-number.current {
+            background: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+
+        .question-number.answered {
+            background: #48bb78;
+            color: white;
+            border-color: #48bb78;
+        }
+
+        .question-number.flagged {
+            background: #ed8936;
+            color: white;
+            border-color: #ed8936;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .question-content {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .question-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .answer-options {
+            margin: 20px 0;
+        }
+
+        .answer-option {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .answer-option:hover {
+            border-color: #bee3f8;
+            background: #f7fafc;
+        }
+
+        .answer-option.selected {
+            border-color: #3182ce;
+            background: #ebf8ff;
+        }
+
+        .answer-option input[type="radio"] {
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+
+        .answer-option label {
+            flex: 1;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        .question-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2c5aa0;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #c05621;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .flag-btn {
+            background: none;
+            border: 2px solid #ed8936;
+            color: #ed8936;
+        }
+
+        .flag-btn.flagged {
+            background: #ed8936;
+            color: white;
+        }
+
+        .submit-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .submit-warning {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #c53030;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            transition: width 0.3s ease;
+        }
+
+        .fullscreen-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fed7e2;
+            color: #c53030;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            z-index: 1000;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .test-container {
+                padding: 10px;
+            }
+
+            .test-header,
+            .question-card,
+            .question-navigation,
+            .submit-section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .test-title {
+                font-size: 20px;
+            }
+
+            .test-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .question-grid {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 6px;
+            }
+
+            .question-number {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+
+            .question-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="fullscreen-warning" id="fullscreen-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        กรุณากลับสู่โหมดเต็มจอเพื่อทำการสอบต่อ
+    </div>
+
+    <div class="test-container">
+        <!-- Test Header -->
+        <div class="test-header">
+            <div class="test-title"><%= test.title %></div>
+            <div class="test-info">
+                <div class="test-info-item">
+                    <i class="fas fa-questions"></i>
+                    <span><%= test.questions.length %> ข้อ</span>
+                </div>
+                <div class="test-info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>เวลา <%= test.timeLimit %> นาที</span>
+                </div>
+                <div class="test-info-item">
+                    <div class="timer" id="timer">
+                        <i class="fas fa-stopwatch"></i>
+                        <span id="timer-display">--:--</span>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div style="margin-top: 5px; font-size: 14px; color: #4a5568;">
+                ความคืบหน้า: <span id="progress-text">0 / <%= test.questions.length %></span>
+            </div>
+        </div>
+
+        <!-- Question Navigation -->
+        <div class="question-navigation">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 style="margin: 0;">ภาพรวมข้อสอบ</h4>
+                <div style="display: flex; gap: 15px; font-size: 12px;">
+                    <div><span style="color: #48bb78;">●</span> ตอบแล้ว</div>
+                    <div><span style="color: #ed8936;">●</span> ทำเครื่องหมาย</div>
+                    <div><span style="color: #e2e8f0;">●</span> ยังไม่ตอบ</div>
+                </div>
+            </div>
+            <div class="question-grid" id="question-grid">
+                <% for(let i = 1; i <= test.questions.length; i++) { %>
+                    <div class="question-number" data-question="<%= i %>" onclick="goToQuestion(<%= i %>)">
+                        <%= i %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Current Question -->
+        <div class="question-card" id="question-card">
+            <div id="question-content">
+                <!-- Question content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section" id="submit-section" style="display: none;">
+            <h3>ส่งแบบทดสอบ</h3>
+            <div class="submit-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                กรุณาตรวจสอบคำตอบให้ครบถ้วนก่อนส่งแบบทดสอบ คุณจะไม่สามารถแก้ไขได้หลังจากส่งแล้ว
+            </div>
+            <div id="unanswered-summary" style="margin-bottom: 20px; color: #c53030;"></div>
+            <button class="btn btn-success" onclick="submitTest()" id="submit-btn">
+                <i class="fas fa-paper-plane"></i>
+                ส่งแบบทดสอบ
+            </button>
+        </div>
+    </div>
+
+    <!-- Include necessary scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/webcam-proctoring.js"></script>
+    <script src="/js/gamification.js"></script>
+
+    <script>
+        // Test data and state
+        const testData = <%- JSON.stringify(test) %>;
+        const userId = '<%= userId %>';
+        const testSessionId = '<%= testSessionId %>';
+
+        let currentQuestion = 1;
+        let answers = {};
+        let flaggedQuestions = new Set();
+        let timeRemaining = testData.timeLimit * 60; // Convert to seconds
+        let timerInterval;
+        let proctoringSystem;
+
+        // Initialize Socket.IO
+        const socket = io();
+
+        // Initialize test
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTest();
+            startTimer();
+            initializeProctoring();
+            enableFullscreenMode();
+        });
+
+        function initializeTest() {
+            showQuestion(1);
+            updateProgress();
+            socket.emit('join-user-room', userId);
+        }
+
+        function initializeProctoring() {
+            if (testData.enableProctoring) {
+                proctoringSystem = new WebcamProctoring(testSessionId, {
+                    enableFaceDetection: true,
+                    enableTabSwitchDetection: true,
+                    screenshotInterval: 30000
+                });
+
+                // Start proctoring session
+                socket.emit('start-proctoring', {
+                    testSessionId: testSessionId,
+                    userId: userId,
+                    testId: testData.testId
+                });
+            }
+        }
+
+        function enableFullscreenMode() {
+            if (testData.requireFullscreen) {
+                enterFullscreen();
+
+                // Monitor fullscreen changes
+                document.addEventListener('fullscreenchange', handleFullscreenChange);
+                document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+                document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+                document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+            }
+        }
+
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+        function handleFullscreenChange() {
+            const isFullscreen = document.fullscreenElement ||
+                                document.webkitFullscreenElement ||
+                                document.mozFullScreenElement ||
+                                document.msFullscreenElement;
+
+            const warning = document.getElementById('fullscreen-warning');
+            if (!isFullscreen && testData.requireFullscreen) {
+                warning.style.display = 'block';
+                // Record violation if proctoring is enabled
+                if (proctoringSystem) {
+                    proctoringSystem.recordViolation('fullscreen_exit');
+                }
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            document.getElementById('timer-display').textContent = display;
+
+            const timer = document.getElementById('timer');
+            timer.classList.remove('warning', 'critical');
+
+            if (timeRemaining <= 300) { // 5 minutes
+                timer.classList.add('critical');
+            } else if (timeRemaining <= 600) { // 10 minutes
+                timer.classList.add('warning');
+            }
+        }
+
+        function timeUp() {
+            clearInterval(timerInterval);
+            alert('หมดเวลาทำการสอบ กำลังส่งแบบทดสอบอัตโนมัติ');
+            submitTest(true);
+        }
+
+        function showQuestion(questionNumber) {
+            const question = testData.questions[questionNumber - 1];
+            if (!question) return;
+
+            currentQuestion = questionNumber;
+
+            const content = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0;">ข้อที่ ${questionNumber}</h3>
+                    <button class="btn flag-btn ${flaggedQuestions.has(questionNumber) ? 'flagged' : ''}"
+                            onclick="toggleFlag(${questionNumber})">
+                        <i class="fas fa-flag"></i>
+                        ${flaggedQuestions.has(questionNumber) ? 'ยกเลิกเครื่องหมาย' : 'ทำเครื่องหมาย'}
+                    </button>
+                </div>
+
+                <div class="question-content">
+                    ${question.questionText}
+                    ${question.questionImage ? `<img src="${question.questionImage}" class="question-image" alt="รูปประกอบคำถาม">` : ''}
+                </div>
+
+                <div class="answer-options">
+                    ${question.options.map((option, index) => `
+                        <div class="answer-option ${answers[questionNumber] === index ? 'selected' : ''}"
+                             onclick="selectAnswer(${questionNumber}, ${index})">
+                            <input type="radio" name="q${questionNumber}" value="${index}"
+                                   ${answers[questionNumber] === index ? 'checked' : ''}>
+                            <label>${String.fromCharCode(65 + index)}. ${option}</label>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="question-actions">
+                    <div>
+                        <button class="btn btn-secondary" onclick="previousQuestion()"
+                                ${questionNumber === 1 ? 'disabled' : ''}>
+                            <i class="fas fa-chevron-left"></i>
+                            ข้อก่อนหน้า
+                        </button>
+                        <button class="btn btn-primary" onclick="nextQuestion()"
+                                ${questionNumber === testData.questions.length ? 'disabled' : ''}>
+                            ข้อต่อไป
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div>
+                        <button class="btn btn-warning" onclick="showSubmitSection()">
+                            <i class="fas fa-paper-plane"></i>
+                            ส่งแบบทดสอบ
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('question-content').innerHTML = content;
+            updateQuestionNavigation();
+
+            // Scroll to top of question
+            document.getElementById('question-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function selectAnswer(questionNumber, optionIndex) {
+            answers[questionNumber] = optionIndex;
+            showQuestion(questionNumber);
+            updateProgress();
+
+            // Save answer to server
+            saveAnswer(questionNumber, optionIndex);
+        }
+
+        function saveAnswer(questionNumber, optionIndex) {
+            socket.emit('save-test-answer', {
+                testSessionId: testSessionId,
+                questionNumber: questionNumber,
+                answer: optionIndex,
+                timestamp: new Date()
+            });
+        }
+
+        function toggleFlag(questionNumber) {
+            if (flaggedQuestions.has(questionNumber)) {
+                flaggedQuestions.delete(questionNumber);
+            } else {
+                flaggedQuestions.add(questionNumber);
+            }
+            showQuestion(questionNumber);
+            updateQuestionNavigation();
+        }
+
+        function updateQuestionNavigation() {
+            const grid = document.getElementById('question-grid');
+            const questionNumbers = grid.querySelectorAll('.question-number');
+
+            questionNumbers.forEach((element, index) => {
+                const questionNumber = index + 1;
+                element.classList.remove('current', 'answered', 'flagged');
+
+                if (questionNumber === currentQuestion) {
+                    element.classList.add('current');
+                } else if (answers[questionNumber] !== undefined) {
+                    element.classList.add('answered');
+                }
+
+                if (flaggedQuestions.has(questionNumber)) {
+                    element.classList.add('flagged');
+                }
+            });
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(answers).length;
+            const total = testData.questions.length;
+            const percentage = (answered / total) * 100;
+
+            document.getElementById('progress-fill').style.width = percentage + '%';
+            document.getElementById('progress-text').textContent = `${answered} / ${total}`;
+        }
+
+        function goToQuestion(questionNumber) {
+            showQuestion(questionNumber);
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < testData.questions.length) {
+                showQuestion(currentQuestion + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 1) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+
+        function showSubmitSection() {
+            const unanswered = [];
+            for (let i = 1; i <= testData.questions.length; i++) {
+                if (answers[i] === undefined) {
+                    unanswered.push(i);
+                }
+            }
+
+            let summaryHTML = '';
+            if (unanswered.length > 0) {
+                summaryHTML = `<div style="color: #c53030;">
+                    ข้อที่ยังไม่ได้ตอบ: ${unanswered.join(', ')}
+                    (รวม ${unanswered.length} ข้อ)
+                </div>`;
+            } else {
+                summaryHTML = `<div style="color: #48bb78;">
+                    <i class="fas fa-check-circle"></i>
+                    ตอบครบทุกข้อแล้ว
+                </div>`;
+            }
+
+            document.getElementById('unanswered-summary').innerHTML = summaryHTML;
+            document.getElementById('submit-section').style.display = 'block';
+            document.getElementById('submit-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function submitTest(autoSubmit = false) {
+            if (!autoSubmit) {
+                const confirmed = confirm('คุณแน่ใจหรือไม่ที่จะส่งแบบทดสอบ? คุณจะไม่สามารถแก้ไขได้หลังจากส่งแล้ว');
+                if (!confirmed) return;
+            }
+
+            clearInterval(timerInterval);
+
+            // Stop proctoring
+            if (proctoringSystem) {
+                proctoringSystem.stopProctoring();
+            }
+
+            // Prepare submission data
+            const submissionData = {
+                testSessionId: testSessionId,
+                testId: testData.testId,
+                answers: answers,
+                flaggedQuestions: Array.from(flaggedQuestions),
+                timeSpent: (testData.timeLimit * 60) - timeRemaining,
+                submittedAt: new Date(),
+                autoSubmit: autoSubmit
+            };
+
+            // Send to server
+            fetch('/api/tests/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(submissionData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/test-results/${testSessionId}`;
+                } else {
+                    alert('เกิดข้อผิดพลาดในการส่งแบบทดสอบ: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Submit error:', error);
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่');
+            });
+        }
+
+        // Prevent leaving page accidentally
+        window.addEventListener('beforeunload', function(e) {
+            if (timeRemaining > 0) {
+                const message = 'คุณกำลังทำแบบทดสอบอยู่ หากออกจากหน้านี้ การทำแบบทดสอบอาจสูญหาย';
+                e.returnValue = message;
+                return message;
+            }
+        });
+
+        // Auto-save answers periodically
+        setInterval(() => {
+            if (Object.keys(answers).length > 0) {
+                socket.emit('auto-save-test', {
+                    testSessionId: testSessionId,
+                    answers: answers,
+                    flaggedQuestions: Array.from(flaggedQuestions),
+                    currentQuestion: currentQuestion,
+                    timestamp: new Date()
+                });
+            }
+        }, 30000); // Save every 30 seconds
+    </script>
+</body>
+</html>

@@ -25,6 +25,10 @@ const applicantRoutes = require('./routes/applicantRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
+// Import services
+const proctoringService = require('./utils/proctoringService');
+const socketHandler = require('./utils/socketHandler');
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -217,6 +221,12 @@ app.use((req, res) => {
     }
 });
 
+// Initialize socket handler
+socketHandler.initialize(io);
+
+// Make io globally available for services
+global.io = io;
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
     console.log('👤 User connected:', socket.id);
@@ -244,6 +254,72 @@ io.on('connection', (socket) => {
             socket.emit('dashboard-data', dashboardData);
         } catch (error) {
             console.error('Dashboard data error:', error);
+        }
+    });
+
+    // Proctoring event handlers
+    socket.on('start-proctoring', (data) => {
+        const { testSessionId, userId, testId } = data;
+        socket.join(`proctoring-${testSessionId}`);
+
+        const session = proctoringService.startProctoring(testSessionId, userId, testId);
+        socket.emit('proctoring-started', { session });
+
+        console.log(`🎥 Proctoring started for test session ${testSessionId}`);
+    });
+
+    socket.on('proctoring_violation', async (data) => {
+        try {
+            const result = await proctoringService.recordViolation(
+                data.testSessionId,
+                data.violationType,
+                data.data
+            );
+
+            // Notify the student if needed
+            if (result.shouldWarn) {
+                socket.emit('proctoring_warning', result.violation);
+            }
+
+            // Notify instructors
+            socket.to('instructors').emit('proctoring_violation_alert', {
+                testSessionId: data.testSessionId,
+                violation: result.violation,
+                totalViolations: result.totalViolations
+            });
+
+        } catch (error) {
+            console.error('Proctoring violation error:', error);
+        }
+    });
+
+    socket.on('proctoring_screenshot', async (data) => {
+        try {
+            await proctoringService.captureScreenshot(
+                data.testSessionId,
+                data.imageData,
+                data.violationType
+            );
+        } catch (error) {
+            console.error('Screenshot capture error:', error);
+        }
+    });
+
+    socket.on('webcam_status_update', (data) => {
+        proctoringService.updateWebcamStatus(data.testSessionId, data.isEnabled);
+    });
+
+    socket.on('proctoring_ended', async (data) => {
+        try {
+            const report = await proctoringService.endProctoring(data.testSessionId);
+            socket.leave(`proctoring-${data.testSessionId}`);
+
+            // Send final report to instructors
+            socket.to('instructors').emit('proctoring_report', report);
+
+            console.log(`🎥 Proctoring ended for test session ${data.testSessionId}`);
+        } catch (error) {
+            console.error('End proctoring error:', error);
             socket.emit('dashboard-error', { message: 'Failed to load dashboard data' });
         }
     });

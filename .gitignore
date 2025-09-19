@@ -100,6 +100,8 @@ temp/
 *.sqlite
 *.sqlite3
 
+# Migration files are now consolidated into learnhub_database.sql
+
 # SSL certificates (if any)
 *.pem
 *.key

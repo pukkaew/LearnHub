@@ -38,21 +38,30 @@ ALTER ROLE db_owner ADD MEMBER learnhub_user;
 
 ### 2. Run Database Schema
 
-Execute the schema file to create all tables:
+Execute the complete database file to create all tables, stored procedures, and initial data:
 
 ```bash
 # Navigate to the project directory
 cd D:\App\LearnHub
 
-# Run the schema file using sqlcmd (if available)
-sqlcmd -S localhost -d LearnHub -U learnhub_user -P YourSecurePassword123! -i database\schema.sql
+# Run the database file using sqlcmd (if available)
+sqlcmd -S localhost -d LearnHub -U learnhub_user -P YourSecurePassword123! -i database\learnhub_database.sql
 
 # Or use SQL Server Management Studio:
 # 1. Open SSMS
 # 2. Connect to your SQL Server instance
-# 3. Open the file: database/schema.sql
+# 3. Open the file: database/learnhub_database.sql
 # 4. Execute the script
 ```
+
+**Note:** The `learnhub_database.sql` file includes:
+- All core tables (Users, Courses, Tests, etc.)
+- JWT Authentication tables (RefreshTokens, ApiKeys, SecurityPolicies)
+- Gamification system (Points, Badges, Leaderboards, Achievements)
+- Proctoring system (Sessions, Violations, Screenshots, Reports)
+- System settings and audit logs
+- Stored procedures for leaderboards and integrity scoring
+- Initial default data and security policies
 
 ### 3. Configure Environment Variables
 
@@ -104,15 +113,9 @@ Install the required Node.js packages:
 npm install
 ```
 
-### 5. Seed the Database
+### 5. Start the Application
 
-Run the seed script to populate the database with initial data:
-
-```bash
-npm run seed
-```
-
-### 6. Start the Application
+**Note:** The database already includes initial data from `learnhub_database.sql`, so no separate seeding is required.
 
 ```bash
 # Development mode
@@ -124,12 +127,17 @@ npm start
 
 ## Default Login Credentials
 
-After seeding the database, you can log in with these accounts:
+The database script includes a default admin account:
 
-- **Admin**: `admin` / `password123`
-- **HR Manager**: `hr.manager` / `password123`
-- **IT Manager**: `it.manager` / `password123`
-- **Instructor**: `instructor1` / `password123`
+- **Admin**: `admin` / `admin123` (change immediately after first login)
+
+Additional default roles are created:
+- SuperAdmin - Full system access
+- Admin - System administration
+- Instructor - Course and test management
+- Student - Course access and test taking
+- HR - HR management functions
+- Viewer - Limited view access
 
 ## Database Connection Troubleshooting
 
@@ -172,10 +180,14 @@ Enable SQL Server Authentication:
 
 For better performance, consider:
 
-1. **Indexes**: The schema includes optimized indexes for common queries
+1. **Indexes**: The database includes optimized indexes for all major tables
 2. **Memory**: Allocate sufficient memory to SQL Server
 3. **Backup**: Set up regular database backups
 4. **Monitoring**: Use SQL Server Profiler for query optimization
+5. **Stored Procedures**: Use included stored procedures for complex operations:
+   - `sp_UpdateLeaderboards` - Update gamification leaderboards
+   - `sp_CalculateIntegrityScore` - Calculate proctoring integrity scores
+6. **Views**: Use the `vw_ProctoringDashboard` view for monitoring test sessions
 
 ## Security Considerations
 
