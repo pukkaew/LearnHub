@@ -8,7 +8,639 @@ PRINT 'This script will create all necessary tables, indexes, and stored procedu
 PRINT '';
 
 -- ================================================================
--- SECTION 1: JWT AUTHENTICATION SYSTEM TABLES
+-- SECTION 1: CORE SYSTEM TABLES
+-- ================================================================
+
+PRINT 'Creating Core System Tables...';
+
+-- Roles table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Roles]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Roles] (
+        [role_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [role_name] NVARCHAR(50) NOT NULL UNIQUE,
+        [description] NVARCHAR(255),
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [is_active] BIT DEFAULT 1
+    );
+
+    PRINT 'Roles table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Roles table already exists.';
+END;
+
+-- Departments table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Departments]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Departments] (
+        [department_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [department_name] NVARCHAR(100) NOT NULL,
+        [department_code] NVARCHAR(10) NOT NULL UNIQUE,
+        [description] NVARCHAR(500),
+        [manager_id] UNIQUEIDENTIFIER,
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [is_active] BIT DEFAULT 1
+    );
+
+    PRINT 'Departments table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Departments table already exists.';
+END;
+
+-- Positions table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Positions]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Positions] (
+        [position_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [position_name] NVARCHAR(100) NOT NULL,
+        [level] INT DEFAULT 1,
+        [description] NVARCHAR(500),
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [is_active] BIT DEFAULT 1
+    );
+
+    PRINT 'Positions table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Positions table already exists.';
+END;
+
+-- Users table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Users]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Users] (
+        [user_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [employee_id] NVARCHAR(20) UNIQUE,
+        [username] NVARCHAR(50) NOT NULL UNIQUE,
+        [password_hash] NVARCHAR(255) NOT NULL,
+        [first_name] NVARCHAR(100) NOT NULL,
+        [last_name] NVARCHAR(100) NOT NULL,
+        [first_name_en] NVARCHAR(100),
+        [last_name_en] NVARCHAR(100),
+        [email] NVARCHAR(100) NOT NULL UNIQUE,
+        [phone_mobile] NVARCHAR(20),
+        [phone_extension] NVARCHAR(10),
+        [address] NVARCHAR(MAX),
+        [birth_date] DATE,
+        [hire_date] DATE,
+        [department_id] UNIQUEIDENTIFIER,
+        [position_id] UNIQUEIDENTIFIER,
+        [role_id] UNIQUEIDENTIFIER,
+        [manager_id] UNIQUEIDENTIFIER,
+        [profile_image] NVARCHAR(500),
+        [bio] NVARCHAR(MAX),
+        [emergency_contact_name] NVARCHAR(100),
+        [emergency_contact_phone] NVARCHAR(20),
+        [salary] DECIMAL(15,2),
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [last_login] DATETIME2,
+        [password_changed_date] DATETIME2,
+        [must_change_password] BIT DEFAULT 0,
+        [failed_login_attempts] INT DEFAULT 0,
+        [account_locked_until] DATETIME2,
+        [email_verified] BIT DEFAULT 0,
+        [email_verification_token] NVARCHAR(100),
+        [reset_password_token] NVARCHAR(100),
+        [reset_password_expires] DATETIME2,
+        [two_factor_enabled] BIT DEFAULT 0,
+        [two_factor_secret] NVARCHAR(100),
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_Users_Departments FOREIGN KEY ([department_id])
+            REFERENCES [dbo].[Departments]([department_id]),
+        CONSTRAINT FK_Users_Positions FOREIGN KEY ([position_id])
+            REFERENCES [dbo].[Positions]([position_id]),
+        CONSTRAINT FK_Users_Roles FOREIGN KEY ([role_id])
+            REFERENCES [dbo].[Roles]([role_id]),
+        CONSTRAINT FK_Users_Manager FOREIGN KEY ([manager_id])
+            REFERENCES [dbo].[Users]([user_id])
+    );
+
+    -- Create indexes for Users table
+    CREATE NONCLUSTERED INDEX IX_Users_Department ON [dbo].[Users] ([department_id]);
+    CREATE NONCLUSTERED INDEX IX_Users_Position ON [dbo].[Users] ([position_id]);
+    CREATE NONCLUSTERED INDEX IX_Users_Role ON [dbo].[Users] ([role_id]);
+    CREATE NONCLUSTERED INDEX IX_Users_Email ON [dbo].[Users] ([email]);
+    CREATE NONCLUSTERED INDEX IX_Users_Username ON [dbo].[Users] ([username]);
+    CREATE NONCLUSTERED INDEX IX_Users_IsActive ON [dbo].[Users] ([is_active]);
+
+    PRINT 'Users table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Users table already exists.';
+END;
+
+-- Course Categories table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CourseCategories]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[CourseCategories] (
+        [category_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [category_name] NVARCHAR(100) NOT NULL,
+        [description] NVARCHAR(500),
+        [parent_category_id] UNIQUEIDENTIFIER,
+        [display_order] INT DEFAULT 0,
+        [icon] NVARCHAR(100),
+        [color] NVARCHAR(20),
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_CourseCategories_Parent FOREIGN KEY ([parent_category_id])
+            REFERENCES [dbo].[CourseCategories]([category_id])
+    );
+
+    PRINT 'CourseCategories table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'CourseCategories table already exists.';
+END;
+
+-- Courses table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Courses]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Courses] (
+        [course_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [course_code] NVARCHAR(20) UNIQUE,
+        [course_name] NVARCHAR(200) NOT NULL,
+        [description] NVARCHAR(MAX),
+        [category_id] UNIQUEIDENTIFIER,
+        [instructor_id] UNIQUEIDENTIFIER,
+        [duration_hours] DECIMAL(5,2),
+        [max_students] INT,
+        [current_students] INT DEFAULT 0,
+        [difficulty_level] NVARCHAR(20) DEFAULT 'Beginner',
+        [prerequisites] NVARCHAR(MAX),
+        [learning_objectives] NVARCHAR(MAX),
+        [course_image] NVARCHAR(500),
+        [course_materials] NVARCHAR(MAX),
+        [price] DECIMAL(10,2) DEFAULT 0,
+        [enrollment_start_date] DATETIME2,
+        [enrollment_end_date] DATETIME2,
+        [course_start_date] DATETIME2,
+        [course_end_date] DATETIME2,
+        [is_featured] BIT DEFAULT 0,
+        [is_mandatory] BIT DEFAULT 0,
+        [allow_self_enrollment] BIT DEFAULT 1,
+        [certificate_template] NVARCHAR(500),
+        [passing_score] DECIMAL(5,2) DEFAULT 70,
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [created_by] UNIQUEIDENTIFIER,
+        [modified_by] UNIQUEIDENTIFIER,
+        [status] NVARCHAR(20) DEFAULT 'Draft',
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_Courses_Categories FOREIGN KEY ([category_id])
+            REFERENCES [dbo].[CourseCategories]([category_id]),
+        CONSTRAINT FK_Courses_Instructor FOREIGN KEY ([instructor_id])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT FK_Courses_CreatedBy FOREIGN KEY ([created_by])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT FK_Courses_ModifiedBy FOREIGN KEY ([modified_by])
+            REFERENCES [dbo].[Users]([user_id])
+    );
+
+    -- Create indexes for Courses table
+    CREATE NONCLUSTERED INDEX IX_Courses_Category ON [dbo].[Courses] ([category_id]);
+    CREATE NONCLUSTERED INDEX IX_Courses_Instructor ON [dbo].[Courses] ([instructor_id]);
+    CREATE NONCLUSTERED INDEX IX_Courses_Status ON [dbo].[Courses] ([status]);
+    CREATE NONCLUSTERED INDEX IX_Courses_IsActive ON [dbo].[Courses] ([is_active]);
+
+    PRINT 'Courses table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Courses table already exists.';
+END;
+
+-- Tests table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Tests]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Tests] (
+        [test_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [test_code] NVARCHAR(20) UNIQUE,
+        [title] NVARCHAR(200) NOT NULL,
+        [description] NVARCHAR(MAX),
+        [course_id] UNIQUEIDENTIFIER,
+        [instructor_id] UNIQUEIDENTIFIER,
+        [duration_minutes] INT,
+        [total_questions] INT,
+        [passing_score] DECIMAL(5,2) DEFAULT 70,
+        [max_attempts] INT DEFAULT 3,
+        [show_results_immediately] BIT DEFAULT 1,
+        [randomize_questions] BIT DEFAULT 1,
+        [randomize_answers] BIT DEFAULT 1,
+        [allow_back_navigation] BIT DEFAULT 1,
+        [require_webcam] BIT DEFAULT 0,
+        [require_fullscreen] BIT DEFAULT 0,
+        [auto_submit] BIT DEFAULT 1,
+        [instructions] NVARCHAR(MAX),
+        [start_date] DATETIME2,
+        [end_date] DATETIME2,
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [created_by] UNIQUEIDENTIFIER,
+        [modified_by] UNIQUEIDENTIFIER,
+        [status] NVARCHAR(20) DEFAULT 'Draft',
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_Tests_Courses FOREIGN KEY ([course_id])
+            REFERENCES [dbo].[Courses]([course_id]),
+        CONSTRAINT FK_Tests_Instructor FOREIGN KEY ([instructor_id])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT FK_Tests_CreatedBy FOREIGN KEY ([created_by])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT FK_Tests_ModifiedBy FOREIGN KEY ([modified_by])
+            REFERENCES [dbo].[Users]([user_id])
+    );
+
+    -- Create indexes for Tests table
+    CREATE NONCLUSTERED INDEX IX_Tests_Course ON [dbo].[Tests] ([course_id]);
+    CREATE NONCLUSTERED INDEX IX_Tests_Instructor ON [dbo].[Tests] ([instructor_id]);
+    CREATE NONCLUSTERED INDEX IX_Tests_Status ON [dbo].[Tests] ([status]);
+    CREATE NONCLUSTERED INDEX IX_Tests_IsActive ON [dbo].[Tests] ([is_active]);
+
+    PRINT 'Tests table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Tests table already exists.';
+END;
+
+-- Test Questions table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TestQuestions]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[TestQuestions] (
+        [question_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [test_id] UNIQUEIDENTIFIER NOT NULL,
+        [bank_id] UNIQUEIDENTIFIER,
+        [question_text] NVARCHAR(MAX) NOT NULL,
+        [question_type] NVARCHAR(50) DEFAULT 'multiple_choice',
+        [question_image] NVARCHAR(500),
+        [correct_answer] NVARCHAR(MAX),
+        [explanation] NVARCHAR(MAX),
+        [points] DECIMAL(5,2) DEFAULT 1,
+        [time_estimate_seconds] INT DEFAULT 60,
+        [question_order] INT,
+        [difficulty_level] NVARCHAR(20) DEFAULT 'Medium',
+        [usage_count] INT DEFAULT 0,
+        [correct_count] INT DEFAULT 0,
+        [version] INT DEFAULT 1,
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [created_by] UNIQUEIDENTIFIER,
+        [modified_by] UNIQUEIDENTIFIER,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_TestQuestions_Tests FOREIGN KEY ([test_id])
+            REFERENCES [dbo].[Tests]([test_id]) ON DELETE CASCADE,
+        CONSTRAINT FK_TestQuestions_CreatedBy FOREIGN KEY ([created_by])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT FK_TestQuestions_ModifiedBy FOREIGN KEY ([modified_by])
+            REFERENCES [dbo].[Users]([user_id])
+    );
+
+    -- Create indexes for TestQuestions table
+    CREATE NONCLUSTERED INDEX IX_TestQuestions_Test ON [dbo].[TestQuestions] ([test_id]);
+    CREATE NONCLUSTERED INDEX IX_TestQuestions_Type ON [dbo].[TestQuestions] ([question_type]);
+    CREATE NONCLUSTERED INDEX IX_TestQuestions_Order ON [dbo].[TestQuestions] ([question_order]);
+
+    PRINT 'TestQuestions table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'TestQuestions table already exists.';
+END;
+
+-- Course Enrollments table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CourseEnrollments]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[CourseEnrollments] (
+        [enrollment_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [user_id] UNIQUEIDENTIFIER NOT NULL,
+        [course_id] UNIQUEIDENTIFIER NOT NULL,
+        [enrollment_type] NVARCHAR(20) DEFAULT 'SELF',
+        [enrollment_date] DATETIME2 DEFAULT GETDATE(),
+        [expected_end_date] DATETIME2,
+        [actual_end_date] DATETIME2,
+        [completion_status] NVARCHAR(20) DEFAULT 'NOT_STARTED',
+        [progress_percentage] DECIMAL(5,2) DEFAULT 0,
+        [certificate_number] NVARCHAR(50),
+        [certificate_issued_date] DATETIME2,
+        [enrolled_by] UNIQUEIDENTIFIER,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_CourseEnrollments_Users FOREIGN KEY ([user_id])
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
+        CONSTRAINT FK_CourseEnrollments_Courses FOREIGN KEY ([course_id])
+            REFERENCES [dbo].[Courses]([course_id]) ON DELETE CASCADE,
+        CONSTRAINT FK_CourseEnrollments_EnrolledBy FOREIGN KEY ([enrolled_by])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT UQ_CourseEnrollments_UserCourse UNIQUE ([user_id], [course_id])
+    );
+
+    -- Create indexes for CourseEnrollments table
+    CREATE NONCLUSTERED INDEX IX_CourseEnrollments_User ON [dbo].[CourseEnrollments] ([user_id]);
+    CREATE NONCLUSTERED INDEX IX_CourseEnrollments_Course ON [dbo].[CourseEnrollments] ([course_id]);
+    CREATE NONCLUSTERED INDEX IX_CourseEnrollments_Status ON [dbo].[CourseEnrollments] ([completion_status]);
+
+    PRINT 'CourseEnrollments table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'CourseEnrollments table already exists.';
+END;
+
+-- Test Attempts table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TestAttempts]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[TestAttempts] (
+        [attempt_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [user_id] UNIQUEIDENTIFIER NOT NULL,
+        [test_id] UNIQUEIDENTIFIER NOT NULL,
+        [enrollment_id] UNIQUEIDENTIFIER,
+        [attempt_number] INT NOT NULL,
+        [start_time] DATETIME2 DEFAULT GETDATE(),
+        [end_time] DATETIME2,
+        [time_spent_seconds] INT,
+        [score] DECIMAL(5,2),
+        [max_score] DECIMAL(5,2),
+        [percentage_score] DECIMAL(5,2),
+        [passed] BIT,
+        [is_submitted] BIT DEFAULT 0,
+        [browser_info] NVARCHAR(MAX),
+        [ip_address] NVARCHAR(45),
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_TestAttempts_Users FOREIGN KEY ([user_id])
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
+        CONSTRAINT FK_TestAttempts_Tests FOREIGN KEY ([test_id])
+            REFERENCES [dbo].[Tests]([test_id]) ON DELETE CASCADE,
+        CONSTRAINT FK_TestAttempts_Enrollments FOREIGN KEY ([enrollment_id])
+            REFERENCES [dbo].[CourseEnrollments]([enrollment_id])
+    );
+
+    -- Create indexes for TestAttempts table
+    CREATE NONCLUSTERED INDEX IX_TestAttempts_User ON [dbo].[TestAttempts] ([user_id]);
+    CREATE NONCLUSTERED INDEX IX_TestAttempts_Test ON [dbo].[TestAttempts] ([test_id]);
+    CREATE NONCLUSTERED INDEX IX_TestAttempts_StartTime ON [dbo].[TestAttempts] ([start_time]);
+
+    PRINT 'TestAttempts table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'TestAttempts table already exists.';
+END;
+
+-- Course Progress table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CourseProgress]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[CourseProgress] (
+        [progress_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [user_id] UNIQUEIDENTIFIER NOT NULL,
+        [course_id] UNIQUEIDENTIFIER NOT NULL,
+        [lesson_id] UNIQUEIDENTIFIER,
+        [enrollment_id] UNIQUEIDENTIFIER,
+        [started_date] DATETIME2 DEFAULT GETDATE(),
+        [completed_date] DATETIME2,
+        [is_completed] BIT DEFAULT 0,
+        [time_spent_seconds] INT DEFAULT 0,
+        [progress_percentage] DECIMAL(5,2) DEFAULT 0,
+        [last_accessed] DATETIME2 DEFAULT GETDATE(),
+
+        CONSTRAINT FK_CourseProgress_Users FOREIGN KEY ([user_id])
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
+        CONSTRAINT FK_CourseProgress_Courses FOREIGN KEY ([course_id])
+            REFERENCES [dbo].[Courses]([course_id]) ON DELETE CASCADE,
+        CONSTRAINT FK_CourseProgress_Enrollments FOREIGN KEY ([enrollment_id])
+            REFERENCES [dbo].[CourseEnrollments]([enrollment_id])
+    );
+
+    -- Create indexes for CourseProgress table
+    CREATE NONCLUSTERED INDEX IX_CourseProgress_User ON [dbo].[CourseProgress] ([user_id]);
+    CREATE NONCLUSTERED INDEX IX_CourseProgress_Course ON [dbo].[CourseProgress] ([course_id]);
+    CREATE NONCLUSTERED INDEX IX_CourseProgress_LastAccessed ON [dbo].[CourseProgress] ([last_accessed]);
+
+    PRINT 'CourseProgress table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'CourseProgress table already exists.';
+END;
+
+-- Articles table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Articles]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Articles] (
+        [article_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [title] NVARCHAR(200) NOT NULL,
+        [content] NVARCHAR(MAX) NOT NULL,
+        [summary] NVARCHAR(500),
+        [author_id] UNIQUEIDENTIFIER NOT NULL,
+        [category_id] UNIQUEIDENTIFIER,
+        [featured_image] NVARCHAR(500),
+        [tags] NVARCHAR(500),
+        [views_count] INT DEFAULT 0,
+        [likes_count] INT DEFAULT 0,
+        [reading_time_minutes] INT,
+        [is_featured] BIT DEFAULT 0,
+        [is_published] BIT DEFAULT 0,
+        [published_date] DATETIME2,
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [modified_by] UNIQUEIDENTIFIER,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_Articles_Author FOREIGN KEY ([author_id])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT FK_Articles_Category FOREIGN KEY ([category_id])
+            REFERENCES [dbo].[CourseCategories]([category_id]),
+        CONSTRAINT FK_Articles_ModifiedBy FOREIGN KEY ([modified_by])
+            REFERENCES [dbo].[Users]([user_id])
+    );
+
+    -- Create indexes for Articles table
+    CREATE NONCLUSTERED INDEX IX_Articles_Author ON [dbo].[Articles] ([author_id]);
+    CREATE NONCLUSTERED INDEX IX_Articles_Category ON [dbo].[Articles] ([category_id]);
+    CREATE NONCLUSTERED INDEX IX_Articles_Published ON [dbo].[Articles] ([is_published]);
+    CREATE NONCLUSTERED INDEX IX_Articles_Featured ON [dbo].[Articles] ([is_featured]);
+
+    PRINT 'Articles table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Articles table already exists.';
+END;
+
+-- Job Positions table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[JobPositions]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[JobPositions] (
+        [position_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [position_title] NVARCHAR(200) NOT NULL,
+        [department] NVARCHAR(100),
+        [location] NVARCHAR(100),
+        [job_type] NVARCHAR(50),
+        [salary_range] NVARCHAR(100),
+        [description] NVARCHAR(MAX),
+        [requirements] NVARCHAR(MAX),
+        [benefits] NVARCHAR(MAX),
+        [posting_date] DATETIME2 DEFAULT GETDATE(),
+        [closing_date] DATETIME2,
+        [created_by] UNIQUEIDENTIFIER,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_JobPositions_CreatedBy FOREIGN KEY ([created_by])
+            REFERENCES [dbo].[Users]([user_id])
+    );
+
+    -- Create indexes for JobPositions table
+    CREATE NONCLUSTERED INDEX IX_JobPositions_Department ON [dbo].[JobPositions] ([department]);
+    CREATE NONCLUSTERED INDEX IX_JobPositions_JobType ON [dbo].[JobPositions] ([job_type]);
+    CREATE NONCLUSTERED INDEX IX_JobPositions_IsActive ON [dbo].[JobPositions] ([is_active]);
+
+    PRINT 'JobPositions table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'JobPositions table already exists.';
+END;
+
+-- Applicants table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Applicants]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Applicants] (
+        [applicant_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [position_id] UNIQUEIDENTIFIER NOT NULL,
+        [first_name] NVARCHAR(100) NOT NULL,
+        [last_name] NVARCHAR(100) NOT NULL,
+        [email] NVARCHAR(100) NOT NULL,
+        [phone] NVARCHAR(20),
+        [address] NVARCHAR(MAX),
+        [education] NVARCHAR(MAX),
+        [experience] NVARCHAR(MAX),
+        [skills] NVARCHAR(MAX),
+        [resume_file] NVARCHAR(500),
+        [cover_letter] NVARCHAR(MAX),
+        [application_date] DATETIME2 DEFAULT GETDATE(),
+        [status] NVARCHAR(50) DEFAULT 'Applied',
+        [notes] NVARCHAR(MAX),
+        [interviewed_by] UNIQUEIDENTIFIER,
+        [interview_date] DATETIME2,
+        [interview_score] DECIMAL(5,2),
+        [test_score] DECIMAL(5,2),
+        [final_decision] NVARCHAR(50),
+        [decision_date] DATETIME2,
+        [decision_by] UNIQUEIDENTIFIER,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_Applicants_JobPositions FOREIGN KEY ([position_id])
+            REFERENCES [dbo].[JobPositions]([position_id]),
+        CONSTRAINT FK_Applicants_InterviewedBy FOREIGN KEY ([interviewed_by])
+            REFERENCES [dbo].[Users]([user_id]),
+        CONSTRAINT FK_Applicants_DecisionBy FOREIGN KEY ([decision_by])
+            REFERENCES [dbo].[Users]([user_id])
+    );
+
+    -- Create indexes for Applicants table
+    CREATE NONCLUSTERED INDEX IX_Applicants_Position ON [dbo].[Applicants] ([position_id]);
+    CREATE NONCLUSTERED INDEX IX_Applicants_Status ON [dbo].[Applicants] ([status]);
+    CREATE NONCLUSTERED INDEX IX_Applicants_ApplicationDate ON [dbo].[Applicants] ([application_date]);
+
+    PRINT 'Applicants table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Applicants table already exists.';
+END;
+
+-- Notifications table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Notifications]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Notifications] (
+        [notification_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [user_id] UNIQUEIDENTIFIER,
+        [title] NVARCHAR(200) NOT NULL,
+        [message] NVARCHAR(MAX) NOT NULL,
+        [notification_type] NVARCHAR(50),
+        [related_id] UNIQUEIDENTIFIER,
+        [related_type] NVARCHAR(50),
+        [is_read] BIT DEFAULT 0,
+        [is_global] BIT DEFAULT 0,
+        [priority] NVARCHAR(20) DEFAULT 'normal',
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [read_date] DATETIME2,
+        [expires_date] DATETIME2,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_Notifications_Users FOREIGN KEY ([user_id])
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
+    );
+
+    -- Create indexes for Notifications table
+    CREATE NONCLUSTERED INDEX IX_Notifications_User ON [dbo].[Notifications] ([user_id]);
+    CREATE NONCLUSTERED INDEX IX_Notifications_IsRead ON [dbo].[Notifications] ([is_read]);
+    CREATE NONCLUSTERED INDEX IX_Notifications_Type ON [dbo].[Notifications] ([notification_type]);
+    CREATE NONCLUSTERED INDEX IX_Notifications_CreatedDate ON [dbo].[Notifications] ([created_date]);
+
+    PRINT 'Notifications table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Notifications table already exists.';
+END;
+
+-- User Profiles table (for gamification and extended user data)
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserProfiles]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[UserProfiles] (
+        [profile_id] UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        [userId] UNIQUEIDENTIFIER NOT NULL UNIQUE,
+        [display_name] NVARCHAR(100),
+        [avatar_url] NVARCHAR(500),
+        [bio] NVARCHAR(MAX),
+        [website] NVARCHAR(200),
+        [social_links] NVARCHAR(MAX), -- JSON
+        [skills] NVARCHAR(MAX), -- JSON array
+        [interests] NVARCHAR(MAX), -- JSON array
+        [timezone] NVARCHAR(50),
+        [language_preference] NVARCHAR(10) DEFAULT 'th',
+        [notification_preferences] NVARCHAR(MAX), -- JSON
+        [privacy_settings] NVARCHAR(MAX), -- JSON
+        [last_activity] DATETIME2,
+        [created_date] DATETIME2 DEFAULT GETDATE(),
+        [modified_date] DATETIME2,
+        [is_active] BIT DEFAULT 1,
+
+        CONSTRAINT FK_UserProfiles_Users FOREIGN KEY ([userId])
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
+    );
+
+    -- Create indexes for UserProfiles table
+    CREATE NONCLUSTERED INDEX IX_UserProfiles_UserId ON [dbo].[UserProfiles] ([userId]);
+    CREATE NONCLUSTERED INDEX IX_UserProfiles_LastActivity ON [dbo].[UserProfiles] ([last_activity]);
+
+    PRINT 'UserProfiles table created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'UserProfiles table already exists.';
+END;
+
+-- ================================================================
+-- SECTION 2: JWT AUTHENTICATION SYSTEM TABLES
 -- ================================================================
 
 PRINT 'Creating JWT Authentication System Tables...';
@@ -28,7 +660,7 @@ BEGIN
         [lastUsedAt] DATETIME2,
 
         CONSTRAINT FK_RefreshTokens_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
     );
 
     -- Create indexes for better performance
@@ -64,7 +696,7 @@ BEGIN
         [rateLimitResetAt] DATETIME2,
 
         CONSTRAINT FK_ApiKeys_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
     );
 
     -- Create indexes for better performance
@@ -92,7 +724,7 @@ BEGIN
         [expiresAt] DATETIME2 NOT NULL,
 
         CONSTRAINT FK_JwtBlacklist_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE SET NULL
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE SET NULL
     );
 
     -- Create indexes for better performance
@@ -127,7 +759,7 @@ BEGIN
         [logoutReason] NVARCHAR(50), -- 'manual', 'timeout', 'security', 'admin'
 
         CONSTRAINT FK_LoginSessions_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
     );
 
     -- Create indexes for better performance
@@ -159,9 +791,9 @@ BEGIN
         [updatedBy] UNIQUEIDENTIFIER,
 
         CONSTRAINT FK_SecurityPolicies_CreatedBy FOREIGN KEY ([createdBy])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE SET NULL,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE SET NULL,
         CONSTRAINT FK_SecurityPolicies_UpdatedBy FOREIGN KEY ([updatedBy])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE SET NULL
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE SET NULL
     );
 
     -- Create indexes
@@ -257,7 +889,7 @@ BEGIN
         [relatedType] NVARCHAR(50), -- Type of related object
 
         CONSTRAINT FK_PointsTransactions_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
     );
 
     -- Create indexes
@@ -284,7 +916,7 @@ BEGIN
         [metadata] NVARCHAR(MAX), -- Additional data about the achievement
 
         CONSTRAINT FK_UserAchievements_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
 
         CONSTRAINT UQ_UserAchievements_UserAchievement UNIQUE ([userId], [achievementId])
     );
@@ -315,7 +947,7 @@ BEGIN
         [createdAt] DATETIME2 DEFAULT GETDATE(),
 
         CONSTRAINT FK_Leaderboards_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
         CONSTRAINT FK_Leaderboards_Departments FOREIGN KEY ([departmentId])
             REFERENCES [dbo].[Departments]([departmentId]) ON DELETE SET NULL
     );
@@ -349,7 +981,7 @@ BEGIN
         [createdBy] UNIQUEIDENTIFIER,
 
         CONSTRAINT FK_Badges_CreatedBy FOREIGN KEY ([createdBy])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE SET NULL
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE SET NULL
     );
 
     -- Create indexes
@@ -377,11 +1009,11 @@ BEGIN
         [isVisible] BIT DEFAULT 1,
 
         CONSTRAINT FK_UserBadges_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
         CONSTRAINT FK_UserBadges_Badges FOREIGN KEY ([badgeId])
             REFERENCES [dbo].[Badges]([badgeId]) ON DELETE CASCADE,
         CONSTRAINT FK_UserBadges_AwardedBy FOREIGN KEY ([awardedBy])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE SET NULL,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE SET NULL,
 
         CONSTRAINT UQ_UserBadges_UserBadge UNIQUE ([userId], [badgeId])
     );
@@ -413,7 +1045,7 @@ BEGIN
         [createdAt] DATETIME2 DEFAULT GETDATE(),
 
         CONSTRAINT FK_DailyPointsSummary_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
 
         CONSTRAINT UQ_DailyPointsSummary_UserDate UNIQUE ([userId], [date])
     );
@@ -495,7 +1127,7 @@ BEGIN
         CONSTRAINT FK_ProctoringSessions_TestSessions FOREIGN KEY ([testSessionId])
             REFERENCES [dbo].[TestSessions]([sessionId]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringSessions_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringSessions_Tests FOREIGN KEY ([testId])
             REFERENCES [dbo].[Tests]([testId]) ON DELETE CASCADE
     );
@@ -537,9 +1169,9 @@ BEGIN
         CONSTRAINT FK_ProctoringViolations_TestSessions FOREIGN KEY ([testSessionId])
             REFERENCES [dbo].[TestSessions]([sessionId]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringViolations_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringViolations_ReviewedBy FOREIGN KEY ([reviewedBy])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE SET NULL
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE SET NULL
     );
 
     -- Create indexes
@@ -574,11 +1206,11 @@ BEGIN
         [analysisResults] NVARCHAR(MAX), -- JSON with analysis results
 
         CONSTRAINT FK_ProctoringScreenshots_ProctoringSessions FOREIGN KEY ([sessionId])
-            REFERENCES [dbo].[ProctoringSessions]([sessionId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[proctoring_sessions]([sessionId]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringScreenshots_TestSessions FOREIGN KEY ([testSessionId])
-            REFERENCES [dbo].[TestSessions]([sessionId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[TestSessions]([session_id]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringScreenshots_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
     );
 
     -- Create indexes
@@ -615,7 +1247,7 @@ BEGIN
         CONSTRAINT FK_ProctoringWarnings_TestSessions FOREIGN KEY ([testSessionId])
             REFERENCES [dbo].[TestSessions]([sessionId]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringWarnings_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE
     );
 
     -- Create indexes
@@ -658,11 +1290,11 @@ BEGIN
         CONSTRAINT FK_ProctoringReports_TestSessions FOREIGN KEY ([testSessionId])
             REFERENCES [dbo].[TestSessions]([sessionId]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringReports_Users FOREIGN KEY ([userId])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE CASCADE,
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringReports_Tests FOREIGN KEY ([testId])
             REFERENCES [dbo].[Tests]([testId]) ON DELETE CASCADE,
         CONSTRAINT FK_ProctoringReports_CreatedBy FOREIGN KEY ([createdBy])
-            REFERENCES [dbo].[Users]([userId]) ON DELETE SET NULL
+            REFERENCES [dbo].[Users]([user_id]) ON DELETE SET NULL
     );
 
     -- Create indexes
