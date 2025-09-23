@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const ActivityLog = require('../models/ActivityLog');
 const JWTUtils = require('../utils/jwtUtils');
@@ -47,9 +48,8 @@ const authController = {
                 });
             }
 
-            const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+            const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
-                await User.incrementFailedLogin(user.user_id);
                 await ActivityLog.logLogin(user.user_id, req.ip, req.get('User-Agent'), req.sessionID, false);
                 return res.status(401).json({
                     success: false,
@@ -57,8 +57,7 @@ const authController = {
                 });
             }
 
-            await User.updateLastLogin(user.user_id, req.ip);
-            await User.resetFailedLogin(user.user_id);
+            await User.updateLoginInfo(user.user_id);
 
             // Prepare user data for JWT
             const userData = {
@@ -91,8 +90,8 @@ const authController = {
                     fingerprint: JWTUtils.createFingerprint(req)
                 }))
                 .query(`
-                    INSERT INTO RefreshTokens (userId, token, expiresAt, deviceInfo, createdAt, isActive)
-                    VALUES (@userId, @refreshToken, @expiresAt, @deviceInfo, GETDATE(), 1)
+                    INSERT INTO refresh_tokens (user_id, token, expires_at, created_at)
+                    VALUES (@userId, @refreshToken, @expiresAt, GETDATE())
                 `);
 
             // Set cookies for web interface
@@ -165,9 +164,9 @@ const authController = {
                         .input('refreshToken', refreshToken)
                         .input('userId', userId)
                         .query(`
-                            UPDATE RefreshTokens
-                            SET isActive = 0, updatedAt = GETDATE()
-                            WHERE token = @refreshToken AND userId = @userId
+                            UPDATE refresh_tokens
+                            SET revoked = 1, revoked_at = GETDATE()
+                            WHERE token = @refreshToken AND user_id = @userId
                         `);
                 }
             }
@@ -201,31 +200,6 @@ const authController = {
         }
     },
 
-    async renderRegister(req, res) {
-        res.render('auth/register', {
-            title: 'สมัครสมาชิก'
-        });
-    },
-
-    async renderForgotPassword(req, res) {
-        res.render('auth/forgot-password', {
-            title: 'ลืมรหัสผ่าน'
-        });
-    },
-
-    async renderResetPassword(req, res) {
-        const { token } = req.query;
-
-        if (!token) {
-            req.flash('error_msg', 'Token ไม่ถูกต้อง');
-            return res.redirect('/auth/forgot-password');
-        }
-
-        res.render('auth/reset-password', {
-            title: 'รีเซ็ตรหัสผ่าน',
-            token: token
-        });
-    },
 
     async register(req, res) {
         try {
@@ -457,7 +431,7 @@ const authController = {
                 });
             }
 
-            const isCurrentPasswordValid = await bcrypt.compare(current_password, user.password_hash);
+            const isCurrentPasswordValid = await bcrypt.compare(current_password, user.password);
             if (!isCurrentPasswordValid) {
                 return res.status(400).json({
                     success: false,
@@ -537,8 +511,7 @@ const authController = {
             return res.redirect('/dashboard');
         }
         res.render('auth/login', {
-            title: 'เข้าสู่ระบบ - Ruxchai LearnHub',
-            layout: 'auth'
+            title: 'เข้าสู่ระบบ - Rukchai Hongyen LearnHub'
         });
     },
 
@@ -547,15 +520,13 @@ const authController = {
             return res.redirect('/dashboard');
         }
         res.render('auth/register', {
-            title: 'ลงทะเบียน - Ruxchai LearnHub',
-            layout: 'auth'
+            title: 'ลงทะเบียน - Rukchai Hongyen LearnHub'
         });
     },
 
     renderForgotPassword(req, res) {
         res.render('auth/forgot-password', {
-            title: 'ลืมรหัสผ่าน - Ruxchai LearnHub',
-            layout: 'auth'
+            title: 'ลืมรหัสผ่าน - Rukchai Hongyen LearnHub'
         });
     },
 
@@ -566,8 +537,7 @@ const authController = {
         }
 
         res.render('auth/reset-password', {
-            title: 'รีเซ็ตรหัสผ่าน - Ruxchai LearnHub',
-            layout: 'auth',
+            title: 'รีเซ็ตรหัสผ่าน - Rukchai Hongyen LearnHub',
             token: token
         });
     },
@@ -594,12 +564,12 @@ const authController = {
                 .input('userId', decoded.userId)
                 .input('refreshToken', refreshToken)
                 .query(`
-                    SELECT rt.tokenId, rt.isActive, rt.expiresAt
-                    FROM RefreshTokens rt
-                    WHERE rt.userId = @userId
+                    SELECT rt.token_id, rt.revoked, rt.expires_at
+                    FROM refresh_tokens rt
+                    WHERE rt.user_id = @userId
                     AND rt.token = @refreshToken
-                    AND rt.isActive = 1
-                    AND rt.expiresAt > GETDATE()
+                    AND rt.revoked = 0
+                    AND rt.expires_at > GETDATE()
                 `);
 
             if (tokenResult.recordset.length === 0) {
@@ -645,7 +615,7 @@ const authController = {
                 .input('refreshToken', tokens.refreshToken)
                 .input('expiresAt', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) // 7 days
                 .query(`
-                    INSERT INTO RefreshTokens (userId, token, expiresAt, createdAt, isActive)
+                    INSERT INTO refresh_tokens (userId, token, expiresAt, createdAt, isActive)
                     VALUES (@userId, @refreshToken, @expiresAt, GETDATE(), 1)
                 `);
 
@@ -653,8 +623,8 @@ const authController = {
             await pool.request()
                 .input('refreshToken', refreshToken)
                 .query(`
-                    UPDATE RefreshTokens
-                    SET isActive = 0, updatedAt = GETDATE()
+                    UPDATE refresh_tokens
+                    SET revoked = 1, revoked_at = GETDATE()
                     WHERE token = @refreshToken
                 `);
 

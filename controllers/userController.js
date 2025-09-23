@@ -540,9 +540,11 @@ const userController = {
             const user = await User.findById(userId);
 
             if (!user) {
-                return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Ruxchai LearnHub',
-                    user: req.session.user
+                return res.render('error', {
+                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    user: req.session.user,
+                    message: 'ไม่พบข้อมูลผู้ใช้',
+                    error: {}
                 });
             }
 
@@ -550,7 +552,7 @@ const userController = {
             const positions = await Position.findAll({ is_active: true });
 
             res.render('users/profile', {
-                title: 'โปรไฟล์ - Ruxchai LearnHub',
+                title: 'โปรไฟล์ - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 profileData: user,
                 departments: departments,
@@ -559,8 +561,8 @@ const userController = {
 
         } catch (error) {
             console.error('Render profile error:', error);
-            res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+            res.render('error', {
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 error: 'ไม่สามารถโหลดหน้าโปรไฟล์ได้'
             });
@@ -572,8 +574,8 @@ const userController = {
             const userRole = req.user.role;
 
             if (!['Admin', 'HR'].includes(userRole)) {
-                return res.render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Ruxchai LearnHub',
+                return res.render('error', {
+                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -582,7 +584,7 @@ const userController = {
             const positions = await Position.findAll({ is_active: true });
 
             res.render('users/management', {
-                title: 'จัดการผู้ใช้ - Ruxchai LearnHub',
+                title: 'จัดการผู้ใช้ - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: userRole,
                 departments: departments,
@@ -591,8 +593,8 @@ const userController = {
 
         } catch (error) {
             console.error('Render user management error:', error);
-            res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+            res.render('error', {
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 error: 'ไม่สามารถโหลดหน้าจัดการผู้ใช้ได้'
             });

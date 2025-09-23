@@ -6,22 +6,19 @@ class Article {
         this.article_id = data.article_id;
         this.title = data.title;
         this.slug = data.slug;
-        this.category_id = data.category_id;
-        this.author_id = data.author_id;
         this.content = data.content;
-        this.summary = data.summary;
-        this.cover_image = data.cover_image;
+        this.excerpt = data.excerpt;
+        this.author_id = data.author_id;
+        this.category = data.category;
         this.tags = data.tags;
-        this.view_count = data.view_count;
-        this.like_count = data.like_count;
-        this.share_count = data.share_count;
-        this.is_published = data.is_published;
-        this.is_featured = data.is_featured;
-        this.requires_review = data.requires_review;
-        this.reviewed_by = data.reviewed_by;
-        this.reviewed_date = data.reviewed_date;
-        this.published_date = data.published_date;
-        this.is_active = data.is_active;
+        this.featured_image = data.featured_image;
+        this.status = data.status;
+        this.published_at = data.published_at;
+        this.views_count = data.views_count;
+        this.likes_count = data.likes_count;
+        this.comments_enabled = data.comments_enabled;
+        this.created_at = data.created_at;
+        this.updated_at = data.updated_at;
     }
 
     // Generate slug from title
@@ -38,7 +35,6 @@ class Article {
     static async create(articleData) {
         try {
             const pool = await poolPromise;
-            const articleId = uuidv4();
 
             // Generate unique slug
             let baseSlug = this.generateSlug(articleData.title);
@@ -48,7 +44,7 @@ class Article {
             while (true) {
                 const slugCheck = await pool.request()
                     .input('slug', sql.NVarChar(200), slug)
-                    .query('SELECT article_id FROM Articles WHERE slug = @slug');
+                    .query('SELECT article_id FROM articles WHERE slug = @slug');
 
                 if (slugCheck.recordset.length === 0) break;
 
@@ -56,50 +52,38 @@ class Article {
                 counter++;
             }
 
-            // Determine if requires review based on user role
-            const userResult = await pool.request()
-                .input('authorId', sql.UniqueIdentifier, articleData.author_id)
-                .query(`
-                    SELECT r.role_name
-                    FROM Users u
-                    JOIN Roles r ON u.role_id = r.role_id
-                    WHERE u.user_id = @authorId
-                `);
-
-            const requiresReview = userResult.recordset.length > 0
-                ? !['ADMIN', 'INSTRUCTOR'].includes(userResult.recordset[0].role_name)
-                : true;
-
             const result = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
                 .input('title', sql.NVarChar(200), articleData.title)
                 .input('slug', sql.NVarChar(200), slug)
-                .input('categoryId', sql.UniqueIdentifier, articleData.category_id)
-                .input('authorId', sql.UniqueIdentifier, articleData.author_id)
                 .input('content', sql.NVarChar(sql.MAX), articleData.content)
-                .input('summary', sql.NVarChar(500), articleData.summary || null)
-                .input('coverImage', sql.NVarChar(500), articleData.cover_image || null)
+                .input('excerpt', sql.NVarChar(500), articleData.excerpt || null)
+                .input('authorId', sql.Int, articleData.author_id)
+                .input('category', sql.NVarChar(100), articleData.category || null)
                 .input('tags', sql.NVarChar(500), articleData.tags || null)
-                .input('requiresReview', sql.Bit, requiresReview)
+                .input('featuredImage', sql.NVarChar(500), articleData.featured_image || null)
+                .input('status', sql.NVarChar(50), articleData.status || 'draft')
+                .input('commentsEnabled', sql.Bit, articleData.comments_enabled !== undefined ? articleData.comments_enabled : 1)
                 .query(`
-                    INSERT INTO Articles (
-                        article_id, title, slug, category_id, author_id,
-                        content, summary, cover_image, tags, view_count,
-                        like_count, share_count, is_published, is_featured,
-                        requires_review, is_active, created_date
+                    INSERT INTO articles (
+                        title, slug, content, excerpt, author_id,
+                        category, tags, featured_image, status,
+                        views_count, likes_count, comments_enabled,
+                        created_at, updated_at
                     ) VALUES (
-                        @articleId, @title, @slug, @categoryId, @authorId,
-                        @content, @summary, @coverImage, @tags, 0,
-                        0, 0, 0, 0,
-                        @requiresReview, 1, GETDATE()
-                    )
+                        @title, @slug, @content, @excerpt, @authorId,
+                        @category, @tags, @featuredImage, @status,
+                        0, 0, @commentsEnabled,
+                        GETDATE(), GETDATE()
+                    );
+                    SELECT SCOPE_IDENTITY() AS article_id;
                 `);
+
+            const articleId = result.recordset[0].article_id;
 
             return {
                 success: true,
                 articleId: articleId,
-                slug: slug,
-                requiresReview: requiresReview
+                slug: slug
             };
         } catch (error) {
             throw new Error(`Error creating article: ${error.message}`);
@@ -111,20 +95,13 @@ class Article {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
+                .input('articleId', sql.Int, articleId)
                 .query(`
                     SELECT a.*,
-                           ac.category_name,
                            CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                           u.profile_image as author_image,
-                           CONCAT(r.first_name, ' ', r.last_name) as reviewer_name,
-                           (SELECT AVG(CAST(rating AS FLOAT)) FROM ArticleRatings WHERE article_id = a.article_id) as avg_rating,
-                           (SELECT COUNT(*) FROM ArticleRatings WHERE article_id = a.article_id) as rating_count,
-                           (SELECT COUNT(*) FROM ArticleComments WHERE article_id = a.article_id AND is_deleted = 0) as comment_count
-                    FROM Articles a
-                    LEFT JOIN ArticleCategories ac ON a.category_id = ac.category_id
-                    LEFT JOIN Users u ON a.author_id = u.user_id
-                    LEFT JOIN Users r ON a.reviewed_by = r.user_id
+                           u.profile_image as author_image
+                    FROM articles a
+                    LEFT JOIN users u ON a.author_id = u.user_id
                     WHERE a.article_id = @articleId
                 `);
 
@@ -142,18 +119,11 @@ class Article {
                 .input('slug', sql.NVarChar(200), slug)
                 .query(`
                     SELECT a.*,
-                           ac.category_name,
                            CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                           u.profile_image as author_image,
-                           u.department_id as author_department,
-                           u.position_id as author_position,
-                           (SELECT AVG(CAST(rating AS FLOAT)) FROM ArticleRatings WHERE article_id = a.article_id) as avg_rating,
-                           (SELECT COUNT(*) FROM ArticleRatings WHERE article_id = a.article_id) as rating_count,
-                           (SELECT COUNT(*) FROM ArticleComments WHERE article_id = a.article_id AND is_deleted = 0) as comment_count
-                    FROM Articles a
-                    LEFT JOIN ArticleCategories ac ON a.category_id = ac.category_id
-                    LEFT JOIN Users u ON a.author_id = u.user_id
-                    WHERE a.slug = @slug AND a.is_active = 1
+                           u.profile_image as author_image
+                    FROM articles a
+                    LEFT JOIN users u ON a.author_id = u.user_id
+                    WHERE a.slug = @slug AND a.status = 'published'
                 `);
 
             if (result.recordset.length === 0) {
@@ -161,18 +131,6 @@ class Article {
             }
 
             const article = result.recordset[0];
-
-            // Get attachments
-            const attachmentResult = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, article.article_id)
-                .query(`
-                    SELECT *
-                    FROM ArticleAttachments
-                    WHERE article_id = @articleId
-                    ORDER BY created_date
-                `);
-
-            article.attachments = attachmentResult.recordset;
 
             return article;
         } catch (error) {
@@ -186,70 +144,58 @@ class Article {
             const pool = await poolPromise;
             const offset = (page - 1) * limit;
 
-            let whereClause = 'WHERE a.is_active = 1';
+            let whereClause = 'WHERE a.status = \'published\'';
             const request = pool.request()
                 .input('offset', sql.Int, offset)
                 .input('limit', sql.Int, limit);
 
             // Add filters
-            if (filters.category_id) {
-                whereClause += ' AND a.category_id = @categoryId';
-                request.input('categoryId', sql.UniqueIdentifier, filters.category_id);
+            if (filters.category) {
+                whereClause += ' AND a.category = @category';
+                request.input('category', sql.NVarChar(50), filters.category);
             }
             if (filters.author_id) {
                 whereClause += ' AND a.author_id = @authorId';
-                request.input('authorId', sql.UniqueIdentifier, filters.author_id);
+                request.input('authorId', sql.Int, filters.author_id);
             }
-            if (filters.is_published !== undefined) {
-                whereClause += ' AND a.is_published = @isPublished';
-                request.input('isPublished', sql.Bit, filters.is_published);
-            }
-            if (filters.is_featured !== undefined) {
-                whereClause += ' AND a.is_featured = @isFeatured';
-                request.input('isFeatured', sql.Bit, filters.is_featured);
-            }
-            if (filters.requires_review !== undefined) {
-                whereClause += ' AND a.requires_review = @requiresReview';
-                request.input('requiresReview', sql.Bit, filters.requires_review);
+            if (filters.status) {
+                whereClause += ' AND a.status = @status';
+                request.input('status', sql.NVarChar(50), filters.status);
             }
             if (filters.search) {
                 whereClause += ` AND (
                     a.title LIKE @search OR
                     a.content LIKE @search OR
+                    a.excerpt LIKE @search OR
                     a.tags LIKE @search
                 )`;
                 request.input('search', sql.NVarChar(500), `%${filters.search}%`);
             }
 
             // Order by
-            let orderBy = 'ORDER BY a.created_date DESC';
+            let orderBy = 'ORDER BY a.created_at DESC';
             if (filters.sort === 'popular') {
-                orderBy = 'ORDER BY a.view_count DESC, a.created_date DESC';
-            } else if (filters.sort === 'rating') {
-                orderBy = 'ORDER BY avg_rating DESC, a.created_date DESC';
-            } else if (filters.sort === 'comments') {
-                orderBy = 'ORDER BY comment_count DESC, a.created_date DESC';
+                orderBy = 'ORDER BY a.views_count DESC, a.created_at DESC';
+            } else if (filters.sort === 'likes') {
+                orderBy = 'ORDER BY a.likes_count DESC, a.created_at DESC';
+            } else if (filters.sort === 'title') {
+                orderBy = 'ORDER BY a.title ASC';
             }
 
             // Get total count
             const countResult = await request.query(`
                 SELECT COUNT(*) as total
-                FROM Articles a
+                FROM articles a
                 ${whereClause}
             `);
 
             // Get paginated data
             const result = await request.query(`
                 SELECT a.*,
-                       ac.category_name,
                        CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                       u.profile_image as author_image,
-                       (SELECT AVG(CAST(rating AS FLOAT)) FROM ArticleRatings WHERE article_id = a.article_id) as avg_rating,
-                       (SELECT COUNT(*) FROM ArticleRatings WHERE article_id = a.article_id) as rating_count,
-                       (SELECT COUNT(*) FROM ArticleComments WHERE article_id = a.article_id AND is_deleted = 0) as comment_count
-                FROM Articles a
-                LEFT JOIN ArticleCategories ac ON a.category_id = ac.category_id
-                LEFT JOIN Users u ON a.author_id = u.user_id
+                       u.profile_image as author_image
+                FROM articles a
+                LEFT JOIN users u ON a.author_id = u.user_id
                 ${whereClause}
                 ${orderBy}
                 OFFSET @offset ROWS
@@ -275,7 +221,7 @@ class Article {
             // Build dynamic update query
             const updateFields = [];
             const request = pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId);
+                .input('articleId', sql.Int, articleId);
 
             if (updateData.title !== undefined) {
                 updateFields.push('title = @title');
@@ -286,36 +232,48 @@ class Article {
                 updateFields.push('slug = @slug');
                 request.input('slug', sql.NVarChar(200), slug);
             }
-            if (updateData.category_id !== undefined) {
-                updateFields.push('category_id = @categoryId');
-                request.input('categoryId', sql.UniqueIdentifier, updateData.category_id);
+            if (updateData.category !== undefined) {
+                updateFields.push('category = @category');
+                request.input('category', sql.NVarChar(100), updateData.category);
             }
             if (updateData.content !== undefined) {
                 updateFields.push('content = @content');
                 request.input('content', sql.NVarChar(sql.MAX), updateData.content);
             }
-            if (updateData.summary !== undefined) {
-                updateFields.push('summary = @summary');
-                request.input('summary', sql.NVarChar(500), updateData.summary);
+            if (updateData.excerpt !== undefined) {
+                updateFields.push('excerpt = @excerpt');
+                request.input('excerpt', sql.NVarChar(500), updateData.excerpt);
             }
-            if (updateData.cover_image !== undefined) {
-                updateFields.push('cover_image = @coverImage');
-                request.input('coverImage', sql.NVarChar(500), updateData.cover_image);
+            if (updateData.featured_image !== undefined) {
+                updateFields.push('featured_image = @featuredImage');
+                request.input('featuredImage', sql.NVarChar(500), updateData.featured_image);
             }
             if (updateData.tags !== undefined) {
                 updateFields.push('tags = @tags');
                 request.input('tags', sql.NVarChar(500), updateData.tags);
+            }
+            if (updateData.status !== undefined) {
+                updateFields.push('status = @status');
+                request.input('status', sql.NVarChar(50), updateData.status);
+
+                // Set published_at when publishing
+                if (updateData.status === 'published') {
+                    updateFields.push('published_at = GETDATE()');
+                }
+            }
+            if (updateData.comments_enabled !== undefined) {
+                updateFields.push('comments_enabled = @commentsEnabled');
+                request.input('commentsEnabled', sql.Bit, updateData.comments_enabled);
             }
 
             if (updateFields.length === 0) {
                 return { success: false, message: 'No fields to update' };
             }
 
-            updateFields.push('modified_date = GETDATE()');
-            updateFields.push('version = version + 1');
+            updateFields.push('updated_at = GETDATE()');
 
             const updateQuery = `
-                UPDATE Articles
+                UPDATE articles
                 SET ${updateFields.join(', ')}
                 WHERE article_id = @articleId
             `;
@@ -335,23 +293,23 @@ class Article {
     static async togglePublish(articleId, publish = true) {
         try {
             const pool = await poolPromise;
+            const status = publish ? 'published' : 'draft';
             const result = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .input('isPublished', sql.Bit, publish)
+                .input('articleId', sql.Int, articleId)
+                .input('status', sql.NVarChar(50), status)
                 .query(`
-                    UPDATE Articles
-                    SET is_published = @isPublished,
-                        published_date = CASE WHEN @isPublished = 1 THEN GETDATE() ELSE published_date END,
-                        modified_date = GETDATE()
+                    UPDATE articles
+                    SET status = @status,
+                        published_at = CASE WHEN @status = 'published' THEN GETDATE() ELSE published_at END,
+                        updated_at = GETDATE()
                     WHERE article_id = @articleId
-                    AND (requires_review = 0 OR reviewed_by IS NOT NULL)
                 `);
 
             return {
                 success: result.rowsAffected[0] > 0,
                 message: result.rowsAffected[0] > 0
                     ? (publish ? 'Article published successfully' : 'Article unpublished successfully')
-                    : 'Article not found or requires review'
+                    : 'Article not found'
             };
         } catch (error) {
             throw new Error(`Error publishing article: ${error.message}`);
@@ -362,48 +320,17 @@ class Article {
     static async review(articleId, reviewerId, approved = true) {
         try {
             const pool = await poolPromise;
+            const status = approved ? 'published' : 'draft';
             const result = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .input('reviewerId', sql.UniqueIdentifier, reviewerId)
-                .input('approved', sql.Bit, approved)
+                .input('articleId', sql.Int, articleId)
+                .input('status', sql.NVarChar(50), status)
                 .query(`
-                    UPDATE Articles
-                    SET reviewed_by = @reviewerId,
-                        reviewed_date = GETDATE(),
-                        requires_review = 0,
-                        is_published = @approved,
-                        published_date = CASE WHEN @approved = 1 THEN GETDATE() ELSE NULL END,
-                        modified_date = GETDATE()
+                    UPDATE articles
+                    SET status = @status,
+                        published_at = CASE WHEN @status = 'published' THEN GETDATE() ELSE NULL END,
+                        updated_at = GETDATE()
                     WHERE article_id = @articleId
                 `);
-
-            // Send notification to author
-            if (result.rowsAffected[0] > 0) {
-                const articleInfo = await pool.request()
-                    .input('articleId', sql.UniqueIdentifier, articleId)
-                    .query(`SELECT author_id, title FROM Articles WHERE article_id = @articleId`);
-
-                if (articleInfo.recordset.length > 0) {
-                    const notificationTitle = approved ? 'Article Approved' : 'Article Rejected';
-                    const notificationMessage = approved
-                        ? `Your article "${articleInfo.recordset[0].title}" has been approved and published.`
-                        : `Your article "${articleInfo.recordset[0].title}" has been rejected. Please revise and resubmit.`;
-
-                    await pool.request()
-                        .input('notificationId', sql.UniqueIdentifier, uuidv4())
-                        .input('userId', sql.UniqueIdentifier, articleInfo.recordset[0].author_id)
-                        .input('title', sql.NVarChar(200), notificationTitle)
-                        .input('message', sql.NVarChar(1000), notificationMessage)
-                        .input('link', sql.NVarChar(500), `/articles/${articleId}`)
-                        .query(`
-                            INSERT INTO Notifications (
-                                notification_id, user_id, notification_type, title, message, link
-                            ) VALUES (
-                                @notificationId, @userId, 'ARTICLE_REVIEW', @title, @message, @link
-                            )
-                        `);
-                }
-            }
 
             return {
                 success: result.rowsAffected[0] > 0,
@@ -417,150 +344,68 @@ class Article {
     }
 
     // Add view to article
-    static async addView(articleId, userId = null, ipAddress) {
+    static async addView(articleId) {
         try {
             const pool = await poolPromise;
 
-            // Check if already viewed today by this IP/user
-            const today = new Date().toDateString();
-            const viewCheck = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .input('userId', sql.UniqueIdentifier, userId)
-                .input('ipAddress', sql.NVarChar(50), ipAddress)
+            // Simple increment of view count
+            const result = await pool.request()
+                .input('articleId', sql.Int, articleId)
                 .query(`
-                    SELECT view_id
-                    FROM ArticleViews
-                    WHERE article_id = @articleId
-                    AND (user_id = @userId OR ip_address = @ipAddress)
-                    AND CAST(viewed_date AS DATE) = CAST(GETDATE() AS DATE)
-                `);
-
-            if (viewCheck.recordset.length > 0) {
-                return { success: true, message: 'Already viewed today' };
-            }
-
-            // Add new view
-            await pool.request()
-                .input('viewId', sql.UniqueIdentifier, uuidv4())
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .input('userId', sql.UniqueIdentifier, userId)
-                .input('ipAddress', sql.NVarChar(50), ipAddress)
-                .query(`
-                    INSERT INTO ArticleViews (view_id, article_id, user_id, ip_address)
-                    VALUES (@viewId, @articleId, @userId, @ipAddress)
-                `);
-
-            // Update view count
-            await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .query(`
-                    UPDATE Articles
-                    SET view_count = (
-                        SELECT COUNT(DISTINCT CASE
-                            WHEN user_id IS NOT NULL THEN user_id
-                            ELSE ip_address
-                        END)
-                        FROM ArticleViews
-                        WHERE article_id = @articleId
-                    )
+                    UPDATE articles
+                    SET views_count = views_count + 1,
+                        updated_at = GETDATE()
                     WHERE article_id = @articleId
                 `);
 
-            return { success: true, message: 'View recorded' };
+            return {
+                success: result.rowsAffected[0] > 0,
+                message: result.rowsAffected[0] > 0 ? 'View recorded' : 'Article not found'
+            };
         } catch (error) {
             throw new Error(`Error adding view: ${error.message}`);
         }
     }
 
-    // Rate article
-    static async rate(articleId, userId, rating) {
+    // Add like to article
+    static async addLike(articleId) {
         try {
             const pool = await poolPromise;
 
-            if (rating < 1 || rating > 5) {
-                return { success: false, message: 'Rating must be between 1 and 5' };
-            }
-
-            // Check if already rated
-            const existingCheck = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .input('userId', sql.UniqueIdentifier, userId)
+            // Simple increment of like count
+            const result = await pool.request()
+                .input('articleId', sql.Int, articleId)
                 .query(`
-                    SELECT rating_id, rating
-                    FROM ArticleRatings
-                    WHERE article_id = @articleId AND user_id = @userId
-                `);
-
-            if (existingCheck.recordset.length > 0) {
-                // Update existing rating
-                await pool.request()
-                    .input('ratingId', sql.UniqueIdentifier, existingCheck.recordset[0].rating_id)
-                    .input('rating', sql.Int, rating)
-                    .query(`
-                        UPDATE ArticleRatings
-                        SET rating = @rating,
-                            modified_date = GETDATE()
-                        WHERE rating_id = @ratingId
-                    `);
-            } else {
-                // Create new rating
-                await pool.request()
-                    .input('ratingId', sql.UniqueIdentifier, uuidv4())
-                    .input('articleId', sql.UniqueIdentifier, articleId)
-                    .input('userId', sql.UniqueIdentifier, userId)
-                    .input('rating', sql.Int, rating)
-                    .query(`
-                        INSERT INTO ArticleRatings (rating_id, article_id, user_id, rating)
-                        VALUES (@ratingId, @articleId, @userId, @rating)
-                    `);
-            }
-
-            // Get new average rating
-            const avgResult = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .query(`
-                    SELECT AVG(CAST(rating AS FLOAT)) as avg_rating,
-                           COUNT(*) as rating_count
-                    FROM ArticleRatings
+                    UPDATE articles
+                    SET likes_count = likes_count + 1,
+                        updated_at = GETDATE()
                     WHERE article_id = @articleId
                 `);
 
             return {
-                success: true,
-                avgRating: avgResult.recordset[0].avg_rating,
-                ratingCount: avgResult.recordset[0].rating_count
+                success: result.rowsAffected[0] > 0,
+                message: result.rowsAffected[0] > 0 ? 'Like recorded' : 'Article not found'
             };
         } catch (error) {
-            throw new Error(`Error rating article: ${error.message}`);
+            throw new Error(`Error adding like: ${error.message}`);
         }
     }
 
     // Get popular articles
-    static async getPopular(limit = 10, timeframe = 'all') {
+    static async getPopular(limit = 10) {
         try {
             const pool = await poolPromise;
-            const request = pool.request().input('limit', sql.Int, limit);
-
-            let timeClause = '';
-            if (timeframe === 'week') {
-                timeClause = 'AND a.created_date >= DATEADD(day, -7, GETDATE())';
-            } else if (timeframe === 'month') {
-                timeClause = 'AND a.created_date >= DATEADD(month, -1, GETDATE())';
-            }
-
-            const result = await request.query(`
-                SELECT TOP (@limit) a.*,
-                       ac.category_name,
-                       CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                       u.profile_image as author_image,
-                       (SELECT AVG(CAST(rating AS FLOAT)) FROM ArticleRatings WHERE article_id = a.article_id) as avg_rating,
-                       (SELECT COUNT(*) FROM ArticleRatings WHERE article_id = a.article_id) as rating_count
-                FROM Articles a
-                LEFT JOIN ArticleCategories ac ON a.category_id = ac.category_id
-                LEFT JOIN Users u ON a.author_id = u.user_id
-                WHERE a.is_published = 1 AND a.is_active = 1 ${timeClause}
-                ORDER BY a.view_count DESC, a.created_date DESC
-            `);
+            const result = await pool.request()
+                .input('limit', sql.Int, limit)
+                .query(`
+                    SELECT TOP (@limit) a.*,
+                           CONCAT(u.first_name, ' ', u.last_name) as author_name,
+                           u.profile_image as author_image
+                    FROM articles a
+                    LEFT JOIN users u ON a.author_id = u.user_id
+                    WHERE a.status = 'published'
+                    ORDER BY a.views_count DESC, a.created_at DESC
+                `);
 
             return result.recordset;
         } catch (error) {
@@ -568,42 +413,41 @@ class Article {
         }
     }
 
-    // Get featured articles
-    static async getFeatured(limit = 5) {
+    // Get recent articles
+    static async getRecent(limit = 5) {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit) a.*,
-                           ac.category_name,
                            CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                           u.profile_image as author_image,
-                           (SELECT AVG(CAST(rating AS FLOAT)) FROM ArticleRatings WHERE article_id = a.article_id) as avg_rating
-                    FROM Articles a
-                    LEFT JOIN ArticleCategories ac ON a.category_id = ac.category_id
-                    LEFT JOIN Users u ON a.author_id = u.user_id
-                    WHERE a.is_featured = 1 AND a.is_published = 1 AND a.is_active = 1
-                    ORDER BY a.published_date DESC
+                           u.profile_image as author_image
+                    FROM articles a
+                    LEFT JOIN users u ON a.author_id = u.user_id
+                    WHERE a.status = 'published'
+                    ORDER BY a.published_at DESC
                 `);
 
             return result.recordset;
         } catch (error) {
-            throw new Error(`Error fetching featured articles: ${error.message}`);
+            throw new Error(`Error fetching recent articles: ${error.message}`);
         }
     }
 
-    // Get article categories
+    // Get article categories (distinct categories from articles)
     static async getCategories() {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
                 .query(`
-                    SELECT ac.*,
-                           (SELECT COUNT(*) FROM Articles WHERE category_id = ac.category_id AND is_published = 1 AND is_active = 1) as article_count
-                    FROM ArticleCategories ac
-                    WHERE ac.is_active = 1
-                    ORDER BY ac.category_order, ac.category_name
+                    SELECT DISTINCT
+                           a.category,
+                           COUNT(*) as article_count
+                    FROM articles a
+                    WHERE a.status = 'published' AND a.category IS NOT NULL
+                    GROUP BY a.category
+                    ORDER BY a.category
                 `);
 
             return result.recordset;
@@ -619,32 +463,28 @@ class Article {
 
             // Get current article info
             const currentArticle = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .query(`SELECT category_id, tags FROM Articles WHERE article_id = @articleId`);
+                .input('articleId', sql.Int, articleId)
+                .query(`SELECT category FROM articles WHERE article_id = @articleId`);
 
             if (currentArticle.recordset.length === 0) {
                 return [];
             }
 
-            const { category_id, tags } = currentArticle.recordset[0];
+            const { category } = currentArticle.recordset[0];
 
             const result = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .input('categoryId', sql.UniqueIdentifier, category_id)
+                .input('articleId', sql.Int, articleId)
+                .input('category', sql.NVarChar(100), category)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit) a.*,
-                           ac.category_name,
-                           CONCAT(u.first_name, ' ', u.last_name) as author_name,
-                           (SELECT AVG(CAST(rating AS FLOAT)) FROM ArticleRatings WHERE article_id = a.article_id) as avg_rating
-                    FROM Articles a
-                    LEFT JOIN ArticleCategories ac ON a.category_id = ac.category_id
-                    LEFT JOIN Users u ON a.author_id = u.user_id
+                           CONCAT(u.first_name, ' ', u.last_name) as author_name
+                    FROM articles a
+                    LEFT JOIN users u ON a.author_id = u.user_id
                     WHERE a.article_id != @articleId
-                    AND a.is_published = 1
-                    AND a.is_active = 1
-                    AND a.category_id = @categoryId
-                    ORDER BY a.view_count DESC, a.created_date DESC
+                    AND a.status = 'published'
+                    AND a.category = @category
+                    ORDER BY a.views_count DESC, a.created_at DESC
                 `);
 
             return result.recordset;
@@ -654,16 +494,15 @@ class Article {
     }
 
     // Delete article (soft delete)
-    static async delete(articleId, deletedBy) {
+    static async delete(articleId) {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
+                .input('articleId', sql.Int, articleId)
                 .query(`
-                    UPDATE Articles
-                    SET is_active = 0,
-                        is_published = 0,
-                        modified_date = GETDATE()
+                    UPDATE articles
+                    SET status = 'deleted',
+                        updated_at = GETDATE()
                     WHERE article_id = @articleId
                 `);
 
@@ -681,17 +520,15 @@ class Article {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('authorId', sql.UniqueIdentifier, authorId)
+                .input('authorId', sql.Int, authorId)
                 .query(`
                     SELECT
                         COUNT(*) as total_articles,
-                        COUNT(CASE WHEN is_published = 1 THEN 1 END) as published_articles,
-                        SUM(view_count) as total_views,
-                        AVG(CASE WHEN is_published = 1 THEN
-                            (SELECT AVG(CAST(rating AS FLOAT)) FROM ArticleRatings WHERE article_id = Articles.article_id)
-                        END) as avg_rating
-                    FROM Articles
-                    WHERE author_id = @authorId AND is_active = 1
+                        COUNT(CASE WHEN status = 'published' THEN 1 END) as published_articles,
+                        SUM(views_count) as total_views,
+                        SUM(likes_count) as total_likes
+                    FROM articles
+                    WHERE author_id = @authorId AND status != 'deleted'
                 `);
 
             return result.recordset[0];

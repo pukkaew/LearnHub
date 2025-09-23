@@ -20,7 +20,7 @@ class Badge {
             const badgeId = uuidv4();
 
             const result = await pool.request()
-                .input('badgeId', sql.UniqueIdentifier, badgeId)
+                .input('badgeId', sql.Int, badgeId)
                 .input('badgeName', sql.NVarChar(100), badgeData.badge_name)
                 .input('badgeDescription', sql.NVarChar(500), badgeData.badge_description || null)
                 .input('badgeType', sql.NVarChar(50), badgeData.badge_type)
@@ -83,8 +83,8 @@ class Badge {
 
             // Check if user already has this badge
             const existingCheck = await pool.request()
-                .input('badgeId', sql.UniqueIdentifier, badgeId)
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('badgeId', sql.Int, badgeId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT user_badge_id
                     FROM UserBadges
@@ -97,7 +97,7 @@ class Badge {
 
             // Get badge info
             const badgeInfo = await pool.request()
-                .input('badgeId', sql.UniqueIdentifier, badgeId)
+                .input('badgeId', sql.Int, badgeId)
                 .query(`
                     SELECT badge_name, badge_type
                     FROM Badges
@@ -111,9 +111,9 @@ class Badge {
             // Award badge
             const userBadgeId = uuidv4();
             await pool.request()
-                .input('userBadgeId', sql.UniqueIdentifier, userBadgeId)
-                .input('userId', sql.UniqueIdentifier, userId)
-                .input('badgeId', sql.UniqueIdentifier, badgeId)
+                .input('userBadgeId', sql.Int, userBadgeId)
+                .input('userId', sql.Int, userId)
+                .input('badgeId', sql.Int, badgeId)
                 .query(`
                     INSERT INTO UserBadges (user_badge_id, user_id, badge_id, earned_date)
                     VALUES (@userBadgeId, @userId, @badgeId, GETDATE())
@@ -121,8 +121,8 @@ class Badge {
 
             // Send notification
             await pool.request()
-                .input('notificationId', sql.UniqueIdentifier, uuidv4())
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('notificationId', sql.Int, uuidv4())
+                .input('userId', sql.Int, userId)
                 .input('title', sql.NVarChar(200), 'New Badge Earned!')
                 .input('message', sql.NVarChar(1000),
                     `Congratulations! You've earned the "${badgeInfo.recordset[0].badge_name}" badge.`)
@@ -152,11 +152,11 @@ class Badge {
 
             // Get user statistics
             const userStats = await pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT
                         (SELECT ISNULL(SUM(points_earned), 0) FROM UserPoints WHERE user_id = @userId) as total_points,
-                        (SELECT COUNT(*) FROM CourseEnrollments WHERE user_id = @userId AND completion_status = 'COMPLETED') as completed_courses,
+                        (SELECT COUNT(*) FROM user_courses WHERE user_id = @userId AND status = 'completed') as completed_courses,
                         (SELECT COUNT(*) FROM Articles WHERE author_id = @userId AND is_published = 1 AND is_active = 1) as published_articles,
                         (SELECT COUNT(*) FROM ArticleComments WHERE user_id = @userId AND is_deleted = 0) as comments_count,
                         (SELECT COUNT(*) FROM TestAttempts WHERE user_id = @userId AND passed = 1) as passed_tests,
@@ -238,7 +238,7 @@ class Badge {
         try {
             const pool = await poolPromise;
             const request = pool.request()
-                .input('userId', sql.UniqueIdentifier, userId);
+                .input('userId', sql.Int, userId);
 
             let whereClause = 'WHERE ub.user_id = @userId';
             if (displayedOnly) {
@@ -272,7 +272,7 @@ class Badge {
 
             // First, set all badges as not displayed
             await pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     UPDATE UserBadges
                     SET is_displayed = 0, display_order = 0
@@ -282,8 +282,8 @@ class Badge {
             // Then, set selected badges as displayed with order
             for (let i = 0; i < badgeIds.length; i++) {
                 await pool.request()
-                    .input('userId', sql.UniqueIdentifier, userId)
-                    .input('badgeId', sql.UniqueIdentifier, badgeIds[i])
+                    .input('userId', sql.Int, userId)
+                    .input('badgeId', sql.Int, badgeIds[i])
                     .input('displayOrder', sql.Int, i + 1)
                     .query(`
                         UPDATE UserBadges
@@ -411,7 +411,7 @@ class Badge {
 
             const updateFields = [];
             const request = pool.request()
-                .input('badgeId', sql.UniqueIdentifier, badgeId);
+                .input('badgeId', sql.Int, badgeId);
 
             if (updateData.badge_name !== undefined) {
                 updateFields.push('badge_name = @badgeName');
@@ -457,7 +457,7 @@ class Badge {
             const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('badgeId', sql.UniqueIdentifier, badgeId)
+                .input('badgeId', sql.Int, badgeId)
                 .query(`
                     UPDATE Badges
                     SET is_active = 0

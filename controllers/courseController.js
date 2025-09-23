@@ -471,7 +471,7 @@ const courseController = {
     async renderCoursesList(req, res) {
         try {
             res.render('courses/index', {
-                title: 'หลักสูตรทั้งหมด - Ruxchai LearnHub',
+                title: 'หลักสูตรทั้งหมด - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role
             });
@@ -479,9 +479,10 @@ const courseController = {
         } catch (error) {
             console.error('Render courses list error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้ารายการหลักสูตรได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้ารายการหลักสูตรได้'
+                error: error
             });
         }
     },
@@ -494,7 +495,7 @@ const courseController = {
             const course = await Course.findById(course_id);
             if (!course) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Ruxchai LearnHub',
+                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -502,7 +503,7 @@ const courseController = {
             const enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
 
             res.render('courses/detail', {
-                title: `${course.course_name} - Ruxchai LearnHub`,
+                title: `${course.course_name} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role,
                 course: course,
@@ -512,10 +513,12 @@ const courseController = {
 
         } catch (error) {
             console.error('Render course detail error:', error);
-            res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+            res.status(500).render('error/500', {
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดข้อมูลหลักสูตรได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดข้อมูลหลักสูตรได้'
+                error: error,
+                layout: false
             });
         }
     },
@@ -523,7 +526,7 @@ const courseController = {
     async renderMyCourses(req, res) {
         try {
             res.render('courses/my-courses', {
-                title: 'หลักสูตรของฉัน - Ruxchai LearnHub',
+                title: 'หลักสูตรของฉัน - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role
             });
@@ -531,9 +534,10 @@ const courseController = {
         } catch (error) {
             console.error('Render my courses error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้าหลักสูตรของฉันได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้าหลักสูตรของฉันได้'
+                error: error
             });
         }
     }

@@ -48,8 +48,11 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // View engine setup
+const expressLayouts = require('express-ejs-layouts');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(expressLayouts);
+app.set('layout', './layout');
 
 // Compression middleware
 app.use(compression());
@@ -79,7 +82,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Session configuration
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'ruxchai-learning-hub-secret',
+    secret: process.env.SESSION_SECRET || 'rukchai-hongyen-learnhub-secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -124,7 +127,12 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/', authRoutes);
+app.use('/auth', authRoutes);
+
+// Redirect old routes to new auth routes
+app.get('/login', (req, res) => res.redirect('/auth/login'));
+app.get('/register', (req, res) => res.redirect('/auth/register'));
+app.get('/logout', (req, res) => res.redirect('/auth/logout'));
 app.use('/dashboard', dashboardRoutes);
 app.use('/users', userRoutes);
 app.use('/courses', courseRoutes);
@@ -139,7 +147,7 @@ app.get('/', (req, res) => {
     if (req.session.user) {
         res.redirect('/dashboard');
     } else {
-        res.redirect('/login');
+        res.redirect('/auth/login');
     }
 });
 
@@ -454,7 +462,7 @@ app.set('broadcastTestUpdate', broadcastTestUpdate);
 
 // Start server
 server.listen(PORT, () => {
-    console.log(`🚀 Ruxchai LearnHub Server is running on port ${PORT}`);
+    console.log(`🚀 Rukchai Hongyen LearnHub Server is running on port ${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Local URL: http://localhost:${PORT}`);
 

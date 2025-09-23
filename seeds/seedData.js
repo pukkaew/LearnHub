@@ -22,7 +22,7 @@ class SeedData {
             const tables = [
                 'TestResults',
                 'TestQuestions',
-                'CourseEnrollments',
+                'user_courses',
                 'CourseProgress',
                 'Certificates',
                 'TestAttempts',
@@ -72,7 +72,7 @@ class SeedData {
 
             for (const role of roles) {
                 await this.pool.request()
-                    .input('roleId', sql.UniqueIdentifier, role.role_id)
+                    .input('roleId', sql.Int, role.role_id)
                     .input('roleName', sql.NVarChar(50), role.role_name)
                     .input('description', sql.NVarChar(255), role.description)
                     .query(`
@@ -104,7 +104,7 @@ class SeedData {
 
             for (const dept of departments) {
                 await this.pool.request()
-                    .input('departmentId', sql.UniqueIdentifier, dept.department_id)
+                    .input('departmentId', sql.Int, dept.department_id)
                     .input('departmentName', sql.NVarChar(100), dept.department_name)
                     .input('departmentCode', sql.NVarChar(10), dept.department_code)
                     .query(`
@@ -140,7 +140,7 @@ class SeedData {
 
             for (const pos of positions) {
                 await this.pool.request()
-                    .input('positionId', sql.UniqueIdentifier, pos.position_id)
+                    .input('positionId', sql.Int, pos.position_id)
                     .input('positionName', sql.NVarChar(100), pos.position_name)
                     .input('level', sql.Int, pos.level)
                     .query(`
@@ -176,7 +176,7 @@ class SeedData {
                     username: 'admin',
                     first_name: 'System',
                     last_name: 'Administrator',
-                    email: 'admin@ruxchai.com',
+                    email: 'admin@rukchaihongyen.com',
                     role_id: adminRoleId,
                     department_id: this.departments[0].department_id,
                     position_id: this.positions[0].position_id
@@ -187,7 +187,7 @@ class SeedData {
                     username: 'hr.manager',
                     first_name: 'Human',
                     last_name: 'Resources',
-                    email: 'hr@ruxchai.com',
+                    email: 'hr@rukchaihongyen.com',
                     role_id: hrRoleId,
                     department_id: this.departments[1].department_id,
                     position_id: this.positions[2].position_id
@@ -198,7 +198,7 @@ class SeedData {
                     username: 'it.manager',
                     first_name: 'IT',
                     last_name: 'Manager',
-                    email: 'it.manager@ruxchai.com',
+                    email: 'it.manager@rukchaihongyen.com',
                     role_id: managerRoleId,
                     department_id: this.departments[0].department_id,
                     position_id: this.positions[2].position_id
@@ -209,7 +209,7 @@ class SeedData {
                     username: 'instructor1',
                     first_name: 'John',
                     last_name: 'Smith',
-                    email: 'instructor1@ruxchai.com',
+                    email: 'instructor1@rukchaihongyen.com',
                     role_id: instructorRoleId,
                     department_id: this.departments[0].department_id,
                     position_id: this.positions[4].position_id
@@ -238,16 +238,16 @@ class SeedData {
 
             for (const user of users) {
                 await this.pool.request()
-                    .input('userId', sql.UniqueIdentifier, user.user_id)
+                    .input('userId', sql.Int, user.user_id)
                     .input('employeeId', sql.NVarChar(20), user.employee_id)
                     .input('username', sql.NVarChar(50), user.username)
                     .input('passwordHash', sql.NVarChar(255), passwordHash)
                     .input('email', sql.NVarChar(100), user.email)
                     .input('firstName', sql.NVarChar(100), user.first_name)
                     .input('lastName', sql.NVarChar(100), user.last_name)
-                    .input('departmentId', sql.UniqueIdentifier, user.department_id)
-                    .input('positionId', sql.UniqueIdentifier, user.position_id)
-                    .input('roleId', sql.UniqueIdentifier, user.role_id)
+                    .input('departmentId', sql.Int, user.department_id)
+                    .input('positionId', sql.Int, user.position_id)
+                    .input('roleId', sql.Int, user.role_id)
                     .input('phoneMobile', sql.NVarChar(20), user.phone_mobile || null)
                     .input('hireDate', sql.Date, user.hire_date || null)
                     .query(`
@@ -291,7 +291,7 @@ class SeedData {
 
             for (const cat of categories) {
                 await this.pool.request()
-                    .input('categoryId', sql.UniqueIdentifier, cat.category_id)
+                    .input('categoryId', sql.Int, cat.category_id)
                     .input('categoryName', sql.NVarChar(100), cat.category_name)
                     .input('description', sql.NVarChar(500), cat.description)
                     .query(`
@@ -373,11 +373,11 @@ class SeedData {
 
             for (const course of courses) {
                 await this.pool.request()
-                    .input('courseId', sql.UniqueIdentifier, course.course_id)
+                    .input('courseId', sql.Int, course.course_id)
                     .input('courseCode', sql.NVarChar(20), course.course_code)
                     .input('courseName', sql.NVarChar(200), course.course_name)
                     .input('courseNameEn', sql.NVarChar(200), course.course_name_en)
-                    .input('categoryId', sql.UniqueIdentifier, course.category_id)
+                    .input('categoryId', sql.Int, course.category_id)
                     .input('courseType', sql.NVarChar(50), course.course_type)
                     .input('difficultyLevel', sql.NVarChar(50), course.difficulty_level)
                     .input('language', sql.NVarChar(10), course.language)
@@ -386,7 +386,7 @@ class SeedData {
                     .input('targetAudience', sql.NVarChar(500), course.target_audience)
                     .input('durationHours', sql.Int, course.duration_hours)
                     .input('maxStudents', sql.Int, course.max_students)
-                    .input('instructorId', sql.UniqueIdentifier, course.instructor_id)
+                    .input('instructorId', sql.Int, course.instructor_id)
                     .input('passingScore', sql.Int, course.passing_score)
                     .input('maxAttempts', sql.Int, course.max_attempts)
                     .query(`
@@ -454,9 +454,9 @@ class SeedData {
 
             for (const position of jobPositions) {
                 await this.pool.request()
-                    .input('positionId', sql.UniqueIdentifier, position.position_id)
+                    .input('positionId', sql.Int, position.position_id)
                     .input('positionTitle', sql.NVarChar(200), position.position_title)
-                    .input('departmentId', sql.UniqueIdentifier, position.department_id)
+                    .input('departmentId', sql.Int, position.department_id)
                     .input('description', sql.Text, position.description)
                     .input('requirements', sql.Text, position.requirements)
                     .input('salaryRange', sql.NVarChar(100), position.salary_range)
@@ -508,9 +508,9 @@ class SeedData {
 
             for (const applicant of applicants) {
                 await this.pool.request()
-                    .input('applicantId', sql.UniqueIdentifier, applicant.applicant_id)
+                    .input('applicantId', sql.Int, applicant.applicant_id)
                     .input('applicationCode', sql.NVarChar(50), applicant.application_code)
-                    .input('positionId', sql.UniqueIdentifier, applicant.position_id)
+                    .input('positionId', sql.Int, applicant.position_id)
                     .input('firstName', sql.NVarChar(100), applicant.first_name)
                     .input('lastName', sql.NVarChar(100), applicant.last_name)
                     .input('email', sql.NVarChar(100), applicant.email)
@@ -591,7 +591,7 @@ class SeedData {
 
             for (const test of tests) {
                 await this.pool.request()
-                    .input('testId', sql.UniqueIdentifier, test.test_id)
+                    .input('testId', sql.Int, test.test_id)
                     .input('testCode', sql.NVarChar(20), test.test_code)
                     .input('testName', sql.NVarChar(200), test.test_name)
                     .input('description', sql.Text, test.description)
@@ -600,7 +600,7 @@ class SeedData {
                     .input('totalQuestions', sql.Int, test.total_questions)
                     .input('passingScore', sql.Int, test.passing_score)
                     .input('maxAttempts', sql.Int, test.max_attempts)
-                    .input('createdBy', sql.UniqueIdentifier, test.created_by)
+                    .input('createdBy', sql.Int, test.created_by)
                     .input('isPublished', sql.Bit, test.is_published)
                     .query(`
                         INSERT INTO Tests (
@@ -670,12 +670,12 @@ class SeedData {
 
             for (const article of articles) {
                 await this.pool.request()
-                    .input('articleId', sql.UniqueIdentifier, article.article_id)
+                    .input('articleId', sql.Int, article.article_id)
                     .input('title', sql.NVarChar(300), article.title)
                     .input('content', sql.Text, article.content)
                     .input('excerpt', sql.NVarChar(500), article.excerpt)
                     .input('featuredImage', sql.NVarChar(500), article.featured_image)
-                    .input('authorId', sql.UniqueIdentifier, article.author_id)
+                    .input('authorId', sql.Int, article.author_id)
                     .input('category', sql.NVarChar(100), article.category)
                     .input('tags', sql.NVarChar(500), article.tags)
                     .input('isPublished', sql.Bit, article.is_published)

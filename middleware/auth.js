@@ -1,11 +1,30 @@
 const User = require('../models/User');
 const ActivityLog = require('../models/ActivityLog');
+const JWTUtils = require('../utils/jwtUtils');
 
 const authMiddleware = {
     // Require authentication for routes
-    requireAuth: (req, res, next) => {
+    requireAuth: async (req, res, next) => {
+        // Check session first
         if (req.session && req.session.user) {
             return next();
+        }
+
+        // Check JWT token for API requests
+        const authHeader = req.get('Authorization');
+        if (authHeader) {
+            try {
+                const token = JWTUtils.extractTokenFromHeader(authHeader);
+                if (token) {
+                    const decoded = JWTUtils.verifyAccessToken(token);
+                    req.user = decoded;
+                    req.session = req.session || {};
+                    req.session.user = decoded;
+                    return next();
+                }
+            } catch (error) {
+                // Token invalid, continue to error response
+            }
         }
 
         if (req.xhr || req.headers.accept.indexOf('json') > -1) {

@@ -109,7 +109,7 @@ class Applicant {
                 applicantId = existingApplicant.applicant_id;
 
                 await pool.request()
-                    .input('applicantId', sql.UniqueIdentifier, applicantId)
+                    .input('applicantId', sql.Int, applicantId)
                     .input('firstName', sql.NVarChar(100), applicantData.first_name)
                     .input('lastName', sql.NVarChar(100), applicantData.last_name)
                     .input('firstNameEn', sql.NVarChar(100), applicantData.first_name_en || null)
@@ -118,7 +118,7 @@ class Applicant {
                     .input('email', sql.NVarChar(100), applicantData.email)
                     .input('phone', sql.NVarChar(20), applicantData.phone)
                     .input('currentAddress', sql.NVarChar(500), applicantData.current_address || null)
-                    .input('appliedPositionId', sql.UniqueIdentifier, position.job_position_id)
+                    .input('appliedPositionId', sql.Int, position.job_position_id)
                     .input('testCodeUsed', sql.NVarChar(20), applicantData.test_code)
                     .query(`
                         UPDATE Applicants
@@ -140,7 +140,7 @@ class Applicant {
                 applicantId = uuidv4();
 
                 await pool.request()
-                    .input('applicantId', sql.UniqueIdentifier, applicantId)
+                    .input('applicantId', sql.Int, applicantId)
                     .input('nationalId', sql.NVarChar(13), applicantData.national_id)
                     .input('firstName', sql.NVarChar(100), applicantData.first_name)
                     .input('lastName', sql.NVarChar(100), applicantData.last_name)
@@ -150,7 +150,7 @@ class Applicant {
                     .input('email', sql.NVarChar(100), applicantData.email)
                     .input('phone', sql.NVarChar(20), applicantData.phone)
                     .input('currentAddress', sql.NVarChar(500), applicantData.current_address || null)
-                    .input('appliedPositionId', sql.UniqueIdentifier, position.job_position_id)
+                    .input('appliedPositionId', sql.Int, position.job_position_id)
                     .input('testCodeUsed', sql.NVarChar(20), applicantData.test_code)
                     .query(`
                         INSERT INTO Applicants (
@@ -219,11 +219,11 @@ class Applicant {
             // Add filters
             if (filters.position_id) {
                 whereClause += ' AND a.applied_position_id = @positionId';
-                request.input('positionId', sql.UniqueIdentifier, filters.position_id);
+                request.input('positionId', sql.Int, filters.position_id);
             }
             if (filters.department_id) {
                 whereClause += ' AND jp.department_id = @departmentId';
-                request.input('departmentId', sql.UniqueIdentifier, filters.department_id);
+                request.input('departmentId', sql.Int, filters.department_id);
             }
             if (filters.test_status) {
                 if (filters.test_status === 'completed') {
@@ -296,8 +296,8 @@ class Applicant {
 
             // Check if already has a test result
             const existingResult = await pool.request()
-                .input('applicantId', sql.UniqueIdentifier, applicantId)
-                .input('testId', sql.UniqueIdentifier, testId)
+                .input('applicantId', sql.Int, applicantId)
+                .input('testId', sql.Int, testId)
                 .query(`
                     SELECT result_id, end_time
                     FROM ApplicantTestResults
@@ -323,9 +323,9 @@ class Applicant {
             // Create new test result
             const resultId = uuidv4();
             await pool.request()
-                .input('resultId', sql.UniqueIdentifier, resultId)
-                .input('applicantId', sql.UniqueIdentifier, applicantId)
-                .input('testId', sql.UniqueIdentifier, testId)
+                .input('resultId', sql.Int, resultId)
+                .input('applicantId', sql.Int, applicantId)
+                .input('testId', sql.Int, testId)
                 .input('ipAddress', sql.NVarChar(50), ipAddress)
                 .input('browserInfo', sql.NVarChar(500), browserInfo)
                 .query(`
@@ -354,7 +354,7 @@ class Applicant {
 
             // Get test result info
             const resultInfo = await pool.request()
-                .input('resultId', sql.UniqueIdentifier, resultId)
+                .input('resultId', sql.Int, resultId)
                 .query(`
                     SELECT atr.*, t.total_score, t.passing_score
                     FROM ApplicantTestResults atr
@@ -381,7 +381,7 @@ class Applicant {
 
             // Update test result
             await pool.request()
-                .input('resultId', sql.UniqueIdentifier, resultId)
+                .input('resultId', sql.Int, resultId)
                 .input('score', sql.Decimal(5, 2), totalScore)
                 .input('percentage', sql.Decimal(5, 2), percentage)
                 .input('passed', sql.Bit, passed)
@@ -416,7 +416,7 @@ class Applicant {
         try {
             const pool = await poolPromise;
             await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
+                .input('testId', sql.Int, testId)
                 .query(`
                     WITH RankedResults AS (
                         SELECT result_id,
@@ -443,7 +443,7 @@ class Applicant {
 
             // Get applicant and HR users
             const applicantInfo = await pool.request()
-                .input('applicantId', sql.UniqueIdentifier, applicantId)
+                .input('applicantId', sql.Int, applicantId)
                 .query(`
                     SELECT CONCAT(a.first_name, ' ', a.last_name) as applicant_name,
                            jp.position_title,
@@ -470,8 +470,8 @@ class Applicant {
             // Send notifications to all HR users
             for (const hrUser of hrUsers.recordset) {
                 await pool.request()
-                    .input('notificationId', sql.UniqueIdentifier, uuidv4())
-                    .input('userId', sql.UniqueIdentifier, hrUser.user_id)
+                    .input('notificationId', sql.Int, uuidv4())
+                    .input('userId', sql.Int, hrUser.user_id)
                     .input('title', sql.NVarChar(200), 'Applicant Test Completed')
                     .input('message', sql.NVarChar(1000),
                         `${applicant.applicant_name} has completed the test for ${applicant.position_title} position. Status: ${passed ? 'PASSED' : 'FAILED'}`)
@@ -500,11 +500,11 @@ class Applicant {
             let whereClause = 'WHERE atr.end_time IS NOT NULL';
             if (positionId) {
                 whereClause += ' AND a.applied_position_id = @positionId';
-                request.input('positionId', sql.UniqueIdentifier, positionId);
+                request.input('positionId', sql.Int, positionId);
             }
             if (testId) {
                 whereClause += ' AND atr.test_id = @testId';
-                request.input('testId', sql.UniqueIdentifier, testId);
+                request.input('testId', sql.Int, testId);
             }
 
             const result = await request.query(`
@@ -538,7 +538,7 @@ class Applicant {
             // Add filters (same as findAll method)
             if (filters.position_id) {
                 whereClause += ' AND a.applied_position_id = @positionId';
-                request.input('positionId', sql.UniqueIdentifier, filters.position_id);
+                request.input('positionId', sql.Int, filters.position_id);
             }
             if (filters.date_from) {
                 whereClause += ' AND a.created_date >= @dateFrom';
@@ -629,7 +629,7 @@ class Applicant {
 
             // Get current behavior log
             const currentLog = await pool.request()
-                .input('resultId', sql.UniqueIdentifier, resultId)
+                .input('resultId', sql.Int, resultId)
                 .query(`
                     SELECT behavior_log
                     FROM ApplicantTestResults
@@ -654,7 +654,7 @@ class Applicant {
 
             // Update behavior log
             await pool.request()
-                .input('resultId', sql.UniqueIdentifier, resultId)
+                .input('resultId', sql.Int, resultId)
                 .input('behaviorLog', sql.NVarChar(sql.MAX), JSON.stringify(behaviorLog))
                 .query(`
                     UPDATE ApplicantTestResults

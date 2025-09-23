@@ -1,15 +1,14 @@
-const sql = require('mssql');
-const database = require('../config/database');
+const { poolPromise, sql } = require('../config/database');
 
 class JobPosition {
     static async create(positionData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .input('position_name', sql.NVarChar(255), positionData.position_name)
                 .input('position_code', sql.VarChar(50), positionData.position_code)
-                .input('department_id', sql.UniqueIdentifier, positionData.department_id)
+                .input('department_id', sql.Int, positionData.department_id)
                 .input('description', sql.NText, positionData.description)
                 .input('responsibilities', sql.NText, positionData.responsibilities)
                 .input('qualifications', sql.NText, positionData.qualifications)
@@ -20,7 +19,7 @@ class JobPosition {
                 .input('employment_type', sql.VarChar(50), positionData.employment_type || 'Full-time')
                 .input('location', sql.NVarChar(255), positionData.location)
                 .input('is_active', sql.Bit, positionData.is_active !== undefined ? positionData.is_active : true)
-                .input('created_by', sql.UniqueIdentifier, positionData.created_by)
+                .input('created_by', sql.Int, positionData.created_by)
                 .query(`
                     INSERT INTO JobPositions
                     (position_name, position_code, department_id, description, responsibilities,
@@ -45,10 +44,10 @@ class JobPosition {
 
     static async findById(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query(`
                     SELECT jp.*, d.name as department_name,
                            u.first_name + ' ' + u.last_name as created_by_name
@@ -67,7 +66,7 @@ class JobPosition {
 
     static async findAll(filters = {}) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             let query = `
                 SELECT jp.*, d.name as department_name,
                        u.first_name + ' ' + u.last_name as created_by_name,
@@ -82,7 +81,7 @@ class JobPosition {
 
             if (filters.department_id) {
                 query += ' AND jp.department_id = @department_id';
-                request.input('department_id', sql.UniqueIdentifier, filters.department_id);
+                request.input('department_id', sql.Int, filters.department_id);
             }
 
             if (filters.is_active !== undefined) {
@@ -112,10 +111,10 @@ class JobPosition {
 
     static async update(positionId, updateData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             let setClause = [];
-            const request = pool.request().input('position_id', sql.UniqueIdentifier, positionId);
+            const request = pool.request().input('position_id', sql.Int, positionId);
 
             const allowedFields = [
                 'position_name', 'position_code', 'department_id', 'description',
@@ -133,7 +132,7 @@ class JobPosition {
                     } else if (field === 'position_code' || field === 'employment_type') {
                         request.input(field, sql.VarChar(50), updateData[field]);
                     } else if (field === 'department_id') {
-                        request.input(field, sql.UniqueIdentifier, updateData[field]);
+                        request.input(field, sql.Int, updateData[field]);
                     } else if (field === 'description' || field === 'responsibilities' ||
                                field === 'qualifications' || field === 'skills_required') {
                         request.input(field, sql.NText, updateData[field]);
@@ -176,10 +175,10 @@ class JobPosition {
 
     static async delete(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const applicantCheck = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query('SELECT COUNT(*) as count FROM Applicants WHERE position_id = @position_id');
 
             if (applicantCheck.recordset[0].count > 0) {
@@ -187,7 +186,7 @@ class JobPosition {
             }
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query('DELETE FROM JobPositions WHERE position_id = @position_id');
 
             if (result.rowsAffected[0] === 0) {
@@ -203,10 +202,10 @@ class JobPosition {
 
     static async deactivate(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query(`
                     UPDATE JobPositions
                     SET is_active = 0, updated_at = GETDATE()
@@ -227,10 +226,10 @@ class JobPosition {
 
     static async getPositionStatistics(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query(`
                     SELECT
                         jp.position_name,
@@ -257,7 +256,7 @@ class JobPosition {
 
     static async findActivePositions() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .query(`
@@ -277,10 +276,10 @@ class JobPosition {
 
     static async findByDepartment(departmentId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query(`
                     SELECT jp.*,
                            COUNT(a.applicant_id) as applicant_count
@@ -304,7 +303,7 @@ class JobPosition {
 
     static async validatePositionCode(positionCode, excludePositionId = null) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             const request = pool.request()
                 .input('position_code', sql.VarChar(50), positionCode);
 
@@ -312,7 +311,7 @@ class JobPosition {
 
             if (excludePositionId) {
                 query += ' AND position_id != @exclude_position_id';
-                request.input('exclude_position_id', sql.UniqueIdentifier, excludePositionId);
+                request.input('exclude_position_id', sql.Int, excludePositionId);
             }
 
             const result = await request.query(query);

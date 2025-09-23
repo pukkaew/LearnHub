@@ -31,7 +31,7 @@ class Comment {
 
             // Check if article exists
             const articleCheck = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, commentData.article_id)
+                .input('articleId', sql.Int, commentData.article_id)
                 .query(`
                     SELECT article_id, is_published, is_active
                     FROM Articles
@@ -50,8 +50,8 @@ class Comment {
             // Check parent comment if provided
             if (commentData.parent_comment_id) {
                 const parentCheck = await pool.request()
-                    .input('parentId', sql.UniqueIdentifier, commentData.parent_comment_id)
-                    .input('articleId', sql.UniqueIdentifier, commentData.article_id)
+                    .input('parentId', sql.Int, commentData.parent_comment_id)
+                    .input('articleId', sql.Int, commentData.article_id)
                     .query(`
                         SELECT comment_id
                         FROM ArticleComments
@@ -67,10 +67,10 @@ class Comment {
 
             // Create comment
             const result = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
-                .input('articleId', sql.UniqueIdentifier, commentData.article_id)
-                .input('userId', sql.UniqueIdentifier, commentData.user_id)
-                .input('parentCommentId', sql.UniqueIdentifier, commentData.parent_comment_id || null)
+                .input('commentId', sql.Int, commentId)
+                .input('articleId', sql.Int, commentData.article_id)
+                .input('userId', sql.Int, commentData.user_id)
+                .input('parentCommentId', sql.Int, commentData.parent_comment_id || null)
                 .input('commentText', sql.NVarChar(1000), commentData.comment_text)
                 .query(`
                     INSERT INTO ArticleComments (
@@ -94,9 +94,9 @@ class Comment {
 
             // Add gamification points
             await pool.request()
-                .input('pointId', sql.UniqueIdentifier, uuidv4())
-                .input('userId', sql.UniqueIdentifier, commentData.user_id)
-                .input('activityId', sql.UniqueIdentifier, commentId)
+                .input('pointId', sql.Int, uuidv4())
+                .input('userId', sql.Int, commentData.user_id)
+                .input('activityId', sql.Int, commentId)
                 .query(`
                     INSERT INTO UserPoints (point_id, user_id, activity_type, activity_id, points_earned, description)
                     VALUES (@pointId, @userId, 'COMMENT_WRITE', @activityId, 5, 'Posted a comment')
@@ -119,7 +119,7 @@ class Comment {
 
             // Get root comments (not replies)
             const result = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
+                .input('articleId', sql.Int, articleId)
                 .input('offset', sql.Int, offset)
                 .input('limit', sql.Int, limit)
                 .query(`
@@ -147,7 +147,7 @@ class Comment {
             // Get replies for each comment
             for (let comment of comments) {
                 const repliesResult = await pool.request()
-                    .input('parentId', sql.UniqueIdentifier, comment.comment_id)
+                    .input('parentId', sql.Int, comment.comment_id)
                     .query(`
                         SELECT c.*,
                                CONCAT(u.first_name, ' ', u.last_name) as author_name,
@@ -168,7 +168,7 @@ class Comment {
 
             // Get total count
             const countResult = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
+                .input('articleId', sql.Int, articleId)
                 .query(`
                     SELECT COUNT(*) as total
                     FROM ArticleComments
@@ -195,8 +195,8 @@ class Comment {
 
             // Check ownership and time limit (30 minutes)
             const commentCheck = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('commentId', sql.Int, commentId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT comment_id, created_date, comment_text
                     FROM ArticleComments
@@ -223,7 +223,7 @@ class Comment {
 
             // Update comment
             const result = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
+                .input('commentId', sql.Int, commentId)
                 .input('commentText', sql.NVarChar(1000), newText)
                 .query(`
                     UPDATE ArticleComments
@@ -249,8 +249,8 @@ class Comment {
 
             // Check ownership and time limit
             const commentCheck = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('commentId', sql.Int, commentId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT comment_id, created_date
                     FROM ArticleComments
@@ -269,7 +269,7 @@ class Comment {
 
             // Soft delete comment
             const result = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
+                .input('commentId', sql.Int, commentId)
                 .query(`
                     UPDATE ArticleComments
                     SET is_deleted = 1,
@@ -293,8 +293,8 @@ class Comment {
 
             // Check if user already liked this comment
             const likeCheck = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('commentId', sql.Int, commentId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT like_id
                     FROM CommentLikes
@@ -304,8 +304,8 @@ class Comment {
             if (likeCheck.recordset.length > 0) {
                 // Unlike - remove like
                 await pool.request()
-                    .input('commentId', sql.UniqueIdentifier, commentId)
-                    .input('userId', sql.UniqueIdentifier, userId)
+                    .input('commentId', sql.Int, commentId)
+                    .input('userId', sql.Int, userId)
                     .query(`
                         DELETE FROM CommentLikes
                         WHERE comment_id = @commentId AND user_id = @userId
@@ -313,7 +313,7 @@ class Comment {
 
                 // Decrease like count
                 await pool.request()
-                    .input('commentId', sql.UniqueIdentifier, commentId)
+                    .input('commentId', sql.Int, commentId)
                     .query(`
                         UPDATE ArticleComments
                         SET like_count = like_count - 1
@@ -324,9 +324,9 @@ class Comment {
             } else {
                 // Like - add like
                 await pool.request()
-                    .input('likeId', sql.UniqueIdentifier, uuidv4())
-                    .input('commentId', sql.UniqueIdentifier, commentId)
-                    .input('userId', sql.UniqueIdentifier, userId)
+                    .input('likeId', sql.Int, uuidv4())
+                    .input('commentId', sql.Int, commentId)
+                    .input('userId', sql.Int, userId)
                     .query(`
                         INSERT INTO CommentLikes (like_id, comment_id, user_id, created_date)
                         VALUES (@likeId, @commentId, @userId, GETDATE())
@@ -334,7 +334,7 @@ class Comment {
 
                 // Increase like count
                 await pool.request()
-                    .input('commentId', sql.UniqueIdentifier, commentId)
+                    .input('commentId', sql.Int, commentId)
                     .query(`
                         UPDATE ArticleComments
                         SET like_count = like_count + 1
@@ -355,7 +355,7 @@ class Comment {
             const offset = (page - 1) * limit;
 
             const result = await pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('userId', sql.Int, userId)
                 .input('offset', sql.Int, offset)
                 .input('limit', sql.Int, limit)
                 .query(`
@@ -373,7 +373,7 @@ class Comment {
                 `);
 
             const countResult = await pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT COUNT(*) as total
                     FROM ArticleComments
@@ -400,11 +400,11 @@ class Comment {
             let whereClause = 'WHERE c.is_deleted = 0';
             if (articleId) {
                 whereClause += ' AND c.article_id = @articleId';
-                request.input('articleId', sql.UniqueIdentifier, articleId);
+                request.input('articleId', sql.Int, articleId);
             }
             if (userId) {
                 whereClause += ' AND c.user_id = @userId';
-                request.input('userId', sql.UniqueIdentifier, userId);
+                request.input('userId', sql.Int, userId);
             }
 
             const result = await request.query(`
@@ -432,7 +432,7 @@ class Comment {
 
             // Check if comment exists
             const commentCheck = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
+                .input('commentId', sql.Int, commentId)
                 .query(`
                     SELECT comment_id, article_id, user_id
                     FROM ArticleComments
@@ -445,8 +445,8 @@ class Comment {
 
             // Check if user already reported this comment
             const reportCheck = await pool.request()
-                .input('commentId', sql.UniqueIdentifier, commentId)
-                .input('reporterId', sql.UniqueIdentifier, reporterId)
+                .input('commentId', sql.Int, commentId)
+                .input('reporterId', sql.Int, reporterId)
                 .query(`
                     SELECT report_id
                     FROM CommentReports
@@ -459,9 +459,9 @@ class Comment {
 
             // Create report
             await pool.request()
-                .input('reportId', sql.UniqueIdentifier, uuidv4())
-                .input('commentId', sql.UniqueIdentifier, commentId)
-                .input('reporterId', sql.UniqueIdentifier, reporterId)
+                .input('reportId', sql.Int, uuidv4())
+                .input('commentId', sql.Int, commentId)
+                .input('reporterId', sql.Int, reporterId)
                 .input('reason', sql.NVarChar(500), reason)
                 .query(`
                     INSERT INTO CommentReports (report_id, comment_id, reporter_id, reason, created_date)
@@ -484,8 +484,8 @@ class Comment {
 
             // Get article author (don't notify if commenting on own article)
             const authorResult = await pool.request()
-                .input('articleId', sql.UniqueIdentifier, articleId)
-                .input('commenterId', sql.UniqueIdentifier, commenterId)
+                .input('articleId', sql.Int, articleId)
+                .input('commenterId', sql.Int, commenterId)
                 .query(`
                     SELECT a.author_id, a.title
                     FROM Articles a
@@ -498,7 +498,7 @@ class Comment {
 
             // Get commenter name
             const commenterResult = await pool.request()
-                .input('commenterId', sql.UniqueIdentifier, commenterId)
+                .input('commenterId', sql.Int, commenterId)
                 .query(`
                     SELECT CONCAT(first_name, ' ', last_name) as commenter_name
                     FROM Users WHERE user_id = @commenterId
@@ -508,8 +508,8 @@ class Comment {
 
             // Send notification
             await pool.request()
-                .input('notificationId', sql.UniqueIdentifier, uuidv4())
-                .input('userId', sql.UniqueIdentifier, article.author_id)
+                .input('notificationId', sql.Int, uuidv4())
+                .input('userId', sql.Int, article.author_id)
                 .input('title', sql.NVarChar(200), 'New Comment on Your Article')
                 .input('message', sql.NVarChar(1000),
                     `${commenterName} commented on your article "${article.title}"`)
@@ -533,8 +533,8 @@ class Comment {
 
             // Get parent comment author (don't notify if replying to own comment)
             const parentResult = await pool.request()
-                .input('parentCommentId', sql.UniqueIdentifier, parentCommentId)
-                .input('replierId', sql.UniqueIdentifier, replierId)
+                .input('parentCommentId', sql.Int, parentCommentId)
+                .input('replierId', sql.Int, replierId)
                 .query(`
                     SELECT c.user_id, c.article_id, a.title
                     FROM ArticleComments c
@@ -548,7 +548,7 @@ class Comment {
 
             // Get replier name
             const replierResult = await pool.request()
-                .input('replierId', sql.UniqueIdentifier, replierId)
+                .input('replierId', sql.Int, replierId)
                 .query(`
                     SELECT CONCAT(first_name, ' ', last_name) as replier_name
                     FROM Users WHERE user_id = @replierId
@@ -558,8 +558,8 @@ class Comment {
 
             // Send notification
             await pool.request()
-                .input('notificationId', sql.UniqueIdentifier, uuidv4())
-                .input('userId', sql.UniqueIdentifier, parent.user_id)
+                .input('notificationId', sql.Int, uuidv4())
+                .input('userId', sql.Int, parent.user_id)
                 .input('title', sql.NVarChar(200), 'Reply to Your Comment')
                 .input('message', sql.NVarChar(1000),
                     `${replierName} replied to your comment on "${parent.title}"`)
@@ -593,8 +593,8 @@ class Comment {
             // Send notification to all admins
             for (const admin of adminResult.recordset) {
                 await pool.request()
-                    .input('notificationId', sql.UniqueIdentifier, uuidv4())
-                    .input('userId', sql.UniqueIdentifier, admin.user_id)
+                    .input('notificationId', sql.Int, uuidv4())
+                    .input('userId', sql.Int, admin.user_id)
                     .input('title', sql.NVarChar(200), 'Comment Reported')
                     .input('message', sql.NVarChar(1000),
                         `A comment has been reported for: ${reason}`)

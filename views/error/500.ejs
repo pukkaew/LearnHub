@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - Rukchai Hongyen LearnHub</title>
+    <title>เกิดข้อผิดพลาดในระบบ - Rukchai Hongyen LearnHub</title>
     <link href="/css/tailwind.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -22,12 +22,12 @@
 
             <!-- Error Title -->
             <h1 class="text-2xl font-bold text-gray-900 mb-4">
-                <%= title %>
+                เกิดข้อผิดพลาดในระบบ
             </h1>
 
             <!-- Error Message -->
             <p class="text-gray-600 mb-6">
-                <%= message %>
+                <%= message || 'เกิดข้อผิดพลาดภายในระบบ กรุณาลองใหม่อีกครั้ง' %>
             </p>
 
             <!-- Error Details (Development Only) -->
@@ -42,25 +42,23 @@
 
             <!-- Action Buttons -->
             <div class="space-y-3">
-                <button onclick="history.back()"
+                <button onclick="window.location.reload()"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-redo mr-2"></i>
+                    ลองใหม่อีกครั้ง
+                </button>
+
+                <button onclick="history.back()"
+                        class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>
                     กลับไปหน้าก่อนหน้า
                 </button>
 
                 <a href="/dashboard"
-                   class="block w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                   class="block w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition duration-200">
                     <i class="fas fa-home mr-2"></i>
                     กลับสู่หน้าหลัก
                 </a>
-
-                <% if (!isAuthenticated) { %>
-                <a href="/login"
-                   class="block w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition duration-200">
-                    <i class="fas fa-sign-in-alt mr-2"></i>
-                    เข้าสู่ระบบ
-                </a>
-                <% } %>
             </div>
 
             <!-- Help Contact -->
@@ -77,21 +75,9 @@
         <!-- Footer -->
         <div class="text-center mt-6">
             <p class="text-sm text-gray-500">
-                © 2024 Rukchai Hongyen LearnHub. สงวนลิขสิทธิ์.
+                © 2025 Rukchai Hongyen LearnHub. สงวนลิขสิทธิ์.
             </p>
         </div>
     </div>
-
-    <!-- Auto-redirect script for 404 errors -->
-    <% if (title.includes('ไม่พบหน้า')) { %>
-    <script>
-        // Auto redirect to dashboard after 10 seconds for 404 errors
-        setTimeout(() => {
-            if (confirm('ต้องการกลับสู่หน้าหลักหรือไม่?')) {
-                window.location.href = '/dashboard';
-            }
-        }, 10000);
-    </script>
-    <% } %>
 </body>
 </html>

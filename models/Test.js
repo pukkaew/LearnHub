@@ -27,8 +27,8 @@ class Test {
             const testId = uuidv4();
 
             const result = await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
-                .input('courseId', sql.UniqueIdentifier, testData.course_id || null)
+                .input('testId', sql.Int, testId)
+                .input('courseId', sql.Int, testData.course_id || null)
                 .input('testName', sql.NVarChar(200), testData.test_name)
                 .input('testDescription', sql.NVarChar(sql.MAX), testData.test_description || null)
                 .input('testType', sql.NVarChar(20), testData.test_type)
@@ -41,7 +41,7 @@ class Test {
                 .input('randomizeAnswers', sql.Bit, testData.randomize_answers !== false)
                 .input('showCorrectAnswers', sql.Bit, testData.show_correct_answers !== false)
                 .input('showScoreImmediately', sql.Bit, testData.show_score_immediately !== false)
-                .input('createdBy', sql.UniqueIdentifier, testData.created_by)
+                .input('createdBy', sql.Int, testData.created_by)
                 .query(`
                     INSERT INTO Tests (
                         test_id, course_id, test_name, test_description, test_type,
@@ -72,7 +72,7 @@ class Test {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
+                .input('testId', sql.Int, testId)
                 .query(`
                     SELECT t.*,
                            c.course_name, c.course_code,
@@ -95,7 +95,7 @@ class Test {
             if (includeQuestions) {
                 // Get questions with options
                 const questionResult = await pool.request()
-                    .input('testId', sql.UniqueIdentifier, testId)
+                    .input('testId', sql.Int, testId)
                     .query(`
                         SELECT q.*
                         FROM Questions q
@@ -108,7 +108,7 @@ class Test {
                 // Get options for each question
                 for (let question of test.questions) {
                     const optionResult = await pool.request()
-                        .input('questionId', sql.UniqueIdentifier, question.question_id)
+                        .input('questionId', sql.Int, question.question_id)
                         .query(`
                             SELECT *
                             FROM QuestionOptions
@@ -139,7 +139,7 @@ class Test {
             // Add filters
             if (filters.course_id) {
                 whereClause += ' AND t.course_id = @courseId';
-                request.input('courseId', sql.UniqueIdentifier, filters.course_id);
+                request.input('courseId', sql.Int, filters.course_id);
             }
             if (filters.test_type) {
                 whereClause += ' AND t.test_type = @testType';
@@ -147,7 +147,7 @@ class Test {
             }
             if (filters.created_by) {
                 whereClause += ' AND t.created_by = @createdBy';
-                request.input('createdBy', sql.UniqueIdentifier, filters.created_by);
+                request.input('createdBy', sql.Int, filters.created_by);
             }
             if (filters.search) {
                 whereClause += ` AND (
@@ -205,8 +205,8 @@ class Test {
 
             // Check max attempts
             const attemptCountResult = await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('testId', sql.Int, testId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT COUNT(*) as count
                     FROM TestAttempts
@@ -220,8 +220,8 @@ class Test {
 
             // Check if there's an ongoing attempt
             const ongoingCheck = await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('testId', sql.Int, testId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT attempt_id
                     FROM TestAttempts
@@ -242,10 +242,10 @@ class Test {
             const attemptNumber = attemptCount + 1;
 
             await pool.request()
-                .input('attemptId', sql.UniqueIdentifier, attemptId)
-                .input('userId', sql.UniqueIdentifier, userId)
-                .input('testId', sql.UniqueIdentifier, testId)
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
+                .input('attemptId', sql.Int, attemptId)
+                .input('userId', sql.Int, userId)
+                .input('testId', sql.Int, testId)
+                .input('enrollmentId', sql.Int, enrollmentId)
                 .input('attemptNumber', sql.Int, attemptNumber)
                 .query(`
                     INSERT INTO TestAttempts (
@@ -275,8 +275,8 @@ class Test {
 
             // Check if answer already exists
             const existingCheck = await pool.request()
-                .input('attemptId', sql.UniqueIdentifier, attemptId)
-                .input('questionId', sql.UniqueIdentifier, questionId)
+                .input('attemptId', sql.Int, attemptId)
+                .input('questionId', sql.Int, questionId)
                 .query(`
                     SELECT answer_id
                     FROM TestAnswers
@@ -289,9 +289,9 @@ class Test {
 
                 // Update existing answer
                 await pool.request()
-                    .input('answerId', sql.UniqueIdentifier, answerId)
+                    .input('answerId', sql.Int, answerId)
                     .input('answerText', sql.NVarChar(sql.MAX), answerData.answer_text || null)
-                    .input('selectedOptionId', sql.UniqueIdentifier, answerData.selected_option_id || null)
+                    .input('selectedOptionId', sql.Int, answerData.selected_option_id || null)
                     .query(`
                         UPDATE TestAnswers
                         SET answer_text = @answerText,
@@ -304,11 +304,11 @@ class Test {
                 answerId = uuidv4();
 
                 await pool.request()
-                    .input('answerId', sql.UniqueIdentifier, answerId)
-                    .input('attemptId', sql.UniqueIdentifier, attemptId)
-                    .input('questionId', sql.UniqueIdentifier, questionId)
+                    .input('answerId', sql.Int, answerId)
+                    .input('attemptId', sql.Int, attemptId)
+                    .input('questionId', sql.Int, questionId)
                     .input('answerText', sql.NVarChar(sql.MAX), answerData.answer_text || null)
-                    .input('selectedOptionId', sql.UniqueIdentifier, answerData.selected_option_id || null)
+                    .input('selectedOptionId', sql.Int, answerData.selected_option_id || null)
                     .query(`
                         INSERT INTO TestAnswers (
                             answer_id, attempt_id, question_id, answer_text,
@@ -333,7 +333,7 @@ class Test {
 
             // Get attempt info
             const attemptResult = await pool.request()
-                .input('attemptId', sql.UniqueIdentifier, attemptId)
+                .input('attemptId', sql.Int, attemptId)
                 .query(`
                     SELECT ta.*, t.total_score, t.passing_score, t.show_score_immediately
                     FROM TestAttempts ta
@@ -349,7 +349,7 @@ class Test {
 
             // Calculate score
             const scoreResult = await pool.request()
-                .input('attemptId', sql.UniqueIdentifier, attemptId)
+                .input('attemptId', sql.Int, attemptId)
                 .query(`
                     -- Calculate score for multiple choice questions
                     UPDATE TestAnswers
@@ -385,7 +385,7 @@ class Test {
 
             // Update attempt
             await pool.request()
-                .input('attemptId', sql.UniqueIdentifier, attemptId)
+                .input('attemptId', sql.Int, attemptId)
                 .input('score', sql.Decimal(5, 2), finalScore)
                 .input('percentage', sql.Decimal(5, 2), percentage)
                 .input('passed', sql.Bit, passed)
@@ -409,9 +409,9 @@ class Test {
             // Add gamification points
             if (passed) {
                 await pool.request()
-                    .input('pointId', sql.UniqueIdentifier, uuidv4())
-                    .input('userId', sql.UniqueIdentifier, attempt.user_id)
-                    .input('activityId', sql.UniqueIdentifier, attemptId)
+                    .input('pointId', sql.Int, uuidv4())
+                    .input('userId', sql.Int, attempt.user_id)
+                    .input('activityId', sql.Int, attemptId)
                     .input('points', sql.Int, Math.floor(percentage / 10) * 10) // Points based on score
                     .query(`
                         INSERT INTO UserPoints (point_id, user_id, activity_type, activity_id, points_earned, description)
@@ -436,7 +436,7 @@ class Test {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('attemptId', sql.UniqueIdentifier, attemptId)
+                .input('attemptId', sql.Int, attemptId)
                 .query(`
                     SELECT ta.*,
                            t.test_name, t.time_limit_minutes, t.show_correct_answers,
@@ -455,7 +455,7 @@ class Test {
 
             if (includeAnswers) {
                 const answerResult = await pool.request()
-                    .input('attemptId', sql.UniqueIdentifier, attemptId)
+                    .input('attemptId', sql.Int, attemptId)
                     .query(`
                         SELECT ta.*,
                                q.question_text, q.question_type, q.points,
@@ -481,12 +481,12 @@ class Test {
         try {
             const pool = await poolPromise;
             const request = pool.request()
-                .input('userId', sql.UniqueIdentifier, userId);
+                .input('userId', sql.Int, userId);
 
             let whereClause = 'WHERE ta.user_id = @userId';
             if (testId) {
                 whereClause += ' AND ta.test_id = @testId';
-                request.input('testId', sql.UniqueIdentifier, testId);
+                request.input('testId', sql.Int, testId);
             }
 
             const result = await request.query(`
@@ -513,7 +513,7 @@ class Test {
 
             const updateFields = [];
             const request = pool.request()
-                .input('testId', sql.UniqueIdentifier, testId);
+                .input('testId', sql.Int, testId);
 
             if (updateData.test_name !== undefined) {
                 updateFields.push('test_name = @testName');
@@ -566,7 +566,7 @@ class Test {
 
             // Check if there are submitted attempts
             const attemptCheck = await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
+                .input('testId', sql.Int, testId)
                 .query(`
                     SELECT COUNT(*) as count
                     FROM TestAttempts
@@ -581,7 +581,7 @@ class Test {
             }
 
             const result = await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
+                .input('testId', sql.Int, testId)
                 .query(`
                     UPDATE Tests
                     SET is_active = 0,
@@ -603,7 +603,7 @@ class Test {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('testId', sql.UniqueIdentifier, testId)
+                .input('testId', sql.Int, testId)
                 .query(`
                     SELECT
                         COUNT(*) as total_attempts,

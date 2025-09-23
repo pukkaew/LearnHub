@@ -18,10 +18,10 @@ class TestBank {
             const bankId = uuidv4();
 
             const result = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .input('bankName', sql.NVarChar(200), bankData.bank_name)
-                .input('categoryId', sql.UniqueIdentifier, bankData.category_id || null)
-                .input('ownerId', sql.UniqueIdentifier, bankData.owner_id)
+                .input('categoryId', sql.Int, bankData.category_id || null)
+                .input('ownerId', sql.Int, bankData.owner_id)
                 .input('sharingLevel', sql.NVarChar(20), bankData.sharing_level || 'PRIVATE')
                 .query(`
                     INSERT INTO TestBanks (
@@ -47,7 +47,7 @@ class TestBank {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .query(`
                     SELECT tb.*,
                            cc.category_name,
@@ -76,7 +76,7 @@ class TestBank {
 
             // Get user's department for department-level sharing
             const userResult = await pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT department_id, role_id
                     FROM Users u
@@ -98,15 +98,15 @@ class TestBank {
             )`;
 
             const request = pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
-                .input('userDepartment', sql.UniqueIdentifier, user?.department_id)
+                .input('userId', sql.Int, userId)
+                .input('userDepartment', sql.Int, user?.department_id)
                 .input('offset', sql.Int, offset)
                 .input('limit', sql.Int, limit);
 
             // Add filters
             if (filters.category_id) {
                 whereClause += ' AND tb.category_id = @categoryId';
-                request.input('categoryId', sql.UniqueIdentifier, filters.category_id);
+                request.input('categoryId', sql.Int, filters.category_id);
             }
             if (filters.sharing_level) {
                 whereClause += ' AND tb.sharing_level = @sharingLevel';
@@ -114,7 +114,7 @@ class TestBank {
             }
             if (filters.owner_id) {
                 whereClause += ' AND tb.owner_id = @ownerId';
-                request.input('ownerId', sql.UniqueIdentifier, filters.owner_id);
+                request.input('ownerId', sql.Int, filters.owner_id);
             }
             if (filters.search) {
                 whereClause += ' AND tb.bank_name LIKE @search';
@@ -164,8 +164,8 @@ class TestBank {
 
             // Check ownership or admin rights
             const accessCheck = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('bankId', sql.Int, bankId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT owner_id
                     FROM TestBanks
@@ -182,7 +182,7 @@ class TestBank {
 
             const updateFields = [];
             const request = pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId);
+                .input('bankId', sql.Int, bankId);
 
             if (updateData.bank_name !== undefined) {
                 updateFields.push('bank_name = @bankName');
@@ -190,7 +190,7 @@ class TestBank {
             }
             if (updateData.category_id !== undefined) {
                 updateFields.push('category_id = @categoryId');
-                request.input('categoryId', sql.UniqueIdentifier, updateData.category_id);
+                request.input('categoryId', sql.Int, updateData.category_id);
             }
             if (updateData.sharing_level !== undefined) {
                 updateFields.push('sharing_level = @sharingLevel');
@@ -223,7 +223,7 @@ class TestBank {
         try {
             const pool = await poolPromise;
             const request = pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId);
+                .input('bankId', sql.Int, bankId);
 
             let whereClause = 'WHERE q.bank_id = @bankId AND q.is_active = 1';
 
@@ -259,7 +259,7 @@ class TestBank {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .query(`
                     SELECT
                         COUNT(*) as total_questions,
@@ -293,8 +293,8 @@ class TestBank {
 
             // Check ownership
             const ownerCheck = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
-                .input('ownerId', sql.UniqueIdentifier, ownerId)
+                .input('bankId', sql.Int, bankId)
+                .input('ownerId', sql.Int, ownerId)
                 .query(`
                     SELECT bank_id FROM TestBanks
                     WHERE bank_id = @bankId AND owner_id = @ownerId
@@ -306,7 +306,7 @@ class TestBank {
 
             // Update sharing level
             const result = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .input('sharingLevel', sql.NVarChar(20), shareData.sharing_level)
                 .query(`
                     UPDATE TestBanks
@@ -337,10 +337,10 @@ class TestBank {
             // Create new bank
             const newBankId = uuidv4();
             await pool.request()
-                .input('bankId', sql.UniqueIdentifier, newBankId)
+                .input('bankId', sql.Int, newBankId)
                 .input('bankName', sql.NVarChar(200), newBankName)
-                .input('categoryId', sql.UniqueIdentifier, originalBank.category_id)
-                .input('ownerId', sql.UniqueIdentifier, newOwnerId)
+                .input('categoryId', sql.Int, originalBank.category_id)
+                .input('ownerId', sql.Int, newOwnerId)
                 .query(`
                     INSERT INTO TestBanks (
                         bank_id, bank_name, category_id, owner_id,
@@ -382,7 +382,7 @@ class TestBank {
 
             // Get all questions with options
             const result = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .query(`
                     SELECT q.*,
                            STRING_AGG(
@@ -439,7 +439,7 @@ class TestBank {
 
             // Check if bank has questions used in submitted tests
             const usageCheck = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .query(`
                     SELECT COUNT(*) as count
                     FROM Questions q
@@ -457,8 +457,8 @@ class TestBank {
 
             // Check ownership
             const ownerCheck = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
-                .input('deletedBy', sql.UniqueIdentifier, deletedBy)
+                .input('bankId', sql.Int, bankId)
+                .input('deletedBy', sql.Int, deletedBy)
                 .query(`
                     SELECT bank_id FROM TestBanks
                     WHERE bank_id = @bankId
@@ -473,7 +473,7 @@ class TestBank {
             }
 
             const result = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .query(`
                     UPDATE TestBanks
                     SET is_active = 0
@@ -482,7 +482,7 @@ class TestBank {
 
             // Also deactivate all questions in the bank
             await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .query(`
                     UPDATE Questions
                     SET is_active = 0
@@ -503,7 +503,7 @@ class TestBank {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('bankId', sql.UniqueIdentifier, bankId)
+                .input('bankId', sql.Int, bankId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)

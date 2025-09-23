@@ -19,23 +19,20 @@ const articleController = {
             if (category) filters.category = category;
             if (author_id) filters.author_id = author_id;
             if (status) filters.status = status;
-            else filters.status = 'Published'; // Default to published articles
+            else filters.status = 'published'; // Default to published articles
             if (search) filters.search = search;
             if (tags) filters.tags = tags;
 
-            const offset = (parseInt(page) - 1) * parseInt(limit);
-            filters.limit = parseInt(limit);
-            filters.offset = offset;
-
-            const articles = await Article.findAll(filters);
+            const articles = await Article.findAll(parseInt(page), parseInt(limit), filters);
 
             res.json({
                 success: true,
-                data: articles,
+                data: articles.data,
                 pagination: {
-                    page: parseInt(page),
+                    page: articles.page,
                     limit: parseInt(limit),
-                    total: articles.length
+                    total: articles.total,
+                    totalPages: articles.totalPages
                 }
             });
 
@@ -530,7 +527,7 @@ const articleController = {
     async renderArticlesList(req, res) {
         try {
             res.render('articles/index', {
-                title: 'แชร์ความรู้ - Ruxchai LearnHub',
+                title: 'แชร์ความรู้ - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user?.role
             });
@@ -538,9 +535,10 @@ const articleController = {
         } catch (error) {
             console.error('Render articles list error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้ารายการบทความได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้ารายการบทความได้'
+                error: error
             });
         }
     },
@@ -552,7 +550,7 @@ const articleController = {
             const article = await Article.findById(article_id);
             if (!article) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Ruxchai LearnHub',
+                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -560,7 +558,7 @@ const articleController = {
             const comments = await Comment.findByArticle(article_id);
 
             res.render('articles/detail', {
-                title: `${article.title} - Ruxchai LearnHub`,
+                title: `${article.title} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user?.role,
                 article: article,
@@ -570,9 +568,10 @@ const articleController = {
         } catch (error) {
             console.error('Render article detail error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดข้อมูลบทความได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดข้อมูลบทความได้'
+                error: error
             });
         }
     },
@@ -583,13 +582,13 @@ const articleController = {
 
             if (!['Admin', 'Instructor', 'Learner'].includes(userRole)) {
                 return res.render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Ruxchai LearnHub',
+                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
 
             res.render('articles/create', {
-                title: 'สร้างบทความ - Ruxchai LearnHub',
+                title: 'สร้างบทความ - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: userRole
             });
@@ -597,9 +596,10 @@ const articleController = {
         } catch (error) {
             console.error('Render create article error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้าสร้างบทความได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้าสร้างบทความได้'
+                error: error
             });
         }
     }

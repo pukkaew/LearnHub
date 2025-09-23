@@ -311,12 +311,12 @@ class JWTAuthMiddleware {
                 .input('userId', decoded.userId)
                 .input('refreshToken', refreshToken)
                 .query(`
-                    SELECT rt.tokenId, rt.isActive, rt.expiresAt
-                    FROM RefreshTokens rt
-                    WHERE rt.userId = @userId
+                    SELECT rt.token_id, rt.revoked, rt.expires_at
+                    FROM refresh_tokens rt
+                    WHERE rt.user_id = @userId
                     AND rt.token = @refreshToken
-                    AND rt.isActive = 1
-                    AND rt.expiresAt > GETDATE()
+                    AND rt.revoked = 0
+                    AND rt.expires_at > GETDATE()
                 `);
 
             if (tokenResult.recordset.length === 0) {
@@ -362,16 +362,16 @@ class JWTAuthMiddleware {
                 .input('refreshToken', tokens.refreshToken)
                 .input('expiresAt', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) // 7 days
                 .query(`
-                    INSERT INTO RefreshTokens (userId, token, expiresAt, createdAt, isActive)
-                    VALUES (@userId, @refreshToken, @expiresAt, GETDATE(), 1)
+                    INSERT INTO refresh_tokens (user_id, token, expires_at, created_at)
+                    VALUES (@userId, @refreshToken, @expiresAt, GETDATE())
                 `);
 
             // Invalidate old refresh token
             await pool.request()
                 .input('refreshToken', refreshToken)
                 .query(`
-                    UPDATE RefreshTokens
-                    SET isActive = 0, updatedAt = GETDATE()
+                    UPDATE refresh_tokens
+                    SET revoked = 1, revoked_at = GETDATE()
                     WHERE token = @refreshToken
                 `);
 

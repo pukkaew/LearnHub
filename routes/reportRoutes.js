@@ -3,6 +3,23 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const { poolPromise, sql } = require('../config/database');
 
+// Render reports main page
+router.get('/', authMiddleware.requireAuth, async (req, res) => {
+    try {
+        res.render('reports/index', {
+            title: 'รายงาน - Rukchai Hongyen LearnHub',
+            user: req.session.user
+        });
+    } catch (error) {
+        console.error('Render reports error:', error);
+        res.render('error', {
+            title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+            user: req.session.user,
+            error: 'ไม่สามารถโหลดหน้ารายงานได้'
+        });
+    }
+});
+
 // Get learning progress report
 router.get('/learning-progress', authMiddleware.requireManager(), async (req, res) => {
     try {
@@ -20,12 +37,12 @@ router.get('/learning-progress', authMiddleware.requireManager(), async (req, re
 
         if (departmentId) {
             whereClause += ' AND u.department_id = @departmentId';
-            request.input('departmentId', sql.UniqueIdentifier, departmentId);
+            request.input('departmentId', sql.Int, departmentId);
         }
 
         if (courseId) {
             whereClause += ' AND c.course_id = @courseId';
-            request.input('courseId', sql.UniqueIdentifier, courseId);
+            request.input('courseId', sql.Int, courseId);
         }
 
         const result = await request.query(`
@@ -41,7 +58,7 @@ router.get('/learning-progress', authMiddleware.requireManager(), async (req, re
                 ce.status,
                 ce.time_spent
             FROM Users u
-            LEFT JOIN CourseEnrollments ce ON u.user_id = ce.user_id
+            LEFT JOIN user_courses ce ON u.user_id = ce.user_id
             LEFT JOIN Courses c ON ce.course_id = c.course_id
             LEFT JOIN Departments d ON u.department_id = d.department_id
             ${whereClause}
@@ -78,12 +95,12 @@ router.get('/test-results', authMiddleware.requireManager(), async (req, res) =>
 
         if (testId) {
             whereClause += ' AND t.test_id = @testId';
-            request.input('testId', sql.UniqueIdentifier, testId);
+            request.input('testId', sql.Int, testId);
         }
 
         if (departmentId) {
             whereClause += ' AND u.department_id = @departmentId';
-            request.input('departmentId', sql.UniqueIdentifier, departmentId);
+            request.input('departmentId', sql.Int, departmentId);
         }
 
         const result = await request.query(`
@@ -138,7 +155,7 @@ router.get('/user-activity', authMiddleware.requireManager(), async (req, res) =
 
         if (userId) {
             whereClause += ' AND ua.user_id = @userId';
-            request.input('userId', sql.UniqueIdentifier, userId);
+            request.input('userId', sql.Int, userId);
         }
 
         if (activityType) {
@@ -193,7 +210,7 @@ router.get('/course-stats', authMiddleware.requireManager(), async (req, res) =>
                 AVG(CAST(ce.final_score as FLOAT)) as avg_score,
                 AVG(CAST(ce.progress_percentage as FLOAT)) as avg_progress
             FROM Courses c
-            LEFT JOIN CourseEnrollments ce ON c.course_id = ce.course_id
+            LEFT JOIN user_courses ce ON c.course_id = ce.course_id
             LEFT JOIN CourseCategories cat ON c.category_id = cat.category_id
             LEFT JOIN Users instructor ON c.instructor_id = instructor.user_id
             WHERE c.is_active = 1
@@ -232,7 +249,7 @@ router.get('/department-performance', authMiddleware.requireHR(), async (req, re
                 COUNT(DISTINCT CASE WHEN ta.passed = 1 THEN ta.attempt_id END) as passed_tests
             FROM Departments d
             LEFT JOIN Users u ON d.department_id = u.department_id AND u.is_active = 1
-            LEFT JOIN CourseEnrollments ce ON u.user_id = ce.user_id
+            LEFT JOIN user_courses ce ON u.user_id = ce.user_id
             LEFT JOIN TestAttempts ta ON u.user_id = ta.user_id AND ta.status = 'Completed'
             WHERE d.is_active = 1
             GROUP BY d.department_id, d.department_name, d.department_code
@@ -269,7 +286,7 @@ router.get('/certificates', authMiddleware.requireManager(), async (req, res) =>
 
         if (departmentId) {
             whereClause += ' AND u.department_id = @departmentId';
-            request.input('departmentId', sql.UniqueIdentifier, departmentId);
+            request.input('departmentId', sql.Int, departmentId);
         }
 
         const result = await request.query(`
@@ -324,12 +341,12 @@ router.get('/export/learning-progress', authMiddleware.requireManager(), async (
 
         if (departmentId) {
             whereClause += ' AND u.department_id = @departmentId';
-            request.input('departmentId', sql.UniqueIdentifier, departmentId);
+            request.input('departmentId', sql.Int, departmentId);
         }
 
         if (courseId) {
             whereClause += ' AND c.course_id = @courseId';
-            request.input('courseId', sql.UniqueIdentifier, courseId);
+            request.input('courseId', sql.Int, courseId);
         }
 
         const result = await request.query(`
@@ -345,7 +362,7 @@ router.get('/export/learning-progress', authMiddleware.requireManager(), async (
                 ce.status as 'สถานะ',
                 ce.time_spent as 'เวลาที่ใช้ (นาที)'
             FROM Users u
-            LEFT JOIN CourseEnrollments ce ON u.user_id = ce.user_id
+            LEFT JOIN user_courses ce ON u.user_id = ce.user_id
             LEFT JOIN Courses c ON ce.course_id = c.course_id
             LEFT JOIN Departments d ON u.department_id = d.department_id
             ${whereClause}

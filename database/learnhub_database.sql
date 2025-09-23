@@ -1443,7 +1443,7 @@ BEGIN
     );
 
     INSERT INTO [dbo].[system_settings] ([setting_key], [setting_value], [description], [data_type]) VALUES
-    ('system_name', 'Ruxchai LearnHub', 'ชื่อระบบการเรียนรู้', 'string'),
+    ('system_name', 'Rukchai Hongyen LearnHub', 'ชื่อระบบการเรียนรู้', 'string'),
     ('system_version', '1.0.0', 'เวอร์ชันของระบบ', 'string'),
     ('default_points_per_course', '100', 'คะแนนเริ่มต้นสำหรับการเรียนจบหลักสูตร', 'number'),
     ('default_points_per_test', '50', 'คะแนนเริ่มต้นสำหรับการทำแบบทดสอบ', 'number'),

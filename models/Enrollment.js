@@ -26,11 +26,11 @@ class Enrollment {
 
             // Check if already enrolled
             const existingCheck = await pool.request()
-                .input('userId', sql.UniqueIdentifier, enrollmentData.user_id)
-                .input('courseId', sql.UniqueIdentifier, enrollmentData.course_id)
+                .input('userId', sql.Int, enrollmentData.user_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
                 .query(`
                     SELECT enrollment_id, completion_status
-                    FROM CourseEnrollments
+                    FROM user_courses
                     WHERE user_id = @userId AND course_id = @courseId
                 `);
 
@@ -44,9 +44,9 @@ class Enrollment {
                 }
                 // Re-enroll if previously dropped
                 const result = await pool.request()
-                    .input('enrollmentId', sql.UniqueIdentifier, existing.enrollment_id)
+                    .input('enrollmentId', sql.Int, existing.enrollment_id)
                     .query(`
-                        UPDATE CourseEnrollments
+                        UPDATE user_courses
                         SET enrollment_date = GETDATE(),
                             enrollment_type = 'SELF',
                             start_date = NULL,
@@ -70,8 +70,8 @@ class Enrollment {
 
             // Check prerequisites
             const prereqCheck = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, enrollmentData.course_id)
-                .input('userId', sql.UniqueIdentifier, enrollmentData.user_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
+                .input('userId', sql.Int, enrollmentData.user_id)
                 .query(`
                     SELECT cp.*, c.course_name
                     FROM CoursePrerequisites cp
@@ -80,7 +80,7 @@ class Enrollment {
                     AND cp.is_mandatory = 1
                     AND cp.prerequisite_course_id NOT IN (
                         SELECT course_id
-                        FROM CourseEnrollments
+                        FROM user_courses
                         WHERE user_id = @userId
                         AND completion_status = 'COMPLETED'
                         AND final_score >= (SELECT passing_score FROM Courses WHERE course_id = course_id)
@@ -98,10 +98,10 @@ class Enrollment {
 
             // Check max students limit
             const courseInfo = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, enrollmentData.course_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
                 .query(`
                     SELECT max_students,
-                           (SELECT COUNT(*) FROM CourseEnrollments
+                           (SELECT COUNT(*) FROM user_courses
                             WHERE course_id = @courseId
                             AND completion_status IN ('NOT_STARTED', 'IN_PROGRESS')) as current_students
                     FROM Courses
@@ -119,7 +119,7 @@ class Enrollment {
 
             // Calculate expected end date based on course duration
             const durationResult = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, enrollmentData.course_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
                 .query(`
                     SELECT duration_hours
                     FROM Courses
@@ -135,13 +135,13 @@ class Enrollment {
 
             // Create enrollment
             const result = await pool.request()
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
-                .input('userId', sql.UniqueIdentifier, enrollmentData.user_id)
-                .input('courseId', sql.UniqueIdentifier, enrollmentData.course_id)
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .input('userId', sql.Int, enrollmentData.user_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
                 .input('enrollmentType', sql.NVarChar(20), enrollmentData.enrollment_type || 'SELF')
                 .input('expectedEndDate', sql.DateTime, expectedEndDate)
                 .query(`
-                    INSERT INTO CourseEnrollments (
+                    INSERT INTO user_courses (
                         enrollment_id, user_id, course_id, enrollment_date,
                         enrollment_type, expected_end_date, progress_percentage,
                         completion_status, created_date
@@ -154,9 +154,9 @@ class Enrollment {
 
             // Send notification
             await pool.request()
-                .input('notificationId', sql.UniqueIdentifier, uuidv4())
-                .input('userId', sql.UniqueIdentifier, enrollmentData.user_id)
-                .input('courseId', sql.UniqueIdentifier, enrollmentData.course_id)
+                .input('notificationId', sql.Int, uuidv4())
+                .input('userId', sql.Int, enrollmentData.user_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
                 .query(`
                     INSERT INTO Notifications (
                         notification_id, user_id, notification_type, title, message, link
@@ -171,9 +171,9 @@ class Enrollment {
 
             // Add gamification points
             await pool.request()
-                .input('pointId', sql.UniqueIdentifier, uuidv4())
-                .input('userId', sql.UniqueIdentifier, enrollmentData.user_id)
-                .input('activityId', sql.UniqueIdentifier, enrollmentId)
+                .input('pointId', sql.Int, uuidv4())
+                .input('userId', sql.Int, enrollmentData.user_id)
+                .input('activityId', sql.Int, enrollmentId)
                 .query(`
                     INSERT INTO UserPoints (point_id, user_id, activity_type, activity_id, points_earned, description)
                     VALUES (@pointId, @userId, 'COURSE_ENROLL', @activityId, 10, 'Enrolled in a course')
@@ -193,14 +193,14 @@ class Enrollment {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
+                .input('enrollmentId', sql.Int, enrollmentId)
                 .query(`
                     SELECT e.*,
                            c.course_name, c.course_code, c.thumbnail_image, c.duration_hours,
                            c.passing_score, c.max_attempts,
                            CONCAT(u.first_name, ' ', u.last_name) as student_name,
                            CONCAT(i.first_name, ' ', i.last_name) as instructor_name
-                    FROM CourseEnrollments e
+                    FROM user_courses e
                     JOIN Courses c ON e.course_id = c.course_id
                     JOIN Users u ON e.user_id = u.user_id
                     JOIN Users i ON c.instructor_id = i.user_id
@@ -220,7 +220,7 @@ class Enrollment {
 
             let whereClause = 'WHERE e.user_id = @userId';
             const request = pool.request()
-                .input('userId', sql.UniqueIdentifier, userId);
+                .input('userId', sql.Int, userId);
 
             if (status) {
                 whereClause += ' AND e.completion_status = @status';
@@ -236,7 +236,7 @@ class Enrollment {
                        (SELECT COUNT(*) FROM CourseLessons WHERE course_id = c.course_id) as total_lessons,
                        (SELECT COUNT(*) FROM CourseProgress
                         WHERE enrollment_id = e.enrollment_id AND is_completed = 1) as completed_lessons
-                FROM CourseEnrollments e
+                FROM user_courses e
                 JOIN Courses c ON e.course_id = c.course_id
                 LEFT JOIN CourseCategories cat ON c.category_id = cat.category_id
                 LEFT JOIN Users i ON c.instructor_id = i.user_id
@@ -251,20 +251,20 @@ class Enrollment {
     }
 
     // Get course enrollments
-    static async getCourseEnrollments(courseId, page = 1, limit = 50) {
+    static async getuser_courses(courseId, page = 1, limit = 50) {
         try {
             const pool = await poolPromise;
             const offset = (page - 1) * limit;
 
             const request = pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .input('offset', sql.Int, offset)
                 .input('limit', sql.Int, limit);
 
             // Get total count
             const countResult = await request.query(`
                 SELECT COUNT(*) as total
-                FROM CourseEnrollments
+                FROM user_courses
                 WHERE course_id = @courseId
             `);
 
@@ -273,7 +273,7 @@ class Enrollment {
                 SELECT e.*,
                        u.employee_id, u.first_name, u.last_name, u.email,
                        d.department_name, p.position_name
-                FROM CourseEnrollments e
+                FROM user_courses e
                 JOIN Users u ON e.user_id = u.user_id
                 LEFT JOIN Departments d ON u.department_id = d.department_id
                 LEFT JOIN Positions p ON u.position_id = p.position_id
@@ -301,8 +301,8 @@ class Enrollment {
 
             // Check if progress record exists
             const existingCheck = await pool.request()
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
-                .input('lessonId', sql.UniqueIdentifier, lessonId)
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .input('lessonId', sql.Int, lessonId)
                 .query(`
                     SELECT progress_id, is_completed
                     FROM CourseProgress
@@ -315,7 +315,7 @@ class Enrollment {
 
                 // Update existing progress
                 await pool.request()
-                    .input('progressId', sql.UniqueIdentifier, progressId)
+                    .input('progressId', sql.Int, progressId)
                     .input('completed', sql.Bit, completed)
                     .query(`
                         UPDATE CourseProgress
@@ -331,18 +331,18 @@ class Enrollment {
 
                 // Get user_id from enrollment
                 const enrollmentResult = await pool.request()
-                    .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
-                    .query(`SELECT user_id FROM CourseEnrollments WHERE enrollment_id = @enrollmentId`);
+                    .input('enrollmentId', sql.Int, enrollmentId)
+                    .query(`SELECT user_id FROM user_courses WHERE enrollment_id = @enrollmentId`);
 
                 if (enrollmentResult.recordset.length === 0) {
                     return { success: false, message: 'Enrollment not found' };
                 }
 
                 await pool.request()
-                    .input('progressId', sql.UniqueIdentifier, progressId)
-                    .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
-                    .input('lessonId', sql.UniqueIdentifier, lessonId)
-                    .input('userId', sql.UniqueIdentifier, enrollmentResult.recordset[0].user_id)
+                    .input('progressId', sql.Int, progressId)
+                    .input('enrollmentId', sql.Int, enrollmentId)
+                    .input('lessonId', sql.Int, lessonId)
+                    .input('userId', sql.Int, enrollmentResult.recordset[0].user_id)
                     .input('completed', sql.Bit, completed)
                     .query(`
                         INSERT INTO CourseProgress (
@@ -359,13 +359,13 @@ class Enrollment {
 
             // Update overall enrollment progress
             const progressResult = await pool.request()
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
+                .input('enrollmentId', sql.Int, enrollmentId)
                 .query(`
                     DECLARE @totalLessons INT, @completedLessons INT, @progress DECIMAL(5,2)
 
                     SELECT @totalLessons = COUNT(*)
                     FROM CourseLessons cl
-                    JOIN CourseEnrollments e ON cl.course_id = e.course_id
+                    JOIN user_courses e ON cl.course_id = e.course_id
                     WHERE e.enrollment_id = @enrollmentId AND cl.is_active = 1
 
                     SELECT @completedLessons = COUNT(*)
@@ -377,7 +377,7 @@ class Enrollment {
                         ELSE (CAST(@completedLessons AS DECIMAL(5,2)) / @totalLessons) * 100
                     END
 
-                    UPDATE CourseEnrollments
+                    UPDATE user_courses
                     SET progress_percentage = @progress,
                         completion_status = CASE
                             WHEN @progress = 0 THEN 'NOT_STARTED'
@@ -420,10 +420,10 @@ class Enrollment {
 
             // Check if already has certificate
             const checkResult = await pool.request()
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
+                .input('enrollmentId', sql.Int, enrollmentId)
                 .query(`
                     SELECT certificate_issued
-                    FROM CourseEnrollments
+                    FROM user_courses
                     WHERE enrollment_id = @enrollmentId
                 `);
 
@@ -436,7 +436,7 @@ class Enrollment {
             const countResult = await pool.request()
                 .query(`
                     SELECT COUNT(*) as count
-                    FROM CourseEnrollments
+                    FROM user_courses
                     WHERE certificate_number LIKE 'CERT-${year}-%'
                 `);
 
@@ -445,10 +445,10 @@ class Enrollment {
 
             // Update enrollment with certificate
             const result = await pool.request()
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
+                .input('enrollmentId', sql.Int, enrollmentId)
                 .input('certificateNumber', sql.NVarChar(50), certificateNumber)
                 .query(`
-                    UPDATE CourseEnrollments
+                    UPDATE user_courses
                     SET certificate_issued = 1,
                         certificate_number = @certificateNumber,
                         certificate_issued_date = GETDATE()
@@ -459,14 +459,14 @@ class Enrollment {
             if (result.rowsAffected[0] > 0) {
                 // Add gamification points
                 const enrollmentInfo = await pool.request()
-                    .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
-                    .query(`SELECT user_id FROM CourseEnrollments WHERE enrollment_id = @enrollmentId`);
+                    .input('enrollmentId', sql.Int, enrollmentId)
+                    .query(`SELECT user_id FROM user_courses WHERE enrollment_id = @enrollmentId`);
 
                 if (enrollmentInfo.recordset.length > 0) {
                     await pool.request()
-                        .input('pointId', sql.UniqueIdentifier, uuidv4())
-                        .input('userId', sql.UniqueIdentifier, enrollmentInfo.recordset[0].user_id)
-                        .input('activityId', sql.UniqueIdentifier, enrollmentId)
+                        .input('pointId', sql.Int, uuidv4())
+                        .input('userId', sql.Int, enrollmentInfo.recordset[0].user_id)
+                        .input('activityId', sql.Int, enrollmentId)
                         .query(`
                             INSERT INTO UserPoints (point_id, user_id, activity_type, activity_id, points_earned, description)
                             VALUES (@pointId, @userId, 'COURSE_COMPLETE', @activityId, 100, 'Completed a course')
@@ -493,9 +493,9 @@ class Enrollment {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('enrollmentId', sql.UniqueIdentifier, enrollmentId)
+                .input('enrollmentId', sql.Int, enrollmentId)
                 .query(`
-                    UPDATE CourseEnrollments
+                    UPDATE user_courses
                     SET completion_status = 'DROPPED',
                         actual_end_date = GETDATE()
                     WHERE enrollment_id = @enrollmentId
@@ -520,11 +520,11 @@ class Enrollment {
             let whereClause = 'WHERE 1=1';
             if (courseId) {
                 whereClause += ' AND course_id = @courseId';
-                request.input('courseId', sql.UniqueIdentifier, courseId);
+                request.input('courseId', sql.Int, courseId);
             }
             if (userId) {
                 whereClause += ' AND user_id = @userId';
-                request.input('userId', sql.UniqueIdentifier, userId);
+                request.input('userId', sql.Int, userId);
             }
 
             const result = await request.query(`
@@ -537,7 +537,7 @@ class Enrollment {
                     AVG(CAST(progress_percentage AS FLOAT)) as avg_progress,
                     AVG(CASE WHEN final_score IS NOT NULL THEN CAST(final_score AS FLOAT) END) as avg_score,
                     COUNT(CASE WHEN certificate_issued = 1 THEN 1 END) as certificates_issued
-                FROM CourseEnrollments
+                FROM user_courses
                 ${whereClause}
             `);
 
@@ -552,7 +552,7 @@ class Enrollment {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('positionId', sql.UniqueIdentifier, positionId)
+                .input('positionId', sql.Int, positionId)
                 .input('year', sql.Int, year)
                 .query(`
                     SELECT pcr.*,

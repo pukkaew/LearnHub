@@ -1,15 +1,14 @@
-const sql = require('mssql');
-const database = require('../config/database');
+const { poolPromise, sql } = require('../config/database');
 
 class Position {
     static async create(positionData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .input('title', sql.NVarChar(255), positionData.title)
                 .input('code', sql.VarChar(50), positionData.code)
-                .input('department_id', sql.UniqueIdentifier, positionData.department_id)
+                .input('department_id', sql.Int, positionData.department_id)
                 .input('level', sql.VarChar(50), positionData.level)
                 .input('grade', sql.VarChar(20), positionData.grade)
                 .input('description', sql.NText, positionData.description)
@@ -17,10 +16,10 @@ class Position {
                 .input('responsibilities', sql.NText, positionData.responsibilities)
                 .input('salary_min', sql.Decimal(10, 2), positionData.salary_min)
                 .input('salary_max', sql.Decimal(10, 2), positionData.salary_max)
-                .input('reports_to', sql.UniqueIdentifier, positionData.reports_to)
+                .input('reports_to', sql.Int, positionData.reports_to)
                 .input('is_management', sql.Bit, positionData.is_management || false)
                 .input('is_active', sql.Bit, positionData.is_active !== undefined ? positionData.is_active : true)
-                .input('created_by', sql.UniqueIdentifier, positionData.created_by)
+                .input('created_by', sql.Int, positionData.created_by)
                 .query(`
                     INSERT INTO Positions
                     (title, code, department_id, level, grade, description, requirements,
@@ -43,10 +42,10 @@ class Position {
 
     static async findById(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query(`
                     SELECT p.*,
                            d.name as department_name,
@@ -68,7 +67,7 @@ class Position {
 
     static async findAll(filters = {}) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             let query = `
                 SELECT p.*,
                        d.name as department_name,
@@ -84,7 +83,7 @@ class Position {
 
             if (filters.department_id) {
                 query += ' AND p.department_id = @department_id';
-                request.input('department_id', sql.UniqueIdentifier, filters.department_id);
+                request.input('department_id', sql.Int, filters.department_id);
             }
 
             if (filters.is_active !== undefined) {
@@ -124,10 +123,10 @@ class Position {
 
     static async update(positionId, updateData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             let setClause = [];
-            const request = pool.request().input('position_id', sql.UniqueIdentifier, positionId);
+            const request = pool.request().input('position_id', sql.Int, positionId);
 
             const allowedFields = [
                 'title', 'code', 'department_id', 'level', 'grade', 'description',
@@ -148,7 +147,7 @@ class Position {
                     } else if (field === 'description' || field === 'requirements' || field === 'responsibilities') {
                         request.input(field, sql.NText, updateData[field]);
                     } else if (field === 'department_id' || field === 'reports_to') {
-                        request.input(field, sql.UniqueIdentifier, updateData[field]);
+                        request.input(field, sql.Int, updateData[field]);
                     } else if (field === 'salary_min' || field === 'salary_max') {
                         request.input(field, sql.Decimal(10, 2), updateData[field]);
                     } else if (field === 'is_management' || field === 'is_active') {
@@ -186,10 +185,10 @@ class Position {
 
     static async delete(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const employeeCheck = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query('SELECT COUNT(*) as count FROM Users WHERE position_id = @position_id');
 
             if (employeeCheck.recordset[0].count > 0) {
@@ -197,7 +196,7 @@ class Position {
             }
 
             const reportsCheck = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query('SELECT COUNT(*) as count FROM Positions WHERE reports_to = @position_id');
 
             if (reportsCheck.recordset[0].count > 0) {
@@ -205,7 +204,7 @@ class Position {
             }
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query('DELETE FROM Positions WHERE position_id = @position_id');
 
             if (result.rowsAffected[0] === 0) {
@@ -221,7 +220,7 @@ class Position {
 
     static async getOrganizationChart(departmentId = null) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             let query = `
                 WITH PositionHierarchy AS (
@@ -242,7 +241,7 @@ class Position {
 
             if (departmentId) {
                 query += ' AND p.department_id = @department_id';
-                request.input('department_id', sql.UniqueIdentifier, departmentId);
+                request.input('department_id', sql.Int, departmentId);
             }
 
             query += `
@@ -279,10 +278,10 @@ class Position {
 
     static async findByDepartment(departmentId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query(`
                     SELECT p.*,
                            rp.title as reports_to_title,
@@ -303,10 +302,10 @@ class Position {
 
     static async getPositionStatistics(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query(`
                     SELECT
                         p.title as position_title,
@@ -332,7 +331,7 @@ class Position {
 
     static async getPositionLevels() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 SELECT DISTINCT level
@@ -350,7 +349,7 @@ class Position {
 
     static async getPositionGrades() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 SELECT DISTINCT grade
@@ -368,7 +367,7 @@ class Position {
 
     static async findManagementPositions() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 SELECT p.*,
@@ -390,10 +389,10 @@ class Position {
 
     static async getDirectReports(positionId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('position_id', sql.UniqueIdentifier, positionId)
+                .input('position_id', sql.Int, positionId)
                 .query(`
                     SELECT p.*,
                            d.name as department_name,
@@ -413,7 +412,7 @@ class Position {
 
     static async validatePositionCode(code, excludePositionId = null) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             const request = pool.request()
                 .input('code', sql.VarChar(50), code);
 
@@ -421,7 +420,7 @@ class Position {
 
             if (excludePositionId) {
                 query += ' AND position_id != @exclude_position_id';
-                request.input('exclude_position_id', sql.UniqueIdentifier, excludePositionId);
+                request.input('exclude_position_id', sql.Int, excludePositionId);
             }
 
             const result = await request.query(query);
@@ -434,7 +433,7 @@ class Position {
 
     static async getSalaryRangeAnalysis() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 SELECT
@@ -463,7 +462,7 @@ class Position {
 
     static async findActivePositions() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 SELECT p.position_id, p.title, p.code, d.name as department_name

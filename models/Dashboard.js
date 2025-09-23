@@ -1,10 +1,9 @@
-const sql = require('mssql');
-const database = require('../config/database');
+const { poolPromise, sql } = require('../config/database');
 
 class Dashboard {
     static async getUserDashboardData(userId, userRole) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             const dashboardData = {};
 
             switch (userRole) {
@@ -53,14 +52,14 @@ class Dashboard {
         try {
             const result = await pool.request().query(`
                 SELECT
-                    (SELECT COUNT(*) FROM Users WHERE is_active = 1) as active_users,
-                    (SELECT COUNT(*) FROM Courses WHERE is_active = 1) as active_courses,
-                    (SELECT COUNT(*) FROM CourseEnrollments WHERE status = 'Active') as active_enrollments,
-                    (SELECT COUNT(*) FROM TestAttempts WHERE created_at >= DATEADD(day, -7, GETDATE())) as tests_this_week,
-                    (SELECT COUNT(*) FROM Applicants WHERE created_at >= DATEADD(day, -30, GETDATE())) as applicants_this_month,
-                    (SELECT COUNT(*) FROM ActivityLogs WHERE created_at >= DATEADD(day, -1, GETDATE())) as activities_today,
-                    (SELECT AVG(CAST(total_score as FLOAT)) FROM TestAttempts WHERE created_at >= DATEADD(day, -30, GETDATE())) as avg_test_score,
-                    (SELECT COUNT(*) FROM Notifications WHERE is_read = 0) as unread_notifications
+                    (SELECT COUNT(*) FROM users WHERE is_active = 1) as active_users,
+                    (SELECT COUNT(*) FROM courses WHERE is_active = 1) as active_courses,
+                    (SELECT COUNT(*) FROM enrollments WHERE status = 'Active') as active_enrollments,
+                    (SELECT COUNT(*) FROM test_attempts WHERE created_at >= DATEADD(day, -7, GETDATE())) as tests_this_week,
+                    (SELECT COUNT(*) FROM applicants WHERE created_at >= DATEADD(day, -30, GETDATE())) as applicants_this_month,
+                    (SELECT COUNT(*) FROM user_activities WHERE created_at >= DATEADD(day, -1, GETDATE())) as activities_today,
+                    (SELECT AVG(CAST(total_score as FLOAT)) FROM test_attempts WHERE created_at >= DATEADD(day, -30, GETDATE())) as avg_test_score,
+                    (SELECT COUNT(*) FROM notifications WHERE is_read = 0) as unread_notifications
             `);
 
             return result.recordset[0];
@@ -74,17 +73,17 @@ class Dashboard {
         try {
             const result = await pool.request().query(`
                 SELECT
-                    (SELECT COUNT(*) FROM Applicants WHERE status = 'Pending') as pending_applicants,
-                    (SELECT COUNT(*) FROM Applicants WHERE status = 'Passed') as passed_applicants,
-                    (SELECT COUNT(*) FROM Applicants WHERE status = 'Failed') as failed_applicants,
-                    (SELECT COUNT(*) FROM JobPositions WHERE is_active = 1) as active_positions,
-                    (SELECT COUNT(*) FROM TestAttempts ta
-                     JOIN Applicants a ON ta.applicant_id = a.applicant_id
+                    (SELECT COUNT(*) FROM applicants WHERE status = 'Pending') as pending_applicants,
+                    (SELECT COUNT(*) FROM applicants WHERE status = 'Passed') as passed_applicants,
+                    (SELECT COUNT(*) FROM applicants WHERE status = 'Failed') as failed_applicants,
+                    (SELECT COUNT(*) FROM job_positions WHERE is_active = 1) as active_positions,
+                    (SELECT COUNT(*) FROM test_attempts ta
+                     JOIN applicants a ON ta.applicant_id = a.applicant_id
                      WHERE ta.created_at >= DATEADD(day, -7, GETDATE())) as tests_this_week,
-                    (SELECT AVG(CAST(total_score as FLOAT)) FROM TestAttempts ta
-                     JOIN Applicants a ON ta.applicant_id = a.applicant_id
+                    (SELECT AVG(CAST(total_score as FLOAT)) FROM test_attempts ta
+                     JOIN applicants a ON ta.applicant_id = a.applicant_id
                      WHERE ta.created_at >= DATEADD(day, -30, GETDATE())) as avg_applicant_score,
-                    (SELECT COUNT(DISTINCT a.applicant_id) FROM Applicants a
+                    (SELECT COUNT(DISTINCT a.applicant_id) FROM applicants a
                      WHERE a.created_at >= DATEADD(day, -30, GETDATE())) as new_applicants_this_month
             `);
 
@@ -98,26 +97,26 @@ class Dashboard {
     static async getInstructorStats(pool, userId) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .query(`
                     SELECT
-                        (SELECT COUNT(*) FROM Courses WHERE instructor_id = @user_id AND is_active = 1) as my_courses,
-                        (SELECT COUNT(*) FROM CourseEnrollments e
-                         JOIN Courses c ON e.course_id = c.course_id
+                        (SELECT COUNT(*) FROM courses WHERE instructor_id = @user_id AND is_active = 1) as my_courses,
+                        (SELECT COUNT(*) FROM enrollments e
+                         JOIN courses c ON e.course_id = c.course_id
                          WHERE c.instructor_id = @user_id AND e.status = 'Active') as total_students,
-                        (SELECT COUNT(*) FROM CourseEnrollments e
-                         JOIN Courses c ON e.course_id = c.course_id
+                        (SELECT COUNT(*) FROM enrollments e
+                         JOIN courses c ON e.course_id = c.course_id
                          WHERE c.instructor_id = @user_id AND e.completion_status = 'Completed') as completed_enrollments,
-                        (SELECT AVG(CAST(e.progress_percentage as FLOAT)) FROM CourseEnrollments e
-                         JOIN Courses c ON e.course_id = c.course_id
+                        (SELECT AVG(CAST(e.progress_percentage as FLOAT)) FROM enrollments e
+                         JOIN courses c ON e.course_id = c.course_id
                          WHERE c.instructor_id = @user_id AND e.status = 'Active') as avg_progress,
-                        (SELECT COUNT(*) FROM TestAttempts ta
-                         JOIN Tests t ON ta.test_id = t.test_id
-                         JOIN Courses c ON t.course_id = c.course_id
+                        (SELECT COUNT(*) FROM test_attempts ta
+                         JOIN tests t ON ta.test_id = t.test_id
+                         JOIN courses c ON t.course_id = c.course_id
                          WHERE c.instructor_id = @user_id AND ta.created_at >= DATEADD(day, -7, GETDATE())) as tests_this_week,
-                        (SELECT AVG(CAST(ta.total_score as FLOAT)) FROM TestAttempts ta
-                         JOIN Tests t ON ta.test_id = t.test_id
-                         JOIN Courses c ON t.course_id = c.course_id
+                        (SELECT AVG(CAST(ta.total_score as FLOAT)) FROM test_attempts ta
+                         JOIN tests t ON ta.test_id = t.test_id
+                         JOIN courses c ON t.course_id = c.course_id
                          WHERE c.instructor_id = @user_id AND ta.created_at >= DATEADD(day, -30, GETDATE())) as avg_test_score
                 `);
 
@@ -131,16 +130,16 @@ class Dashboard {
     static async getLearnerStats(pool, userId) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .query(`
                     SELECT
-                        (SELECT COUNT(*) FROM CourseEnrollments WHERE user_id = @user_id AND status = 'Active') as enrolled_courses,
-                        (SELECT COUNT(*) FROM CourseEnrollments WHERE user_id = @user_id AND completion_status = 'Completed') as completed_courses,
-                        (SELECT COUNT(*) FROM TestAttempts WHERE user_id = @user_id) as total_tests_taken,
-                        (SELECT AVG(CAST(total_score as FLOAT)) FROM TestAttempts WHERE user_id = @user_id) as avg_test_score,
-                        (SELECT COUNT(*) FROM UserBadges WHERE user_id = @user_id) as total_badges,
+                        (SELECT COUNT(*) FROM enrollments WHERE user_id = @user_id AND status = 'Active') as enrolled_courses,
+                        (SELECT COUNT(*) FROM enrollments WHERE user_id = @user_id AND completion_status = 'Completed') as completed_courses,
+                        (SELECT COUNT(*) FROM test_attempts WHERE user_id = @user_id) as total_tests_taken,
+                        (SELECT AVG(CAST(total_score as FLOAT)) FROM test_attempts WHERE user_id = @user_id) as avg_test_score,
+                        (SELECT COUNT(*) FROM user_badges WHERE user_id = @user_id) as total_badges,
                         (SELECT SUM(points_earned) FROM user_points WHERE user_id = @user_id) as total_points,
-                        (SELECT AVG(CAST(progress_percentage as FLOAT)) FROM CourseEnrollments WHERE user_id = @user_id AND status = 'Active') as avg_progress,
+                        (SELECT AVG(CAST(progress_percentage as FLOAT)) FROM enrollments WHERE user_id = @user_id AND status = 'Active') as avg_progress,
                         (SELECT COUNT(*) FROM certificates WHERE user_id = @user_id) as certificates_earned
                 `);
 
@@ -157,15 +156,15 @@ class Dashboard {
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)
-                        al.action,
+                        al.activity_type as action,
                         al.description,
                         al.created_at,
                         al.severity,
                         al.module,
                         u.first_name + ' ' + u.last_name as user_name
-                    FROM ActivityLogs al
-                    LEFT JOIN Users u ON al.user_id = u.user_id
-                    WHERE al.severity IN ('Warning', 'Error', 'Critical')
+                    FROM user_activities al
+                    LEFT JOIN users u ON al.user_id = u.user_id
+                    WHERE al.activity_type IN ('Warning', 'Error', 'Critical')
                     ORDER BY al.created_at DESC
                 `);
 
@@ -187,16 +186,16 @@ class Dashboard {
                         a.created_at,
                         jp.position_name,
                         d.name as department_name,
-                        (SELECT AVG(CAST(total_score as FLOAT)) FROM TestAttempts ta WHERE ta.applicant_id = a.applicant_id) as avg_score
-                    FROM Applicants a
-                    JOIN JobPositions jp ON a.position_id = jp.position_id
-                    LEFT JOIN Departments d ON jp.department_id = d.department_id
+                        (SELECT AVG(CAST(total_score as FLOAT)) FROM test_attempts ta WHERE ta.applicant_id = a.applicant_id) as avg_score
+                    FROM applicants a
+                    JOIN job_positions jp ON a.position_id = jp.position_id
+                    LEFT JOIN departments d ON jp.department_id = d.department_id
                     ORDER BY a.created_at DESC
                 `);
 
             return result.recordset;
         } catch (error) {
-            console.error('Error getting recent Applicants:', error);
+            console.error('Error getting recent applicants:', error);
             return [];
         }
     }
@@ -204,7 +203,7 @@ class Dashboard {
     static async getInstructorCourses(pool, userId, limit = 5) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)
@@ -214,8 +213,8 @@ class Dashboard {
                         c.is_active,
                         COUNT(e.enrollment_id) as student_count,
                         AVG(CAST(e.progress_percentage as FLOAT)) as avg_progress
-                    FROM Courses c
-                    LEFT JOIN CourseEnrollments e ON c.course_id = e.course_id AND e.status = 'Active'
+                    FROM courses c
+                    LEFT JOIN enrollments e ON c.course_id = e.course_id AND e.status = 'Active'
                     WHERE c.instructor_id = @user_id
                     GROUP BY c.course_id, c.title, c.description, c.is_active, c.created_at
                     ORDER BY c.created_at DESC
@@ -223,7 +222,7 @@ class Dashboard {
 
             return result.recordset;
         } catch (error) {
-            console.error('Error getting instructor Courses:', error);
+            console.error('Error getting instructor courses:', error);
             return [];
         }
     }
@@ -231,7 +230,7 @@ class Dashboard {
     static async getEnrolledCourses(pool, userId, limit = 5) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)
@@ -242,16 +241,16 @@ class Dashboard {
                         e.completion_status,
                         e.enrolled_at,
                         u.first_name + ' ' + u.last_name as instructor_name
-                    FROM CourseEnrollments e
-                    JOIN Courses c ON e.course_id = c.course_id
-                    LEFT JOIN Users u ON c.instructor_id = u.user_id
+                    FROM enrollments e
+                    JOIN courses c ON e.course_id = c.course_id
+                    LEFT JOIN users u ON c.instructor_id = u.user_id
                     WHERE e.user_id = @user_id AND e.status = 'Active'
                     ORDER BY e.enrolled_at DESC
                 `);
 
             return result.recordset;
         } catch (error) {
-            console.error('Error getting enrolled Courses:', error);
+            console.error('Error getting enrolled courses:', error);
             return [];
         }
     }
@@ -259,7 +258,7 @@ class Dashboard {
     static async getRecentAchievements(pool, userId, limit = 5) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit) 'Badge' as type,
@@ -267,8 +266,8 @@ class Dashboard {
                            b.description,
                            ub.awarded_at as achieved_at,
                            b.icon_url
-                    FROM UserBadges ub
-                    JOIN Badges b ON ub.badge_id = b.badge_id
+                    FROM user_badges ub
+                    JOIN badges b ON ub.badge_id = b.badge_id
                     WHERE ub.user_id = @user_id
 
                     UNION ALL
@@ -294,7 +293,7 @@ class Dashboard {
     static async getCourseRecommendations(pool, userId, limit = 3) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)
@@ -306,13 +305,13 @@ class Dashboard {
                         u.first_name + ' ' + u.last_name as instructor_name,
                         COUNT(e.enrollment_id) as enrollment_count,
                         AVG(CAST(cr.rating as FLOAT)) as avg_rating
-                    FROM Courses c
-                    LEFT JOIN Users u ON c.instructor_id = u.user_id
-                    LEFT JOIN CourseEnrollments e ON c.course_id = e.course_id
+                    FROM courses c
+                    LEFT JOIN users u ON c.instructor_id = u.user_id
+                    LEFT JOIN enrollments e ON c.course_id = e.course_id
                     LEFT JOIN course_ratings cr ON c.course_id = cr.course_id
                     WHERE c.is_active = 1
                     AND c.course_id NOT IN (
-                        SELECT course_id FROM CourseEnrollments
+                        SELECT course_id FROM enrollments
                         WHERE user_id = @user_id
                     )
                     GROUP BY c.course_id, c.title, c.description, c.difficulty_level,
@@ -330,11 +329,11 @@ class Dashboard {
     static async getGamificationData(pool, userId) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .query(`
                     SELECT
                         (SELECT SUM(points_earned) FROM user_points WHERE user_id = @user_id) as total_points,
-                        (SELECT COUNT(*) FROM UserBadges WHERE user_id = @user_id) as total_badges,
+                        (SELECT COUNT(*) FROM user_badges WHERE user_id = @user_id) as total_badges,
                         (SELECT level_name FROM user_levels ul
                          WHERE ul.min_points <= (SELECT SUM(points_earned) FROM user_points WHERE user_id = @user_id)
                          AND ul.max_points >= (SELECT SUM(points_earned) FROM user_points WHERE user_id = @user_id)) as current_level,
@@ -345,11 +344,11 @@ class Dashboard {
                 `);
 
             const badges = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .query(`
                     SELECT TOP 5 b.name, b.description, b.icon_url, ub.awarded_at
-                    FROM UserBadges ub
-                    JOIN Badges b ON ub.badge_id = b.badge_id
+                    FROM user_badges ub
+                    JOIN badges b ON ub.badge_id = b.badge_id
                     WHERE ub.user_id = @user_id AND ub.is_displayed = 1
                     ORDER BY ub.awarded_at DESC
                 `);
@@ -366,7 +365,7 @@ class Dashboard {
     static async getRecentNotifications(pool, userId, limit = 5) {
         try {
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)
@@ -378,15 +377,15 @@ class Dashboard {
                         n.is_read,
                         n.created_at,
                         s.first_name + ' ' + s.last_name as sender_name
-                    FROM Notifications n
-                    LEFT JOIN Users s ON n.sender_id = s.user_id
+                    FROM notifications n
+                    LEFT JOIN users s ON n.sender_id = s.user_id
                     WHERE n.recipient_id = @user_id
                     ORDER BY n.created_at DESC
                 `);
 
             return result.recordset;
         } catch (error) {
-            console.error('Error getting recent Notifications:', error);
+            console.error('Error getting recent notifications:', error);
             return [];
         }
     }
@@ -400,7 +399,7 @@ class Dashboard {
                     COUNT(CASE WHEN is_active = 1 THEN 1 END) as active_count,
                     COUNT(CASE WHEN last_login >= DATEADD(day, -7, GETDATE()) THEN 1 END) as active_last_week,
                     COUNT(CASE WHEN last_login >= DATEADD(day, -30, GETDATE()) THEN 1 END) as active_last_month
-                FROM Users
+                FROM users
                 GROUP BY role
                 ORDER BY user_count DESC
             `);
@@ -416,10 +415,10 @@ class Dashboard {
         try {
             const result = await pool.request().query(`
                 SELECT
-                    (SELECT COUNT(*) FROM ActivityLogs WHERE severity = 'Error' AND created_at >= DATEADD(hour, -24, GETDATE())) as errors_24h,
-                    (SELECT COUNT(*) FROM ActivityLogs WHERE severity = 'Warning' AND created_at >= DATEADD(hour, -24, GETDATE())) as warnings_24h,
-                    (SELECT COUNT(*) FROM ActivityLogs WHERE action LIKE '%Login%' AND created_at >= DATEADD(hour, -24, GETDATE())) as logins_24h,
-                    (SELECT COUNT(*) FROM Notifications WHERE created_at >= DATEADD(hour, -24, GETDATE())) as notifications_24h
+                    (SELECT COUNT(*) FROM user_activities WHERE activity_type LIKE '%Error%' AND created_at >= DATEADD(hour, -24, GETDATE())) as errors_24h,
+                    (SELECT COUNT(*) FROM user_activities WHERE activity_type LIKE '%Warning%' AND created_at >= DATEADD(hour, -24, GETDATE())) as warnings_24h,
+                    (SELECT COUNT(*) FROM user_activities WHERE activity_type LIKE '%Login%' AND created_at >= DATEADD(hour, -24, GETDATE())) as logins_24h,
+                    (SELECT COUNT(*) FROM notifications WHERE created_at >= DATEADD(hour, -24, GETDATE())) as notifications_24h
             `);
 
             return result.recordset[0];
@@ -439,7 +438,7 @@ class Dashboard {
                     AVG(CAST(ta.total_score as FLOAT)) as avg_score,
                     COUNT(CASE WHEN ta.status = 'Passed' THEN 1 END) as passed_count,
                     COUNT(CASE WHEN ta.status = 'Failed' THEN 1 END) as failed_count
-                FROM TestAttempts ta
+                FROM test_attempts ta
                 WHERE ta.created_at >= DATEADD(day, -90, GETDATE())
             `);
 
@@ -459,10 +458,10 @@ class Dashboard {
                     COUNT(a.applicant_id) as total_applicants,
                     COUNT(CASE WHEN a.status = 'Passed' THEN 1 END) as passed_applicants,
                     AVG(CAST(ta.total_score as FLOAT)) as avg_test_score
-                FROM Departments d
-                LEFT JOIN JobPositions jp ON d.department_id = jp.department_id AND jp.is_active = 1
-                LEFT JOIN Applicants a ON jp.position_id = a.position_id
-                LEFT JOIN TestAttempts ta ON a.applicant_id = ta.applicant_id
+                FROM departments d
+                LEFT JOIN job_positions jp ON d.department_id = jp.department_id AND jp.is_active = 1
+                LEFT JOIN applicants a ON jp.position_id = a.position_id
+                LEFT JOIN test_attempts ta ON a.applicant_id = ta.applicant_id
                 GROUP BY d.department_id, d.name
                 ORDER BY COUNT(a.applicant_id) DESC
             `);
@@ -477,7 +476,7 @@ class Dashboard {
     static async getRecentEnrollments(pool, instructorId, limit = 10) {
         try {
             const result = await pool.request()
-                .input('instructor_id', sql.UniqueIdentifier, instructorId)
+                .input('instructor_id', sql.Int, instructorId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)
@@ -486,16 +485,16 @@ class Dashboard {
                         e.enrolled_at,
                         e.progress_percentage,
                         e.completion_status
-                    FROM CourseEnrollments e
-                    JOIN Users u ON e.user_id = u.user_id
-                    JOIN Courses c ON e.course_id = c.course_id
+                    FROM enrollments e
+                    JOIN users u ON e.user_id = u.user_id
+                    JOIN courses c ON e.course_id = c.course_id
                     WHERE c.instructor_id = @instructor_id
                     ORDER BY e.enrolled_at DESC
                 `);
 
             return result.recordset;
         } catch (error) {
-            console.error('Error getting recent CourseEnrollments:', error);
+            console.error('Error getting recent enrollments:', error);
             return [];
         }
     }
@@ -503,7 +502,7 @@ class Dashboard {
     static async getStudentProgress(pool, instructorId) {
         try {
             const result = await pool.request()
-                .input('instructor_id', sql.UniqueIdentifier, instructorId)
+                .input('instructor_id', sql.Int, instructorId)
                 .query(`
                     SELECT
                         c.title as course_title,
@@ -511,8 +510,8 @@ class Dashboard {
                         COUNT(CASE WHEN e.completion_status = 'Completed' THEN 1 END) as completed_students,
                         AVG(CAST(e.progress_percentage as FLOAT)) as avg_progress,
                         COUNT(CASE WHEN e.progress_percentage = 0 THEN 1 END) as not_started
-                    FROM Courses c
-                    LEFT JOIN CourseEnrollments e ON c.course_id = e.course_id AND e.status = 'Active'
+                    FROM courses c
+                    LEFT JOIN enrollments e ON c.course_id = e.course_id AND e.status = 'Active'
                     WHERE c.instructor_id = @instructor_id AND c.is_active = 1
                     GROUP BY c.course_id, c.title
                     ORDER BY total_students DESC

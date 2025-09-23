@@ -26,9 +26,9 @@ class Question {
             const questionId = uuidv4();
 
             const result = await pool.request()
-                .input('questionId', sql.UniqueIdentifier, questionId)
-                .input('bankId', sql.UniqueIdentifier, questionData.bank_id || null)
-                .input('testId', sql.UniqueIdentifier, questionData.test_id || null)
+                .input('questionId', sql.Int, questionId)
+                .input('bankId', sql.Int, questionData.bank_id || null)
+                .input('testId', sql.Int, questionData.test_id || null)
                 .input('questionType', sql.NVarChar(20), questionData.question_type)
                 .input('questionText', sql.NVarChar(sql.MAX), questionData.question_text)
                 .input('questionImage', sql.NVarChar(500), questionData.question_image || null)
@@ -37,7 +37,7 @@ class Question {
                 .input('timeEstimate', sql.Int, questionData.time_estimate_seconds || 60)
                 .input('explanation', sql.NVarChar(sql.MAX), questionData.explanation || null)
                 .input('tags', sql.NVarChar(500), questionData.tags || null)
-                .input('createdBy', sql.UniqueIdentifier, questionData.created_by)
+                .input('createdBy', sql.Int, questionData.created_by)
                 .query(`
                     INSERT INTO Questions (
                         question_id, bank_id, test_id, question_type, question_text,
@@ -57,8 +57,8 @@ class Question {
                 for (let i = 0; i < questionData.options.length; i++) {
                     const option = questionData.options[i];
                     await pool.request()
-                        .input('optionId', sql.UniqueIdentifier, uuidv4())
-                        .input('questionId', sql.UniqueIdentifier, questionId)
+                        .input('optionId', sql.Int, uuidv4())
+                        .input('questionId', sql.Int, questionId)
                         .input('optionText', sql.NVarChar(500), option.text)
                         .input('optionImage', sql.NVarChar(500), option.image || null)
                         .input('isCorrect', sql.Bit, option.is_correct || false)
@@ -89,7 +89,7 @@ class Question {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('questionId', sql.UniqueIdentifier, questionId)
+                .input('questionId', sql.Int, questionId)
                 .query(`
                     SELECT q.*,
                            tb.bank_name,
@@ -109,7 +109,7 @@ class Question {
             // Get options if multiple choice or similar
             if (['MULTIPLE_CHOICE', 'TRUE_FALSE', 'MATCHING'].includes(question.question_type)) {
                 const optionResult = await pool.request()
-                    .input('questionId', sql.UniqueIdentifier, questionId)
+                    .input('questionId', sql.Int, questionId)
                     .query(`
                         SELECT *
                         FROM QuestionOptions
@@ -140,11 +140,11 @@ class Question {
             // Add filters
             if (filters.bank_id) {
                 whereClause += ' AND q.bank_id = @bankId';
-                request.input('bankId', sql.UniqueIdentifier, filters.bank_id);
+                request.input('bankId', sql.Int, filters.bank_id);
             }
             if (filters.test_id) {
                 whereClause += ' AND q.test_id = @testId';
-                request.input('testId', sql.UniqueIdentifier, filters.test_id);
+                request.input('testId', sql.Int, filters.test_id);
             }
             if (filters.question_type) {
                 whereClause += ' AND q.question_type = @questionType';
@@ -156,7 +156,7 @@ class Question {
             }
             if (filters.created_by) {
                 whereClause += ' AND q.created_by = @createdBy';
-                request.input('createdBy', sql.UniqueIdentifier, filters.created_by);
+                request.input('createdBy', sql.Int, filters.created_by);
             }
             if (filters.tags) {
                 whereClause += ' AND q.tags LIKE @tags';
@@ -210,7 +210,7 @@ class Question {
 
             const updateFields = [];
             const request = pool.request()
-                .input('questionId', sql.UniqueIdentifier, questionId);
+                .input('questionId', sql.Int, questionId);
 
             if (updateData.question_text !== undefined) {
                 updateFields.push('question_text = @questionText');
@@ -256,15 +256,15 @@ class Question {
             if (updateData.options) {
                 // Delete existing options
                 await pool.request()
-                    .input('questionId', sql.UniqueIdentifier, questionId)
+                    .input('questionId', sql.Int, questionId)
                     .query('DELETE FROM QuestionOptions WHERE question_id = @questionId');
 
                 // Add new options
                 for (let i = 0; i < updateData.options.length; i++) {
                     const option = updateData.options[i];
                     await pool.request()
-                        .input('optionId', sql.UniqueIdentifier, uuidv4())
-                        .input('questionId', sql.UniqueIdentifier, questionId)
+                        .input('optionId', sql.Int, uuidv4())
+                        .input('questionId', sql.Int, questionId)
                         .input('optionText', sql.NVarChar(500), option.text)
                         .input('optionImage', sql.NVarChar(500), option.image || null)
                         .input('isCorrect', sql.Bit, option.is_correct || false)
@@ -304,9 +304,9 @@ class Question {
             // Create new question
             const newQuestionId = uuidv4();
             await pool.request()
-                .input('questionId', sql.UniqueIdentifier, newQuestionId)
-                .input('bankId', sql.UniqueIdentifier, targetBankId)
-                .input('testId', sql.UniqueIdentifier, targetTestId)
+                .input('questionId', sql.Int, newQuestionId)
+                .input('bankId', sql.Int, targetBankId)
+                .input('testId', sql.Int, targetTestId)
                 .input('questionType', sql.NVarChar(20), original.question_type)
                 .input('questionText', sql.NVarChar(sql.MAX), original.question_text)
                 .input('questionImage', sql.NVarChar(500), original.question_image)
@@ -315,7 +315,7 @@ class Question {
                 .input('timeEstimate', sql.Int, original.time_estimate_seconds)
                 .input('explanation', sql.NVarChar(sql.MAX), original.explanation)
                 .input('tags', sql.NVarChar(500), original.tags)
-                .input('createdBy', sql.UniqueIdentifier, createdBy)
+                .input('createdBy', sql.Int, createdBy)
                 .query(`
                     INSERT INTO Questions (
                         question_id, bank_id, test_id, question_type, question_text,
@@ -334,8 +334,8 @@ class Question {
             if (original.options && original.options.length > 0) {
                 for (const option of original.options) {
                     await pool.request()
-                        .input('optionId', sql.UniqueIdentifier, uuidv4())
-                        .input('questionId', sql.UniqueIdentifier, newQuestionId)
+                        .input('optionId', sql.Int, uuidv4())
+                        .input('questionId', sql.Int, newQuestionId)
                         .input('optionText', sql.NVarChar(500), option.option_text)
                         .input('optionImage', sql.NVarChar(500), option.option_image)
                         .input('isCorrect', sql.Bit, option.is_correct)
@@ -382,15 +382,15 @@ class Question {
                     // Create question
                     const questionId = uuidv4();
                     await pool.request()
-                        .input('questionId', sql.UniqueIdentifier, questionId)
-                        .input('bankId', sql.UniqueIdentifier, bankId)
+                        .input('questionId', sql.Int, questionId)
+                        .input('bankId', sql.Int, bankId)
                         .input('questionType', sql.NVarChar(20), questionData.question_type.toUpperCase())
                         .input('questionText', sql.NVarChar(sql.MAX), questionData.question_text)
                         .input('points', sql.Decimal(5, 2), parseFloat(questionData.points))
                         .input('difficultyLevel', sql.Int, parseInt(questionData.difficulty_level) || 3)
                         .input('explanation', sql.NVarChar(sql.MAX), questionData.explanation || null)
                         .input('tags', sql.NVarChar(500), questionData.tags || null)
-                        .input('createdBy', sql.UniqueIdentifier, createdBy)
+                        .input('createdBy', sql.Int, createdBy)
                         .query(`
                             INSERT INTO Questions (
                                 question_id, bank_id, question_type, question_text,
@@ -421,8 +421,8 @@ class Question {
 
                         for (let i = 0; i < options.length; i++) {
                             await pool.request()
-                                .input('optionId', sql.UniqueIdentifier, uuidv4())
-                                .input('questionId', sql.UniqueIdentifier, questionId)
+                                .input('optionId', sql.Int, uuidv4())
+                                .input('questionId', sql.Int, questionId)
                                 .input('optionText', sql.NVarChar(500), options[i].text)
                                 .input('isCorrect', sql.Bit, options[i].is_correct)
                                 .input('optionOrder', sql.Int, i + 1)
@@ -464,7 +464,7 @@ class Question {
         try {
             const pool = await poolPromise;
             await pool.request()
-                .input('questionId', sql.UniqueIdentifier, questionId)
+                .input('questionId', sql.Int, questionId)
                 .input('wasCorrect', sql.Bit, wasCorrect)
                 .query(`
                     UPDATE Questions
@@ -484,7 +484,7 @@ class Question {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('questionId', sql.UniqueIdentifier, questionId)
+                .input('questionId', sql.Int, questionId)
                 .query(`
                     SELECT
                         q.usage_count,
@@ -514,7 +514,7 @@ class Question {
 
             // Check if question is used in submitted tests
             const usageCheck = await pool.request()
-                .input('questionId', sql.UniqueIdentifier, questionId)
+                .input('questionId', sql.Int, questionId)
                 .query(`
                     SELECT COUNT(*) as count
                     FROM TestAnswers ta
@@ -530,7 +530,7 @@ class Question {
             }
 
             const result = await pool.request()
-                .input('questionId', sql.UniqueIdentifier, questionId)
+                .input('questionId', sql.Int, questionId)
                 .query(`
                     UPDATE Questions
                     SET is_active = 0,
@@ -558,7 +558,7 @@ class Question {
                 const count = counts[i];
 
                 const result = await pool.request()
-                    .input('bankId', sql.UniqueIdentifier, bankId)
+                    .input('bankId', sql.Int, bankId)
                     .input('difficulty', sql.Int, difficulty)
                     .input('count', sql.Int, count)
                     .query(`

@@ -505,16 +505,17 @@ const applicantController = {
     async renderTestLogin(req, res) {
         try {
             res.render('applicants/test-login', {
-                title: 'เข้าสู่ระบบทดสอบ - Ruxchai LearnHub',
+                title: 'เข้าสู่ระบบทดสอบ - Rukchai Hongyen LearnHub',
                 layout: 'applicant'
             });
 
         } catch (error) {
             console.error('Render test login error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้าเข้าสู่ระบบได้',
                 layout: 'applicant',
-                error: 'ไม่สามารถโหลดหน้าเข้าสู่ระบบได้'
+                error: error
             });
         }
     },
@@ -526,13 +527,13 @@ const applicantController = {
             const applicant = await Applicant.findByTestCode(test_code);
             if (!applicant) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Ruxchai LearnHub',
+                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
                     layout: 'applicant'
                 });
             }
 
             res.render('applicants/test-interface', {
-                title: 'ระบบทดสอบ - Ruxchai LearnHub',
+                title: 'ระบบทดสอบ - Rukchai Hongyen LearnHub',
                 layout: 'applicant',
                 applicant: {
                     first_name: applicant.first_name,
@@ -545,9 +546,10 @@ const applicantController = {
         } catch (error) {
             console.error('Render test interface error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดระบบทดสอบได้',
                 layout: 'applicant',
-                error: 'ไม่สามารถโหลดระบบทดสอบได้'
+                error: error
             });
         }
     },
@@ -558,7 +560,7 @@ const applicantController = {
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Ruxchai LearnHub',
+                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -566,7 +568,7 @@ const applicantController = {
             const positions = await JobPosition.findAll({ is_active: true });
 
             res.render('applicants/management', {
-                title: 'จัดการผู้สมัครงาน - Ruxchai LearnHub',
+                title: 'จัดการผู้สมัครงาน - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: userRole,
                 positions: positions
@@ -575,9 +577,10 @@ const applicantController = {
         } catch (error) {
             console.error('Render applicant management error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้าจัดการผู้สมัครงานได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้าจัดการผู้สมัครงานได้'
+                error: error
             });
         }
     }

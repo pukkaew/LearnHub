@@ -51,7 +51,7 @@ const dashboardController = {
 
             if (!dashboardResult.success) {
                 return res.render('dashboard/index', {
-                    title: 'แดשบอร์ด - Ruxchai LearnHub',
+                    title: 'แดשบอร์ด - Rukchai Hongyen LearnHub',
                     user: user,
                     userRole: userRole,
                     error: 'ไม่สามารถโหลดข้อมูลแดชบอร์ดได้'
@@ -95,7 +95,7 @@ const dashboardController = {
             });
 
             res.render(template, {
-                title: `${pageTitle} - Ruxchai LearnHub`,
+                title: `${pageTitle} - Rukchai Hongyen LearnHub`,
                 user: user,
                 userRole: userRole,
                 dashboardData: dashboardData
@@ -104,7 +104,7 @@ const dashboardController = {
         } catch (error) {
             console.error('Render dashboard error:', error);
             res.render('dashboard/index', {
-                title: 'แดชบอร์ด - Ruxchai LearnHub',
+                title: 'แดชบอร์ด - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role,
                 error: 'เกิดข้อผิดพลาดในการโหลดแดชบอร์ด'
@@ -121,24 +121,25 @@ const dashboardController = {
 
             switch (userRole) {
                 case 'Admin':
-                    const pool = await require('../config/database').getConnection();
+                    const pool = await poolPromise;
                     const adminStats = await pool.request().query(`
                         SELECT
                             (SELECT COUNT(*) FROM users WHERE is_active = 1) as active_users,
-                            (SELECT COUNT(*) FROM courses WHERE is_active = 1) as active_courses,
-                            (SELECT COUNT(*) FROM enrollments WHERE status = 'Active') as active_enrollments,
+                            (SELECT COUNT(*) FROM courses WHERE status = 'active') as active_courses,
+                            (SELECT COUNT(*) FROM user_courses WHERE status = 'enrolled') as active_enrollments,
                             (SELECT COUNT(*) FROM notifications WHERE is_read = 0) as unread_notifications
                     `);
                     stats = adminStats.recordset[0];
                     break;
 
                 case 'Learner':
-                    const learnerStats = await pool.request()
-                        .input('user_id', require('mssql').UniqueIdentifier, userId)
+                    const pool2 = await poolPromise;
+                    const learnerStats = await pool2.request()
+                        .input('user_id', require('mssql').Int, userId)
                         .query(`
                             SELECT
-                                (SELECT COUNT(*) FROM enrollments WHERE user_id = @user_id AND status = 'Active') as enrolled_courses,
-                                (SELECT COUNT(*) FROM enrollments WHERE user_id = @user_id AND completion_status = 'Completed') as completed_courses,
+                                (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id AND status = 'enrolled') as enrolled_courses,
+                                (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id AND status = 'completed') as completed_courses,
                                 (SELECT COUNT(*) FROM user_badges WHERE user_id = @user_id) as total_badges,
                                 (SELECT SUM(points_earned) FROM user_points WHERE user_id = @user_id) as total_points
                         `);
@@ -307,13 +308,13 @@ const dashboardController = {
                 });
             }
 
-            const pool = await require('../config/database').getConnection();
+            const pool = await poolPromise;
 
             const healthData = await pool.request().query(`
                 SELECT
-                    (SELECT COUNT(*) FROM activity_logs WHERE severity = 'Error' AND created_at >= DATEADD(hour, -24, GETDATE())) as errors_24h,
-                    (SELECT COUNT(*) FROM activity_logs WHERE severity = 'Warning' AND created_at >= DATEADD(hour, -24, GETDATE())) as warnings_24h,
-                    (SELECT COUNT(*) FROM activity_logs WHERE action LIKE '%Login%' AND created_at >= DATEADD(hour, -24, GETDATE())) as logins_24h,
+                    (SELECT COUNT(*) FROM user_activities WHERE activity_type LIKE '%Error%' AND created_at >= DATEADD(hour, -24, GETDATE())) as errors_24h,
+                    (SELECT COUNT(*) FROM user_activities WHERE activity_type LIKE '%Warning%' AND created_at >= DATEADD(hour, -24, GETDATE())) as warnings_24h,
+                    (SELECT COUNT(*) FROM user_activities WHERE activity_type LIKE '%Login%' AND created_at >= DATEADD(hour, -24, GETDATE())) as logins_24h,
                     (SELECT COUNT(*) FROM users WHERE is_active = 1) as active_users,
                     (SELECT COUNT(*) FROM users WHERE last_login >= DATEADD(day, -7, GETDATE())) as active_users_week
             `);
@@ -430,18 +431,18 @@ const dashboardController = {
             if (type === 'points') {
                 query = `
                     SELECT TOP ${parseInt(limit)}
-                        u.userId,
-                        u.firstName,
-                        u.lastName,
-                        u.profileImage,
-                        up.totalPoints,
-                        up.currentLevel,
-                        d.name as departmentName
-                    FROM Users u
-                    LEFT JOIN UserProfiles up ON u.userId = up.userId
-                    LEFT JOIN Departments d ON u.departmentId = d.departmentId
-                    WHERE u.isActive = 1
-                    ORDER BY up.totalPoints DESC
+                        u.user_id as userId,
+                        u.first_name as firstName,
+                        u.last_name as lastName,
+                        u.profile_image as profileImage,
+                        up.total_points as totalPoints,
+                        up.level as currentLevel,
+                        d.department_name as departmentName
+                    FROM users u
+                    LEFT JOIN user_profiles up ON u.user_id = up.user_id
+                    LEFT JOIN departments d ON u.department_id = d.department_id
+                    WHERE u.is_active = 1
+                    ORDER BY up.total_points DESC
                 `;
             } else if (type === 'tests') {
                 query = `
@@ -452,12 +453,12 @@ const dashboardController = {
                         u.profileImage,
                         COUNT(tr.testResultId) as completedTests,
                         AVG(CAST(tr.score AS FLOAT)) as averageScore,
-                        d.name as departmentName
+                        d.department_name as departmentName
                     FROM Users u
                     LEFT JOIN TestResults tr ON u.userId = tr.userId
                     LEFT JOIN Departments d ON u.departmentId = d.departmentId
                     WHERE u.isActive = 1
-                    GROUP BY u.userId, u.firstName, u.lastName, u.profileImage, d.name
+                    GROUP BY u.userId, u.firstName, u.lastName, u.profileImage, d.department_name
                     ORDER BY COUNT(tr.testResultId) DESC, AVG(CAST(tr.score AS FLOAT)) DESC
                 `;
             }

@@ -1,4 +1,4 @@
--- Ruxchai LearnHub Database - Complete SQL Server Setup Script
+-- Rukchai Hongyen LearnHub Database - Complete SQL Server Setup Script
 -- This script creates the complete database with all tables, procedures, and initial data
 -- Run this script on SQL Server to set up the entire LearnHub system
 
@@ -786,7 +786,7 @@ INSERT INTO [badges] ([name], [description], [icon], [color], [criteria], [point
 
 -- Insert system settings
 INSERT INTO [system_settings] ([setting_key], [setting_value], [setting_type], [description], [category]) VALUES
-('site_name', 'Ruxchai LearnHub', 'string', 'Application name', 'general'),
+('site_name', 'Rukchai Hongyen LearnHub', 'string', 'Application name', 'general'),
 ('site_description', 'Online Learning Management System', 'string', 'Application description', 'general'),
 ('default_language', 'th', 'string', 'Default system language', 'general'),
 ('timezone', 'Asia/Bangkok', 'string', 'Default timezone', 'general'),

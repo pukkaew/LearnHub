@@ -510,7 +510,7 @@ const testController = {
     async renderTestsList(req, res) {
         try {
             res.render('tests/index', {
-                title: 'รายการข้อสอบ - Ruxchai LearnHub',
+                title: 'รายการข้อสอบ - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role
             });
@@ -518,9 +518,10 @@ const testController = {
         } catch (error) {
             console.error('Render tests list error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้ารายการข้อสอบได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้ารายการข้อสอบได้'
+                error: error
             });
         }
     },
@@ -532,13 +533,13 @@ const testController = {
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Ruxchai LearnHub',
+                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
 
             res.render('tests/detail', {
-                title: `${test.test_name} - Ruxchai LearnHub`,
+                title: `${test.test_name} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role,
                 test: test
@@ -547,9 +548,10 @@ const testController = {
         } catch (error) {
             console.error('Render test detail error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดข้อมูลข้อสอบได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดข้อมูลข้อสอบได้'
+                error: error
             });
         }
     },
@@ -562,7 +564,7 @@ const testController = {
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Ruxchai LearnHub',
+                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -570,7 +572,7 @@ const testController = {
             const attempt = await Test.getAttemptById(attempt_id);
             if (!attempt || attempt.user_id !== userId) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Ruxchai LearnHub',
+                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -582,7 +584,7 @@ const testController = {
             const questions = await Question.findByTestId(test_id);
 
             res.render('tests/taking', {
-                title: `ทำข้อสอบ: ${test.test_name} - Ruxchai LearnHub`,
+                title: `ทำข้อสอบ: ${test.test_name} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role,
                 test: test,
@@ -593,9 +595,10 @@ const testController = {
         } catch (error) {
             console.error('Render test taking error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Ruxchai LearnHub',
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้าทำข้อสอบได้',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้าทำข้อสอบได้'
+                error: error
             });
         }
     }

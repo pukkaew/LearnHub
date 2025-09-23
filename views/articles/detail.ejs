@@ -1,10 +1,7 @@
-<%- include('../layouts/header') %>
-
-<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
-    <div class="container mx-auto px-6 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Back button -->
         <div class="mb-6">
-            <a href="/articles" class="inline-flex items-center text-ruxchai-main hover:text-ruxchai-main/80 transition-colors">
+            <a href="/articles" class="inline-flex items-center text-ruxchai-primary hover:text-ruxchai-primary/80 transition-colors">
                 <i class="fas fa-arrow-left mr-2"></i>กลับไปหน้าบทความ
             </a>
         </div>
@@ -16,7 +13,7 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                 <div class="absolute bottom-6 left-6 right-6 text-white">
                     <div class="flex flex-wrap gap-2 mb-4">
-                        <span id="categoryBadge" class="px-3 py-1 bg-ruxchai-main rounded-full text-sm"></span>
+                        <span id="categoryBadge" class="px-3 py-1 bg-ruxchai-primary rounded-full text-sm"></span>
                         <span id="statusBadge" class="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm"></span>
                     </div>
                     <h1 id="articleTitle" class="text-3xl md:text-4xl font-bold mb-4"></h1>
@@ -71,7 +68,7 @@
 
                 <!-- Article Content -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-8">
-                    <div id="articleSummary" class="text-lg text-gray-600 mb-8 p-4 bg-gray-50 rounded-lg border-l-4 border-ruxchai-main"></div>
+                    <div id="articleSummary" class="text-lg text-gray-600 mb-8 p-4 bg-gray-50 rounded-lg border-l-4 border-ruxchai-primary"></div>
                     <div id="articleContent" class="prose prose-lg max-w-none"></div>
                 </div>
 
@@ -94,7 +91,7 @@
                                 <span id="authorFollowers">ผู้ติดตาม: 0</span>
                             </div>
                         </div>
-                        <button id="followBtn" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors">
+                        <button id="followBtn" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
                             ติดตาม
                         </button>
                     </div>
@@ -104,7 +101,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-bold text-gray-900">ความคิดเห็น</h3>
-                        <button id="sortComments" class="text-sm text-ruxchai-main hover:text-ruxchai-main/80">
+                        <button id="sortComments" class="text-sm text-ruxchai-primary hover:text-ruxchai-primary/80">
                             เรียงตาม: ใหม่ที่สุด <i class="fas fa-chevron-down ml-1"></i>
                         </button>
                     </div>
@@ -112,12 +109,12 @@
                     <!-- Comment Form -->
                     <div class="mb-8">
                         <textarea id="commentText" rows="3" placeholder="แสดงความคิดเห็น..."
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent resize-none"></textarea>
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent resize-none"></textarea>
                         <div class="flex justify-between items-center mt-3">
                             <div class="text-sm text-gray-500">
                                 <span id="commentCharCount">0</span>/1000 ตัวอักษร
                             </div>
-                            <button id="submitComment" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button id="submitComment" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 ส่งความคิดเห็น
                             </button>
                         </div>
@@ -130,7 +127,7 @@
 
                     <!-- Load More Comments -->
                     <div class="text-center mt-6">
-                        <button id="loadMoreComments" class="px-6 py-2 text-ruxchai-main border border-ruxchai-main rounded-lg hover:bg-ruxchai-main hover:text-white transition-colors hidden">
+                        <button id="loadMoreComments" class="px-6 py-2 text-ruxchai-primary border border-ruxchai-primary rounded-lg hover:bg-ruxchai-primary hover:text-white transition-colors hidden">
                             โหลดความคิดเห็นเพิ่มเติม
                         </button>
                     </div>
@@ -164,7 +161,6 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <!-- Share Modal -->
@@ -197,7 +193,7 @@
                     <div class="relative">
                         <input type="text" id="articleUrl" readonly
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
-                        <button onclick="copyUrl()" class="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-ruxchai-main text-white text-sm rounded">
+                        <button onclick="copyUrl()" class="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-ruxchai-primary text-white text-sm rounded">
                             คัดลอก
                         </button>
                     </div>
@@ -274,7 +270,7 @@ async function loadArticle() {
 
 // Display article
 function displayArticle(article) {
-    document.title = `${article.title} - Ruxchai LearnHub`;
+    document.title = `${article.title} - Rukchai Hongyen LearnHub`;
 
     document.getElementById('featuredImage').src = article.featured_image || '/images/default-article.jpg';
     document.getElementById('featuredImage').alt = article.title;
@@ -345,7 +341,7 @@ function generateTableOfContents() {
         const indent = (level - 1) * 12;
 
         return `
-            <a href="#${id}" class="block py-1 text-gray-600 hover:text-ruxchai-main transition-colors truncate"
+            <a href="#${id}" class="block py-1 text-gray-600 hover:text-ruxchai-primary transition-colors truncate"
                style="padding-left: ${indent}px;">
                 ${heading.textContent}
             </a>
@@ -407,10 +403,10 @@ function createCommentItem(comment) {
                     <p class="text-gray-700">${comment.content}</p>
                 </div>
                 <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                    <button class="hover:text-ruxchai-main transition-colors">
+                    <button class="hover:text-ruxchai-primary transition-colors">
                         <i class="far fa-heart mr-1"></i>ถูกใจ (${comment.likes || 0})
                     </button>
-                    <button class="hover:text-ruxchai-main transition-colors">
+                    <button class="hover:text-ruxchai-primary transition-colors">
                         <i class="far fa-comment mr-1"></i>ตอบกลับ
                     </button>
                     ${comment.can_edit ? `
@@ -613,12 +609,12 @@ function updateFollowButton(isFollowing) {
 
     if (isFollowing) {
         btn.textContent = 'กำลังติดตาม';
-        btn.classList.remove('bg-ruxchai-main');
+        btn.classList.remove('bg-ruxchai-primary');
         btn.classList.add('bg-gray-600');
     } else {
         btn.textContent = 'ติดตาม';
         btn.classList.remove('bg-gray-600');
-        btn.classList.add('bg-ruxchai-main');
+        btn.classList.add('bg-ruxchai-primary');
     }
 }
 
@@ -637,7 +633,7 @@ async function loadRelatedArticles() {
                             <img src="${article.featured_image || '/images/default-article.jpg'}"
                                  alt="${article.title}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
                             <div class="flex-1 min-w-0">
-                                <h4 class="font-medium text-gray-900 group-hover:text-ruxchai-main transition-colors line-clamp-2 mb-1">
+                                <h4 class="font-medium text-gray-900 group-hover:text-ruxchai-primary transition-colors line-clamp-2 mb-1">
                                     ${article.title}
                                 </h4>
                                 <p class="text-sm text-gray-500">${formatDate(article.created_at)}</p>
@@ -668,7 +664,7 @@ async function loadPopularTags() {
             const container = document.getElementById('popularTags');
             container.innerHTML = data.tags.map(tag => `
                 <a href="/articles?tag=${encodeURIComponent(tag.name)}"
-                   class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-ruxchai-main hover:text-white transition-colors">
+                   class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-ruxchai-primary hover:text-white transition-colors">
                     ${tag.name} (${tag.count})
                 </a>
             `).join('');
@@ -779,4 +775,3 @@ style.textContent = `
 document.head.appendChild(style);
 </script>
 
-<%- include('../layouts/footer') %>

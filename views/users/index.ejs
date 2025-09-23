@@ -1,6 +1,6 @@
 <%- include('../layouts/header') %>
 
-<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
     <div class="container mx-auto px-6 py-8">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
@@ -12,7 +12,7 @@
                 <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
                     <i class="fas fa-download mr-2"></i>ส่งออกข้อมูล
                 </button>
-                <button id="addUserBtn" class="bg-ruxchai-main text-white px-6 py-3 rounded-lg hover:bg-ruxchai-main/90 transition-colors shadow-md">
+                <button id="addUserBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
                     <i class="fas fa-plus mr-2"></i>เพิ่มผู้ใช้ใหม่
                 </button>
             </div>
@@ -72,16 +72,16 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     <input type="text" id="searchUsers" placeholder="ค้นหาผู้ใช้..."
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
-                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value="">สถานะทั้งหมด</option>
                     <option value="active">ใช้งานอยู่</option>
                     <option value="inactive">ไม่ใช้งาน</option>
                     <option value="pending">รอการอนุมัติ</option>
                     <option value="suspended">ถูกระงับ</option>
                 </select>
-                <select id="roleFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                <select id="roleFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value="">บทบาททั้งหมด</option>
                     <option value="admin">ผู้ดูแลระบบ</option>
                     <option value="hr">HR</option>
@@ -89,11 +89,11 @@
                     <option value="employee">พนักงาน</option>
                     <option value="learner">ผู้เรียน</option>
                 </select>
-                <select id="departmentFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                <select id="departmentFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value="">แผนกทั้งหมด</option>
                     <!-- Departments will be loaded dynamically -->
                 </select>
-                <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value="latest">ล่าสุด</option>
                     <option value="name_asc">ชื่อ A-Z</option>
                     <option value="name_desc">ชื่อ Z-A</option>
@@ -133,7 +133,7 @@
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
                             <th class="p-4 text-left">
-                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-ruxchai-main focus:ring-ruxchai-main">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary">
                             </th>
                             <th class="p-4 text-left text-sm font-medium text-gray-900">ผู้ใช้</th>
                             <th class="p-4 text-left text-sm font-medium text-gray-900">บทบาท</th>
@@ -186,37 +186,37 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ *</label>
                         <input type="text" name="first_name" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล *</label>
                         <input type="text" name="last_name" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล *</label>
                         <input type="email" name="email" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
                         <input type="tel" name="phone"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน *</label>
                         <input type="password" name="password" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ยืนยันรหัสผ่าน *</label>
                         <input type="password" name="confirm_password" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">บทบาท *</label>
                         <select name="role" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                             <option value="">เลือกบทบาท</option>
                             <option value="employee">พนักงาน</option>
                             <option value="manager">ผู้จัดการ</option>
@@ -227,7 +227,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
                         <select name="department_id"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                             <option value="">เลือกแผนก</option>
                             <!-- Departments will be loaded dynamically -->
                         </select>
@@ -235,18 +235,18 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่ง</label>
                         <input type="text" name="position"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">วันเริ่มงาน</label>
                         <input type="date" name="start_date"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                 </div>
 
                 <div class="flex items-center">
                     <input type="checkbox" name="send_welcome_email" id="sendWelcomeEmail" checked
-                           class="rounded border-gray-300 text-ruxchai-main focus:ring-ruxchai-main mr-2">
+                           class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-2">
                     <label for="sendWelcomeEmail" class="text-sm text-gray-700">ส่งอีเมลยินดีต้อนรับ</label>
                 </div>
 
@@ -254,7 +254,7 @@
                     <button type="button" id="cancelAdd" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
                         ยกเลิก
                     </button>
-                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
                         เพิ่มผู้ใช้
                     </button>
                 </div>
@@ -281,27 +281,27 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ *</label>
                         <input type="text" name="first_name" id="editFirstName" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล *</label>
                         <input type="text" name="last_name" id="editLastName" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล *</label>
                         <input type="email" name="email" id="editEmail" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
                         <input type="tel" name="phone" id="editPhone"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">บทบาท *</label>
                         <select name="role" id="editRole" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                             <option value="employee">พนักงาน</option>
                             <option value="manager">ผู้จัดการ</option>
                             <option value="hr">HR</option>
@@ -311,7 +311,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">สถานะ *</label>
                         <select name="status" id="editStatus" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                             <option value="active">ใช้งานอยู่</option>
                             <option value="inactive">ไม่ใช้งาน</option>
                             <option value="pending">รอการอนุมัติ</option>
@@ -324,7 +324,7 @@
                     <button type="button" id="cancelEdit" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
                         ยกเลิก
                     </button>
-                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
                         บันทึกการแก้ไข
                     </button>
                 </div>
@@ -440,7 +440,7 @@ function createUserRow(user) {
     return `
         <tr class="hover:bg-gray-50">
             <td class="p-4">
-                <input type="checkbox" class="user-checkbox rounded border-gray-300 text-ruxchai-main focus:ring-ruxchai-main"
+                <input type="checkbox" class="user-checkbox rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary"
                        value="${user.user_id}" onchange="handleUserSelection(this)">
             </td>
             <td class="p-4">
@@ -842,7 +842,7 @@ function updatePagination(pagination) {
          i <= Math.min(pagination.total_pages, pagination.current_page + 2); i++) {
         const pageBtn = document.createElement('button');
         pageBtn.className = i === pagination.current_page
-            ? 'px-3 py-2 bg-ruxchai-main text-white rounded-lg'
+            ? 'px-3 py-2 bg-ruxchai-primary text-white rounded-lg'
             : 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
         pageBtn.textContent = i;
         pageBtn.onclick = () => goToPage(i);

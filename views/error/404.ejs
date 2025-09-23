@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - Rukchai Hongyen LearnHub</title>
+    <title>ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub</title>
     <link href="/css/tailwind.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -16,29 +16,19 @@
     <div class="max-w-md w-full mx-auto">
         <div class="bg-white rounded-lg shadow-lg p-8 text-center">
             <!-- Error Icon -->
-            <div class="mx-auto flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
-                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            <div class="mx-auto flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-6">
+                <i class="fas fa-search text-yellow-600 text-2xl"></i>
             </div>
 
             <!-- Error Title -->
             <h1 class="text-2xl font-bold text-gray-900 mb-4">
-                <%= title %>
+                ไม่พบหน้าที่ต้องการ
             </h1>
 
             <!-- Error Message -->
             <p class="text-gray-600 mb-6">
-                <%= message %>
+                <%= message || 'หน้าที่คุณกำลังมองหาไม่มีอยู่ในระบบ' %>
             </p>
-
-            <!-- Error Details (Development Only) -->
-            <% if (process.env.NODE_ENV !== 'production' && error && error.stack) { %>
-            <div class="bg-gray-100 rounded-lg p-4 mb-6 text-left">
-                <h3 class="text-sm font-semibold text-gray-700 mb-2">รายละเอียดข้อผิดพลาด (Development Mode):</h3>
-                <pre class="text-xs text-gray-600 overflow-auto max-h-32">
-<%= error.stack %>
-                </pre>
-            </div>
-            <% } %>
 
             <!-- Action Buttons -->
             <div class="space-y-3">
@@ -54,13 +44,11 @@
                     กลับสู่หน้าหลัก
                 </a>
 
-                <% if (!isAuthenticated) { %>
-                <a href="/login"
+                <a href="/auth/login"
                    class="block w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition duration-200">
                     <i class="fas fa-sign-in-alt mr-2"></i>
                     เข้าสู่ระบบ
                 </a>
-                <% } %>
             </div>
 
             <!-- Help Contact -->
@@ -77,13 +65,12 @@
         <!-- Footer -->
         <div class="text-center mt-6">
             <p class="text-sm text-gray-500">
-                © 2024 Rukchai Hongyen LearnHub. สงวนลิขสิทธิ์.
+                © 2025 Rukchai Hongyen LearnHub. สงวนลิขสิทธิ์.
             </p>
         </div>
     </div>
 
     <!-- Auto-redirect script for 404 errors -->
-    <% if (title.includes('ไม่พบหน้า')) { %>
     <script>
         // Auto redirect to dashboard after 10 seconds for 404 errors
         setTimeout(() => {
@@ -92,6 +79,5 @@
             }
         }, 10000);
     </script>
-    <% } %>
 </body>
 </html>

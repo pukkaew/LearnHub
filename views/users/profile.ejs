@@ -1,12 +1,12 @@
 <%- include('../layouts/header') %>
 
-<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
     <div class="container mx-auto px-6 py-8">
         <!-- Profile Header -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
             <div class="relative">
                 <!-- Cover Image -->
-                <div class="h-48 bg-gradient-to-r from-ruxchai-main to-ruxchai-secondary"></div>
+                <div class="h-48 bg-gradient-to-r from-ruxchai-primary to-ruxchai-secondary"></div>
 
                 <!-- Profile Info -->
                 <div class="relative px-6 pb-6">
@@ -15,7 +15,7 @@
                         <div class="relative -mt-20">
                             <img id="userAvatar" src="/images/default-avatar.png" alt="Profile"
                                  class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-white">
-                            <button id="changeAvatarBtn" class="absolute bottom-2 right-2 bg-ruxchai-main text-white p-2 rounded-full hover:bg-ruxchai-main/90 transition-colors">
+                            <button id="changeAvatarBtn" class="absolute bottom-2 right-2 bg-ruxchai-primary text-white p-2 rounded-full hover:bg-ruxchai-primary/90 transition-colors">
                                 <i class="fas fa-camera text-sm"></i>
                             </button>
                             <input type="file" id="avatarInput" accept="image/*" class="hidden">
@@ -48,10 +48,10 @@
 
                         <!-- Action Buttons -->
                         <div class="flex space-x-3">
-                            <button id="editProfileBtn" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors">
+                            <button id="editProfileBtn" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
                                 <i class="fas fa-edit mr-2"></i>แก้ไขโปรไฟล์
                             </button>
-                            <button id="changePasswordBtn" class="px-6 py-2 text-ruxchai-main border border-ruxchai-main rounded-lg hover:bg-ruxchai-main hover:text-white transition-colors">
+                            <button id="changePasswordBtn" class="px-6 py-2 text-ruxchai-primary border border-ruxchai-primary rounded-lg hover:bg-ruxchai-primary hover:text-white transition-colors">
                                 <i class="fas fa-key mr-2"></i>เปลี่ยนรหัสผ่าน
                             </button>
                         </div>
@@ -69,7 +69,7 @@
                     <div id="aboutContent" class="text-gray-600">
                         <p id="userBio">ยังไม่ได้เพิ่มข้อมูลเกี่ยวกับตัวเอง</p>
                     </div>
-                    <button id="editAboutBtn" class="mt-4 text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                    <button id="editAboutBtn" class="mt-4 text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
                         <i class="fas fa-edit mr-1"></i>แก้ไข
                     </button>
                 </div>
@@ -81,7 +81,7 @@
                     <!-- Progress Stats -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-ruxchai-main" id="completedCourses">0</div>
+                            <div class="text-2xl font-bold text-ruxchai-primary" id="completedCourses">0</div>
                             <div class="text-sm text-gray-500">คอร์สที่จบแล้ว</div>
                         </div>
                         <div class="text-center">
@@ -117,7 +117,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-bold text-gray-900">บทความที่เขียน</h2>
-                        <a href="/articles?author=me" class="text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                        <a href="/articles?author=me" class="text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
                             ดูทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
@@ -133,7 +133,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-900">ทักษะและความเชี่ยวชาญ</h3>
-                        <button id="editSkillsBtn" class="text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                        <button id="editSkillsBtn" class="text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
@@ -162,7 +162,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-900">เป้าหมายการเรียนรู้</h3>
-                        <button id="editGoalsBtn" class="text-ruxchai-main hover:text-ruxchai-main/80 text-sm">
+                        <button id="editGoalsBtn" class="text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
@@ -190,32 +190,32 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ</label>
                         <input type="text" name="first_name" id="editFirstName"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล</label>
                         <input type="text" name="last_name" id="editLastName"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล</label>
                         <input type="email" name="email" id="editEmail"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
                         <input type="tel" name="phone" id="editPhone"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่ง</label>
                         <input type="text" name="position" id="editPosition"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
                         <select name="department_id" id="editDepartment"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                             <option value="">เลือกแผนก</option>
                         </select>
                     </div>
@@ -224,7 +224,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">เกี่ยวกับฉัน</label>
                     <textarea name="bio" id="editBio" rows="4"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
                               placeholder="เขียนข้อมูลเกี่ยวกับตัวคุณ..."></textarea>
                 </div>
 
@@ -232,7 +232,7 @@
                     <button type="button" id="cancelEdit" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
                         ยกเลิก
                     </button>
-                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
                         บันทึกการแก้ไข
                     </button>
                 </div>
@@ -255,24 +255,24 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่านปัจจุบัน</label>
                     <input type="password" name="current_password" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่านใหม่</label>
                     <input type="password" name="new_password" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">ยืนยันรหัสผ่านใหม่</label>
                     <input type="password" name="confirm_password" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <button type="button" id="cancelPasswordChange" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
                         ยกเลิก
                     </button>
-                    <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                    <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
                         เปลี่ยนรหัสผ่าน
                     </button>
                 </div>
@@ -379,7 +379,7 @@ function displayUserProfile(user) {
     // Load user skills
     if (user.skills && user.skills.length > 0) {
         document.getElementById('userSkills').innerHTML = user.skills.map(skill =>
-            `<span class="px-3 py-1 bg-ruxchai-main/10 text-ruxchai-main text-sm rounded-full">${skill}</span>`
+            `<span class="px-3 py-1 bg-ruxchai-primary/10 text-ruxchai-primary text-sm rounded-full">${skill}</span>`
         ).join('');
     } else {
         document.getElementById('userSkills').innerHTML = '<p class="text-gray-500 text-sm">ยังไม่ได้เพิ่มทักษะ</p>';
@@ -417,7 +417,7 @@ function displayUserProgress(progress) {
                     <span class="text-sm text-gray-500">${course.progress || 0}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                    <div class="bg-ruxchai-main h-2 rounded-full" style="width: ${course.progress || 0}%"></div>
+                    <div class="bg-ruxchai-primary h-2 rounded-full" style="width: ${course.progress || 0}%"></div>
                 </div>
                 <p class="text-sm text-gray-600">${course.description || ''}</p>
             </div>
@@ -448,8 +448,8 @@ function displayUserActivity(activities) {
     if (activities && activities.length > 0) {
         container.innerHTML = activities.map(activity => `
             <div class="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg">
-                <div class="flex-shrink-0 w-8 h-8 bg-ruxchai-main/10 rounded-full flex items-center justify-center">
-                    <i class="fas ${getActivityIcon(activity.type)} text-ruxchai-main text-sm"></i>
+                <div class="flex-shrink-0 w-8 h-8 bg-ruxchai-primary/10 rounded-full flex items-center justify-center">
+                    <i class="fas ${getActivityIcon(activity.type)} text-ruxchai-primary text-sm"></i>
                 </div>
                 <div class="flex-1">
                     <p class="text-sm text-gray-900">${activity.description}</p>
@@ -496,7 +496,7 @@ function displayUserArticles(articles) {
         container.innerHTML = articles.map(article => `
             <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                 <h4 class="font-medium text-gray-900 mb-2">
-                    <a href="/articles/${article.article_id}" class="hover:text-ruxchai-main transition-colors">
+                    <a href="/articles/${article.article_id}" class="hover:text-ruxchai-primary transition-colors">
                         ${article.title}
                     </a>
                 </h4>

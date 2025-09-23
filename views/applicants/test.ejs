@@ -1,7 +1,7 @@
 <%- include('../layouts/header') %>
 
-<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
-    <div class="container mx-auto px-6 py-8">
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Test Header -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
             <div class="flex items-center justify-between">
@@ -17,7 +17,7 @@
 
                 <!-- Timer -->
                 <div class="text-right">
-                    <div class="text-3xl font-bold text-ruxchai-main" id="timer">00:00:00</div>
+                    <div class="text-3xl font-bold text-ruxchai-primary" id="timer">00:00:00</div>
                     <div class="text-sm text-gray-500">เวลาที่เหลือ</div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                             </button>
                         </div>
 
-                        <button id="nextBtn" class="px-6 py-3 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors">
+                        <button id="nextBtn" class="px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
                             ข้อถัดไป<i class="fas fa-chevron-right ml-2"></i>
                         </button>
                     </div>
@@ -95,7 +95,7 @@
                             <span id="progressText">0/0</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div id="progressBar" class="bg-ruxchai-main h-2 rounded-full" style="width: 0%"></div>
+                            <div id="progressBar" class="bg-ruxchai-primary h-2 rounded-full" style="width: 0%"></div>
                         </div>
                     </div>
 
@@ -154,7 +154,7 @@
                             <span>ทำเครื่องหมาย</span>
                         </div>
                         <div class="flex items-center">
-                            <div class="w-6 h-6 bg-ruxchai-main text-white rounded text-center text-xs leading-6 mr-3">1</div>
+                            <div class="w-6 h-6 bg-ruxchai-primary text-white rounded text-center text-xs leading-6 mr-3">1</div>
                             <span>ข้อปัจจุบัน</span>
                         </div>
                     </div>
@@ -222,7 +222,7 @@
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-4">แจ้งเตือนเวลา</h3>
                     <p id="timeWarningMessage" class="text-gray-600 mb-6">เหลือเวลาอีก 5 นาที กรุณาเตรียมตัวส่งข้อสอบ</p>
-                    <button id="acknowledgeWarning" class="px-6 py-3 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90 transition-colors">
+                    <button id="acknowledgeWarning" class="px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
                         รับทราบ
                     </button>
                 </div>
@@ -443,7 +443,7 @@ function displayAnswerOptions(question) {
                 <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="radio" name="answer" value="${index}"
                            ${currentAnswer == index ? 'checked' : ''}
-                           class="mt-1 text-ruxchai-main focus:ring-ruxchai-main">
+                           class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
                     <span class="flex-1">${option}</span>
                 </label>
             `).join('');
@@ -454,13 +454,13 @@ function displayAnswerOptions(question) {
                 <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="radio" name="answer" value="true"
                            ${currentAnswer === 'true' ? 'checked' : ''}
-                           class="mt-1 text-ruxchai-main focus:ring-ruxchai-main">
+                           class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
                     <span class="flex-1">ถูก</span>
                 </label>
                 <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="radio" name="answer" value="false"
                            ${currentAnswer === 'false' ? 'checked' : ''}
-                           class="mt-1 text-ruxchai-main focus:ring-ruxchai-main">
+                           class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
                     <span class="flex-1">ผิด</span>
                 </label>
             `;
@@ -471,7 +471,7 @@ function displayAnswerOptions(question) {
                 <div class="space-y-4">
                     <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
                     <input type="text" name="answer" value="${currentAnswer || ''}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
                            placeholder="กรอกคำตอบของคุณ...">
                 </div>
             `;
@@ -482,7 +482,7 @@ function displayAnswerOptions(question) {
                 <div class="space-y-4">
                     <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
                     <textarea name="answer" rows="8"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent resize-none"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent resize-none"
                               placeholder="เขียนคำตอบของคุณ...">${currentAnswer || ''}</textarea>
                     <div class="text-sm text-gray-500">
                         <span id="charCount">${(currentAnswer || '').length}</span> ตัวอักษร
@@ -502,7 +502,7 @@ function displayAnswerOptions(question) {
                 <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="checkbox" name="answer" value="${index}"
                            ${selectedAnswers.includes(index.toString()) ? 'checked' : ''}
-                           class="mt-1 text-ruxchai-main focus:ring-ruxchai-main rounded">
+                           class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary rounded">
                     <span class="flex-1">${option}</span>
                 </label>
             `).join('');
@@ -615,7 +615,7 @@ function updateQuestionNavigator() {
         let className = 'w-8 h-8 rounded text-center text-xs leading-8 cursor-pointer transition-colors ';
 
         if (isCurrent) {
-            className += 'bg-ruxchai-main text-white';
+            className += 'bg-ruxchai-primary text-white';
         } else if (isMarked) {
             className += 'bg-orange-500 text-white';
         } else if (isAnswered) {
@@ -666,7 +666,7 @@ function updateTimerDisplay() {
     } else if (timeRemaining <= 600) { // 10 minutes
         timerElement.className = 'text-3xl font-bold text-orange-600';
     } else {
-        timerElement.className = 'text-3xl font-bold text-ruxchai-main';
+        timerElement.className = 'text-3xl font-bold text-ruxchai-primary';
     }
 }
 

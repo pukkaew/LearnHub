@@ -1,22 +1,21 @@
-const sql = require('mssql');
-const database = require('../config/database');
+const { poolPromise, sql } = require('../config/database');
 
 class Department {
     static async create(departmentData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .input('name', sql.NVarChar(255), departmentData.name)
                 .input('code', sql.VarChar(50), departmentData.code)
                 .input('description', sql.NText, departmentData.description)
-                .input('manager_id', sql.UniqueIdentifier, departmentData.manager_id)
-                .input('parent_department_id', sql.UniqueIdentifier, departmentData.parent_department_id)
+                .input('manager_id', sql.Int, departmentData.manager_id)
+                .input('parent_department_id', sql.Int, departmentData.parent_department_id)
                 .input('location', sql.NVarChar(255), departmentData.location)
                 .input('cost_center', sql.VarChar(50), departmentData.cost_center)
                 .input('budget', sql.Decimal(15, 2), departmentData.budget)
                 .input('is_active', sql.Bit, departmentData.is_active !== undefined ? departmentData.is_active : true)
-                .input('created_by', sql.UniqueIdentifier, departmentData.created_by)
+                .input('created_by', sql.Int, departmentData.created_by)
                 .query(`
                     INSERT INTO Departments
                     (department_name, department_code, department_description, manager_id, parent_department_id,
@@ -39,10 +38,10 @@ class Department {
 
     static async findById(departmentId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query(`
                     SELECT d.*,
                            m.first_name + ' ' + m.last_name as manager_name,
@@ -64,7 +63,7 @@ class Department {
 
     static async findAll(filters = {}) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             let query = `
                 SELECT d.*,
                        m.first_name + ' ' + m.last_name as manager_name,
@@ -86,12 +85,12 @@ class Department {
 
             if (filters.parent_department_id) {
                 query += ' AND d.parent_department_id = @parent_department_id';
-                request.input('parent_department_id', sql.UniqueIdentifier, filters.parent_department_id);
+                request.input('parent_department_id', sql.Int, filters.parent_department_id);
             }
 
             if (filters.manager_id) {
                 query += ' AND d.manager_id = @manager_id';
-                request.input('manager_id', sql.UniqueIdentifier, filters.manager_id);
+                request.input('manager_id', sql.Int, filters.manager_id);
             }
 
             if (filters.search) {
@@ -111,10 +110,10 @@ class Department {
 
     static async update(departmentId, updateData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             let setClause = [];
-            const request = pool.request().input('department_id', sql.UniqueIdentifier, departmentId);
+            const request = pool.request().input('department_id', sql.Int, departmentId);
 
             const allowedFields = [
                 'name', 'code', 'description', 'manager_id', 'parent_department_id',
@@ -132,7 +131,7 @@ class Department {
                     } else if (field === 'description') {
                         request.input(field, sql.NText, updateData[field]);
                     } else if (field === 'manager_id' || field === 'parent_department_id') {
-                        request.input(field, sql.UniqueIdentifier, updateData[field]);
+                        request.input(field, sql.Int, updateData[field]);
                     } else if (field === 'budget') {
                         request.input(field, sql.Decimal(15, 2), updateData[field]);
                     } else if (field === 'is_active') {
@@ -170,10 +169,10 @@ class Department {
 
     static async delete(departmentId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const employeeCheck = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query('SELECT COUNT(*) as count FROM Users WHERE department_id = @department_id');
 
             if (employeeCheck.recordset[0].count > 0) {
@@ -181,7 +180,7 @@ class Department {
             }
 
             const positionCheck = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query('SELECT COUNT(*) as count FROM JobPositions WHERE department_id = @department_id');
 
             if (positionCheck.recordset[0].count > 0) {
@@ -189,7 +188,7 @@ class Department {
             }
 
             const childCheck = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query('SELECT COUNT(*) as count FROM Departments WHERE parent_department_id = @department_id');
 
             if (childCheck.recordset[0].count > 0) {
@@ -197,7 +196,7 @@ class Department {
             }
 
             const result = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query('DELETE FROM Departments WHERE department_id = @department_id');
 
             if (result.rowsAffected[0] === 0) {
@@ -213,7 +212,7 @@ class Department {
 
     static async getDepartmentHierarchy() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 WITH DepartmentHierarchy AS (
@@ -260,7 +259,7 @@ class Department {
 
     static async getDepartmentEmployees(departmentId, includeSubDepartments = false) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             let query = `
                 SELECT u.user_id, u.employee_id, u.first_name, u.last_name, u.email,
@@ -291,7 +290,7 @@ class Department {
             query += ' ORDER BY u.last_name, u.first_name';
 
             const result = await request
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query(query);
 
             return result.recordset;
@@ -303,10 +302,10 @@ class Department {
 
     static async getDepartmentStatistics(departmentId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
+                .input('department_id', sql.Int, departmentId)
                 .query(`
                     SELECT
                         d.name as department_name,
@@ -337,7 +336,7 @@ class Department {
 
     static async findTopLevelDepartments() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 SELECT d.*,
@@ -359,10 +358,10 @@ class Department {
 
     static async findChildDepartments(parentDepartmentId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('parent_department_id', sql.UniqueIdentifier, parentDepartmentId)
+                .input('parent_department_id', sql.Int, parentDepartmentId)
                 .query(`
                     SELECT d.*,
                            m.first_name + ' ' + m.last_name as manager_name,
@@ -383,7 +382,7 @@ class Department {
 
     static async validateDepartmentCode(code, excludeDepartmentId = null) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             const request = pool.request()
                 .input('code', sql.VarChar(50), code);
 
@@ -391,7 +390,7 @@ class Department {
 
             if (excludeDepartmentId) {
                 query += ' AND department_id != @exclude_department_id';
-                request.input('exclude_department_id', sql.UniqueIdentifier, excludeDepartmentId);
+                request.input('exclude_department_id', sql.Int, excludeDepartmentId);
             }
 
             const result = await request.query(query);
@@ -404,7 +403,7 @@ class Department {
 
     static async getDepartmentBudgetSummary() {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request().query(`
                 SELECT
@@ -432,11 +431,11 @@ class Department {
 
     static async updateManager(departmentId, managerId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('department_id', sql.UniqueIdentifier, departmentId)
-                .input('manager_id', sql.UniqueIdentifier, managerId)
+                .input('department_id', sql.Int, departmentId)
+                .input('manager_id', sql.Int, managerId)
                 .query(`
                     UPDATE Departments
                     SET manager_id = @manager_id, updated_at = GETDATE()

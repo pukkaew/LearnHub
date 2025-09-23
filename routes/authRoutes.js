@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { verifyToken } = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth');
 const JWTAuthMiddleware = require('../middleware/jwtAuth');
 
 // Render pages
@@ -16,8 +16,8 @@ router.post('/register', authController.register);
 router.post('/logout', authController.logout);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
-router.post('/change-password', verifyToken, authController.changePassword);
-router.get('/verify-token', verifyToken, authController.verifyToken);
+router.post('/change-password', authMiddleware.requireAuth, authController.changePassword);
+router.get('/verify-token', authMiddleware.requireAuth, authController.verifyToken);
 
 // JWT specific endpoints
 router.post('/refresh-token', authController.refreshToken);

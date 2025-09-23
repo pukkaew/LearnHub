@@ -1,4 +1,4 @@
-<% layout('layout') -%>
+
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Results Header -->
@@ -539,7 +539,7 @@ function printResults() {
 function shareResults(platform) {
     const score = testResults.score;
     const testTitle = testResults.test_title;
-    const text = `ฉันได้คะแนน ${score}% ในแบบทดสอบ "${testTitle}" บน Ruxchai LearnHub!`;
+    const text = `ฉันได้คะแนน ${score}% ในแบบทดสอบ "${testTitle}" บน Rukchai Hongyen LearnHub!`;
     const url = window.location.href;
 
     switch (platform) {
@@ -556,7 +556,7 @@ function shareResults(platform) {
 }
 
 function copyShareLink() {
-    const text = `ฉันได้คะแนน ${testResults.score}% ในแบบทดสอบ "${testResults.test_title}" บน Ruxchai LearnHub! ${window.location.href}`;
+    const text = `ฉันได้คะแนน ${testResults.score}% ในแบบทดสอบ "${testResults.test_title}" บน Rukchai Hongyen LearnHub! ${window.location.href}`;
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {

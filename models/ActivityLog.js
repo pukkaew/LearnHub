@@ -1,16 +1,16 @@
 const sql = require('mssql');
-const database = require('../config/database');
+const { poolPromise } = require('../config/database');
 
 class ActivityLog {
     static async create(logData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, logData.user_id)
+                .input('user_id', sql.Int, logData.user_id)
                 .input('action', sql.VarChar(100), logData.action)
                 .input('table_name', sql.VarChar(100), logData.table_name)
-                .input('record_id', sql.UniqueIdentifier, logData.record_id)
+                .input('record_id', sql.Int, logData.record_id)
                 .input('old_values', sql.NText, logData.old_values ? JSON.stringify(logData.old_values) : null)
                 .input('new_values', sql.NText, logData.new_values ? JSON.stringify(logData.new_values) : null)
                 .input('ip_address', sql.VarChar(45), logData.ip_address)
@@ -20,7 +20,7 @@ class ActivityLog {
                 .input('severity', sql.VarChar(20), logData.severity || 'Info')
                 .input('module', sql.VarChar(50), logData.module)
                 .query(`
-                    INSERT INTO ActivityLogs
+                    INSERT INTO audit_logs
                     (user_id, action, table_name, record_id, old_values, new_values,
                      ip_address, user_agent, session_id, description, severity, module)
                     OUTPUT INSERTED.*
@@ -38,16 +38,16 @@ class ActivityLog {
 
     static async findById(logId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('log_id', sql.UniqueIdentifier, logId)
+                .input('log_id', sql.Int, logId)
                 .query(`
                     SELECT al.*,
                            u.first_name + ' ' + u.last_name as user_name,
                            u.employee_id
-                    FROM ActivityLogs al
-                    LEFT JOIN Users u ON al.user_id = u.user_id
+                    FROM audit_logs al
+                    LEFT JOIN users u ON al.user_id = u.user_id
                     WHERE al.log_id = @log_id
                 `);
 
@@ -66,17 +66,17 @@ class ActivityLog {
 
     static async findByUser(userId, filters = {}) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             let query = `
                 SELECT al.*,
                        u.first_name + ' ' + u.last_name as user_name
-                FROM ActivityLogs al
-                LEFT JOIN Users u ON al.user_id = u.user_id
+                FROM audit_logs al
+                LEFT JOIN users u ON al.user_id = u.user_id
                 WHERE al.user_id = @user_id
             `;
 
             const request = pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId);
+                .input('user_id', sql.Int, userId);
 
             if (filters.action) {
                 query += ' AND al.action = @action';
@@ -128,13 +128,13 @@ class ActivityLog {
 
     static async findAll(filters = {}) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             let query = `
                 SELECT al.*,
                        u.first_name + ' ' + u.last_name as user_name,
                        u.employee_id
-                FROM ActivityLogs al
-                LEFT JOIN Users u ON al.user_id = u.user_id
+                FROM audit_logs al
+                LEFT JOIN users u ON al.user_id = u.user_id
                 WHERE 1=1
             `;
 
@@ -142,7 +142,7 @@ class ActivityLog {
 
             if (filters.user_id) {
                 query += ' AND al.user_id = @user_id';
-                request.input('user_id', sql.UniqueIdentifier, filters.user_id);
+                request.input('user_id', sql.Int, filters.user_id);
             }
 
             if (filters.action) {
@@ -294,10 +294,10 @@ class ActivityLog {
 
     static async getActivitySummary(userId, days = 30) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .input('days', sql.Int, days)
                 .query(`
                     SELECT
@@ -311,7 +311,7 @@ class ActivityLog {
                         COUNT(DISTINCT module) as modules_used,
                         MIN(created_at) as first_activity,
                         MAX(created_at) as last_activity
-                    FROM ActivityLogs
+                    FROM audit_logs
                     WHERE user_id = @user_id
                     AND created_at >= DATEADD(day, -@days, GETDATE())
                 `);
@@ -325,7 +325,7 @@ class ActivityLog {
 
     static async getSystemActivitySummary(days = 7) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .input('days', sql.Int, days)
@@ -338,7 +338,7 @@ class ActivityLog {
                         COUNT(CASE WHEN severity = 'Error' THEN 1 END) as error_count,
                         module,
                         COUNT(*) as module_activities
-                    FROM ActivityLogs
+                    FROM audit_logs
                     WHERE created_at >= DATEADD(day, -@days, GETDATE())
                     GROUP BY module
                     ORDER BY module_activities DESC
@@ -353,12 +353,12 @@ class ActivityLog {
 
     static async cleanupOldLogs(daysOld = 365) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .input('days_old', sql.Int, daysOld)
                 .query(`
-                    DELETE FROM ActivityLogs
+                    DELETE FROM audit_logs
                     WHERE created_at < DATEADD(day, -@days_old, GETDATE())
                     AND severity NOT IN ('Error', 'Critical')
                 `);
@@ -372,10 +372,10 @@ class ActivityLog {
 
     static async getLoginHistory(userId, limit = 50) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit)
@@ -384,7 +384,7 @@ class ActivityLog {
                         ip_address,
                         user_agent,
                         description
-                    FROM ActivityLogs
+                    FROM audit_logs
                     WHERE user_id = @user_id
                     AND action IN ('Login', 'Login_Failed', 'Logout')
                     ORDER BY created_at DESC
@@ -401,7 +401,7 @@ class ActivityLog {
         const moduleMap = {
             'Users': 'User Management',
             'Courses': 'Course Management',
-            'CourseEnrollments': 'Course Management',
+            'user_courses': 'Course Management',
             'Tests': 'Assessment',
             'TestAttempts': 'Assessment',
             'Questions': 'Assessment',
@@ -420,17 +420,17 @@ class ActivityLog {
 
     static async getAuditTrail(tableName, recordId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .input('table_name', sql.VarChar(100), tableName)
-                .input('record_id', sql.UniqueIdentifier, recordId)
+                .input('record_id', sql.Int, recordId)
                 .query(`
                     SELECT al.*,
                            u.first_name + ' ' + u.last_name as user_name,
                            u.employee_id
-                    FROM ActivityLogs al
-                    LEFT JOIN Users u ON al.user_id = u.user_id
+                    FROM audit_logs al
+                    LEFT JOIN users u ON al.user_id = u.user_id
                     WHERE al.table_name = @table_name AND al.record_id = @record_id
                     ORDER BY al.created_at ASC
                 `);

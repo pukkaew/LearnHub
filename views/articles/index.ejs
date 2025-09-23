@@ -1,14 +1,11 @@
-<%- include('../layouts/header') %>
-
-<div class="bg-gradient-to-br from-ruxchai-main/5 to-ruxchai-secondary/5 min-h-screen">
-    <div class="container mx-auto px-6 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div class="mb-4 md:mb-0">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Knowledge Sharing Hub</h1>
                 <p class="text-gray-600">ศูนย์รวมความรู้และประสบการณ์จากผู้เชี่ยวชาญ</p>
             </div>
-            <button id="createArticleBtn" class="bg-ruxchai-main text-white px-6 py-3 rounded-lg hover:bg-ruxchai-main/90 transition-colors shadow-md">
+            <button id="createArticleBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
                 <i class="fas fa-plus mr-2"></i>เขียนบทความใหม่
             </button>
         </div>
@@ -67,9 +64,9 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     <input type="text" id="searchArticles" placeholder="ค้นหาบทความ..."
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
-                <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value="">หมวดหมู่ทั้งหมด</option>
                     <option value="technology">เทคโนโลยี</option>
                     <option value="business">ธุรกิจ</option>
@@ -80,14 +77,14 @@
                     <option value="finance">การเงิน</option>
                     <option value="other">อื่นๆ</option>
                 </select>
-                <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value="latest">ล่าสุด</option>
                     <option value="popular">ยอดนิยม</option>
                     <option value="most_viewed">ดูมากที่สุด</option>
                     <option value="most_liked">ไลค์มากที่สุด</option>
                     <option value="oldest">เก่าที่สุด</option>
                 </select>
-                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value="">สถานะทั้งหมด</option>
                     <option value="published">เผยแพร่แล้ว</option>
                     <option value="draft">ร่าง</option>
@@ -120,7 +117,6 @@
         <div id="pagination" class="flex justify-center space-x-2">
             <!-- Pagination will be loaded here -->
         </div>
-    </div>
 </div>
 
 <!-- Create Article Modal -->
@@ -137,12 +133,12 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">หัวข้อบทความ *</label>
                     <input type="text" name="title" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่ *</label>
                     <select name="category" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                         <option value="">เลือกหมวดหมู่</option>
                         <option value="technology">เทคโนโลยี</option>
                         <option value="business">ธุรกิจ</option>
@@ -157,7 +153,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">สรุปเนื้อหา</label>
                     <textarea name="summary" rows="3"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
                               placeholder="สรุปสั้นๆ ของบทความ..."></textarea>
                 </div>
                 <div>
@@ -168,13 +164,13 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">แท็ก</label>
                     <input type="text" name="tags"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
                            placeholder="แยกแท็กด้วยเครื่องหมายจุลภาค เช่น javascript, programming, tutorial">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">รูปปก</label>
                     <input type="file" name="featured_image" accept="image/*"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-main focus:border-transparent">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div class="flex justify-between items-center pt-4 border-t">
                     <div class="flex space-x-4">
@@ -191,7 +187,7 @@
                         <button type="button" id="cancelCreate" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
                             ยกเลิก
                         </button>
-                        <button type="submit" class="px-6 py-2 bg-ruxchai-main text-white rounded-lg hover:bg-ruxchai-main/90">
+                        <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
                             บันทึกบทความ
                         </button>
                     </div>
@@ -323,7 +319,7 @@ function createArticleCard(article) {
                 </div>
             </div>
             <div class="p-6">
-                <h3 class="font-bold text-gray-900 mb-2 group-hover:text-ruxchai-main transition-colors line-clamp-2">
+                <h3 class="font-bold text-gray-900 mb-2 group-hover:text-ruxchai-primary transition-colors line-clamp-2">
                     <a href="/articles/${article.article_id}">${article.title}</a>
                 </h3>
                 <p class="text-gray-600 text-sm mb-4 line-clamp-3">${article.summary || ''}</p>
@@ -379,7 +375,7 @@ function createArticleListItem(article) {
                 </div>
                 <div class="flex-1">
                     <div class="flex items-start justify-between mb-2">
-                        <h3 class="font-bold text-xl text-gray-900 hover:text-ruxchai-main transition-colors">
+                        <h3 class="font-bold text-xl text-gray-900 hover:text-ruxchai-primary transition-colors">
                             <a href="/articles/${article.article_id}">${article.title}</a>
                         </h3>
                         <div class="flex space-x-2 ml-4">
@@ -565,7 +561,7 @@ function updatePagination(pagination) {
          i <= Math.min(pagination.total_pages, pagination.current_page + 2); i++) {
         const pageBtn = document.createElement('button');
         pageBtn.className = i === pagination.current_page
-            ? 'px-3 py-2 bg-ruxchai-main text-white rounded-lg'
+            ? 'px-3 py-2 bg-ruxchai-primary text-white rounded-lg'
             : 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
         pageBtn.textContent = i;
         pageBtn.onclick = () => goToPage(i);
@@ -635,7 +631,7 @@ style.textContent = `
         color: #6b7280;
     }
     .view-toggle-btn.active {
-        background-color: var(--ruxchai-main);
+        background-color: var(--ruxchai-primary);
         color: white;
     }
     .line-clamp-2 {
@@ -654,4 +650,3 @@ style.textContent = `
 document.head.appendChild(style);
 </script>
 
-<%- include('../layouts/footer') %>

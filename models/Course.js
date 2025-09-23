@@ -32,14 +32,14 @@ class Course {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .query(`
                     SELECT c.*,
                            cat.category_name,
                            CONCAT(u.first_name, ' ', u.last_name) as instructor_name,
                            u.profile_image as instructor_image,
-                           (SELECT COUNT(*) FROM CourseEnrollments WHERE course_id = c.course_id) as enrolled_count,
-                           (SELECT AVG(CAST(final_score as FLOAT)) FROM CourseEnrollments
+                           (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id) as enrolled_count,
+                           (SELECT AVG(CAST(final_score as FLOAT)) FROM user_courses
                             WHERE course_id = c.course_id AND final_score IS NOT NULL) as avg_score,
                            (SELECT COUNT(*) FROM CourseLessons WHERE course_id = c.course_id) as lesson_count,
                            (SELECT COUNT(*) FROM CourseMaterials WHERE course_id = c.course_id) as material_count
@@ -57,7 +57,7 @@ class Course {
 
             // Get prerequisites
             const prereqResult = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .query(`
                     SELECT p.*, c.course_name, c.course_code
                     FROM CoursePrerequisites p
@@ -69,7 +69,7 @@ class Course {
 
             // Get lessons
             const lessonsResult = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .query(`
                     SELECT *
                     FROM CourseLessons
@@ -100,11 +100,11 @@ class Course {
             const courseCode = `CRS-${year}-${String(count).padStart(4, '0')}`;
 
             const result = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .input('courseCode', sql.NVarChar(20), courseCode)
                 .input('courseName', sql.NVarChar(200), courseData.course_name)
                 .input('courseNameEn', sql.NVarChar(200), courseData.course_name_en || null)
-                .input('categoryId', sql.UniqueIdentifier, courseData.category_id)
+                .input('categoryId', sql.Int, courseData.category_id)
                 .input('courseType', sql.NVarChar(20), courseData.course_type)
                 .input('difficultyLevel', sql.NVarChar(20), courseData.difficulty_level)
                 .input('language', sql.NVarChar(20), courseData.language)
@@ -116,11 +116,11 @@ class Course {
                 .input('maxStudents', sql.Int, courseData.max_students || null)
                 .input('thumbnailImage', sql.NVarChar(500), courseData.thumbnail_image || null)
                 .input('introVideoUrl', sql.NVarChar(500), courseData.intro_video_url || null)
-                .input('instructorId', sql.UniqueIdentifier, courseData.instructor_id)
+                .input('instructorId', sql.Int, courseData.instructor_id)
                 .input('passingScore', sql.Decimal(5, 2), courseData.passing_score || 60)
                 .input('maxAttempts', sql.Int, courseData.max_attempts || 3)
                 .input('showCorrectAnswers', sql.Bit, courseData.show_correct_answers !== false)
-                .input('createdBy', sql.UniqueIdentifier, courseData.created_by || null)
+                .input('createdBy', sql.Int, courseData.created_by || null)
                 .query(`
                     INSERT INTO Courses (
                         course_id, course_code, course_name, course_name_en, category_id,
@@ -143,9 +143,9 @@ class Course {
             if (courseData.prerequisite_courses && courseData.prerequisite_courses.length > 0) {
                 for (const prereqId of courseData.prerequisite_courses) {
                     await pool.request()
-                        .input('prerequisiteId', sql.UniqueIdentifier, uuidv4())
-                        .input('courseId', sql.UniqueIdentifier, courseId)
-                        .input('prerequisiteCourseId', sql.UniqueIdentifier, prereqId)
+                        .input('prerequisiteId', sql.Int, uuidv4())
+                        .input('courseId', sql.Int, courseId)
+                        .input('prerequisiteCourseId', sql.Int, prereqId)
                         .query(`
                             INSERT INTO CoursePrerequisites (prerequisite_id, course_id, prerequisite_course_id)
                             VALUES (@prerequisiteId, @courseId, @prerequisiteCourseId)
@@ -171,8 +171,8 @@ class Course {
             // Build dynamic update query
             const updateFields = [];
             const request = pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
-                .input('modifiedBy', sql.UniqueIdentifier, updateData.modified_by || null);
+                .input('courseId', sql.Int, courseId)
+                .input('modifiedBy', sql.Int, updateData.modified_by || null);
 
             // Add fields to update dynamically
             if (updateData.course_name !== undefined) {
@@ -181,7 +181,7 @@ class Course {
             }
             if (updateData.category_id !== undefined) {
                 updateFields.push('category_id = @categoryId');
-                request.input('categoryId', sql.UniqueIdentifier, updateData.category_id);
+                request.input('categoryId', sql.Int, updateData.category_id);
             }
             if (updateData.course_type !== undefined) {
                 updateFields.push('course_type = @courseType');
@@ -242,7 +242,7 @@ class Course {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .input('isPublished', sql.Bit, publish)
                 .query(`
                     UPDATE Courses
@@ -277,11 +277,11 @@ class Course {
             // Add filters
             if (filters.category_id) {
                 whereClause += ' AND c.category_id = @categoryId';
-                request.input('categoryId', sql.UniqueIdentifier, filters.category_id);
+                request.input('categoryId', sql.Int, filters.category_id);
             }
             if (filters.instructor_id) {
                 whereClause += ' AND c.instructor_id = @instructorId';
-                request.input('instructorId', sql.UniqueIdentifier, filters.instructor_id);
+                request.input('instructorId', sql.Int, filters.instructor_id);
             }
             if (filters.course_type) {
                 whereClause += ' AND c.course_type = @courseType';
@@ -316,9 +316,9 @@ class Course {
                 SELECT c.*,
                        cat.category_name,
                        CONCAT(u.first_name, ' ', u.last_name) as instructor_name,
-                       (SELECT COUNT(*) FROM CourseEnrollments WHERE course_id = c.course_id) as enrolled_count,
+                       (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id) as enrolled_count,
                        (SELECT COUNT(*) FROM CourseLessons WHERE course_id = c.course_id) as lesson_count,
-                       (SELECT AVG(CAST(final_score as FLOAT)) FROM CourseEnrollments
+                       (SELECT AVG(CAST(final_score as FLOAT)) FROM user_courses
                         WHERE course_id = c.course_id AND final_score IS NOT NULL) as avg_score
                 FROM Courses c
                 LEFT JOIN CourseCategories cat ON c.category_id = cat.category_id
@@ -355,7 +355,7 @@ class Course {
                     FROM Courses c
                     LEFT JOIN CourseCategories cat ON c.category_id = cat.category_id
                     LEFT JOIN Users u ON c.instructor_id = u.user_id
-                    LEFT JOIN CourseEnrollments e ON c.course_id = e.course_id
+                    LEFT JOIN user_courses e ON c.course_id = e.course_id
                     WHERE c.is_active = 1 AND c.is_published = 1
                     GROUP BY c.course_id, c.course_code, c.course_name, c.course_name_en,
                              c.category_id, c.course_type, c.difficulty_level, c.language,
@@ -381,7 +381,7 @@ class Course {
 
             // Get user's position and completed courses
             const userResult = await pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
+                .input('userId', sql.Int, userId)
                 .query(`
                     SELECT position_id, department_id
                     FROM Users
@@ -396,8 +396,8 @@ class Course {
 
             // Get recommended courses based on position requirements and not yet enrolled
             const result = await pool.request()
-                .input('userId', sql.UniqueIdentifier, userId)
-                .input('positionId', sql.UniqueIdentifier, user.position_id)
+                .input('userId', sql.Int, userId)
+                .input('positionId', sql.Int, user.position_id)
                 .input('limit', sql.Int, limit)
                 .query(`
                     SELECT TOP (@limit) c.*,
@@ -413,7 +413,7 @@ class Course {
                     AND (pcr.position_id = @positionId OR c.course_type = 'RECOMMENDED')
                     AND c.course_id NOT IN (
                         SELECT course_id
-                        FROM CourseEnrollments
+                        FROM user_courses
                         WHERE user_id = @userId
                     )
                     ORDER BY
@@ -434,11 +434,11 @@ class Course {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('instructorId', sql.UniqueIdentifier, instructorId)
+                .input('instructorId', sql.Int, instructorId)
                 .query(`
                     SELECT c.*,
                            cat.category_name,
-                           (SELECT COUNT(*) FROM CourseEnrollments WHERE course_id = c.course_id) as enrolled_count,
+                           (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id) as enrolled_count,
                            (SELECT COUNT(*) FROM CourseLessons WHERE course_id = c.course_id) as lesson_count
                     FROM Courses c
                     LEFT JOIN CourseCategories cat ON c.category_id = cat.category_id
@@ -459,8 +459,8 @@ class Course {
             const lessonId = uuidv4();
 
             const result = await pool.request()
-                .input('lessonId', sql.UniqueIdentifier, lessonId)
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('lessonId', sql.Int, lessonId)
+                .input('courseId', sql.Int, courseId)
                 .input('lessonOrder', sql.Int, lessonData.lesson_order)
                 .input('lessonTitle', sql.NVarChar(200), lessonData.lesson_title)
                 .input('lessonDescription', sql.NVarChar(sql.MAX), lessonData.lesson_description || null)
@@ -485,7 +485,7 @@ class Course {
 
             // Update course duration
             await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .query(`
                     UPDATE Courses
                     SET duration_hours = (
@@ -512,10 +512,10 @@ class Course {
 
             // Check if there are active enrollments
             const enrollmentCheck = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
+                .input('courseId', sql.Int, courseId)
                 .query(`
                     SELECT COUNT(*) as count
-                    FROM CourseEnrollments
+                    FROM user_courses
                     WHERE course_id = @courseId
                     AND completion_status IN ('IN_PROGRESS', 'NOT_STARTED')
                 `);
@@ -528,8 +528,8 @@ class Course {
             }
 
             const result = await pool.request()
-                .input('courseId', sql.UniqueIdentifier, courseId)
-                .input('deletedBy', sql.UniqueIdentifier, deletedBy)
+                .input('courseId', sql.Int, courseId)
+                .input('deletedBy', sql.Int, deletedBy)
                 .query(`
                     UPDATE Courses
                     SET is_active = 0,

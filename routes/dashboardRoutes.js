@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
-const { verifyToken, requireRole } = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth');
 
 // Apply authentication to all dashboard routes
-router.use(verifyToken);
+router.use(authMiddleware.requireAuth);
 
 // Main dashboard page
 router.get('/', dashboardController.renderDashboard);
@@ -27,6 +27,6 @@ router.put('/api/notifications/:notification_id/read', dashboardController.markN
 router.put('/api/notifications/mark-all-read', dashboardController.markAllNotificationsAsRead);
 
 // Admin only routes
-router.get('/api/system-health', requireRole(['Admin']), dashboardController.getSystemHealth);
+router.get('/api/system-health', authMiddleware.requireRole(['Admin']), dashboardController.getSystemHealth);
 
 module.exports = router;

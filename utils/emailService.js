@@ -83,7 +83,7 @@ class EmailService {
         }
 
         const defaultOptions = {
-            from: process.env.SMTP_FROM || '"Ruxchai LearnHub" <noreply@ruxchai.com>',
+            from: process.env.SMTP_FROM || '"Ruxchai LearnHub" <noreply@rukchaihongyen.com>',
         };
 
         const mailOptions = { ...defaultOptions, ...options };
@@ -128,7 +128,7 @@ class EmailService {
             name: `${user.firstName} ${user.lastName}`,
             email: user.email,
             loginUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/login`,
-            supportEmail: process.env.SUPPORT_EMAIL || 'support@ruxchai.com'
+            supportEmail: process.env.SUPPORT_EMAIL || 'support@rukchaihongyen.com'
         });
     }
 
@@ -139,7 +139,7 @@ class EmailService {
             name: `${user.firstName} ${user.lastName}`,
             resetUrl,
             expiryTime: '1 ชั่วโมง',
-            supportEmail: process.env.SUPPORT_EMAIL || 'support@ruxchai.com'
+            supportEmail: process.env.SUPPORT_EMAIL || 'support@rukchaihongyen.com'
         });
     }
 
@@ -246,7 +246,7 @@ class EmailService {
     async sendAdminNotificationEmail(subject, message, data = {}) {
         const adminEmails = process.env.ADMIN_EMAILS ?
             process.env.ADMIN_EMAILS.split(',') :
-            ['admin@ruxchai.com'];
+            ['admin@rukchaihongyen.com'];
 
         return await this.sendEmail({
             to: adminEmails,

@@ -1,19 +1,18 @@
-const sql = require('mssql');
-const database = require('../config/database');
+const { poolPromise, sql } = require('../config/database');
 
 class Notification {
     static async create(notificationData) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('recipient_id', sql.UniqueIdentifier, notificationData.recipient_id)
-                .input('sender_id', sql.UniqueIdentifier, notificationData.sender_id)
+                .input('recipient_id', sql.Int, notificationData.recipient_id)
+                .input('sender_id', sql.Int, notificationData.sender_id)
                 .input('type', sql.VarChar(50), notificationData.type)
                 .input('title', sql.NVarChar(255), notificationData.title)
                 .input('message', sql.NText, notificationData.message)
                 .input('related_table', sql.VarChar(100), notificationData.related_table)
-                .input('related_id', sql.UniqueIdentifier, notificationData.related_id)
+                .input('related_id', sql.Int, notificationData.related_id)
                 .input('priority', sql.VarChar(20), notificationData.priority || 'Normal')
                 .input('scheduled_at', sql.DateTime2, notificationData.scheduled_at)
                 .input('is_system', sql.Bit, notificationData.is_system || false)
@@ -36,10 +35,10 @@ class Notification {
 
     static async findById(notificationId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('notification_id', sql.UniqueIdentifier, notificationId)
+                .input('notification_id', sql.Int, notificationId)
                 .query(`
                     SELECT n.*,
                            r.first_name + ' ' + r.last_name as recipient_name,
@@ -59,7 +58,7 @@ class Notification {
 
     static async findByRecipient(recipientId, filters = {}) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             let query = `
                 SELECT n.*,
                        s.first_name + ' ' + s.last_name as sender_name,
@@ -70,7 +69,7 @@ class Notification {
             `;
 
             const request = pool.request()
-                .input('recipient_id', sql.UniqueIdentifier, recipientId);
+                .input('recipient_id', sql.Int, recipientId);
 
             if (filters.is_read !== undefined) {
                 query += ' AND n.is_read = @is_read';
@@ -118,11 +117,11 @@ class Notification {
 
     static async markAsRead(notificationId, recipientId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('notification_id', sql.UniqueIdentifier, notificationId)
-                .input('recipient_id', sql.UniqueIdentifier, recipientId)
+                .input('notification_id', sql.Int, notificationId)
+                .input('recipient_id', sql.Int, recipientId)
                 .query(`
                     UPDATE Notifications
                     SET is_read = 1, read_at = GETDATE()
@@ -143,10 +142,10 @@ class Notification {
 
     static async markAllAsRead(recipientId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('recipient_id', sql.UniqueIdentifier, recipientId)
+                .input('recipient_id', sql.Int, recipientId)
                 .query(`
                     UPDATE Notifications
                     SET is_read = 1, read_at = GETDATE()
@@ -162,11 +161,11 @@ class Notification {
 
     static async delete(notificationId, recipientId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('notification_id', sql.UniqueIdentifier, notificationId)
-                .input('recipient_id', sql.UniqueIdentifier, recipientId)
+                .input('notification_id', sql.Int, notificationId)
+                .input('recipient_id', sql.Int, recipientId)
                 .query(`
                     DELETE FROM Notifications
                     WHERE notification_id = @notification_id AND recipient_id = @recipient_id
@@ -185,10 +184,10 @@ class Notification {
 
     static async getUnreadCount(recipientId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('recipient_id', sql.UniqueIdentifier, recipientId)
+                .input('recipient_id', sql.Int, recipientId)
                 .query(`
                     SELECT
                         COUNT(*) as total_unread,
@@ -208,7 +207,7 @@ class Notification {
 
     static async createBulkNotifications(Notifications) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
             const transaction = new sql.Transaction(pool);
             await transaction.begin();
 
@@ -216,13 +215,13 @@ class Notification {
 
             for (const notif of Notifications) {
                 const result = await transaction.request()
-                    .input('recipient_id', sql.UniqueIdentifier, notif.recipient_id)
-                    .input('sender_id', sql.UniqueIdentifier, notif.sender_id)
+                    .input('recipient_id', sql.Int, notif.recipient_id)
+                    .input('sender_id', sql.Int, notif.sender_id)
                     .input('type', sql.VarChar(50), notif.type)
                     .input('title', sql.NVarChar(255), notif.title)
                     .input('message', sql.NText, notif.message)
                     .input('related_table', sql.VarChar(100), notif.related_table)
-                    .input('related_id', sql.UniqueIdentifier, notif.related_id)
+                    .input('related_id', sql.Int, notif.related_id)
                     .input('priority', sql.VarChar(20), notif.priority || 'Normal')
                     .input('scheduled_at', sql.DateTime2, notif.scheduled_at)
                     .input('is_system', sql.Bit, notif.is_system || false)
@@ -249,13 +248,13 @@ class Notification {
 
     static async sendCourseNotification(courseId, type, title, message, senderId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const enrolledUsers = await pool.request()
-                .input('course_id', sql.UniqueIdentifier, courseId)
+                .input('course_id', sql.Int, courseId)
                 .query(`
                     SELECT DISTINCT e.user_id
-                    FROM CourseEnrollments e
+                    FROM user_courses e
                     WHERE e.course_id = @course_id AND e.status = 'Active'
                 `);
 
@@ -301,10 +300,10 @@ class Notification {
 
     static async getNotificationsByType(recipientId, type, limit = 10) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('recipient_id', sql.UniqueIdentifier, recipientId)
+                .input('recipient_id', sql.Int, recipientId)
                 .input('type', sql.VarChar(50), type)
                 .input('limit', sql.Int, limit)
                 .query(`
@@ -325,7 +324,7 @@ class Notification {
 
     static async cleanupOldNotifications(daysOld = 90) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
                 .input('days_old', sql.Int, daysOld)
@@ -344,10 +343,10 @@ class Notification {
 
     static async getNotificationStatistics(userId) {
         try {
-            const pool = await database.getConnection();
+            const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('user_id', sql.UniqueIdentifier, userId)
+                .input('user_id', sql.Int, userId)
                 .query(`
                     SELECT
                         COUNT(*) as total_notifications,
