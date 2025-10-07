@@ -68,11 +68,11 @@ const userController = {
             }
 
             const updateData = {};
-            if (first_name !== undefined) updateData.first_name = first_name;
-            if (last_name !== undefined) updateData.last_name = last_name;
-            if (phone !== undefined) updateData.phone = phone;
-            if (department_id !== undefined) updateData.department_id = department_id;
-            if (position_id !== undefined) updateData.position_id = position_id;
+            if (first_name !== undefined) {updateData.first_name = first_name;}
+            if (last_name !== undefined) {updateData.last_name = last_name;}
+            if (phone !== undefined) {updateData.phone = phone;}
+            if (department_id !== undefined) {updateData.department_id = department_id;}
+            if (position_id !== undefined) {updateData.position_id = position_id;}
 
             const result = await User.update(userId, updateData);
 
@@ -138,10 +138,10 @@ const userController = {
             } = req.query;
 
             const filters = {};
-            if (role) filters.role = role;
-            if (department_id) filters.department_id = department_id;
-            if (is_active !== undefined) filters.is_active = is_active === 'true';
-            if (search) filters.search = search;
+            if (role) {filters.role = role;}
+            if (department_id) {filters.department_id = department_id;}
+            if (is_active !== undefined) {filters.is_active = is_active === 'true';}
+            if (search) {filters.search = search;}
 
             const offset = (parseInt(page) - 1) * parseInt(limit);
             filters.limit = parseInt(limit);
@@ -354,17 +354,17 @@ const userController = {
             } = req.body;
 
             const updateData = {};
-            if (employee_id !== undefined) updateData.employee_id = employee_id;
-            if (email !== undefined) updateData.email = email;
-            if (first_name !== undefined) updateData.first_name = first_name;
-            if (last_name !== undefined) updateData.last_name = last_name;
-            if (phone !== undefined) updateData.phone = phone;
-            if (role !== undefined) updateData.role = role;
-            if (department_id !== undefined) updateData.department_id = department_id;
-            if (position_id !== undefined) updateData.position_id = position_id;
-            if (supervisor_id !== undefined) updateData.supervisor_id = supervisor_id;
-            if (hire_date !== undefined) updateData.hire_date = hire_date;
-            if (is_active !== undefined) updateData.is_active = is_active;
+            if (employee_id !== undefined) {updateData.employee_id = employee_id;}
+            if (email !== undefined) {updateData.email = email;}
+            if (first_name !== undefined) {updateData.first_name = first_name;}
+            if (last_name !== undefined) {updateData.last_name = last_name;}
+            if (phone !== undefined) {updateData.phone = phone;}
+            if (role !== undefined) {updateData.role = role;}
+            if (department_id !== undefined) {updateData.department_id = department_id;}
+            if (position_id !== undefined) {updateData.position_id = position_id;}
+            if (supervisor_id !== undefined) {updateData.supervisor_id = supervisor_id;}
+            if (hire_date !== undefined) {updateData.hire_date = hire_date;}
+            if (is_active !== undefined) {updateData.is_active = is_active;}
 
             const result = await User.update(user_id, updateData);
 

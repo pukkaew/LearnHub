@@ -30,9 +30,15 @@ class Course {
     // Find course by ID with full details
     static async findById(courseId) {
         try {
+            // Validate courseId is a valid integer
+            const parsedCourseId = parseInt(courseId);
+            if (isNaN(parsedCourseId) || parsedCourseId <= 0) {
+                throw new Error('Validation failed for parameter \'courseId\'. Invalid number.');
+            }
+
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('courseId', sql.Int, courseId)
+                .input('courseId', sql.Int, parsedCourseId)
                 .query(`
                     SELECT c.*,
                            cat.category_name,
@@ -57,7 +63,7 @@ class Course {
 
             // Get prerequisites
             const prereqResult = await pool.request()
-                .input('courseId', sql.Int, courseId)
+                .input('courseId', sql.Int, parsedCourseId)
                 .query(`
                     SELECT p.*, c.course_name, c.course_code
                     FROM CoursePrerequisites p
@@ -69,7 +75,7 @@ class Course {
 
             // Get lessons
             const lessonsResult = await pool.request()
-                .input('courseId', sql.Int, courseId)
+                .input('courseId', sql.Int, parsedCourseId)
                 .query(`
                     SELECT *
                     FROM CourseLessons

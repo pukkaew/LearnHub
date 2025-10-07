@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Navigation Test - LearnHub</title>
+    <link href="/css/tailwind.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Test viewport size indicators */
+        .viewport-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        /* Test content */
+        .test-content {
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Viewport Size Indicator -->
+    <div class="viewport-indicator">
+        <span id="viewport-size">Loading...</span>
+    </div>
+
+    <!-- Navigation (ที่ปรับปรุงแล้ว) -->
+    <nav class="ruxchai-gradient shadow-xl border-b border-blue-800/20">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-24">
+                <div class="flex items-center">
+                    <!-- Logo -->
+                    <a href="#" class="flex-shrink-0 flex items-center group">
+                        <div class="logo-container flex items-center bg-gradient-to-r from-white/20 via-white/15 to-white/20 backdrop-blur-xl rounded-2xl px-6 py-3.5 transition-all duration-500 group-hover:from-white/28 group-hover:via-white/22 group-hover:to-white/28 group-hover:shadow-2xl group-hover:scale-[1.03] border border-white/30 group-hover:border-white/50 relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div class="w-16 h-16 flex items-center justify-center relative z-10">
+                                <img src="/images/rukchai-logo.png" alt="Rukchai Hongyen Logo" class="logo-image h-16 w-auto object-contain transition-all duration-300 group-hover:brightness-110 filter drop-shadow-lg">
+                            </div>
+                            <div class="ml-4 relative z-10">
+                                <div class="logo-text text-white text-xl font-bold tracking-tight leading-none drop-shadow-lg">LearnHub</div>
+                                <div class="logo-subtitle text-blue-100/95 text-sm font-medium tracking-wide mt-1 drop-shadow-md">รักชัยห้องเย็น จำกัด</div>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:ml-10 md:flex md:space-x-2">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-tachometer-alt nav-icon"></i>
+                            <span>แดชบอร์ด</span>
+                        </a>
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-book nav-icon"></i>
+                            <span>คอร์สเรียน</span>
+                        </a>
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-clipboard-list nav-icon"></i>
+                            <span>แบบทดสอบ</span>
+                        </a>
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-newspaper nav-icon"></i>
+                            <span>บทความ</span>
+                        </a>
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-users nav-icon"></i>
+                            <span>ผู้ใช้งาน</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Desktop User Menu -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        <button class="text-white hover:text-blue-200 transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                        </button>
+                        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-toggle" class="text-white hover:text-blue-200 p-2 rounded-lg transition-colors">
+                            <i id="mobile-menu-icon" class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white/10 backdrop-blur-sm border-t border-white/20 animate-slide-down">
+            <div class="px-4 pt-4 pb-6 space-y-1">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-tachometer-alt nav-icon ruxchai-icon-primary"></i>
+                    <span>แดชบอร์ด</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-book nav-icon ruxchai-icon-primary"></i>
+                    <span>คอร์สเรียน</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-clipboard-list nav-icon ruxchai-icon-primary"></i>
+                    <span>แบบทดสอบ</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-newspaper nav-icon ruxchai-icon-primary"></i>
+                    <span>บทความ</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users nav-icon ruxchai-icon-primary"></i>
+                    <span>ผู้ใช้งาน</span>
+                </a>
+                <div class="border-t border-white/20 mt-4 pt-4">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-bell nav-icon ruxchai-icon-primary"></i>
+                        <span>การแจ้งเตือน</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-user nav-icon ruxchai-icon-primary"></i>
+                        <span>โปรไฟล์</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-sign-out-alt nav-icon ruxchai-icon-primary"></i>
+                        <span>ออกจากระบบ</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Test Content -->
+    <div class="test-content">
+        <div class="test-section">
+            <h2 class="text-xl font-bold mb-4">📱 Mobile Navigation Test</h2>
+            <p class="mb-4">ทดสอบ responsive navigation ในขนาดหน้าจอต่างๆ:</p>
+            <ul class="list-disc list-inside space-y-2 text-sm">
+                <li><strong>Desktop (≥768px):</strong> แสดง navigation menu แบบ horizontal</li>
+                <li><strong>Tablet (640px-767px):</strong> ซ่อน navigation menu, แสดง hamburger button</li>
+                <li><strong>Mobile (≤639px):</strong> ปรับขนาด logo และ navigation ให้เหมาะสม</li>
+                <li><strong>Small Mobile (≤480px):</strong> ซ่อน subtitle logo</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-lg font-bold mb-3">🎯 Test Steps:</h3>
+            <ol class="list-decimal list-inside space-y-2 text-sm">
+                <li>ลองปรับขนาดหน้าจอ browser (resize)</li>
+                <li>ใน mobile view กดปุ่ม hamburger (☰) เพื่อเปิด/ปิด menu</li>
+                <li>ทดสอบ hover effects บน navigation links</li>
+                <li>ตรวจสอบขนาดของ logo ในแต่ละ breakpoint</li>
+                <li>ตรวจสอบ touch targets ใน mobile (44px minimum)</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3 class="text-lg font-bold mb-3">✅ Features ที่ปรับปรุง:</h3>
+            <ul class="list-disc list-inside space-y-2 text-sm">
+                <li><strong>Perfect Navigation:</strong> h-24 (96px) ขนาดเหมาะสมที่สุด</li>
+                <li><strong>Optimal Logo Size:</strong> 64px logo ขนาดชัดเจนและสมดุล</li>
+                <li><strong>Premium Glass Effect:</strong> Multi-layer gradient, backdrop blur XL</li>
+                <li><strong>Advanced Hover:</strong> Shine animation, scale 103%, brightness 110%</li>
+                <li><strong>Perfect Responsive:</strong> 48px→40px→32px ตามขนาดหน้าจอ</li>
+                <li><strong>Enhanced Navigation:</strong> Better padding, shadow, border effects</li>
+                <li><strong>Mobile Excellence:</strong> Perfect touch targets และ smooth animations</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle functionality
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuToggle && mobileMenu) {
+            mobileMenuToggle.addEventListener('click', function() {
+                const isHidden = mobileMenu.classList.contains('hidden');
+                if (isHidden) {
+                    mobileMenu.classList.remove('hidden');
+                    mobileMenu.classList.add('mobile-slide-in');
+                    mobileMenuIcon.classList.remove('fa-bars');
+                    mobileMenuIcon.classList.add('fa-times');
+                } else {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('mobile-slide-in');
+                    mobileMenuIcon.classList.remove('fa-times');
+                    mobileMenuIcon.classList.add('fa-bars');
+                }
+            });
+        }
+
+        // Viewport size indicator
+        function updateViewportSize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const indicator = document.getElementById('viewport-size');
+
+            let breakpoint = '';
+            if (width >= 1024) breakpoint = 'Desktop (lg)';
+            else if (width >= 768) breakpoint = 'Tablet (md)';
+            else if (width >= 640) breakpoint = 'Mobile (sm)';
+            else if (width >= 480) breakpoint = 'Small Mobile';
+            else breakpoint = 'Tiny Mobile';
+
+            indicator.textContent = `${width} × ${height} (${breakpoint})`;
+        }
+
+        // Update on load and resize
+        updateViewportSize();
+        window.addEventListener('resize', updateViewportSize);
+    </script>
+</body>
+</html>

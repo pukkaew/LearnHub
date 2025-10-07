@@ -1,221 +1,333 @@
-# MSSQL Database Setup for Ruxchai LearnHub
+# 🗃️ Microsoft SQL Server Setup Guide
 
-This guide explains how to set up Microsoft SQL Server for the Ruxchai LearnHub application.
+คู่มือการติดตั้งและตั้งค่า Microsoft SQL Server สำหรับระบบ Rukchai Hongyen LearnHub
 
-## Prerequisites
+## 📋 ความต้องการ
 
-1. **SQL Server Installation**
-   - Install Microsoft SQL Server (Express, Standard, or Enterprise)
-   - Install SQL Server Management Studio (SSMS) for database management
+- Windows 10/11 หรือ Windows Server 2016+
+- Microsoft SQL Server 2017+
+- SQL Server Management Studio (SSMS)
+- Memory: อย่างน้อย 4GB RAM
+- Storage: อย่างน้อย 10GB ว่าง
 
-2. **Database Configuration**
-   - Ensure SQL Server is running
-   - Enable SQL Server Authentication (mixed mode)
-   - Create a dedicated database user for the application
+## 🚀 การติดตั้ง SQL Server
 
-## Setup Instructions
+### ขั้นตอนที่ 1: ดาวน์โหลด SQL Server
 
-### 1. Create Database and User
+1. ไปที่ [Microsoft SQL Server Downloads](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
+2. เลือก **SQL Server 2022 Developer** (ฟรีสำหรับการพัฒนา)
+3. ดาวน์โหลดและรันไฟล์ติดตั้ง
 
-Connect to SQL Server using SSMS or command line and run:
+### ขั้นตอนที่ 2: ติดตั้ง SQL Server
+
+1. เลือก **Basic Installation**
+2. ยอมรับ License Terms
+3. เลือกโฟลเดอร์สำหรับติดตั้ง
+4. รอให้การติดตั้งเสร็จสิ้น
+5. จดบันทึก **Instance Name** และ **Connection String**
+
+### ขั้นตอนที่ 3: ติดตั้ง SSMS
+
+1. ดาวน์โหลด [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms)
+2. รันไฟล์ติดตั้ง SSMS
+3. ติดตาม wizard จนเสร็จสิ้น
+
+## 🔧 การตั้งค่า SQL Server
+
+### การตั้งค่า Authentication
+
+1. เปิด **SQL Server Configuration Manager**
+2. ไปที่ **SQL Server Network Configuration** > **Protocols for [Instance Name]**
+3. เปิดใช้งาน **TCP/IP Protocol**
+4. Restart SQL Server Service
+
+### การสร้าง Login และ Database
 
 ```sql
--- Create the database
-CREATE DATABASE LearnHub;
+-- 1. เชื่อมต่อด้วย Windows Authentication ใน SSMS
+-- 2. สร้าง Database ใหม่
+CREATE DATABASE LearnHubDB;
+GO
 
--- Switch to the new database
-USE LearnHub;
+-- 3. สร้าง Login สำหรับแอปพลิเคชัน
+CREATE LOGIN learnhub_user WITH PASSWORD = 'YourStrongPassword123!';
+GO
 
--- Create a login for the application
-CREATE LOGIN learnhub_user WITH PASSWORD = 'YourSecurePassword123!';
+-- 4. สร้าง User และกำหนดสิทธิ์
+USE LearnHubDB;
+GO
 
--- Create a user in the database
 CREATE USER learnhub_user FOR LOGIN learnhub_user;
+GO
 
--- Grant necessary permissions
+-- กำหนดสิทธิ์ db_owner (สำหรับการพัฒนา)
 ALTER ROLE db_owner ADD MEMBER learnhub_user;
+GO
+
+-- หรือกำหนดสิทธิ์เฉพาะ (แนะนำสำหรับ Production)
+ALTER ROLE db_datareader ADD MEMBER learnhub_user;
+ALTER ROLE db_datawriter ADD MEMBER learnhub_user;
+ALTER ROLE db_ddladmin ADD MEMBER learnhub_user;
+GO
 ```
 
-### 2. Run Database Schema
+## 🎯 การสร้างตารางฐานข้อมูล
 
-Execute the complete database file to create all tables, stored procedures, and initial data:
+### ตารางพื้นฐาน
 
-```bash
-# Navigate to the project directory
-cd D:\App\LearnHub
+```sql
+USE LearnHubDB;
+GO
 
-# Run the database file using sqlcmd (if available)
-sqlcmd -S localhost -d LearnHub -U learnhub_user -P YourSecurePassword123! -i database\learnhub_database.sql
+-- ตาราง Users
+CREATE TABLE Users (
+    userId INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(50) UNIQUE NOT NULL,
+    email NVARCHAR(100) UNIQUE NOT NULL,
+    password NVARCHAR(255) NOT NULL,
+    firstName NVARCHAR(100),
+    lastName NVARCHAR(100),
+    role NVARCHAR(20) DEFAULT 'student',
+    isActive BIT DEFAULT 1,
+    profilePicture NVARCHAR(255),
+    createdAt DATETIME2 DEFAULT GETDATE(),
+    updatedAt DATETIME2 DEFAULT GETDATE()
+);
 
-# Or use SQL Server Management Studio:
-# 1. Open SSMS
-# 2. Connect to your SQL Server instance
-# 3. Open the file: database/learnhub_database.sql
-# 4. Execute the script
+-- ตาราง Courses
+CREATE TABLE Courses (
+    courseId INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200) NOT NULL,
+    description NTEXT,
+    instructorId INT,
+    categoryId INT,
+    level NVARCHAR(20) DEFAULT 'beginner',
+    duration INT, -- ในหน่วยชั่วโมง
+    price DECIMAL(10,2) DEFAULT 0.00,
+    status NVARCHAR(20) DEFAULT 'draft',
+    thumbnail NVARCHAR(255),
+    createdAt DATETIME2 DEFAULT GETDATE(),
+    updatedAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (instructorId) REFERENCES Users(userId)
+);
+
+-- ตาราง Tests
+CREATE TABLE Tests (
+    testId INT IDENTITY(1,1) PRIMARY KEY,
+    courseId INT,
+    title NVARCHAR(200) NOT NULL,
+    description NTEXT,
+    timeLimit INT, -- ในหน่วยนาที
+    totalQuestions INT DEFAULT 0,
+    passingScore INT DEFAULT 70,
+    status NVARCHAR(20) DEFAULT 'draft',
+    startDate DATETIME2,
+    endDate DATETIME2,
+    createdAt DATETIME2 DEFAULT GETDATE(),
+    updatedAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (courseId) REFERENCES Courses(courseId)
+);
+
+-- ตาราง Questions
+CREATE TABLE Questions (
+    questionId INT IDENTITY(1,1) PRIMARY KEY,
+    testId INT,
+    questionText NTEXT NOT NULL,
+    questionType NVARCHAR(20) DEFAULT 'multiple_choice',
+    options NTEXT, -- JSON format
+    correctAnswer NTEXT,
+    points INT DEFAULT 1,
+    orderIndex INT,
+    createdAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (testId) REFERENCES Tests(testId)
+);
+
+-- ตาราง TestResults
+CREATE TABLE TestResults (
+    resultId INT IDENTITY(1,1) PRIMARY KEY,
+    testId INT,
+    userId INT,
+    score DECIMAL(5,2),
+    totalQuestions INT,
+    correctAnswers INT,
+    timeSpent INT, -- ในหน่วยวินาที
+    startedAt DATETIME2,
+    submittedAt DATETIME2,
+    status NVARCHAR(20) DEFAULT 'completed',
+    answers NTEXT, -- JSON format
+    FOREIGN KEY (testId) REFERENCES Tests(testId),
+    FOREIGN KEY (userId) REFERENCES Users(userId)
+);
+
+-- ตาราง UserCourses (การสมัครเรียน)
+CREATE TABLE UserCourses (
+    enrollmentId INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT,
+    courseId INT,
+    enrolledAt DATETIME2 DEFAULT GETDATE(),
+    progress INT DEFAULT 0,
+    status NVARCHAR(20) DEFAULT 'active',
+    completedAt DATETIME2,
+    lastAccessDate DATETIME2,
+    FOREIGN KEY (userId) REFERENCES Users(userId),
+    FOREIGN KEY (courseId) REFERENCES Courses(courseId)
+);
+
+-- ตาราง Notifications
+CREATE TABLE Notifications (
+    notificationId INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT,
+    title NVARCHAR(200),
+    message NTEXT,
+    type NVARCHAR(50) DEFAULT 'info',
+    isRead BIT DEFAULT 0,
+    createdAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES Users(userId)
+);
+
+-- ตาราง UserActivities
+CREATE TABLE UserActivities (
+    activityId INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT,
+    activityType NVARCHAR(50),
+    description NVARCHAR(500),
+    metadata NTEXT, -- JSON format
+    createdAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES Users(userId)
+);
 ```
 
-**Note:** The `learnhub_database.sql` file includes:
-- All core tables (Users, Courses, Tests, etc.)
-- JWT Authentication tables (RefreshTokens, ApiKeys, SecurityPolicies)
-- Gamification system (Points, Badges, Leaderboards, Achievements)
-- Proctoring system (Sessions, Violations, Screenshots, Reports)
-- System settings and audit logs
-- Stored procedures for leaderboards and integrity scoring
-- Initial default data and security policies
+## 🔑 การสร้างข้อมูลเริ่มต้น
 
-### 3. Configure Environment Variables
+```sql
+-- สร้าง Admin User
+INSERT INTO Users (username, email, password, firstName, lastName, role)
+VALUES ('admin', 'admin@rukchaihongyen.com', '$2b$10$example_hashed_password', 'Admin', 'User', 'admin');
 
-Create or update your `.env` file with the following MSSQL configuration:
+-- สร้าง Instructor ตัวอย่าง
+INSERT INTO Users (username, email, password, firstName, lastName, role)
+VALUES ('instructor1', 'instructor@rukchaihongyen.com', '$2b$10$example_hashed_password', 'John', 'Instructor', 'instructor');
+
+-- สร้าง Student ตัวอย่าง
+INSERT INTO Users (username, email, password, firstName, lastName, role)
+VALUES ('student1', 'student@rukchaihongyen.com', '$2b$10$example_hashed_password', 'Jane', 'Student', 'student');
+```
+
+## ⚙️ การตั้งค่า Environment Variables
+
+สร้างไฟล์ `.env` ในโฟลเดอร์ root ของโปรเจค:
 
 ```env
-# Database Configuration (MSSQL)
+# Database Configuration
 DB_SERVER=localhost
-DB_DATABASE=LearnHub
+DB_NAME=LearnHubDB
 DB_USER=learnhub_user
-DB_PASSWORD=YourSecurePassword123!
+DB_PASSWORD=YourStrongPassword123!
 DB_PORT=1433
-DB_ENCRYPT=true
-DB_TRUST_SERVER_CERTIFICATE=true
+DB_OPTIONS_ENCRYPT=false
+DB_OPTIONS_TRUST_SERVER_CERTIFICATE=true
 
-# JWT Secret
-JWT_SECRET=your-jwt-secret-key-here
-
-# Encryption Key
-ENCRYPTION_KEY=your-encryption-key-here
-
-# Session Secret
-SESSION_SECRET=your-session-secret-here
-
-# Email Configuration
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
-
-# Frontend URL for CORS
-FRONTEND_URL=http://localhost:3000
-
-# Application Settings
-NODE_ENV=development
-PORT=3000
-
-# File Upload Settings
-UPLOAD_PATH=./uploads
-MAX_FILE_SIZE=10485760
+# สำหรับ Connection String แบบเต็ม
+DB_CONNECTION_STRING=Server=localhost,1433;Database=LearnHubDB;User Id=learnhub_user;Password=YourStrongPassword123!;TrustServerCertificate=true;
 ```
 
-### 4. Install Dependencies
+## 🧪 การทดสอบการเชื่อมต่อ
 
-Install the required Node.js packages:
+รันคำสั่งนี้เพื่อทดสอบการเชื่อมต่อฐานข้อมูล:
 
 ```bash
-npm install
+node test-db-connection.js
 ```
 
-### 5. Start the Application
+หากเชื่อมต่อสำเร็จ จะแสดงข้อความ:
+```
+✅ Connected to MSSQL database
+Database: LearnHubDB
+Server: localhost
+```
 
-**Note:** The database already includes initial data from `learnhub_database.sql`, so no separate seeding is required.
+## 🔧 การแก้ไขปัญหา
 
+### ปัญหาการเชื่อมต่อ
+
+**Error: connect ECONNREFUSED**
 ```bash
-# Development mode
-npm run dev
+# ตรวจสอบว่า SQL Server Service ทำงานอยู่หรือไม่
+services.msc -> SQL Server (MSSQLSERVER)
 
-# Production mode
-npm start
+# ตรวจสอบ TCP/IP Protocol
+SQL Server Configuration Manager -> SQL Server Network Configuration
 ```
 
-## Default Login Credentials
+**Error: Login failed for user**
+```sql
+-- ตรวจสอบ Login และสิทธิ์
+SELECT name FROM sys.server_principals WHERE type = 'S';
+SELECT name FROM sys.database_principals WHERE type = 'S';
+```
 
-The database script includes a default admin account:
+**Error: Invalid object name**
+```bash
+# ตรวจสอบว่าตารางถูกสร้างแล้วหรือไม่
+# ใน SSMS -> LearnHubDB -> Tables
+```
 
-- **Admin**: `admin` / `admin123` (change immediately after first login)
+### การเปิดใช้งาน SQL Server Authentication
 
-Additional default roles are created:
-- SuperAdmin - Full system access
-- Admin - System administration
-- Instructor - Course and test management
-- Student - Course access and test taking
-- HR - HR management functions
-- Viewer - Limited view access
+1. เปิด SSMS และเชื่อมต่อด้วย Windows Authentication
+2. Right-click บน Server Instance -> Properties
+3. ไปที่ **Security** -> เลือก **SQL Server and Windows Authentication mode**
+4. Restart SQL Server Service
 
-## Database Connection Troubleshooting
+### การตั้งค่า Firewall
 
-### Common Issues and Solutions
+```cmd
+# เปิด Port 1433 บน Windows Firewall
+netsh advfirewall firewall add rule name="SQL Server" dir=in action=allow protocol=TCP localport=1433
+```
 
-1. **Connection refused**
-   - Ensure SQL Server is running
-   - Check if TCP/IP is enabled in SQL Server Configuration Manager
-   - Verify the port number (default: 1433)
+## 📊 การ Backup และ Restore
 
-2. **Login failed**
-   - Verify username and password
-   - Ensure SQL Server Authentication is enabled (mixed mode)
-   - Check user permissions
+### การสร้าง Backup
 
-3. **Certificate errors**
-   - Set `DB_TRUST_SERVER_CERTIFICATE=true` in .env file
-   - For production, use proper SSL certificates
+```sql
+BACKUP DATABASE LearnHubDB
+TO DISK = 'C:\Backup\LearnHubDB.bak'
+WITH FORMAT, INIT, NAME = 'LearnHubDB Full Backup';
+```
 
-4. **Firewall issues**
-   - Ensure port 1433 is open in Windows Firewall
-   - Check network firewall settings
+### การ Restore
 
-### SQL Server Configuration
+```sql
+RESTORE DATABASE LearnHubDB
+FROM DISK = 'C:\Backup\LearnHubDB.bak'
+WITH REPLACE;
+```
 
-Enable TCP/IP protocol:
-1. Open SQL Server Configuration Manager
-2. Go to "SQL Server Network Configuration" → "Protocols for MSSQLSERVER"
-3. Enable "TCP/IP"
-4. Restart SQL Server service
+## 🔍 การตรวจสอบประสิทธิภาพ
 
-Enable SQL Server Authentication:
-1. Connect to SQL Server with SSMS
-2. Right-click server → Properties
-3. Go to Security tab
-4. Select "SQL Server and Windows Authentication mode"
-5. Restart SQL Server service
+```sql
+-- ตรวจสอบขนาดของ Database
+SELECT
+    DB_NAME() AS DatabaseName,
+    (size * 8.0) / 1024 AS SizeMB
+FROM sys.database_files;
 
-## Performance Optimization
+-- ตรวจสอบ Index ที่ขาดหายไป
+SELECT
+    m.object_id,
+    m.index_id,
+    m.avg_fragmentation_in_percent
+FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'DETAILED') m
+WHERE m.avg_fragmentation_in_percent > 30;
+```
 
-For better performance, consider:
+## 📚 Resources เพิ่มเติม
 
-1. **Indexes**: The database includes optimized indexes for all major tables
-2. **Memory**: Allocate sufficient memory to SQL Server
-3. **Backup**: Set up regular database backups
-4. **Monitoring**: Use SQL Server Profiler for query optimization
-5. **Stored Procedures**: Use included stored procedures for complex operations:
-   - `sp_UpdateLeaderboards` - Update gamification leaderboards
-   - `sp_CalculateIntegrityScore` - Calculate proctoring integrity scores
-6. **Views**: Use the `vw_ProctoringDashboard` view for monitoring test sessions
+- [SQL Server Documentation](https://docs.microsoft.com/en-us/sql/)
+- [Node.js MSSQL Driver](https://github.com/tediousjs/node-mssql)
+- [SQL Server Best Practices](https://docs.microsoft.com/en-us/sql/relational-databases/security/security-best-practices)
 
-## Security Considerations
+---
 
-1. Use strong passwords for database users
-2. Enable encryption for data in transit
-3. Regularly update SQL Server
-4. Limit database user permissions to only what's needed
-5. Use connection pooling to manage database connections efficiently
-
-## Production Deployment
-
-For production environments:
-
-1. Use a dedicated SQL Server instance
-2. Set up SSL/TLS encryption
-3. Configure backup and recovery procedures
-4. Monitor database performance
-5. Set up connection pooling with appropriate limits
-6. Use environment-specific configuration files
-
-## Support
-
-If you encounter issues:
-
-1. Check the application logs
-2. Check SQL Server error logs
-3. Verify network connectivity
-4. Ensure all environment variables are correctly set
-5. Verify database schema is properly created
-
-The application uses connection pooling and parameterized queries to ensure optimal performance and security.
+**หากมีปัญหาในการติดตั้ง กรุณาติดต่อทีมพัฒนา: dev@rukchaihongyen.com**

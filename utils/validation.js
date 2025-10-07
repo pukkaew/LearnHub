@@ -74,146 +74,146 @@ class ValidationService {
     // Apply validation rule
     applyRule(value, ruleName, ruleValue, fieldName) {
         switch (ruleName) {
-            case 'required':
-                return this.required(value) ? null : this.getMessage('required', { field: fieldName });
+        case 'required':
+            return this.required(value) ? null : this.getMessage('required', { field: fieldName });
 
-            case 'email':
-                return this.email(value) ? null : this.getMessage('email', { field: fieldName });
+        case 'email':
+            return this.email(value) ? null : this.getMessage('email', { field: fieldName });
 
-            case 'min':
-                return this.min(value, parseInt(ruleValue)) ? null :
-                    this.getMessage('min', { field: fieldName, min: ruleValue });
+        case 'min':
+            return this.min(value, parseInt(ruleValue)) ? null :
+                this.getMessage('min', { field: fieldName, min: ruleValue });
 
-            case 'max':
-                return this.max(value, parseInt(ruleValue)) ? null :
-                    this.getMessage('max', { field: fieldName, max: ruleValue });
+        case 'max':
+            return this.max(value, parseInt(ruleValue)) ? null :
+                this.getMessage('max', { field: fieldName, max: ruleValue });
 
-            case 'minLength':
-                return this.minLength(value, parseInt(ruleValue)) ? null :
-                    this.getMessage('minLength', { field: fieldName, min: ruleValue });
+        case 'minLength':
+            return this.minLength(value, parseInt(ruleValue)) ? null :
+                this.getMessage('minLength', { field: fieldName, min: ruleValue });
 
-            case 'maxLength':
-                return this.maxLength(value, parseInt(ruleValue)) ? null :
-                    this.getMessage('maxLength', { field: fieldName, max: ruleValue });
+        case 'maxLength':
+            return this.maxLength(value, parseInt(ruleValue)) ? null :
+                this.getMessage('maxLength', { field: fieldName, max: ruleValue });
 
-            case 'numeric':
-                return this.numeric(value) ? null : this.getMessage('numeric', { field: fieldName });
+        case 'numeric':
+            return this.numeric(value) ? null : this.getMessage('numeric', { field: fieldName });
 
-            case 'alpha':
-                return this.alpha(value) ? null : this.getMessage('alpha', { field: fieldName });
+        case 'alpha':
+            return this.alpha(value) ? null : this.getMessage('alpha', { field: fieldName });
 
-            case 'alphanumeric':
-                return this.alphanumeric(value) ? null : this.getMessage('alphanumeric', { field: fieldName });
+        case 'alphanumeric':
+            return this.alphanumeric(value) ? null : this.getMessage('alphanumeric', { field: fieldName });
 
-            case 'url':
-                return this.url(value) ? null : this.getMessage('url', { field: fieldName });
+        case 'url':
+            return this.url(value) ? null : this.getMessage('url', { field: fieldName });
 
-            case 'phone':
-                return this.phone(value) ? null : this.getMessage('phone', { field: fieldName });
+        case 'phone':
+            return this.phone(value) ? null : this.getMessage('phone', { field: fieldName });
 
-            case 'date':
-                return this.date(value) ? null : this.getMessage('date', { field: fieldName });
+        case 'date':
+            return this.date(value) ? null : this.getMessage('date', { field: fieldName });
 
-            case 'strong_password':
-                return this.strongPassword(value) ? null : this.getMessage('strong_password', { field: fieldName });
+        case 'strong_password':
+            return this.strongPassword(value) ? null : this.getMessage('strong_password', { field: fieldName });
 
-            case 'confirmed':
-                return this.confirmed(value, ruleValue) ? null : this.getMessage('confirmed', { field: fieldName });
+        case 'confirmed':
+            return this.confirmed(value, ruleValue) ? null : this.getMessage('confirmed', { field: fieldName });
 
-            case 'in':
-                const allowedValues = ruleValue.split(',');
-                return this.in(value, allowedValues) ? null :
-                    this.getMessage('in', { field: fieldName, values: ruleValue });
+        case 'in':
+            const allowedValues = ruleValue.split(',');
+            return this.in(value, allowedValues) ? null :
+                this.getMessage('in', { field: fieldName, values: ruleValue });
 
-            case 'not_in':
-                const forbiddenValues = ruleValue.split(',');
-                return this.notIn(value, forbiddenValues) ? null :
-                    this.getMessage('not_in', { field: fieldName, values: ruleValue });
+        case 'not_in':
+            const forbiddenValues = ruleValue.split(',');
+            return this.notIn(value, forbiddenValues) ? null :
+                this.getMessage('not_in', { field: fieldName, values: ruleValue });
 
-            case 'array':
-                return this.array(value) ? null : this.getMessage('array', { field: fieldName });
+        case 'array':
+            return this.array(value) ? null : this.getMessage('array', { field: fieldName });
 
-            case 'object':
-                return this.object(value) ? null : this.getMessage('object', { field: fieldName });
+        case 'object':
+            return this.object(value) ? null : this.getMessage('object', { field: fieldName });
 
-            case 'boolean':
-                return this.boolean(value) ? null : this.getMessage('boolean', { field: fieldName });
+        case 'boolean':
+            return this.boolean(value) ? null : this.getMessage('boolean', { field: fieldName });
 
-            default:
-                return null;
+        default:
+            return null;
         }
     }
 
     // Validation methods
     required(value) {
-        if (value === null || value === undefined) return false;
-        if (typeof value === 'string') return value.trim().length > 0;
-        if (Array.isArray(value)) return value.length > 0;
-        if (typeof value === 'object') return Object.keys(value).length > 0;
+        if (value === null || value === undefined) {return false;}
+        if (typeof value === 'string') {return value.trim().length > 0;}
+        if (Array.isArray(value)) {return value.length > 0;}
+        if (typeof value === 'object') {return Object.keys(value).length > 0;}
         return true;
     }
 
     email(value) {
-        if (!value) return true; // Allow empty for optional fields
+        if (!value) {return true;} // Allow empty for optional fields
         return validator.isEmail(value);
     }
 
     min(value, minValue) {
-        if (!value) return true;
+        if (!value) {return true;}
         const numValue = parseFloat(value);
         return !isNaN(numValue) && numValue >= minValue;
     }
 
     max(value, maxValue) {
-        if (!value) return true;
+        if (!value) {return true;}
         const numValue = parseFloat(value);
         return !isNaN(numValue) && numValue <= maxValue;
     }
 
     minLength(value, minLength) {
-        if (!value) return true;
+        if (!value) {return true;}
         return value.toString().length >= minLength;
     }
 
     maxLength(value, maxLength) {
-        if (!value) return true;
+        if (!value) {return true;}
         return value.toString().length <= maxLength;
     }
 
     numeric(value) {
-        if (!value) return true;
+        if (!value) {return true;}
         return validator.isNumeric(value.toString());
     }
 
     alpha(value) {
-        if (!value) return true;
+        if (!value) {return true;}
         return validator.isAlpha(value, 'th-TH');
     }
 
     alphanumeric(value) {
-        if (!value) return true;
+        if (!value) {return true;}
         return validator.isAlphanumeric(value, 'th-TH');
     }
 
     url(value) {
-        if (!value) return true;
+        if (!value) {return true;}
         return validator.isURL(value);
     }
 
     phone(value) {
-        if (!value) return true;
+        if (!value) {return true;}
         // Thai phone number pattern
         const phonePattern = /^(\+66|0)[0-9]{8,9}$/;
         return phonePattern.test(value.replace(/\s|-/g, ''));
     }
 
     date(value) {
-        if (!value) return true;
+        if (!value) {return true;}
         return validator.isISO8601(value) || validator.isDate(value);
     }
 
     strongPassword(value) {
-        if (!value) return true;
+        if (!value) {return true;}
         // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
         const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return strongPasswordPattern.test(value);
@@ -226,12 +226,12 @@ class ValidationService {
     }
 
     in(value, allowedValues) {
-        if (!value) return true;
+        if (!value) {return true;}
         return allowedValues.includes(value.toString());
     }
 
     notIn(value, forbiddenValues) {
-        if (!value) return true;
+        if (!value) {return true;}
         return !forbiddenValues.includes(value.toString());
     }
 
@@ -262,7 +262,7 @@ class ValidationService {
             return errors;
         }
 
-        if (!file) return errors;
+        if (!file) {return errors;}
 
         // Check file size
         if (maxSize && file.size > maxSize) {
@@ -310,7 +310,7 @@ class ValidationService {
     }
 
     sanitizeValue(value, rules) {
-        if (!value) return value;
+        if (!value) {return value;}
 
         const ruleArray = Array.isArray(rules) ? rules : rules.split('|');
 
@@ -320,37 +320,37 @@ class ValidationService {
             const [ruleName, ruleValue] = rule.split(':');
 
             switch (ruleName) {
-                case 'trim':
-                    sanitizedValue = sanitizedValue.toString().trim();
-                    break;
+            case 'trim':
+                sanitizedValue = sanitizedValue.toString().trim();
+                break;
 
-                case 'lowercase':
-                    sanitizedValue = sanitizedValue.toString().toLowerCase();
-                    break;
+            case 'lowercase':
+                sanitizedValue = sanitizedValue.toString().toLowerCase();
+                break;
 
-                case 'uppercase':
-                    sanitizedValue = sanitizedValue.toString().toUpperCase();
-                    break;
+            case 'uppercase':
+                sanitizedValue = sanitizedValue.toString().toUpperCase();
+                break;
 
-                case 'escape':
-                    sanitizedValue = validator.escape(sanitizedValue.toString());
-                    break;
+            case 'escape':
+                sanitizedValue = validator.escape(sanitizedValue.toString());
+                break;
 
-                case 'strip_tags':
-                    sanitizedValue = this.stripTags(sanitizedValue.toString());
-                    break;
+            case 'strip_tags':
+                sanitizedValue = this.stripTags(sanitizedValue.toString());
+                break;
 
-                case 'to_int':
-                    sanitizedValue = parseInt(sanitizedValue);
-                    break;
+            case 'to_int':
+                sanitizedValue = parseInt(sanitizedValue);
+                break;
 
-                case 'to_float':
-                    sanitizedValue = parseFloat(sanitizedValue);
-                    break;
+            case 'to_float':
+                sanitizedValue = parseFloat(sanitizedValue);
+                break;
 
-                case 'to_boolean':
-                    sanitizedValue = this.toBoolean(sanitizedValue);
-                    break;
+            case 'to_boolean':
+                sanitizedValue = this.toBoolean(sanitizedValue);
+                break;
             }
         }
 
@@ -439,17 +439,17 @@ class ValidationService {
     }
 
     toBoolean(value) {
-        if (typeof value === 'boolean') return value;
+        if (typeof value === 'boolean') {return value;}
         if (typeof value === 'string') {
             const lower = value.toLowerCase();
             return lower === 'true' || lower === '1' || lower === 'yes';
         }
-        if (typeof value === 'number') return value !== 0;
+        if (typeof value === 'number') {return value !== 0;}
         return Boolean(value);
     }
 
     formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
+        if (bytes === 0) {return '0 Bytes';}
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));

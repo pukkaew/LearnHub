@@ -150,7 +150,7 @@ function updateQuestionButtonStyle(button, index) {
 }
 
 function loadQuestion(index) {
-    if (index < 0 || index >= questions.length) return;
+    if (index < 0 || index >= questions.length) {return;}
 
     // Save current answer before switching
     if (currentQuestionIndex !== index) {
@@ -224,23 +224,23 @@ function renderQuestion(question) {
 
     // Render based on question type
     switch (question.question_type) {
-        case 'multiple_choice':
-            questionHtml += renderMultipleChoice(question);
-            break;
-        case 'true_false':
-            questionHtml += renderTrueFalse(question);
-            break;
-        case 'fill_blank':
-            questionHtml += renderFillBlank(question);
-            break;
-        case 'essay':
-            questionHtml += renderEssay(question);
-            break;
-        case 'matching':
-            questionHtml += renderMatching(question);
-            break;
-        default:
-            questionHtml += renderMultipleChoice(question);
+    case 'multiple_choice':
+        questionHtml += renderMultipleChoice(question);
+        break;
+    case 'true_false':
+        questionHtml += renderTrueFalse(question);
+        break;
+    case 'fill_blank':
+        questionHtml += renderFillBlank(question);
+        break;
+    case 'essay':
+        questionHtml += renderEssay(question);
+        break;
+    case 'matching':
+        questionHtml += renderMatching(question);
+        break;
+    default:
+        questionHtml += renderMultipleChoice(question);
     }
 
     container.innerHTML = questionHtml;
@@ -387,25 +387,25 @@ function renderMatching(question) {
 
 function restoreAnswer(question) {
     const savedAnswer = answers[question.question_id];
-    if (!savedAnswer) return;
+    if (!savedAnswer) {return;}
 
     switch (question.question_type) {
-        case 'multiple_choice':
-        case 'true_false':
-            const radio = document.querySelector(`input[name="answer"][value="${savedAnswer}"]`);
-            if (radio) radio.checked = true;
-            break;
-        case 'fill_blank':
-        case 'essay':
-        case 'matching':
-            const input = document.querySelector('input[name="answer"], textarea[name="answer"]');
-            if (input) {
-                input.value = savedAnswer;
-                if (input.tagName === 'TEXTAREA') {
-                    updateCharCount(input);
-                }
+    case 'multiple_choice':
+    case 'true_false':
+        const radio = document.querySelector(`input[name="answer"][value="${savedAnswer}"]`);
+        if (radio) {radio.checked = true;}
+        break;
+    case 'fill_blank':
+    case 'essay':
+    case 'matching':
+        const input = document.querySelector('input[name="answer"], textarea[name="answer"]');
+        if (input) {
+            input.value = savedAnswer;
+            if (input.tagName === 'TEXTAREA') {
+                updateCharCount(input);
             }
-            break;
+        }
+        break;
     }
 }
 
@@ -413,17 +413,17 @@ function getCurrentAnswer() {
     const question = questions[currentQuestionIndex];
 
     switch (question.question_type) {
-        case 'multiple_choice':
-        case 'true_false':
-            const checked = document.querySelector('input[name="answer"]:checked');
-            return checked ? checked.value : null;
-        case 'fill_blank':
-        case 'essay':
-        case 'matching':
-            const input = document.querySelector('input[name="answer"], textarea[name="answer"]');
-            return input ? input.value.trim() : null;
-        default:
-            return null;
+    case 'multiple_choice':
+    case 'true_false':
+        const checked = document.querySelector('input[name="answer"]:checked');
+        return checked ? checked.value : null;
+    case 'fill_blank':
+    case 'essay':
+    case 'matching':
+        const input = document.querySelector('input[name="answer"], textarea[name="answer"]');
+        return input ? input.value.trim() : null;
+    default:
+        return null;
     }
 }
 
@@ -533,7 +533,7 @@ function updateProgress() {
 
 // Timer Functions
 function startTimer() {
-    if (!testData.time_limit || testData.time_limit <= 0) return;
+    if (!testData.time_limit || testData.time_limit <= 0) {return;}
 
     updateTimerDisplay();
 
@@ -654,22 +654,22 @@ function updateSaveStatus(status) {
     const text = document.getElementById('save-status-text');
 
     switch (status) {
-        case 'saving':
-            icon.className = 'fas fa-spinner fa-spin text-blue-500';
-            text.textContent = 'กำลังบันทึก...';
-            break;
-        case 'saved':
-            icon.className = 'fas fa-check text-green-500';
-            text.textContent = 'บันทึกแล้ว';
-            break;
-        case 'error':
-            icon.className = 'fas fa-exclamation-triangle text-red-500';
-            text.textContent = 'บันทึกไม่สำเร็จ';
-            break;
-        case 'cleared':
-            icon.className = 'fas fa-trash text-gray-500';
-            text.textContent = 'ล้างคำตอบแล้ว';
-            break;
+    case 'saving':
+        icon.className = 'fas fa-spinner fa-spin text-blue-500';
+        text.textContent = 'กำลังบันทึก...';
+        break;
+    case 'saved':
+        icon.className = 'fas fa-check text-green-500';
+        text.textContent = 'บันทึกแล้ว';
+        break;
+    case 'error':
+        icon.className = 'fas fa-exclamation-triangle text-red-500';
+        text.textContent = 'บันทึกไม่สำเร็จ';
+        break;
+    case 'cleared':
+        icon.className = 'fas fa-trash text-gray-500';
+        text.textContent = 'ล้างคำตอบแล้ว';
+        break;
     }
 }
 
@@ -706,7 +706,7 @@ async function initializeWebcam() {
 }
 
 function takeScreenshot() {
-    if (!webcamStream) return;
+    if (!webcamStream) {return;}
 
     const video = document.getElementById('webcam-video');
     const canvas = document.createElement('canvas');

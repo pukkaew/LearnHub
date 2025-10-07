@@ -12,6 +12,7 @@ require('dotenv').config();
 // Import middleware
 const securityMiddleware = require('./middleware/security');
 const authMiddleware = require('./middleware/auth');
+const settingsMiddleware = require('./middleware/settingsMiddleware');
 const { poolPromise } = require('./config/database');
 
 // Import routes
@@ -24,10 +25,14 @@ const articleRoutes = require('./routes/articleRoutes');
 const applicantRoutes = require('./routes/applicantRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const apiRoutes = require('./routes/apiRoutes');
+const languageRoutes = require('./routes/languageRoutes');
+const settingRoutes = require('./routes/settingRoutes');
 
 // Import services
 const proctoringService = require('./utils/proctoringService');
 const socketHandler = require('./utils/socketHandler');
+const { languageMiddleware } = require('./utils/languages');
 
 const app = express();
 const server = http.createServer(app);
@@ -51,8 +56,24 @@ app.set('trust proxy', 1);
 const expressLayouts = require('express-ejs-layouts');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(expressLayouts);
+
+// Disable view cache in development to force reload
+if (process.env.NODE_ENV !== 'production') {
+    app.set('view cache', false);
+}
+
+
+// Apply layout conditionally - skip for auth pages
+app.use((req, res, next) => {
+    if (req.path.startsWith('/auth/')) {
+        return next();
+    }
+    expressLayouts(req, res, next);
+});
+
 app.set('layout', './layout');
+app.set('layout extractScripts', false);
+app.set('layout extractStyles', false);
 
 // Compression middleware
 app.use(compression());
@@ -109,6 +130,15 @@ app.use((req, res, next) => {
     next();
 });
 
+// Language middleware - must be after session and before routes
+app.use(languageMiddleware);
+
+// Settings middleware - load system and user settings
+app.use(settingsMiddleware.loadSystemSettings);
+app.use(settingsMiddleware.loadUserSettings);
+app.use(settingsMiddleware.loadEffectiveSettings);
+app.use(settingsMiddleware.injectHelpers);
+
 // Input validation and sanitization
 app.use(securityMiddleware.validateInput());
 
@@ -141,6 +171,8 @@ app.use('/articles', articleRoutes);
 app.use('/applicants', applicantRoutes);
 app.use('/reports', reportRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/language', languageRoutes);
+app.use('/settings', settingRoutes);
 
 // Home page redirect
 app.get('/', (req, res) => {
@@ -178,7 +210,9 @@ app.get('/health', async (req, res) => {
 app.use('/api', securityMiddleware.apiRateLimit());
 
 // API Routes
+app.use('/api', apiRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/tests', testRoutes);
@@ -195,7 +229,7 @@ app.use((err, req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
 
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
         res.status(500).json({
             success: false,
             message: process.env.NODE_ENV === 'production'
@@ -215,7 +249,7 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use((req, res) => {
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
         res.status(404).json({
             success: false,
             message: 'ไม่พบหน้าที่ต้องการ'

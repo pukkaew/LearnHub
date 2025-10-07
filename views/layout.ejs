@@ -3,10 +3,480 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || 'Rukchai Hongyen LearnHub' %> - บริษัท รักชัยห้องเย็น จำกัด</title>
+    <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+    <%
+        const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteDescription = typeof getSetting === 'function' ? getSetting('site_description', 'ระบบจัดการการเรียนรู้') : 'ระบบจัดการการเรียนรู้';
+        const primaryColor = typeof getSetting === 'function' ? getSetting('primary_color', '#0090D3') : '#0090D3';
+        const secondaryColor = typeof getSetting === 'function' ? getSetting('secondary_color', '#3AAA35') : '#3AAA35';
+        const sidebarColor = typeof getSetting === 'function' ? getSetting('sidebar_color', '#1f2937') : '#1f2937';
+        const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/rukchai-logo.png') : '/images/rukchai-logo.png';
+        const faviconUrl = typeof getSetting === 'function' ? getSetting('favicon_url', '/favicon.ico') : '/favicon.ico';
+    %>
+    <title><%= title || siteName %> - <%= siteDescription %></title>
+    <link rel="icon" href="<%= faviconUrl %>" type="image/x-icon">
 
-    <!-- Tailwind CSS (Local) -->
-    <link rel="stylesheet" href="/css/tailwind.css">
+    <!-- Complete Inline CSS (No CDN Required) -->
+    <style>
+        /* Dynamic CSS Variables from Settings */
+        :root {
+            --primary-color: <%= primaryColor %>;
+            --secondary-color: <%= secondaryColor %>;
+            --sidebar-color: <%= sidebarColor %>;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; }
+        body { font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif; line-height: 1.5; }
+
+        .bg-gray-50 { background-color: #f9fafb; }
+        .bg-gray-100 { background-color: #f3f4f6; }
+        .bg-gray-200 { background-color: #e5e7eb; }
+        .bg-gray-300 { background-color: #d1d5db; }
+        .bg-gray-400 { background-color: #9ca3af; }
+        .bg-gray-500 { background-color: #6b7280; }
+        .bg-gray-600 { background-color: #4b5563; }
+        .bg-gray-700 { background-color: #374151; }
+        .bg-gray-800 { background-color: #1f2937; }
+        .bg-gray-900 { background-color: #111827; }
+        .bg-white { background-color: #ffffff; }
+
+        .bg-blue-50 { background-color: #eff6ff; }
+        .bg-blue-100 { background-color: #dbeafe; }
+        .bg-blue-500 { background-color: #3b82f6; }
+        .bg-blue-600 { background-color: #2563eb; }
+        .bg-blue-700 { background-color: #1d4ed8; }
+
+        .bg-green-50 { background-color: #f0fdf4; }
+        .bg-green-100 { background-color: #dcfce7; }
+        .bg-green-500 { background-color: #22c55e; }
+        .bg-green-600 { background-color: #16a34a; }
+
+        .bg-red-50 { background-color: #fef2f2; }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-red-600 { background-color: #dc2626; }
+
+        .bg-yellow-100 { background-color: #fef3c7; }
+        .bg-yellow-400 { background-color: #facc15; }
+        .bg-yellow-500 { background-color: #eab308; }
+        .bg-yellow-600 { background-color: #ca8a04; }
+
+        .bg-purple-50 { background-color: #faf5ff; }
+        .bg-purple-100 { background-color: #f3e8ff; }
+        .bg-purple-600 { background-color: #9333ea; }
+
+        .bg-orange-500 { background-color: #f97316; }
+
+        .bg-cyan-50 { background-color: #ecfeff; }
+
+        .text-white { color: #ffffff; }
+        .text-gray-300 { color: #d1d5db; }
+        .text-gray-400 { color: #9ca3af; }
+        .text-gray-500 { color: #6b7280; }
+        .text-gray-600 { color: #4b5563; }
+        .text-gray-700 { color: #374151; }
+        .text-gray-900 { color: #111827; }
+
+        .text-blue-200 { color: #bfdbfe; }
+        .text-blue-600 { color: #2563eb; }
+        .text-blue-700 { color: #1d4ed8; }
+
+        .text-green-600 { color: #16a34a; }
+        .text-purple-600 { color: #9333ea; }
+        .text-yellow-600 { color: #ca8a04; }
+        .text-red-300 { color: #fca5a5; }
+        .text-red-600 { color: #dc2626; }
+
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+
+        .flex { display: flex; }
+        .inline-flex { display: inline-flex; }
+        .grid { display: grid; }
+        .hidden { display: none; }
+        .block { display: block; }
+
+        .flex-col { flex-direction: column; }
+        .flex-shrink-0 { flex-shrink: 0; }
+        .flex-1 { flex: 1 1 0%; }
+        .items-center { align-items: center; }
+        .items-start { align-items: flex-start; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-8 { gap: 2rem; }
+        .space-x-2 > * + * { margin-left: 0.5rem; }
+        .space-x-3 > * + * { margin-left: 0.75rem; }
+        .space-y-1 > * + * { margin-top: 0.25rem; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+
+        .container { width: 100%; }
+        .container-fluid { width: 100%; }
+        .max-w-7xl { max-width: 80rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+
+        .p-1 { padding: 0.25rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+
+        .m-3 { margin: 0.75rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mt-8 { margin-top: 2rem; }
+        .ml-1 { margin-left: 0.25rem; }
+        .ml-2 { margin-left: 0.5rem; }
+        .ml-3 { margin-left: 0.75rem; }
+        .ml-8 { margin-left: 2rem; }
+        .ml-auto { margin-left: auto; }
+        .mr-2 { margin-right: 0.5rem; }
+        .mr-3 { margin-right: 0.75rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .-mx-3 { margin-left: -0.75rem; margin-right: -0.75rem; }
+        .-top-1 { top: -0.25rem; }
+        .-right-1 { right: -0.25rem; }
+
+        .w-2 { width: 0.5rem; }
+        .w-4 { width: 1rem; }
+        .w-5 { width: 1.25rem; }
+        .w-6 { width: 1.5rem; }
+        .w-8 { width: 2rem; }
+        .w-10 { width: 2.5rem; }
+        .w-12 { width: 3rem; }
+        .w-16 { width: 4rem; }
+        .w-18 { width: 4.5rem; }
+        .w-20 { width: 5rem; }
+        .w-24 { width: 6rem; }
+        .w-28 { width: 7rem; }
+        .w-32 { width: 8rem; }
+        .w-36 { width: 9rem; }
+        .w-64 { width: 16rem; }
+        .w-full { width: 100%; }
+        .w-auto { width: auto; }
+        .object-contain { object-fit: contain; }
+
+        .h-2 { height: 0.5rem; }
+        .h-4 { height: 1rem; }
+        .h-5 { height: 1.25rem; }
+        .h-6 { height: 1.5rem; }
+        .h-8 { height: 2rem; }
+        .h-10 { height: 2.5rem; }
+        .h-12 { height: 3rem; }
+        .h-16 { height: 4rem; }
+        .h-18 { height: 4.5rem; }
+        .h-20 { height: 5rem; }
+        .h-22 { height: 5.5rem; }
+        .h-24 { height: 6rem; }
+        .h-18 { height: 4.5rem; }
+        .w-18 { width: 4.5rem; }
+        .h-28 { height: 7rem; }
+        .h-32 { height: 8rem; }
+        .h-36 { height: 9rem; }
+        .h-auto { height: auto; }
+        .h-22 { height: 5.5rem; }
+
+        .w-24 { width: 6rem; }
+
+        .rounded-2xl { border-radius: 1rem; }
+        .drop-shadow-lg { filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1)); }
+        .opacity-90 { opacity: 0.9; }
+        .scale-105 { transform: scale(1.05); }
+        .backdrop-blur-sm { backdrop-filter: blur(4px); }
+
+        .group:hover .group-hover\:scale-105 { transform: scale(1.05); }
+        .group:hover .group-hover\:shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .group:hover .group-hover\:bg-white\/25 { background-color: rgba(255, 255, 255, 0.25); }
+
+        .min-h-screen { min-height: 100vh; }
+
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-full { border-radius: 9999px; }
+
+        .border { border-width: 1px; }
+        .border-2 { border-width: 2px; }
+        .border-t { border-top-width: 1px; }
+        .border-b { border-bottom-width: 1px; }
+        .border-gray-100 { border-color: #f3f4f6; }
+        .border-gray-700 { border-color: #374151; }
+        .border-white\/20 { border-color: rgba(255, 255, 255, 0.2); }
+        .border-white\/30 { border-color: rgba(255, 255, 255, 0.3); }
+        .border-blue-800\/20 { border-color: rgba(30, 64, 175, 0.2); }
+
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .shadow-3xl { box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.3), 0 25px 30px -5px rgba(0, 0, 0, 0.15); }
+        .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
+        .backdrop-blur-xl { backdrop-filter: blur(24px); }
+        .font-black { font-weight: 900; }
+        .-skew-x-12 { transform: skewX(-12deg); }
+        .scale-105 { transform: scale(1.05); }
+        .scale-\[1\.02\] { transform: scale(1.02); }
+        .brightness-110 { filter: brightness(1.1); }
+        .brightness-125 { filter: brightness(1.25); }
+        .contrast-110 { filter: contrast(1.1); }
+
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .transition-colors { transition-property: background-color, border-color, color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .transition-shadow { transition-property: box-shadow; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .duration-200 { transition-duration: 200ms; }
+        .duration-300 { transition-duration: 300ms; }
+
+        .hover\:bg-white\/15:hover { background-color: rgba(255, 255, 255, 0.15); }
+        .hover\:bg-white\/20:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .hover\:bg-gray-50:hover { background-color: #f9fafb; }
+        .hover\:bg-blue-50:hover { background-color: #eff6ff; }
+        .hover\:bg-red-50:hover { background-color: #fef2f2; }
+        .hover\:bg-white\/10:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .hover\:bg-red-500\/20:hover { background-color: rgba(239, 68, 68, 0.2); }
+
+        .hover\:text-white:hover { color: #ffffff; }
+        .hover\:text-blue-200:hover { color: #bfdbfe; }
+        .hover\:text-blue-700:hover { color: #1d4ed8; }
+        .hover\:text-ruxchai-primary:hover { color: #1e40af; }
+        .hover\:text-blue-600:hover { color: #2563eb; }
+
+        .hover\:shadow-md:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .hover\:shadow-lg:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+
+        .group:hover .group-hover\:bg-white\/20 { background-color: rgba(255, 255, 255, 0.2); }
+        .group:hover .group-hover\:text-white { color: #ffffff; }
+        .group:hover .group-hover\:scale-110 { transform: scale(1.1); }
+        .group:hover .group-hover\:rotate-180 { transform: rotate(180deg); }
+
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .uppercase { text-transform: uppercase; }
+
+        .tracking-tight { letter-spacing: -0.025em; }
+        .tracking-wider { letter-spacing: 0.05em; }
+
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .fixed { position: fixed; }
+        .top-4 { top: 1rem; }
+        .right-0 { right: 0; }
+        .right-4 { right: 1rem; }
+        .bottom-0 { bottom: 0; }
+
+        .z-50 { z-index: 50; }
+
+        .overflow-y-auto { overflow-y: auto; }
+        .max-h-96 { max-height: 24rem; }
+
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        .col-span-3 { grid-column: span 3 / span 3; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+        @media (min-width: 640px) {
+            .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+
+        @media (min-width: 768px) {
+            .md\:flex { display: flex; }
+            .md\:hidden { display: none; }
+            .md\:ml-8 { margin-left: 2rem; }
+            .md\:flex-row { flex-direction: row; }
+            .md\:justify-between { justify-content: space-between; }
+            .md\:items-center { align-items: center; }
+            .md\:space-x-2 > * + * { margin-left: 0.5rem; }
+            .md\:block { display: block; }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .md\:col-span-2 { grid-column: span 2 / span 2; }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+            .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .lg\:col-span-2 { grid-column: span 2 / span 2; }
+        }
+
+        .min-w-0 { min-width: 0; }
+        .last\:border-0:last-child { border-width: 0; }
+        .last\:pb-0:last-child { padding-bottom: 0; }
+
+        .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+        .from-gray-50 { --tw-gradient-from: #f9fafb; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(249, 250, 251, 0)); }
+        .to-blue-50\/30 { --tw-gradient-to: rgba(239, 246, 255, 0.3); }
+        .from-green-500 { --tw-gradient-from: #22c55e; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(34, 197, 94, 0)); }
+        .to-emerald-600 { --tw-gradient-to: #059669; }
+        .from-red-500 { --tw-gradient-from: #ef4444; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(239, 68, 68, 0)); }
+        .to-red-600 { --tw-gradient-to: #dc2626; }
+        .from-yellow-400 { --tw-gradient-from: #facc15; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 204, 21, 0)); }
+        .to-yellow-600 { --tw-gradient-to: #ca8a04; }
+        .from-ruxchai-secondary { --tw-gradient-from: #ef4444; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(239, 68, 68, 0)); }
+
+        .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+        .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1); }
+        .bg-white\/20 { background-color: rgba(255, 255, 255, 0.2); }
+
+        .backdrop-blur-sm { backdrop-filter: blur(4px); }
+
+        .text-white\/70 { color: rgba(255, 255, 255, 0.7); }
+        .text-white\/80 { color: rgba(255, 255, 255, 0.8); }
+        .text-white\/90 { color: rgba(255, 255, 255, 0.9); }
+
+        .inline-flex { display: inline-flex; }
+        .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+
+        .font-thai { font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif; }
+
+        .text-ruxchai-primary { color: #1e40af; }
+        .bg-ruxchai-primary { background-color: #1e40af; }
+        .bg-ruxchai-primary\/10 { background-color: rgba(30, 64, 175, 0.1); }
+        .bg-ruxchai-primary\/20 { background-color: rgba(30, 64, 175, 0.2); }
+
+        button { cursor: pointer; border: none; background: none; }
+        a { text-decoration: none; color: inherit; }
+
+        .ruxchai-gradient {
+            background: linear-gradient(135deg, #03A9F4 0%, #2196F3 25%, #4CAF50 75%, #00BCD4 100%);
+        }
+        .ruxchai-gradient {
+            background: linear-gradient(135deg, #03A9F4 0%, #2196F3 25%, #4CAF50 75%, #00BCD4 100%);
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            white-space: nowrap;
+            gap: 0.5rem;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+        }
+        .nav-icon {
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .status-online {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0.75rem;
+            height: 0.75rem;
+            background-color: #10b981;
+            border: 2px solid white;
+            border-radius: 9999px;
+        }
+        .icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+        }
+        .icon-container-primary {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        .icon-container-secondary {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        .icon-sm {
+            font-size: 0.875rem;
+        }
+        .ruxchai-icon-primary {
+            color: #ffffff;
+        }
+        .ruxchai-icon-secondary {
+            color: #bfdbfe;
+        }
+        .text-ruxchai-blue {
+            color: #1e40af;
+        }
+        .bg-ruxchai-blue {
+            background-color: #1e40af;
+        }
+        .border-ruxchai-blue {
+            border-color: #1e40af;
+        }
+        .animate-slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,142 +484,310 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Tailwind CSS -->
+    <link href="/css/tailwind.css" rel="stylesheet">
+
+    <!-- Custom Ruxchai CSS -->
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Comprehensive Navigation CSS -->
+    <link href="/css/navigation.css" rel="stylesheet">
 
     <% if (locals.additionalCSS) { %>
         <%- additionalCSS %>
     <% } %>
 </head>
 <body class="bg-gray-50 font-thai">
-    <!-- Navigation -->
-    <nav class="ruxchai-gradient shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <!-- Logo -->
-                    <div class="flex-shrink-0 flex items-center">
-                        <img class="h-8 w-auto" src="/images/rukchai-logo.svg" alt="Rukchai Hongyen">
-                        <span class="ml-3 text-white text-xl font-bold">LearnHub</span>
-                    </div>
+    <!-- Comprehensive Responsive Navigation -->
+    <nav class="ruxchai-nav">
+        <!-- Overlay Effects -->
+        <div class="nav-overlay-top"></div>
+        <div class="nav-overlay-sides"></div>
 
-                    <!-- Main Navigation -->
+        <div class="nav-container-wrapper">
+            <div class="nav-main-container">
+                <!-- Left Section: Logo + Menu -->
+                <div class="nav-left-section">
+                    <!-- Logo ชิดซ้าย -->
+                    <a href="/dashboard" class="nav-logo-container">
+                        <div class="relative group">
+                            <img src="/images/rukchai-logo.png" alt="บริษัท รักชัยห้องเย็น จำกัด" class="nav-logo-image transform transition-transform group-hover:scale-105" style="min-width: 80px; max-width: 100px;">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-indigo-600/20 rounded-lg blur opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                        </div>
+                        <div class="nav-logo-text-container ml-3">
+                            <div class="nav-logo-title">LearnHub</div>
+                            <div class="nav-logo-subtitle">รักชัยห้องเย็น จำกัด</div>
+                        </div>
+                    </a>
+
+                    <!-- Desktop Menu -->
                     <% if (locals.user) { %>
-                    <div class="hidden md:ml-6 md:flex md:space-x-8">
-                        <a href="/dashboard" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-tachometer-alt mr-2"></i>แดชบอร์ด
+                    <div class="nav-menu">
+                        <a href="/dashboard" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                            <span><%= t('dashboard') %></span>
                         </a>
 
-                        <% if (['Admin', 'Instructor', 'Learner'].includes(user.role)) { %>
-                        <a href="/courses" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-book mr-2"></i>คอร์สเรียน
+                        <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
+                        <a href="/courses" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-book"></i></span>
+                            <span><%= t('courses') %></span>
                         </a>
-                        <% } %>
-
-                        <% if (['Admin', 'Instructor', 'Learner'].includes(user.role)) { %>
-                        <a href="/tests" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-clipboard-list mr-2"></i>แบบทดสอบ
-                        </a>
-                        <% } %>
-
-                        <a href="/articles" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-newspaper mr-2"></i>บทความ
-                        </a>
-
-                        <% if (['Admin', 'HR'].includes(user.role)) { %>
-                        <a href="/users" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-users mr-2"></i>จัดการผู้ใช้
+                        <a href="/tests" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-clipboard-list"></i></span>
+                            <span><%= t('tests') %></span>
                         </a>
                         <% } %>
 
-                        <% if (['Admin', 'HR'].includes(user.role)) { %>
-                        <a href="/applicant/admin" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-user-tie mr-2"></i>ผู้สมัครงาน
+                        <a href="/articles" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
+                            <span><%= t('articles') %></span>
+                        </a>
+
+                        <% if (['Admin', 'HR'].includes(user.role_name)) { %>
+                        <a href="/users" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-users"></i></span>
+                            <span><%= t('users') %></span>
+                        </a>
+                        <a href="/applicant/admin" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-user-tie"></i></span>
+                            <span><%= t('applicants') %></span>
+                        </a>
+                        <% } %>
+
+                        <% if (['Admin', 'ADMIN', 'SUPER_ADMIN'].includes(user.role_name || user.role)) { %>
+                        <a href="/settings" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-cog"></i></span>
+                            <span><%= typeof t === 'function' ? t('settings') : 'ตั้งค่า' %></span>
                         </a>
                         <% } %>
                     </div>
                     <% } %>
                 </div>
 
-                <!-- Right side navigation -->
-                <div class="flex items-center space-x-4">
+                <!-- Right Side: User Section -->
+                <div class="nav-user-section">
                     <% if (locals.user) { %>
-                        <!-- Notifications -->
-                        <div class="relative">
-                            <button id="notifications-btn" class="text-white hover:text-blue-200 p-2 rounded-full transition-colors">
-                                <i class="fas fa-bell"></i>
-                                <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        <!-- Enhanced Language Switcher -->
+                        <div class="nav-language-switcher">
+                            <button id="language-switcher" class="nav-language-button">
+                                <span id="current-language-text" class="nav-language-text">
+                                    <%= currentLanguage === 'en' ? 'English' : 'ไทย' %>
+                                </span>
+                                <i class="fas fa-chevron-down nav-language-chevron"></i>
                             </button>
+                            <div id="language-menu" class="nav-language-dropdown hidden">
+                                <button id="lang-th-btn" class="nav-language-option <%= currentLanguage === 'th' ? 'active' : '' %>">
+                                    <div class="nav-language-option-text">
+                                        <div class="nav-language-option-name">ไทย</div>
+                                        <div class="nav-language-option-native">ภาษาไทย</div>
+                                    </div>
+                                </button>
+                                <button id="lang-en-btn" class="nav-language-option <%= currentLanguage === 'en' ? 'active' : '' %>">
+                                    <div class="nav-language-option-text">
+                                        <div class="nav-language-option-name">English</div>
+                                        <div class="nav-language-option-native">English</div>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- User Menu -->
+                        <!-- Notifications -->
+                        <button id="notifications-btn" class="nav-action-button relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span id="notification-badge" class="nav-notification-badge hidden">0</span>
+                        </button>
+
+                        <!-- User Profile -->
                         <div class="relative">
-                            <button id="user-menu-btn" class="flex items-center text-white hover:text-blue-200 transition-colors">
-                                <img class="h-8 w-8 rounded-full border-2 border-white/20" src="<%= user.profile_image || '/images/default-avatar.png' %>" alt="Profile">
-                                <span class="ml-2 hidden md:block"><%= user.first_name %> <%= user.last_name %></span>
-                                <i class="fas fa-chevron-down ml-1"></i>
+                            <button id="user-menu-btn" class="nav-user-profile">
+                                <img class="nav-user-avatar" src="<%= user.profile_image || '/images/default-avatar.png' %>" alt="Profile">
+                                <div class="nav-user-info">
+                                    <div class="nav-user-name"><%= user.first_name %> <%= user.last_name %></div>
+                                    <div class="nav-user-role"><%= user.role_name %></div>
+                                </div>
+                                <i class="fas fa-chevron-down ml-2 text-white/70 transition-transform duration-200"></i>
                             </button>
 
-                            <!-- User Dropdown -->
-                            <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                <a href="/users/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-user mr-2"></i>โปรไฟล์
+                            <!-- Dropdown -->
+                            <div id="user-menu" class="nav-dropdown">
+                                <div class="px-4 py-3 border-b border-gray-100">
+                                    <div class="flex items-center gap-3">
+                                        <img class="w-12 h-12 rounded-lg border-2 border-ruxchai-primary/20" src="<%= user.profile_image || '/images/default-avatar.png' %>" alt="Profile">
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900"><%= user.first_name %> <%= user.last_name %></p>
+                                            <p class="text-xs text-gray-500"><%= user.email %></p>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-ruxchai-primary/10 text-ruxchai-primary mt-1"><%= user.role_name %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="/users/profile" class="nav-dropdown-item">
+                                    <i class="fas fa-user"></i>
+                                    <span><%= t('profile') %></span>
                                 </a>
-                                <a href="/users/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-cog mr-2"></i>ตั้งค่า
+                                <a href="/settings/user" class="nav-dropdown-item">
+                                    <i class="fas fa-user-cog"></i>
+                                    <span><%= t('userSettings') || 'การตั้งค่าส่วนตัว' %></span>
                                 </a>
-                                <div class="border-t border-gray-100"></div>
-                                <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                    <i class="fas fa-sign-out-alt mr-2"></i>ออกจากระบบ
+                                <% if (['Admin', 'ADMIN', 'SUPER_ADMIN'].includes(user.role_name || user.role)) { %>
+                                <div class="nav-dropdown-divider"></div>
+                                <a href="/settings" class="nav-dropdown-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span><%= t('systemSettings') || 'การตั้งค่าระบบ' %></span>
+                                </a>
+                                <% } %>
+                                <div class="nav-dropdown-divider"></div>
+                                <button onclick="logout()" class="nav-dropdown-item text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span><%= t('logout') %></span>
                                 </button>
                             </div>
                         </div>
                     <% } else { %>
-                        <a href="/auth/login" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                            <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ
+                        <a href="/auth/login" class="nav-action-button">
+                            <i class="fas fa-sign-in-alt"></i>
                         </a>
                     <% } %>
+
+                    <!-- Mobile Toggle -->
+                    <button id="mobile-menu-toggle" class="nav-mobile-toggle">
+                        <i id="mobile-menu-icon" class="fas fa-bars text-xl"></i>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden md:hidden">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <% if (locals.user) { %>
-                    <a href="/dashboard" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">แดชบอร์ด</a>
-                    <a href="/courses" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">คอร์สเรียน</a>
-                    <a href="/tests" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">แบบทดสอบ</a>
-                    <a href="/articles" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">บทความ</a>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="nav-mobile-menu">
+            <% if (locals.user) { %>
+                <a href="/dashboard" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                    <span><%= t('dashboard') %></span>
+                </a>
+
+                <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
+                <a href="/courses" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-book"></i></span>
+                    <span><%= t('courses') %></span>
+                </a>
+                <a href="/tests" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <span><%= t('tests') %></span>
+                </a>
                 <% } %>
-            </div>
+
+                <a href="/articles" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
+                    <span><%= t('articles') %></span>
+                </a>
+
+                <% if (['Admin', 'HR'].includes(user.role_name)) { %>
+                <a href="/users" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-users"></i></span>
+                    <span><%= t('users') %></span>
+                </a>
+                <a href="/applicant/admin" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-user-tie"></i></span>
+                    <span><%= t('applicants') %></span>
+                </a>
+                <% } %>
+
+                <% if (['Admin', 'ADMIN', 'SUPER_ADMIN'].includes(user.role_name || user.role)) { %>
+                <a href="/settings" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-cog"></i></span>
+                    <span><%= typeof t === 'function' ? t('settings') : 'ตั้งค่า' %></span>
+                </a>
+                <% } %>
+
+                <!-- Mobile Language Switcher -->
+                <div class="border-t border-white/25 mt-4 pt-4 mb-4">
+                    <div class="px-4 py-2 mb-3 text-white/80 text-sm font-medium"><%= currentLanguage === 'th' ? 'เลือกภาษา' : 'Language' %></div>
+                    <div class="flex gap-2">
+                        <button id="mobile-lang-th-btn" class="nav-mobile-menu-item flex-1 justify-center <%= currentLanguage === 'th' ? 'active' : '' %>">
+                            <span>ไทย</span>
+                        </button>
+                        <button id="mobile-lang-en-btn" class="nav-mobile-menu-item flex-1 justify-center <%= currentLanguage === 'en' ? 'active' : '' %>">
+                            <span>English</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/25 pt-4">
+                    <div class="flex items-center px-4 py-3 mb-3 bg-white/15 rounded-xl">
+                        <img class="w-12 h-12 rounded-lg border-2 border-white/30" src="<%= user.profile_image || '/images/default-avatar.png' %>" alt="Profile">
+                        <div class="ml-3">
+                            <div class="text-white text-sm font-semibold"><%= user.first_name %> <%= user.last_name %></div>
+                            <div class="text-blue-100 text-xs font-medium"><%= user.role_name %></div>
+                        </div>
+                    </div>
+                    <a href="/users/profile" class="nav-mobile-menu-item">
+                        <span class="nav-menu-icon"><i class="fas fa-user"></i></span>
+                        <span><%= t('profile') %></span>
+                    </a>
+                    <a href="/settings/user" class="nav-mobile-menu-item">
+                        <span class="nav-menu-icon"><i class="fas fa-user-cog"></i></span>
+                        <span><%= t('userSettings') || 'การตั้งค่าส่วนตัว' %></span>
+                    </a>
+                    <% if (['Admin', 'ADMIN', 'SUPER_ADMIN'].includes(user.role_name || user.role)) { %>
+                    <a href="/settings" class="nav-mobile-menu-item">
+                        <span class="nav-menu-icon"><i class="fas fa-cog"></i></span>
+                        <span><%= t('systemSettings') || 'การตั้งค่าระบบ' %></span>
+                    </a>
+                    <% } %>
+                    <button onclick="logout()" class="nav-mobile-menu-item w-full text-left" style="color: rgba(252, 165, 165, 1);">
+                        <span class="nav-menu-icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span><%= t('logout') %></span>
+                    </button>
+                </div>
+            <% } else { %>
+                <a href="/auth/login" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-sign-in-alt"></i></span>
+                    <span><%= t('login') %></span>
+                </a>
+            <% } %>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="min-h-screen">
+    <main class="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
         <!-- Flash Messages -->
         <% if (locals.successMessage) { %>
-        <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 mx-4 mt-4">
-            <div class="flex justify-between items-center">
-                <span><i class="fas fa-check-circle mr-2"></i><%= successMessage %></span>
-                <button onclick="this.parentElement.parentElement.style.display='none'" class="text-green-700 hover:text-green-900">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div id="success-message" class="mx-4 mt-6 animate-slide-up">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg border border-green-400/20">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-check text-white"></i>
+                        </div>
+                        <span class="font-medium"><%= successMessage %></span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="text-white/80 hover:text-white hover:bg-white/10 rounded-lg p-1 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
         </div>
         <% } %>
 
         <% if (locals.errorMessage) { %>
-        <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 mx-4 mt-4">
-            <div class="flex justify-between items-center">
-                <span><i class="fas fa-exclamation-circle mr-2"></i><%= errorMessage %></span>
-                <button onclick="this.parentElement.parentElement.style.display='none'" class="text-red-700 hover:text-red-900">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div id="error-message" class="mx-4 mt-6 animate-slide-up">
+            <div class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl shadow-lg border border-red-400/20">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-exclamation-triangle text-white"></i>
+                        </div>
+                        <span class="font-medium"><%= errorMessage %></span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="text-white/80 hover:text-white hover:bg-white/10 rounded-lg p-1 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
         </div>
         <% } %>
@@ -160,52 +798,111 @@
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center">
-                        <img class="h-8 w-auto" src="/images/rukchai-logo.svg" alt="Rukchai Hongyen">
-                        <span class="ml-3 text-xl font-bold">LearnHub</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Main Footer Section -->
+            <div class="py-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+                    <!-- Company Info -->
+                    <div class="md:col-span-2">
+                        <!-- Logo & Company Name -->
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="relative group">
+                                <div class="bg-white p-3 rounded-lg shadow-lg transform transition-transform group-hover:scale-105">
+                                    <img class="h-14 w-auto" src="/images/rukchai-logo.png" alt="บริษัท รักชัยห้องเย็น จำกัด" style="min-width: 100px; max-width: 140px;">
+                                </div>
+                                <div class="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-indigo-600/30 rounded-lg blur opacity-60 group-hover:opacity-90 transition-opacity"></div>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-white">LearnHub</h2>
+                                <p class="text-blue-200 text-sm font-medium">บริษัท รักชัยห้องเย็น จำกัด</p>
+                                <p class="text-blue-300/70 text-xs">Rukchai Hongyen Co., Ltd.</p>
+                            </div>
+                        </div>
+
+                        <!-- Company Description -->
+                        <p class="text-gray-300 text-sm leading-relaxed mb-4 max-w-md">
+                            <%= t('companyDescription') %>
+                        </p>
+
+                        <!-- Working Hours -->
+                        <div class="flex items-center text-gray-400 text-sm">
+                            <i class="fas fa-clock mr-2 text-blue-400"></i>
+                            <span class="font-medium mr-2"><%= t('workingHours') %>:</span>
+                            <span><%= t('workingTime') %></span>
+                        </div>
                     </div>
-                    <p class="mt-4 text-gray-300">
-                        ระบบจัดการการเรียนรู้ของ บริษัท รักชัยห้องเย็น จำกัด
-                        เพื่อพัฒนาความรู้และทักษะของพนักงานอย่างต่อเนื่อง
-                    </p>
-                </div>
 
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-200 tracking-wider uppercase">เมนู</h3>
-                    <ul class="mt-4 space-y-4">
-                        <li><a href="/dashboard" class="text-gray-300 hover:text-white transition-colors">แดชบอร์ด</a></li>
-                        <li><a href="/courses" class="text-gray-300 hover:text-white transition-colors">คอร์สเรียน</a></li>
-                        <li><a href="/tests" class="text-gray-300 hover:text-white transition-colors">แบบทดสอบ</a></li>
-                        <li><a href="/articles" class="text-gray-300 hover:text-white transition-colors">บทความ</a></li>
-                    </ul>
-                </div>
+                    <!-- Navigation Links -->
+                    <div>
+                        <h3 class="text-white font-semibold text-base mb-4"><%= t('quickLinks') %></h3>
+                        <ul class="space-y-2">
+                            <li><a href="/dashboard" class="text-gray-300 hover:text-white transition-colors text-sm"><%= t('dashboard') %></a></li>
+                            <li><a href="/courses" class="text-gray-300 hover:text-white transition-colors text-sm"><%= t('courses') %></a></li>
+                            <li><a href="/tests" class="text-gray-300 hover:text-white transition-colors text-sm"><%= t('tests') %></a></li>
+                            <li><a href="/articles" class="text-gray-300 hover:text-white transition-colors text-sm"><%= t('articles') %></a></li>
+                            <li><a href="/help" class="text-gray-300 hover:text-white transition-colors text-sm"><%= t('help') %></a></li>
+                        </ul>
+                    </div>
 
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-200 tracking-wider uppercase">ติดต่อ</h3>
-                    <ul class="mt-4 space-y-4">
-                        <li class="text-gray-300">
-                            <i class="fas fa-envelope mr-2"></i>
-                            hr@rukchaihongyen.co.th
-                        </li>
-                        <li class="text-gray-300">
-                            <i class="fas fa-phone mr-2"></i>
-                            02-XXX-XXXX
-                        </li>
-                        <li class="text-gray-300">
-                            <i class="fas fa-map-marker-alt mr-2"></i>
-                            Bangkok, Thailand
-                        </li>
-                    </ul>
+                    <!-- Contact & Social -->
+                    <div>
+                        <h3 class="text-white font-semibold text-base mb-4"><%= t('contact') %></h3>
+
+                        <!-- Contact Info -->
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-gray-300 text-sm">
+                                <i class="fas fa-map-marker-alt mr-3 text-red-400 w-4"></i>
+                                Bangkok, Thailand
+                            </div>
+                            <div class="flex items-center text-gray-300 text-sm">
+                                <i class="fas fa-phone mr-3 text-green-400 w-4"></i>
+                                <a href="tel:020000000" class="hover:text-white transition-colors">02-000-0000</a>
+                            </div>
+                            <div class="flex items-center text-gray-300 text-sm">
+                                <i class="fas fa-envelope mr-3 text-blue-400 w-4"></i>
+                                <a href="mailto:hr@rukchaihongyen.co.th" class="hover:text-white transition-colors break-all">hr@rukchaihongyen.co.th</a>
+                            </div>
+                        </div>
+
+                        <!-- Social Media -->
+                        <div class="mb-4">
+                            <h4 class="text-white font-medium text-sm mb-2"><%= t('followUs') %></h4>
+                            <div class="flex space-x-3">
+                                <a href="https://www.facebook.com/rukchaicoldroom" target="_blank" rel="noopener noreferrer" class="bg-gray-700 hover:bg-blue-600 p-2 rounded transition-colors">
+                                    <i class="fab fa-facebook-f text-white"></i>
+                                </a>
+                                <a href="https://line.me/ti/p/~@rukchaicoldroom" target="_blank" rel="noopener noreferrer" class="bg-gray-700 hover:bg-green-500 p-2 rounded transition-colors">
+                                    <i class="fab fa-line text-white"></i>
+                                </a>
+                                <a href="mailto:info@rukchaicoldroom.com" class="bg-gray-700 hover:bg-red-500 p-2 rounded transition-colors">
+                                    <i class="fas fa-envelope text-white"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-8 border-t border-gray-700 pt-8">
-                <p class="text-center text-gray-400">
-                    &copy; <%= new Date().getFullYear() %> บริษัท รักชัยห้องเย็น จำกัด. สงวนลิขสิทธิ์.
-                </p>
+            <!-- Bottom Copyright -->
+            <div class="border-t border-gray-700 py-4">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center text-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-2 md:mb-0">
+                        <p class="text-gray-400">
+                            &copy; <%= new Date().getFullYear() %> บริษัท รักชัยห้องเย็น จำกัด. <%= t('allRightsReserved') %>
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+                        <div class="flex items-center space-x-4 text-gray-400 text-sm">
+                            <a href="/privacy" class="hover:text-white transition-colors"><%= t('privacyPolicy') %></a>
+                            <a href="/terms" class="hover:text-white transition-colors"><%= t('termsOfService') %></a>
+                        </div>
+                        <p class="text-blue-400 font-medium mt-2 sm:mt-0">
+                            Powered by LearnHub Technology
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
@@ -213,23 +910,98 @@
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
-        // Mobile menu toggle
+        // Comprehensive Navigation JavaScript
         document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenuIcon = document.getElementById('mobile-menu-icon');
             const mobileMenu = document.getElementById('mobile-menu');
             const userMenuBtn = document.getElementById('user-menu-btn');
             const userMenu = document.getElementById('user-menu');
             const notificationsBtn = document.getElementById('notifications-btn');
 
+            // Mobile menu toggle
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('open');
+
+                    if (mobileMenu.classList.contains('open')) {
+                        mobileMenuIcon.classList.remove('fa-bars');
+                        mobileMenuIcon.classList.add('fa-times');
+                    } else {
+                        mobileMenuIcon.classList.remove('fa-times');
+                        mobileMenuIcon.classList.add('fa-bars');
+                    }
+                });
+            }
+
             // User menu toggle
             if (userMenuBtn && userMenu) {
                 userMenuBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    userMenu.classList.toggle('hidden');
+                    userMenu.classList.toggle('open');
+
+                    const chevron = userMenuBtn.querySelector('.fa-chevron-down');
+                    if (chevron) {
+                        if (userMenu.classList.contains('open')) {
+                            chevron.style.transform = 'rotate(180deg)';
+                        } else {
+                            chevron.style.transform = 'rotate(0deg)';
+                        }
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function() {
+                    userMenu.classList.remove('open');
+                    const chevron = userMenuBtn?.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                });
+
+                // Prevent dropdown close when clicking inside
+                userMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+
+            // Language menu toggle only (event listeners handled by LanguageManager)
+            const languageSwitcher = document.getElementById('language-switcher');
+            const languageMenu = document.getElementById('language-menu');
+
+            // Enhanced Language menu toggle
+            if (languageSwitcher && languageMenu) {
+                languageSwitcher.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isOpen = !languageMenu.classList.contains('hidden');
+
+                    if (isOpen) {
+                        // Close menu
+                        languageMenu.classList.add('hidden');
+                        languageMenu.classList.remove('open');
+                        languageSwitcher.classList.remove('active');
+                    } else {
+                        // Open menu
+                        languageMenu.classList.remove('hidden');
+                        languageMenu.classList.add('open');
+                        languageSwitcher.classList.add('active');
+
+                        // Close other menus
+                        if (userMenu) {
+                            userMenu.classList.remove('open');
+                            const chevron = userMenuBtn?.querySelector('.fa-chevron-down');
+                            if (chevron) chevron.style.transform = 'rotate(0deg)';
+                        }
+                    }
+                });
+
+                // Prevent dropdown close when clicking inside
+                languageMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
                 });
 
                 document.addEventListener('click', function() {
-                    userMenu.classList.add('hidden');
+                    languageMenu.classList.add('hidden');
+                    languageMenu.classList.remove('open');
+                    languageSwitcher.classList.remove('active');
                 });
             }
 
@@ -246,17 +1018,34 @@
         });
 
         // Logout function
-        function logout() {
-            fetch('/auth/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(response => {
-                if (response.ok) {
-                    window.location.href = '/auth/login';
-                }
-            });
+        async function logout() {
+            try {
+                // Use form submission instead of fetch to handle redirects properly
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/auth/logout';
+                form.style.display = 'none';
+
+                // Add CSRF token if available
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = '<%= locals.csrfToken || "" %>';
+                form.appendChild(csrfInput);
+
+                document.body.appendChild(form);
+
+                // Clear any stored data before submitting
+                localStorage.clear();
+                sessionStorage.clear();
+
+                // Submit the form - this will follow the redirect
+                form.submit();
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Force redirect if there's an error
+                window.location.href = '/auth/login';
+            }
         }
 
         // Load notifications
@@ -290,6 +1079,359 @@
             document.body.appendChild(alert);
             setTimeout(() => alert.remove(), 3000);
         };
+
+        // Enhanced Language System
+        const LanguageManager = {
+            current: 'th',
+            languages: {
+                th: { name: 'ไทย', native: 'ภาษาไทย' },
+                en: { name: 'English', native: 'English' }
+            },
+
+            init() {
+                console.log('🌐 Initializing Language Manager...');
+                // Get current language from server-side template, then sync with localStorage
+                const serverLang = '<%= currentLanguage %>' || 'th';
+                const savedLang = this.getSavedLanguage();
+
+                // If server and localStorage don't match, update localStorage to match server
+                if (savedLang && savedLang !== serverLang) {
+                    console.log(`🔄 Syncing localStorage (${savedLang}) with server (${serverLang})`);
+                    localStorage.setItem('ruxchai_language', serverLang);
+                    sessionStorage.setItem('ruxchai_language', serverLang);
+                }
+
+                this.current = serverLang;
+                console.log('📍 Current language:', this.current);
+                this.updateUI();
+                this.bindEvents();
+            },
+
+            getSavedLanguage() {
+                return localStorage.getItem('ruxchai_language') ||
+                       sessionStorage.getItem('ruxchai_language');
+            },
+
+            updateUI() {
+                const currentLangText = document.getElementById('current-language-text');
+                const thBtn = document.getElementById('lang-th-btn');
+                const enBtn = document.getElementById('lang-en-btn');
+                const mobileThBtn = document.getElementById('mobile-lang-th-btn');
+                const mobileEnBtn = document.getElementById('mobile-lang-en-btn');
+
+                if (currentLangText) {
+                    const lang = this.languages[this.current];
+                    currentLangText.textContent = lang.name;
+                    console.log('✅ Updated UI language text to:', lang.name);
+                }
+
+                // Update active states for desktop
+                if (thBtn && enBtn) {
+                    thBtn.classList.remove('active');
+                    enBtn.classList.remove('active');
+                    if (this.current === 'th') {
+                        thBtn.classList.add('active');
+                    } else {
+                        enBtn.classList.add('active');
+                    }
+                    console.log('✅ Updated desktop active button states');
+                }
+
+                // Update active states for mobile
+                if (mobileThBtn && mobileEnBtn) {
+                    mobileThBtn.classList.remove('active');
+                    mobileEnBtn.classList.remove('active');
+                    if (this.current === 'th') {
+                        mobileThBtn.classList.add('active');
+                    } else {
+                        mobileEnBtn.classList.add('active');
+                    }
+                    console.log('✅ Updated mobile active button states');
+                }
+
+                // Update document language
+                document.documentElement.lang = this.current;
+            },
+
+            bindEvents() {
+                const thBtn = document.getElementById('lang-th-btn');
+                const enBtn = document.getElementById('lang-en-btn');
+                const mobileThBtn = document.getElementById('mobile-lang-th-btn');
+                const mobileEnBtn = document.getElementById('mobile-lang-en-btn');
+
+                console.log('🔗 Binding language events...');
+                console.log('TH Button:', thBtn);
+                console.log('EN Button:', enBtn);
+                console.log('Mobile TH Button:', mobileThBtn);
+                console.log('Mobile EN Button:', mobileEnBtn);
+
+                if (thBtn) {
+                    thBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🇹🇭 Thai button clicked');
+                        this.changeLanguage('th');
+                    });
+                }
+
+                if (enBtn) {
+                    enBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🇺🇸 English button clicked');
+                        this.changeLanguage('en');
+                    });
+                }
+
+                if (mobileThBtn) {
+                    mobileThBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('📱🇹🇭 Mobile Thai button clicked');
+                        this.changeLanguage('th');
+                    });
+                }
+
+                if (mobileEnBtn) {
+                    mobileEnBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('📱🇺🇸 Mobile English button clicked');
+                        this.changeLanguage('en');
+                    });
+                }
+            },
+
+            async changeLanguage(lang) {
+                console.log('🔄 Changing language to:', lang);
+                if (lang === this.current) {
+                    console.log('⏭️ Same language, skipping');
+                    return;
+                }
+
+                try {
+                    // Save to both localStorage and sessionStorage
+                    localStorage.setItem('ruxchai_language', lang);
+                    sessionStorage.setItem('ruxchai_language', lang);
+                    this.current = lang;
+                    this.updateUI();
+
+                    console.log('📡 Sending language change to server...');
+
+                    // Send to server
+                    const response = await fetch('/language/switch', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ language: lang })
+                    });
+
+                    console.log('📡 Server response:', response.status);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('📄 Response data:', data);
+                        if (data.success) {
+                            // Show success message
+                            this.showNotification(`เปลี่ยนภาษาเป็น ${this.languages[lang].native} เรียบร้อยแล้ว`, 'success');
+
+                            // Reload page to apply server-side language changes
+                            setTimeout(() => {
+                                console.log('🔄 Reloading page...');
+                                window.location.reload();
+                            }, 1000);
+                        }
+                    } else {
+                        throw new Error(`Server responded with ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error('❌ Error switching language:', error);
+                    this.showNotification('เกิดข้อผิดพลาดในการเปลี่ยนภาษา', 'error');
+                }
+            },
+
+            showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full`;
+                notification.className += type === 'success' ? ' bg-green-500 text-white' : ' bg-red-500 text-white';
+                notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle mr-2"></i>${message}`;
+
+                document.body.appendChild(notification);
+
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        // Legacy function for compatibility - REMOVED to avoid conflicts
+
+        // Initialize language system on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the enhanced language manager after a small delay
+            setTimeout(() => {
+                LanguageManager.init();
+            }, 100);
+        });
+
+        // Enhanced Responsive Navigation Handler
+        const ResponsiveNavigationManager = {
+            init() {
+                this.setupResizeHandler();
+                this.handleInitialLayout();
+                this.clearConflictingStyles();
+            },
+
+            setupResizeHandler() {
+                let resizeTimer;
+
+                window.addEventListener('resize', () => {
+                    // Clear previous timer
+                    clearTimeout(resizeTimer);
+
+                    // Immediate response for better UX
+                    this.clearConflictingStyles();
+
+                    // Debounce resize events for performance
+                    resizeTimer = setTimeout(() => {
+                        this.handleResize();
+                    }, 50);
+                });
+
+                // Also listen for orientationchange on mobile
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        this.handleResize();
+                    }, 200);
+                });
+            },
+
+            handleInitialLayout() {
+                // Ensure proper layout on page load
+                requestAnimationFrame(() => {
+                    this.clearConflictingStyles();
+                    this.updateNavigationLayout();
+                    this.handleMenuVisibility();
+                });
+            },
+
+            handleResize() {
+                // Force layout recalculation for smooth transitions
+                requestAnimationFrame(() => {
+                    this.clearConflictingStyles();
+                    this.updateNavigationLayout();
+                    this.handleMenuVisibility();
+                    this.forceStyleRefresh();
+                });
+            },
+
+            clearConflictingStyles() {
+                // Remove any inline styles that might conflict with CSS media queries
+                const elements = [
+                    '.nav-container-wrapper',
+                    '.nav-main-container',
+                    '.nav-menu',
+                    '.nav-mobile-toggle',
+                    '.nav-mobile-menu'
+                ];
+
+                elements.forEach(selector => {
+                    const element = document.querySelector(selector);
+                    if (element) {
+                        // Remove conflicting inline display styles
+                        element.style.removeProperty('display');
+                        element.style.removeProperty('height');
+                        element.style.removeProperty('padding');
+                        element.style.removeProperty('margin');
+                    }
+                });
+            },
+
+            updateNavigationLayout() {
+                const navContainer = document.querySelector('.nav-main-container');
+                const mobileMenu = document.getElementById('mobile-menu');
+
+                if (navContainer) {
+                    // Let CSS media queries handle the display
+                    navContainer.classList.add('nav-responsive-active');
+                }
+
+                // Hide mobile menu if screen size changes to desktop
+                if (mobileMenu && window.innerWidth > 768) {
+                    mobileMenu.classList.remove('open');
+                }
+            },
+
+            handleMenuVisibility() {
+                const currentWidth = window.innerWidth;
+                console.log(`🔄 Screen width changed to: ${currentWidth}px`);
+
+                // Force CSS re-evaluation by toggling a class
+                const nav = document.querySelector('.ruxchai-nav');
+                if (nav) {
+                    nav.classList.add('responsive-update');
+                    requestAnimationFrame(() => {
+                        nav.classList.remove('responsive-update');
+                    });
+                }
+            },
+
+            forceStyleRefresh() {
+                // Force browser to recalculate styles
+                const nav = document.querySelector('.ruxchai-nav');
+                if (nav) {
+                    const display = nav.style.display;
+                    nav.style.display = 'none';
+                    nav.offsetHeight; // Force reflow
+                    nav.style.display = display || '';
+                }
+            }
+        };
+
+        // Mobile Menu Toggle Handler
+        function setupMobileMenuToggle() {
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+
+            if (mobileToggle && mobileMenu) {
+                mobileToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const isOpen = mobileMenu.classList.contains('open');
+
+                    if (isOpen) {
+                        mobileMenu.classList.remove('open');
+                        mobileMenu.style.display = 'none';
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.className = 'fas fa-bars text-xl';
+                        }
+                    } else {
+                        mobileMenu.classList.add('open');
+                        mobileMenu.style.display = 'block';
+                        if (mobileMenuIcon) {
+                            mobileMenuIcon.className = 'fas fa-times text-xl';
+                        }
+                    }
+                });
+            }
+        }
+
+        // Initialize responsive navigation on DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            ResponsiveNavigationManager.init();
+            setupMobileMenuToggle();
+        });
+
     </script>
 
     <% if (locals.additionalJS) { %>

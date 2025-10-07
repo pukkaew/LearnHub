@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Language on Login Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        button { padding: 10px 15px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Language Test for Login Page</h1>
+
+    <div class="test-section">
+        <h3>Current Language Status</h3>
+        <p>Current Language: <span id="currentLang">Loading...</span></p>
+        <p>Cookies: <span id="cookiesInfo">Loading...</span></p>
+        <p>LocalStorage: <span id="localStorageInfo">Loading...</span></p>
+    </div>
+
+    <div class="test-section">
+        <h3>Language Controls</h3>
+        <button onclick="switchToThai()">Switch to Thai</button>
+        <button onclick="switchToEnglish()">Switch to English</button>
+        <button onclick="checkLoginPage()">Check Login Page</button>
+        <button onclick="testLogout()">Test Logout Flow</button>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, isError = false) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            div.style.color = isError ? 'red' : 'green';
+            results.appendChild(div);
+        }
+
+        async function getCurrentLanguage() {
+            try {
+                const response = await fetch('/language/current');
+                const data = await response.json();
+                document.getElementById('currentLang').textContent = data.language;
+                return data.language;
+            } catch (error) {
+                document.getElementById('currentLang').textContent = 'Error';
+                log('Error getting current language: ' + error.message, true);
+                return null;
+            }
+        }
+
+        function getCookies() {
+            const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+                const [key, value] = cookie.trim().split('=');
+                if (key.includes('language')) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
+            document.getElementById('cookiesInfo').textContent = JSON.stringify(cookies);
+            return cookies;
+        }
+
+        function getLocalStorage() {
+            const items = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.includes('language')) {
+                    items[key] = localStorage.getItem(key);
+                }
+            }
+            document.getElementById('localStorageInfo').textContent = JSON.stringify(items);
+            return items;
+        }
+
+        async function switchToThai() {
+            try {
+                const response = await fetch('/language/switch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ language: 'th' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    log('Successfully switched to Thai');
+                    setTimeout(() => {
+                        getCurrentLanguage();
+                        getCookies();
+                    }, 100);
+                } else {
+                    log('Failed to switch to Thai: ' + data.message, true);
+                }
+            } catch (error) {
+                log('Error switching to Thai: ' + error.message, true);
+            }
+        }
+
+        async function switchToEnglish() {
+            try {
+                const response = await fetch('/language/switch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ language: 'en' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    log('Successfully switched to English');
+                    setTimeout(() => {
+                        getCurrentLanguage();
+                        getCookies();
+                    }, 100);
+                } else {
+                    log('Failed to switch to English: ' + data.message, true);
+                }
+            } catch (error) {
+                log('Error switching to English: ' + error.message, true);
+            }
+        }
+
+        async function checkLoginPage() {
+            try {
+                const currentLang = await getCurrentLanguage();
+                const response = await fetch('/auth/login');
+                const html = await response.text();
+
+                // Check title
+                const titleMatch = html.match(/<title>(.*?)<\/title>/);
+                const title = titleMatch ? titleMatch[1] : 'No title found';
+
+                // Check if content matches expected language
+                const isThaiContent = html.includes('เข้าสู่ระบบ') && html.includes('รหัสพนักงาน');
+                const isEnglishContent = html.includes('Sign In') && html.includes('Employee ID');
+
+                log(`Login page title: "${title}"`);
+                log(`Current language: ${currentLang}`);
+                log(`Thai content detected: ${isThaiContent}`);
+                log(`English content detected: ${isEnglishContent}`);
+
+                if (currentLang === 'th' && isThaiContent) {
+                    log('✅ Thai language working correctly');
+                } else if (currentLang === 'en' && isEnglishContent) {
+                    log('✅ English language working correctly');
+                } else {
+                    log('❌ Language mismatch detected!', true);
+                }
+
+            } catch (error) {
+                log('Error checking login page: ' + error.message, true);
+            }
+        }
+
+        async function testLogout() {
+            log('Testing logout flow...');
+            try {
+                // First ensure we're in English
+                await switchToEnglish();
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Simulate logout (just check the page)
+                await checkLoginPage();
+
+                log('Logout flow test completed');
+            } catch (error) {
+                log('Error in logout test: ' + error.message, true);
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            getCurrentLanguage();
+            getCookies();
+            getLocalStorage();
+        };
+    </script>
+</body>
+</html>

@@ -103,18 +103,18 @@ class ProctoringService {
 
             // Update session violations
             switch (violationType) {
-                case 'tab_switch':
-                    session.violations.tabSwitches++;
-                    break;
-                case 'multiple_faces':
-                    session.violations.multipleFaces++;
-                    break;
-                case 'no_face_detected':
-                    session.violations.noFaceDetected++;
-                    break;
-                case 'suspicious_movement':
-                    session.violations.suspiciousMovement++;
-                    break;
+            case 'tab_switch':
+                session.violations.tabSwitches++;
+                break;
+            case 'multiple_faces':
+                session.violations.multipleFaces++;
+                break;
+            case 'no_face_detected':
+                session.violations.noFaceDetected++;
+                break;
+            case 'suspicious_movement':
+                session.violations.suspiciousMovement++;
+                break;
             }
 
             // Add to violations list
@@ -285,16 +285,16 @@ class ProctoringService {
         const thresholds = this.suspicionThresholds;
 
         switch (violationType) {
-            case 'tab_switch':
-                return violations.tabSwitches >= thresholds.tabSwitchWarning;
-            case 'multiple_faces':
-                return violations.multipleFaces >= thresholds.multipleFacesWarning;
-            case 'no_face_detected':
-                return violations.noFaceDetected >= thresholds.noFaceWarning;
-            case 'suspicious_movement':
-                return violations.suspiciousMovement >= thresholds.suspiciousMovementWarning;
-            default:
-                return false;
+        case 'tab_switch':
+            return violations.tabSwitches >= thresholds.tabSwitchWarning;
+        case 'multiple_faces':
+            return violations.multipleFaces >= thresholds.multipleFacesWarning;
+        case 'no_face_detected':
+            return violations.noFaceDetected >= thresholds.noFaceWarning;
+        case 'suspicious_movement':
+            return violations.suspiciousMovement >= thresholds.suspiciousMovementWarning;
+        default:
+            return false;
         }
     }
 
@@ -376,15 +376,15 @@ class ProctoringService {
         // Deduct points for violations
         violations.forEach(violation => {
             switch (violation.severity) {
-                case 'high':
-                    score -= 15;
-                    break;
-                case 'medium':
-                    score -= 10;
-                    break;
-                case 'low':
-                    score -= 5;
-                    break;
+            case 'high':
+                score -= 15;
+                break;
+            case 'medium':
+                score -= 10;
+                break;
+            case 'low':
+                score -= 5;
+                break;
             }
         });
 

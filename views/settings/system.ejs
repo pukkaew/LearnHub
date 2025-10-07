@@ -1,0 +1,961 @@
+<!-- CSRF Token -->
+<meta name="csrf-token" content="<%= csrfToken %>">
+
+<div id="settings-page" class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fas fa-cog mr-2 text-blue-600"></i>
+                        <span class="lang-switch" data-lang-th="การตั้งค่าระบบ" data-lang-en="System Settings">การตั้งค่าระบบ</span>
+                    </h1>
+                    <p class="mt-2 text-sm text-gray-600 lang-switch" data-lang-th="จัดการการตั้งค่าระบบทั้งหมด" data-lang-en="Manage all system settings">จัดการการตั้งค่าระบบทั้งหมด</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="/settings/audit-log" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <i class="fas fa-history mr-2"></i>
+                        <span class="lang-switch" data-lang-th="ประวัติการเปลี่ยนแปลง" data-lang-en="Audit Log">ประวัติการเปลี่ยนแปลง</span>
+                    </a>
+                    <button type="button" id="saveAllBtn" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <i class="fas fa-save mr-2"></i>
+                        <span class="lang-switch" data-lang-th="บันทึกทั้งหมด" data-lang-en="Save All">บันทึกทั้งหมด</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Tabs -->
+        <div class="bg-white shadow rounded-lg">
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                    <% const tabCategories = [
+                        { key: 'general', label: 'ทั่วไป', labelEn: 'General', icon: 'fa-info-circle' },
+                        { key: 'appearance', label: 'รูปแบบ', labelEn: 'Appearance', icon: 'fa-palette' },
+                        { key: 'security', label: 'ความปลอดภัย', labelEn: 'Security', icon: 'fa-shield-alt' },
+                        { key: 'email', label: 'อีเมล', labelEn: 'Email', icon: 'fa-envelope' },
+                        { key: 'notification', label: 'การแจ้งเตือน', labelEn: 'Notification', icon: 'fa-bell' },
+                        { key: 'course', label: 'คอร์ส', labelEn: 'Course', icon: 'fa-book' },
+                        { key: 'upload', label: 'อัพโหลดไฟล์', labelEn: 'Upload', icon: 'fa-upload' },
+                        { key: 'gamification', label: 'Gamification', labelEn: 'Gamification', icon: 'fa-trophy' },
+                        { key: 'backup', label: 'สำรองข้อมูล', labelEn: 'Backup', icon: 'fa-database' },
+                        { key: 'api', label: 'API', labelEn: 'API', icon: 'fa-plug' }
+                    ]; %>
+
+                    <% tabCategories.forEach((tab, index) => { %>
+                        <button
+                            data-tab="<%= tab.key %>"
+                            data-label-th="<%= tab.label %>"
+                            data-label-en="<%= tab.labelEn %>"
+                            class="tab-button <%= activeTab === tab.key ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' %> whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        >
+                            <i class="fas <%= tab.icon %> mr-2"></i>
+                            <span class="tab-label"><%= tab.label %></span>
+                        </button>
+                    <% }); %>
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-6">
+                <% tabCategories.forEach(tab => { %>
+                    <div id="tab-<%= tab.key %>" class="tab-content <%= activeTab !== tab.key ? 'hidden' : '' %>">
+                        <% if (settings[tab.key] && settings[tab.key].length > 0) { %>
+                            <!-- Reset button for appearance tab -->
+                            <% if (tab.key === 'appearance') { %>
+                                <div class="mb-6 flex justify-end">
+                                    <button
+                                        type="button"
+                                        onclick="resetAppearanceToDefault()"
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+                                    >
+                                        <i class="fas fa-undo mr-2"></i>
+                                        <span class="lang-text" data-lang-th="รีเซ็ตเป็นค่าเริ่มต้น" data-lang-en="Reset to Default">รีเซ็ตเป็นค่าเริ่มต้น</span>
+                                    </button>
+                                </div>
+                            <% } %>
+                            <div class="space-y-6">
+                                <% settings[tab.key].forEach(setting => { %>
+                                    <div class="setting-item">
+                                        <label class="block">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-medium text-gray-700">
+                                                    <span class="setting-label-text" data-setting-key="<%= setting.setting_key %>" data-label-th="<%= setting.setting_label %>"><%= setting.setting_label %></span>
+                                                    <% if (setting.is_sensitive) { %>
+                                                        <i class="fas fa-lock text-xs text-yellow-600 ml-1 sensitive-icon" title="ข้อมูลที่เป็นความลับ" data-lang-th="ข้อมูลที่เป็นความลับ" data-lang-en="Sensitive data"></i>
+                                                    <% } %>
+                                                </span>
+                                                <% if (!setting.is_editable) { %>
+                                                    <span class="text-xs text-gray-500">
+                                                        <i class="fas fa-ban mr-1"></i>
+                                                        <span class="lang-switch" data-lang-th="ไม่สามารถแก้ไขได้" data-lang-en="Not editable">ไม่สามารถแก้ไขได้</span>
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                            <% if (setting.setting_description) { %>
+                                                <p class="text-xs text-gray-500 mb-2 setting-description" data-setting-key="<%= setting.setting_key %>" data-desc-th="<%= setting.setting_description %>"><%= setting.setting_description %></p>
+                                            <% } %>
+
+                                            <!-- Input Fields based on setting_type -->
+                                            <% if (setting.setting_type === 'boolean') { %>
+                                                <% const boolValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                <div class="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="<%= setting.setting_key %>"
+                                                        name="<%= setting.setting_key %>"
+                                                        <%= boolValue === 'true' ? 'checked' : '' %>
+                                                        <%= !setting.is_editable ? 'disabled' : '' %>
+                                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        data-setting-key="<%= setting.setting_key %>"
+                                                        data-setting-type="boolean"
+                                                    >
+                                                    <label for="<%= setting.setting_key %>" class="ml-2 block text-sm text-gray-900 lang-switch" data-lang-th="เปิดใช้งาน" data-lang-en="Enable">เปิดใช้งาน</label>
+                                                </div>
+
+                                            <% } else if (setting.setting_type === 'number') { %>
+                                                <% const numValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                <input
+                                                    type="number"
+                                                    id="<%= setting.setting_key %>"
+                                                    name="<%= setting.setting_key %>"
+                                                    value="<%= numValue %>"
+                                                    <%= !setting.is_editable ? 'disabled' : '' %>
+                                                    <% if (setting.validation_rules) { %>
+                                                        <% if (setting.validation_rules.min !== undefined) { %>
+                                                            min="<%= setting.validation_rules.min %>"
+                                                        <% } %>
+                                                        <% if (setting.validation_rules.max !== undefined) { %>
+                                                            max="<%= setting.validation_rules.max %>"
+                                                        <% } %>
+                                                    <% } %>
+                                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    data-setting-key="<%= setting.setting_key %>"
+                                                    data-setting-type="number"
+                                                >
+
+                                            <% } else if (setting.setting_type === 'color') { %>
+                                                <% const colorValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                <div class="flex items-center space-x-2">
+                                                    <input
+                                                        type="color"
+                                                        id="<%= setting.setting_key %>"
+                                                        name="<%= setting.setting_key %>"
+                                                        value="<%= colorValue %>"
+                                                        <%= !setting.is_editable ? 'disabled' : '' %>
+                                                        class="h-10 w-20 border border-gray-300 rounded"
+                                                        data-setting-key="<%= setting.setting_key %>"
+                                                        data-setting-type="color"
+                                                    >
+                                                    <input
+                                                        type="text"
+                                                        value="<%= colorValue %>"
+                                                        <%= !setting.is_editable ? 'disabled' : '' %>
+                                                        class="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                        data-color-input="<%= setting.setting_key %>"
+                                                    >
+                                                </div>
+
+                                            <% } else if (setting.setting_type === 'text') { %>
+                                                <% const textValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                <textarea
+                                                    id="<%= setting.setting_key %>"
+                                                    name="<%= setting.setting_key %>"
+                                                    rows="3"
+                                                    <%= !setting.is_editable ? 'disabled' : '' %>
+                                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    data-setting-key="<%= setting.setting_key %>"
+                                                    data-setting-type="text"
+                                                ><%= textValue %></textarea>
+
+                                            <% } else if (setting.setting_type === 'file') { %>
+                                                <% const previewValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                <div class="space-y-3">
+                                                    <!-- Image Preview -->
+                                                    <% if (previewValue && (previewValue.match(/\.(jpg|jpeg|png|gif|svg)$/i))) { %>
+                                                        <div class="relative group">
+                                                            <div class="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-lg p-6 hover:border-blue-400 transition-all">
+                                                                <img
+                                                                    src="<%= previewValue %>"
+                                                                    alt="<%= setting.setting_label %>"
+                                                                    class="max-h-64 max-w-full object-contain cursor-pointer hover:scale-105 transition-transform shadow-lg"
+                                                                    onclick="openImageModal(this.src, '<%= setting.setting_label %>')"
+                                                                >
+                                                            </div>
+                                                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <button
+                                                                    type="button"
+                                                                    onclick="openImageModal('<%= previewValue %>', '<%= setting.setting_label %>')"
+                                                                    class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-full hover:bg-blue-700 transition-colors shadow-lg"
+                                                                >
+                                                                    <i class="fas fa-search-plus mr-1"></i>
+                                                                    <span class="lang-text" data-lang-th="ดูขนาดเต็ม" data-lang-en="View Full Size">ดูขนาดเต็ม</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <i class="fas fa-info-circle mr-1"></i>
+                                                                <span class="lang-text" data-lang-th="คลิกเพื่อขยาย" data-lang-en="Click to expand">คลิกเพื่อขยาย</span>
+                                                            </div>
+                                                        </div>
+                                                    <% } else { %>
+                                                        <!-- No Image Placeholder -->
+                                                        <div class="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                                                            <div class="text-center">
+                                                                <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
+                                                                <p class="text-sm text-gray-500 lang-text" data-lang-th="ยังไม่มีรูปภาพ" data-lang-en="No image">ยังไม่มีรูปภาพ</p>
+                                                            </div>
+                                                        </div>
+                                                    <% } %>
+
+                                                    <!-- URL Input -->
+                                                    <div class="space-y-2">
+                                                        <label class="flex items-center text-xs font-medium text-gray-700">
+                                                            <i class="fas fa-link mr-1 text-blue-600"></i>
+                                                            <span class="lang-text" data-lang-th="URL รูปภาพ" data-lang-en="Image URL">URL รูปภาพ</span>
+                                                        </label>
+                                                        <div class="flex items-center space-x-2">
+                                                            <div class="flex-1 relative">
+                                                                <% const fileValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                                <input
+                                                                    type="text"
+                                                                    id="<%= setting.setting_key %>"
+                                                                    name="<%= setting.setting_key %>"
+                                                                    value="<%= fileValue %>"
+                                                                    <%= !setting.is_editable ? 'disabled' : '' %>
+                                                                    class="w-full border border-gray-300 rounded-md shadow-sm py-2 pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm file-url-input"
+                                                                    data-setting-key="<%= setting.setting_key %>"
+                                                                    data-setting-type="file"
+                                                                    data-placeholder-th="/images/your-image.png"
+                                                                    data-placeholder-en="/images/your-image.png"
+                                                                    onchange="previewImageUrl(this)"
+                                                                >
+                                                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                                    <i class="fas fa-image text-gray-400 text-sm"></i>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onclick="document.getElementById('<%= setting.setting_key %>').value = ''; document.getElementById('<%= setting.setting_key %>').dispatchEvent(new Event('change'));"
+                                                                class="px-3 py-2 border border-red-300 text-red-600 rounded-md text-sm hover:bg-red-50 transition-colors clear-btn"
+                                                                data-lang-th="ล้าง"
+                                                                data-lang-en="Clear"
+                                                            >
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </div>
+                                                        <% if (setting.validation_rules && setting.validation_rules.fileType) { %>
+                                                            <p class="text-xs text-gray-500 flex items-start">
+                                                                <i class="fas fa-info-circle mt-0.5 mr-1 text-blue-500"></i>
+                                                                <span class="lang-text" data-lang-th="รองรับ: <%= setting.validation_rules.fileType.join(', ') %>" data-lang-en="Supported: <%= setting.validation_rules.fileType.join(', ') %>">
+                                                                    รองรับ: <%= setting.validation_rules.fileType.join(', ') %>
+                                                                </span>
+                                                            </p>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+
+                                            <% } else if (setting.validation_rules && setting.validation_rules.enum) { %>
+                                                <% const enumValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                <select
+                                                    id="<%= setting.setting_key %>"
+                                                    name="<%= setting.setting_key %>"
+                                                    <%= !setting.is_editable ? 'disabled' : '' %>
+                                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    data-setting-key="<%= setting.setting_key %>"
+                                                    data-setting-type="<%= setting.setting_type %>"
+                                                >
+                                                    <% setting.validation_rules.enum.forEach(option => { %>
+                                                        <option value="<%= option %>" <%= enumValue === option ? 'selected' : '' %>>
+                                                            <%= option %>
+                                                        </option>
+                                                    <% }); %>
+                                                </select>
+
+                                            <% } else { %>
+                                                <% const stringValue = (setting.setting_value !== null && setting.setting_value !== '') ? setting.setting_value : setting.default_value; %>
+                                                <input
+                                                    type="<%= setting.setting_type === 'email' ? 'email' : (setting.setting_type === 'url' ? 'url' : 'text') %>"
+                                                    id="<%= setting.setting_key %>"
+                                                    name="<%= setting.setting_key %>"
+                                                    value="<%= stringValue %>"
+                                                    <%= !setting.is_editable ? 'disabled' : '' %>
+                                                    <% if (setting.validation_rules) { %>
+                                                        <% if (setting.validation_rules.required) { %>
+                                                            required
+                                                        <% } %>
+                                                        <% if (setting.validation_rules.maxLength) { %>
+                                                            maxlength="<%= setting.validation_rules.maxLength %>"
+                                                        <% } %>
+                                                    <% } %>
+                                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    data-setting-key="<%= setting.setting_key %>"
+                                                    data-setting-type="<%= setting.setting_type %>"
+                                                >
+                                            <% } %>
+
+                                            <% if (setting.default_value && setting.default_value !== setting.setting_value) { %>
+                                                <p class="mt-1 text-xs text-gray-500">
+                                                    <span class="lang-switch" data-lang-th="ค่าเริ่มต้น" data-lang-en="Default">ค่าเริ่มต้น</span>: <%= setting.default_value %>
+                                                </p>
+                                            <% } %>
+                                        </label>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-12">
+                                <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                                <p class="text-gray-500 lang-switch" data-lang-th="ไม่มีการตั้งค่าในหมวดนี้" data-lang-en="No settings in this category">ไม่มีการตั้งค่าในหมวดนี้</p>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden items-center justify-center p-4" onclick="closeImageModal()">
+    <div class="relative max-w-7xl max-h-full" onclick="event.stopPropagation()">
+        <button
+            onclick="closeImageModal()"
+            class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+        >
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+        <img
+            id="modalImage"
+            src=""
+            alt=""
+            class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+        >
+        <div id="modalTitle" class="absolute -bottom-12 left-0 right-0 text-center text-white text-lg font-medium"></div>
+    </div>
+</div>
+
+<style>
+/* Force Thai font for better readability in settings page */
+#settings-page *:not(.fa):not(.fas):not(.far):not(.fab):not(.fal):not([class*="fa-"]):not(#preview-sidebar):not(#preview-sidebar *) {
+    font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure Font Awesome icons display correctly */
+#settings-page .fa,
+#settings-page .fas,
+#settings-page .far,
+#settings-page .fab,
+#settings-page .fal,
+#settings-page [class*="fa-"] {
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+}
+
+/* Fix preview sidebar text visibility - HIGHEST PRIORITY */
+#preview-sidebar {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+#preview-sidebar * {
+    color: #ffffff !important;
+    font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif !important;
+}
+
+#preview-sidebar > div > div {
+    color: #ffffff !important;
+}
+
+#preview-sidebar div[class*="py-2"] {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix all preview elements */
+#preview-container * {
+    font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif !important;
+}
+
+#preview-header * {
+    color: white !important;
+}
+
+#preview-card h4 {
+    color: #1f2937 !important;
+}
+
+#preview-card p {
+    color: #4b5563 !important;
+}
+
+#preview-card button {
+    color: white !important;
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.setting-item {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Appearance Settings Enhancements */
+#tab-appearance .setting-item {
+    background: linear-gradient(to right, #f9fafb 0%, #ffffff 100%);
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+#tab-appearance .setting-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+/* Color picker enhancements */
+input[type="color"] {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="color"]:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Number input enhancements */
+#tab-appearance input[type="number"] {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+#tab-appearance input[type="number"]:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Preview panel animation */
+#appearance-preview {
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Preview elements transitions */
+#preview-container > div {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#preview-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+/* Image Preview Enhancements */
+.setting-item img {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.setting-item .group:hover img {
+    filter: brightness(1.05);
+}
+
+/* Modal Animations */
+#imageModal {
+    animation: fadeIn 0.3s ease-out;
+    backdrop-filter: blur(4px);
+}
+
+#imageModal img {
+    animation: zoomIn 0.3s ease-out;
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* File input enhancements */
+input[data-setting-type="file"] {
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.875rem;
+}
+
+input[data-setting-type="file"]:focus {
+    background-color: #f0f9ff;
+}
+
+/* Image container hover effect */
+.setting-item .bg-gray-50:hover {
+    background-color: #f9fafb;
+    border-color: #60a5fa;
+}
+</style>
+
+<script src="/js/settings.js?v=<%= Date.now() %>"></script>
+<script src="/js/appearance-settings.js?v=<%= Date.now() %>"></script>
+
+<script>
+// Image Modal Functions
+function openImageModal(imageSrc, imageTitle) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+
+    if (modal && modalImage && modalTitle) {
+        modalImage.src = imageSrc;
+        modalImage.alt = imageTitle;
+        modalTitle.textContent = imageTitle;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+}
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Preview image URL on change
+function previewImageUrl(input) {
+    const url = input.value.trim();
+    if (!url) return;
+
+    // Check if it's an image URL
+    const imageExtensions = /\.(jpg|jpeg|png|gif|svg|webp)$/i;
+    if (!imageExtensions.test(url)) {
+        console.log('Not an image URL:', url);
+        return;
+    }
+
+    // Trigger a visual update by reloading the page section
+    // Or you can implement a dynamic image preview here
+    console.log('Image URL updated:', url);
+}
+
+// Language Support for System Settings
+(function() {
+    'use strict';
+
+    // Get language from multiple sources
+    const localStorageLang = localStorage.getItem('preferred_language') ||
+                             localStorage.getItem('ruxchai_language') ||
+                             sessionStorage.getItem('ruxchai_language');
+    const serverLang = '<%= currentLanguage %>';
+    let currentLang = localStorageLang || serverLang || 'th';
+
+    console.log('🌐 Language sources:');
+    console.log('  - localStorage:', localStorageLang);
+    console.log('  - Server:', serverLang);
+    console.log('  - Final:', currentLang);
+    console.log('  - Document ready state:', document.readyState);
+
+    // Translation Dictionary for Setting Labels and Descriptions
+    const translations = {
+        // General Settings
+        'ชื่อระบบ': 'System Name',
+        'ชื่อของระบบที่จะแสดงในหน้าเว็บ': 'Name of the system displayed on the website',
+        'ชื่อระบบ (EN)': 'System Name (EN)',
+        'ชื่อของระบบภาษาอังกฤษ': 'System name in English',
+        'ชื่อบริษัท': 'Company Name',
+        'ชื่อบริษัทหรือองค์กร': 'Company or organization name',
+        'ชื่อบริษัท (EN)': 'Company Name (EN)',
+        'ชื่อบริษัทภาษาอังกฤษ': 'Company name in English',
+        'อีเมลติดต่อ': 'Contact Email',
+        'อีเมลสำหรับการติดต่อทั่วไป': 'Email for general contact',
+        'อีเมลฝ่ายสนับสนุน': 'Support Email',
+        'อีเมลสำหรับการขอความช่วยเหลือ': 'Email for support requests',
+        'เบอร์โทรติดต่อ': 'Contact Phone',
+        'เบอร์โทรศัพท์สำหรับติดต่อ': 'Phone number for contact',
+        'เว็บไซต์องค์กร': 'Organization Website',
+        'URL ของเว็บไซต์หลักองค์กร': 'URL of the main organization website',
+        'ภาษาเริ่มต้น': 'Default Language',
+        'ภาษาเริ่มต้นของระบบ': 'Default system language',
+        'เขตเวลา': 'Timezone',
+        'เขตเวลาของระบบ': 'System timezone',
+        'รูปแบบวันที่': 'Date Format',
+        'รูปแบบการแสดงวันที่': 'Date display format',
+        'รูปแบบเวลา': 'Time Format',
+        'รูปแบบการแสดงเวลา': 'Time display format',
+
+        // Appearance Settings
+        'โลโก้ระบบ': 'System Logo',
+        'โลโก้ที่แสดงบนหน้าเว็บ': 'Logo displayed on the website',
+        'Favicon': 'Favicon',
+        'ไอคอนที่แสดงบน browser tab': 'Icon displayed on browser tab',
+        'สีหลัก': 'Primary Color',
+        'สีหลักของระบบ': 'Primary color of the system',
+        'สีรอง': 'Secondary Color',
+        'สีรองของระบบ': 'Secondary color of the system',
+        'โหมดธีม': 'Theme Mode',
+        'โหมดสีของระบบ': 'System color mode',
+        'ฟอนต์': 'Font',
+        'ฟอนต์ที่ใช้ในระบบ': 'Font used in the system',
+
+        // Security Settings
+        'Session Timeout (นาที)': 'Session Timeout (minutes)',
+        'ระยะเวลาก่อน session หมดอายุ': 'Duration before session expires',
+        'ความยาวรหัสผ่านขั้นต่ำ': 'Minimum Password Length',
+        'จำนวนตัวอักษรขั้นต่ำของรหัสผ่าน': 'Minimum number of password characters',
+        'ต้องมีตัวพิมพ์ใหญ่': 'Require Uppercase',
+        'รหัสผ่านต้องมีตัวพิมพ์ใหญ่': 'Password must contain uppercase letters',
+        'ต้องมีตัวพิมพ์เล็ก': 'Require Lowercase',
+        'รหัสผ่านต้องมีตัวพิมพ์เล็ก': 'Password must contain lowercase letters',
+        'ต้องมีตัวเลข': 'Require Numbers',
+        'รหัสผ่านต้องมีตัวเลข': 'Password must contain numbers',
+        'ต้องมีอักขระพิเศษ': 'Require Special Characters',
+        'รหัสผ่านต้องมีอักขระพิเศษ': 'Password must contain special characters',
+        'จำนวนครั้งเข้าสู่ระบบสูงสุด': 'Maximum Login Attempts',
+        'จำนวนครั้งที่ล็อกอินผิดได้ก่อนถูกล็อค': 'Number of failed login attempts before lockout',
+        'ระยะเวลาล็อคบัญชี (นาที)': 'Account Lockout Duration (minutes)',
+        'ระยะเวลาที่บัญชีถูกล็อคหลังล็อกอินผิด': 'Duration account is locked after failed login',
+        'เปิดใช้ Two-Factor Authentication': 'Enable Two-Factor Authentication',
+        'เปิดการยืนยันตัวตน 2 ขั้นตอน': 'Enable 2-step verification',
+        'บังคับเปลี่ยนรหัสผ่าน (วัน)': 'Force Password Change (days)',
+        'บังคับให้เปลี่ยนรหัสผ่านทุกกี่วัน (0 = ไม่บังคับ)': 'Force password change every N days (0 = not forced)',
+
+        // Email Settings
+        'SMTP Host': 'SMTP Host',
+        'ที่อยู่ SMTP server': 'SMTP server address',
+        'SMTP Port': 'SMTP Port',
+        'พอร์ตของ SMTP server': 'SMTP server port',
+        'SMTP Secure (SSL)': 'SMTP Secure (SSL)',
+        'ใช้ SSL/TLS สำหรับ SMTP': 'Use SSL/TLS for SMTP',
+        'SMTP Username': 'SMTP Username',
+        'Username สำหรับ SMTP authentication': 'Username for SMTP authentication',
+        'SMTP Password': 'SMTP Password',
+        'Password สำหรับ SMTP authentication': 'Password for SMTP authentication',
+        'อีเมลผู้ส่ง': 'Sender Email',
+        'อีเมลที่ใช้เป็นผู้ส่ง': 'Email address used as sender',
+        'ชื่อผู้ส่ง': 'Sender Name',
+        'ชื่อที่แสดงเป็นผู้ส่งอีเมล': 'Name displayed as email sender',
+
+        // Notification Settings
+        'เปิดการแจ้งเตือนทางอีเมล': 'Enable Email Notifications',
+        'ส่งการแจ้งเตือนทางอีเมล': 'Send email notifications',
+        'เปิดการแจ้งเตือนบน Browser': 'Enable Browser Notifications',
+        'แสดงการแจ้งเตือนบน browser': 'Show browser notifications',
+        'เปิดการแจ้งเตือนทาง SMS': 'Enable SMS Notifications',
+        'ส่งการแจ้งเตือนทาง SMS': 'Send SMS notifications',
+        'เก็บการแจ้งเตือน (วัน)': 'Notification Retention (days)',
+        'เก็บประวัติการแจ้งเตือนกี่วัน': 'Keep notification history for N days',
+
+        // Course Settings
+        'เปิดการให้คะแนนคอร์ส': 'Enable Course Rating',
+        'อนุญาตให้ผู้เรียนให้คะแนนคอร์ส': 'Allow learners to rate courses',
+        'เปิดการแสดงความคิดเห็น': 'Enable Course Comments',
+        'อนุญาตให้แสดงความคิดเห็นในคอร์ส': 'Allow comments in courses',
+        'คะแนนผ่านเริ่มต้น (%)': 'Default Passing Score (%)',
+        'คะแนนขั้นต่ำในการผ่านคอร์ส': 'Minimum score to pass course',
+        'จำนวนคอร์สสูงสุดต่อคน': 'Maximum Courses Per User',
+        'จำนวนคอร์สที่ผู้ใช้สามารถลงทะเบียนพร้อมกันได้': 'Number of courses a user can enroll in simultaneously',
+        'เปิดใช้ใบประกาศนียบัตร': 'Enable Certificates',
+        'ออกใบประกาศนียบัตรเมื่อผ่านคอร์ส': 'Issue certificates upon course completion',
+
+        // Upload Settings
+        'ขนาดไฟล์สูงสุด (bytes)': 'Maximum File Size (bytes)',
+        'ขนาดไฟล์สูงสุดที่อัพโหลดได้ (100MB)': 'Maximum file size allowed for upload (100MB)',
+        'ประเภทไฟล์ที่อนุญาต': 'Allowed File Types',
+        'ประเภทไฟล์ที่สามารถอัพโหลดได้ (คั่นด้วยจุลภาค)': 'Allowed file types for upload (comma separated)',
+        'ตำแหน่งจัดเก็บไฟล์': 'Upload Path',
+        'โฟลเดอร์สำหรับเก็บไฟล์ที่อัพโหลด': 'Folder for storing uploaded files',
+
+        // Gamification Settings
+        'เปิดระบบ Gamification': 'Enable Gamification',
+        'เปิดใช้ระบบแต้มและตราสัญลักษณ์': 'Enable points and badges system',
+        'แต้มต่อบทเรียน': 'Points Per Lesson',
+        'แต้มที่ได้เมื่อจบบทเรียน': 'Points earned upon lesson completion',
+        'แต้มต่อคอร์ส': 'Points Per Course',
+        'แต้มที่ได้เมื่อจบคอร์ส': 'Points earned upon course completion',
+        'เปิดกระดานคะแนน': 'Enable Leaderboard',
+        'แสดงกระดานคะแนนแข่งขัน': 'Display competitive leaderboard',
+
+        // Backup Settings
+        'เปิด Auto Backup': 'Enable Auto Backup',
+        'สำรองข้อมูลอัตโนมัติ': 'Automatic backup',
+        'ความถี่การสำรอง': 'Backup Frequency',
+        'ความถี่ในการสำรองข้อมูล': 'Frequency of data backup',
+        'เก็บ Backup (วัน)': 'Backup Retention (days)',
+        'เก็บไฟล์ backup กี่วัน': 'Keep backup files for N days',
+
+        // API Settings
+        'เปิดใช้ API': 'Enable API',
+        'เปิดการใช้งาน REST API': 'Enable REST API usage',
+        'API Rate Limit': 'API Rate Limit',
+        'จำนวน request ต่อนาทีสูงสุด': 'Maximum requests per minute',
+        'API Key': 'API Key',
+        'API Key สำหรับ external integration': 'API Key for external integration'
+    };
+
+    // Function to translate text
+    function translateText(thaiText) {
+        if (currentLang === 'en') {
+            const translated = translations[thaiText];
+            if (translated) {
+                console.log('📝 Translated:', thaiText, '->', translated);
+                return translated;
+            } else {
+                console.warn('⚠️ No translation for:', thaiText);
+                return thaiText;
+            }
+        }
+        return thaiText;
+    }
+
+    // Update tab labels based on current language
+    function updateLanguage(lang) {
+        if (lang) currentLang = lang;
+
+        console.log('🌐 Updating Settings page language to:', currentLang);
+
+        // Update tab labels
+        const tabButtons = document.querySelectorAll('.tab-button');
+        console.log('🔄 Found', tabButtons.length, 'tab buttons');
+
+        tabButtons.forEach(btn => {
+            const labelElement = btn.querySelector('.tab-label');
+            const labelTh = btn.getAttribute('data-label-th');
+            const labelEn = btn.getAttribute('data-label-en');
+
+            console.log('Tab:', labelTh, '->', labelEn, 'Current lang:', currentLang);
+
+            if (labelElement) {
+                if (currentLang === 'en' && labelEn) {
+                    labelElement.textContent = labelEn;
+                    console.log('✅ Tab changed to EN:', labelEn);
+                } else if (labelTh) {
+                    labelElement.textContent = labelTh;
+                    console.log('✅ Tab changed to TH:', labelTh);
+                }
+            } else {
+                console.warn('⚠️ No .tab-label found in button');
+            }
+        });
+
+        // Update all elements with lang-switch class
+        const langSwitchElements = document.querySelectorAll('.lang-switch');
+        console.log('🔄 Found', langSwitchElements.length, 'elements with .lang-switch class');
+
+        langSwitchElements.forEach(element => {
+            const thText = element.getAttribute('data-lang-th');
+            const enText = element.getAttribute('data-lang-en');
+
+            console.log('Element:', element.tagName, 'TH:', thText, 'EN:', enText, 'Current:', currentLang);
+
+            if (currentLang === 'en' && enText) {
+                element.textContent = enText;
+                console.log('✅ Changed to EN:', enText);
+            } else if (thText) {
+                element.textContent = thText;
+                console.log('✅ Changed to TH:', thText);
+            }
+        });
+
+        // Update title attributes for sensitive icons
+        document.querySelectorAll('.sensitive-icon').forEach(element => {
+            const thText = element.getAttribute('data-lang-th');
+            const enText = element.getAttribute('data-lang-en');
+
+            if (currentLang === 'en' && enText) {
+                element.setAttribute('title', enText);
+            } else if (thText) {
+                element.setAttribute('title', thText);
+            }
+        });
+
+        // Update all elements with data-lang attributes
+        document.querySelectorAll('[data-lang-th][data-lang-en]').forEach(element => {
+            const thText = element.getAttribute('data-lang-th');
+            const enText = element.getAttribute('data-lang-en');
+
+            if (currentLang === 'en' && enText) {
+                element.textContent = enText;
+            } else if (thText) {
+                element.textContent = thText;
+            }
+        });
+
+        // Update preview panel language
+        document.querySelectorAll('.lang-text').forEach(element => {
+            const thText = element.getAttribute('data-lang-th');
+            const enText = element.getAttribute('data-lang-en');
+
+            if (currentLang === 'en' && enText) {
+                element.textContent = enText;
+            } else if (thText) {
+                element.textContent = thText;
+            }
+        });
+
+        // Update setting labels from database
+        const settingLabels = document.querySelectorAll('.setting-label-text');
+        console.log('🔄 Found', settingLabels.length, 'setting labels');
+
+        settingLabels.forEach(element => {
+            const thaiLabel = element.getAttribute('data-label-th');
+            if (thaiLabel) {
+                const translatedText = translateText(thaiLabel);
+                element.textContent = translatedText;
+                console.log('✅ Label:', thaiLabel, '->', translatedText);
+            }
+        });
+
+        // Update setting descriptions from database
+        const settingDescriptions = document.querySelectorAll('.setting-description');
+        console.log('🔄 Found', settingDescriptions.length, 'setting descriptions');
+
+        settingDescriptions.forEach(element => {
+            const thaiDesc = element.getAttribute('data-desc-th');
+            if (thaiDesc) {
+                const translatedText = translateText(thaiDesc);
+                element.textContent = translatedText;
+                console.log('Description:', thaiDesc, '->', translatedText);
+            }
+        });
+
+        // Update file URL input placeholders
+        document.querySelectorAll('.file-url-input').forEach(input => {
+            const placeholderTh = input.getAttribute('data-placeholder-th');
+            const placeholderEn = input.getAttribute('data-placeholder-en');
+
+            if (currentLang === 'en' && placeholderEn) {
+                input.setAttribute('placeholder', placeholderEn);
+            } else if (placeholderTh) {
+                input.setAttribute('placeholder', placeholderTh);
+            }
+        });
+
+        // Update clear button titles
+        document.querySelectorAll('.clear-btn').forEach(btn => {
+            const titleTh = btn.getAttribute('data-lang-th');
+            const titleEn = btn.getAttribute('data-lang-en');
+
+            if (currentLang === 'en' && titleEn) {
+                btn.setAttribute('title', titleEn);
+            } else if (titleTh) {
+                btn.setAttribute('title', titleTh);
+            }
+        });
+    }
+
+    // Listen for language change events
+    window.addEventListener('languageChanged', function(e) {
+        console.log('🔄 Language changed event received in Settings:', e.detail);
+        updateLanguage(e.detail.language);
+    });
+
+    // Listen for custom event from navigation
+    document.addEventListener('languageChange', function(e) {
+        console.log('🔄 Language change event received in Settings:', e.detail);
+        if (e.detail && e.detail.language) {
+            updateLanguage(e.detail.language);
+        }
+    });
+
+    // Check localStorage for language changes
+    function checkLanguageChange() {
+        const storedLang = localStorage.getItem('preferred_language') ||
+                          localStorage.getItem('ruxchai_language') ||
+                          sessionStorage.getItem('ruxchai_language');
+        if (storedLang && storedLang !== currentLang) {
+            console.log('🔄 Language changed from localStorage:', storedLang);
+            updateLanguage(storedLang);
+        }
+    }
+
+    // Check localStorage immediately
+    checkLanguageChange();
+
+    // Initialize on page load - update immediately
+    updateLanguage();
+
+    // Force update after a short delay to ensure DOM is ready
+    setTimeout(() => {
+        console.log('⏰ Delayed update triggered');
+        updateLanguage();
+    }, 100);
+
+    setTimeout(() => {
+        console.log('⏰ Second delayed update triggered');
+        updateLanguage();
+    }, 500);
+
+    // Also update when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 DOMContentLoaded triggered');
+            updateLanguage();
+        });
+    }
+
+    // Check every second for language changes
+    setInterval(checkLanguageChange, 1000);
+
+    // Watch for DOM changes (for dynamically loaded content)
+    const observer = new MutationObserver((mutations) => {
+        let shouldUpdate = false;
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length > 0) {
+                shouldUpdate = true;
+            }
+        });
+        if (shouldUpdate) {
+            console.log('🔄 DOM changed, updating language...');
+            setTimeout(() => updateLanguage(), 50);
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    console.log('✅ Language system initialized');
+})();
+</script>

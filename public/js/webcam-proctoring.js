@@ -299,7 +299,7 @@ class WebcamProctoring {
 
     startScreenshotCapture() {
         const captureScreenshot = async () => {
-            if (!this.isActive) return;
+            if (!this.isActive) {return;}
 
             try {
                 const screenshot = await this.captureScreen();

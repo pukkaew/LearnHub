@@ -454,7 +454,7 @@ class Applicant {
                     WHERE a.applicant_id = @applicantId
                 `);
 
-            if (applicantInfo.recordset.length === 0) return;
+            if (applicantInfo.recordset.length === 0) {return;}
 
             const applicant = applicantInfo.recordset[0];
 

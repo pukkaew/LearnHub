@@ -17,11 +17,11 @@ const testController = {
             } = req.query;
 
             const filters = {};
-            if (course_id) filters.course_id = course_id;
-            if (instructor_id) filters.instructor_id = instructor_id;
-            if (test_type) filters.test_type = test_type;
-            if (is_active !== undefined) filters.is_active = is_active === 'true';
-            if (search) filters.search = search;
+            if (course_id) {filters.course_id = course_id;}
+            if (instructor_id) {filters.instructor_id = instructor_id;}
+            if (test_type) {filters.test_type = test_type;}
+            if (is_active !== undefined) {filters.is_active = is_active === 'true';}
+            if (search) {filters.search = search;}
 
             const offset = (parseInt(page) - 1) * parseInt(limit);
             filters.limit = parseInt(limit);

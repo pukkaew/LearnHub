@@ -31,7 +31,7 @@ class GamificationService {
 
             // Special achievements
             EARLY_BIRD: 15, // Complete before deadline
-            NIGHT_OWL: 10,  // Complete after 10 PM
+            NIGHT_OWL: 10, // Complete after 10 PM
             WEEKEND_WARRIOR: 20, // Complete on weekends
         };
 
@@ -285,35 +285,35 @@ class GamificationService {
 
             // Check each achievement
             for (const achievement of this.achievements) {
-                if (unlockedIds.includes(achievement.id)) continue;
+                if (unlockedIds.includes(achievement.id)) {continue;}
 
                 let unlocked = false;
 
                 switch (achievement.condition.type) {
-                    case 'course_enrollment':
-                        unlocked = stats.courseEnrollments >= achievement.condition.count;
-                        break;
-                    case 'course_completion':
-                        unlocked = stats.courseCompletions >= achievement.condition.count;
-                        break;
-                    case 'test_attempt':
-                        unlocked = stats.testAttempts >= achievement.condition.count;
-                        break;
-                    case 'test_pass':
-                        unlocked = stats.testPasses >= achievement.condition.count;
-                        break;
-                    case 'perfect_score':
-                        unlocked = stats.perfectScores >= achievement.condition.count;
-                        break;
-                    case 'forum_posts':
-                        unlocked = stats.forumPosts >= achievement.condition.count;
-                        break;
-                    case 'helpful_answers':
-                        unlocked = stats.helpfulAnswers >= achievement.condition.count;
-                        break;
-                    case 'login_streak':
-                        unlocked = stats.maxLoginStreak >= achievement.condition.count;
-                        break;
+                case 'course_enrollment':
+                    unlocked = stats.courseEnrollments >= achievement.condition.count;
+                    break;
+                case 'course_completion':
+                    unlocked = stats.courseCompletions >= achievement.condition.count;
+                    break;
+                case 'test_attempt':
+                    unlocked = stats.testAttempts >= achievement.condition.count;
+                    break;
+                case 'test_pass':
+                    unlocked = stats.testPasses >= achievement.condition.count;
+                    break;
+                case 'perfect_score':
+                    unlocked = stats.perfectScores >= achievement.condition.count;
+                    break;
+                case 'forum_posts':
+                    unlocked = stats.forumPosts >= achievement.condition.count;
+                    break;
+                case 'helpful_answers':
+                    unlocked = stats.helpfulAnswers >= achievement.condition.count;
+                    break;
+                case 'login_streak':
+                    unlocked = stats.maxLoginStreak >= achievement.condition.count;
+                    break;
                 }
 
                 if (unlocked) {
@@ -432,18 +432,18 @@ class GamificationService {
             let orderBy = '';
 
             switch (type) {
-                case 'points':
-                    orderBy = 'up.totalPoints DESC';
-                    break;
-                case 'level':
-                    orderBy = 'up.currentLevel DESC, up.totalPoints DESC';
-                    break;
-                case 'streak':
-                    orderBy = 'up.loginStreak DESC';
-                    break;
-                case 'achievements':
-                    orderBy = 'achievementCount DESC';
-                    break;
+            case 'points':
+                orderBy = 'up.totalPoints DESC';
+                break;
+            case 'level':
+                orderBy = 'up.currentLevel DESC, up.totalPoints DESC';
+                break;
+            case 'streak':
+                orderBy = 'up.loginStreak DESC';
+                break;
+            case 'achievements':
+                orderBy = 'achievementCount DESC';
+                break;
             }
 
             query = `

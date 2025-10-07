@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Icons - Rukchai Hongyen LearnHub</title>
+
+    <!-- Font Awesome CDN (Multiple fallbacks) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Tailwind CSS -->
+    <link href="/css/tailwind.css" rel="stylesheet">
+
+    <!-- Custom Ruxchai CSS -->
+    <link href="/css/custom.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Sarabun', 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+        .icon-test {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        .icon-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .icon-test .icon {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+        .icon-code {
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-left: auto;
+            color: #6b7280;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+        }
+        .status-ok { background-color: #10b981; }
+        .status-error { background-color: #ef4444; }
+        .section-title {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 2rem 0 1rem 0;
+            border-radius: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-gray-900 text-center mb-8">🔍 Icon Testing Dashboard</h1>
+        <p class="text-lg text-gray-600 text-center mb-12">ตรวจสอบการแสดงผลของ Font Awesome Icons ในระบบ LearnHub</p>
+
+        <!-- Navigation Icons -->
+        <div class="section-title">
+            <i class="fas fa-compass mr-3"></i>
+            Navigation Icons
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div class="icon-test">
+                <div class="icon text-blue-600"><i class="fas fa-tachometer-alt"></i></div>
+                <div>
+                    <div class="font-medium">Dashboard</div>
+                    <div class="text-sm text-gray-500">แดชบอร์ด</div>
+                </div>
+                <div class="icon-code">fas fa-tachometer-alt</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-green-600"><i class="fas fa-book"></i></div>
+                <div>
+                    <div class="font-medium">Courses</div>
+                    <div class="text-sm text-gray-500">คอร์สเรียน</div>
+                </div>
+                <div class="icon-code">fas fa-book</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-purple-600"><i class="fas fa-clipboard-list"></i></div>
+                <div>
+                    <div class="font-medium">Tests</div>
+                    <div class="text-sm text-gray-500">แบบทดสอบ</div>
+                </div>
+                <div class="icon-code">fas fa-clipboard-list</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-orange-600"><i class="fas fa-newspaper"></i></div>
+                <div>
+                    <div class="font-medium">Articles</div>
+                    <div class="text-sm text-gray-500">บทความ</div>
+                </div>
+                <div class="icon-code">fas fa-newspaper</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-indigo-600"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="font-medium">Users</div>
+                    <div class="text-sm text-gray-500">จัดการผู้ใช้</div>
+                </div>
+                <div class="icon-code">fas fa-users</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-teal-600"><i class="fas fa-user-tie"></i></div>
+                <div>
+                    <div class="font-medium">Applicants</div>
+                    <div class="text-sm text-gray-500">ผู้สมัครงาน</div>
+                </div>
+                <div class="icon-code">fas fa-user-tie</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+        </div>
+
+        <!-- User Interface Icons -->
+        <div class="section-title">
+            <i class="fas fa-palette mr-3"></i>
+            User Interface Icons
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div class="icon-test">
+                <div class="icon text-gray-600"><i class="fas fa-globe"></i></div>
+                <div>
+                    <div class="font-medium">Language</div>
+                    <div class="text-sm text-gray-500">เปลี่ยนภาษา</div>
+                </div>
+                <div class="icon-code">fas fa-globe</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-yellow-600"><i class="fas fa-bell"></i></div>
+                <div>
+                    <div class="font-medium">Notifications</div>
+                    <div class="text-sm text-gray-500">การแจ้งเตือน</div>
+                </div>
+                <div class="icon-code">fas fa-bell</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-blue-600"><i class="fas fa-user"></i></div>
+                <div>
+                    <div class="font-medium">Profile</div>
+                    <div class="text-sm text-gray-500">โปรไฟล์</div>
+                </div>
+                <div class="icon-code">fas fa-user</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-gray-600"><i class="fas fa-cog"></i></div>
+                <div>
+                    <div class="font-medium">Settings</div>
+                    <div class="text-sm text-gray-500">ตั้งค่า</div>
+                </div>
+                <div class="icon-code">fas fa-cog</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-red-600"><i class="fas fa-sign-out-alt"></i></div>
+                <div>
+                    <div class="font-medium">Logout</div>
+                    <div class="text-sm text-gray-500">ออกจากระบบ</div>
+                </div>
+                <div class="icon-code">fas fa-sign-out-alt</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-green-600"><i class="fas fa-sign-in-alt"></i></div>
+                <div>
+                    <div class="font-medium">Login</div>
+                    <div class="text-sm text-gray-500">เข้าสู่ระบบ</div>
+                </div>
+                <div class="icon-code">fas fa-sign-in-alt</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+        </div>
+
+        <!-- Arrow and Control Icons -->
+        <div class="section-title">
+            <i class="fas fa-mouse-pointer mr-3"></i>
+            Control Icons
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div class="icon-test">
+                <div class="icon text-gray-600"><i class="fas fa-chevron-down"></i></div>
+                <div>
+                    <div class="font-medium">Dropdown</div>
+                    <div class="text-sm text-gray-500">เมนูแบบเปิด-ปิด</div>
+                </div>
+                <div class="icon-code">fas fa-chevron-down</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-gray-600"><i class="fas fa-bars"></i></div>
+                <div>
+                    <div class="font-medium">Mobile Menu</div>
+                    <div class="text-sm text-gray-500">เมนูมือถือ</div>
+                </div>
+                <div class="icon-code">fas fa-bars</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-green-600"><i class="fas fa-check"></i></div>
+                <div>
+                    <div class="font-medium">Check</div>
+                    <div class="text-sm text-gray-500">เครื่องหมายถูก</div>
+                </div>
+                <div class="icon-code">fas fa-check</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+        </div>
+
+        <!-- Authentication Icons -->
+        <div class="section-title">
+            <i class="fas fa-shield-alt mr-3"></i>
+            Authentication Icons
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div class="icon-test">
+                <div class="icon text-blue-600"><i class="fas fa-id-badge"></i></div>
+                <div>
+                    <div class="font-medium">Username</div>
+                    <div class="text-sm text-gray-500">ชื่อผู้ใช้</div>
+                </div>
+                <div class="icon-code">fas fa-id-badge</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-gray-600"><i class="fas fa-lock"></i></div>
+                <div>
+                    <div class="font-medium">Password</div>
+                    <div class="text-sm text-gray-500">รหัสผ่าน</div>
+                </div>
+                <div class="icon-code">fas fa-lock</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-green-600"><i class="fas fa-eye"></i></div>
+                <div>
+                    <div class="font-medium">Show Password</div>
+                    <div class="text-sm text-gray-500">แสดงรหัสผ่าน</div>
+                </div>
+                <div class="icon-code">fas fa-eye</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-red-600"><i class="fas fa-eye-slash"></i></div>
+                <div>
+                    <div class="font-medium">Hide Password</div>
+                    <div class="text-sm text-gray-500">ซ่อนรหัสผ่าน</div>
+                </div>
+                <div class="icon-code">fas fa-eye-slash</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+        </div>
+
+        <!-- Status Icons -->
+        <div class="section-title">
+            <i class="fas fa-info-circle mr-3"></i>
+            Status & Loading Icons
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div class="icon-test">
+                <div class="icon text-blue-600"><i class="fas fa-spinner fa-spin"></i></div>
+                <div>
+                    <div class="font-medium">Loading</div>
+                    <div class="text-sm text-gray-500">กำลังโหลด</div>
+                </div>
+                <div class="icon-code">fas fa-spinner fa-spin</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-green-600"><i class="fas fa-check-circle"></i></div>
+                <div>
+                    <div class="font-medium">Success</div>
+                    <div class="text-sm text-gray-500">สำเร็จ</div>
+                </div>
+                <div class="icon-code">fas fa-check-circle</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-red-600"><i class="fas fa-exclamation-circle"></i></div>
+                <div>
+                    <div class="font-medium">Error</div>
+                    <div class="text-sm text-gray-500">ข้อผิดพลาด</div>
+                </div>
+                <div class="icon-code">fas fa-exclamation-circle</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-blue-600"><i class="fas fa-info-circle"></i></div>
+                <div>
+                    <div class="font-medium">Info</div>
+                    <div class="text-sm text-gray-500">ข้อมูล</div>
+                </div>
+                <div class="icon-code">fas fa-info-circle</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+        </div>
+
+        <!-- Educational Icons -->
+        <div class="section-title">
+            <i class="fas fa-graduation-cap mr-3"></i>
+            Educational Icons
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div class="icon-test">
+                <div class="icon text-blue-600"><i class="fas fa-graduation-cap"></i></div>
+                <div>
+                    <div class="font-medium">Education</div>
+                    <div class="text-sm text-gray-500">การศึกษา</div>
+                </div>
+                <div class="icon-code">fas fa-graduation-cap</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-yellow-600"><i class="fas fa-trophy"></i></div>
+                <div>
+                    <div class="font-medium">Achievement</div>
+                    <div class="text-sm text-gray-500">รางวัล</div>
+                </div>
+                <div class="icon-code">fas fa-trophy</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+            <div class="icon-test">
+                <div class="icon text-purple-600"><i class="fas fa-clipboard-check"></i></div>
+                <div>
+                    <div class="font-medium">Test Complete</div>
+                    <div class="text-sm text-gray-500">ทำแบบทดสอบเสร็จ</div>
+                </div>
+                <div class="icon-code">fas fa-clipboard-check</div>
+                <div class="status-indicator status-ok"></div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="mt-12 bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">📊 Icon Testing Summary</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600" id="icons-loaded">0</div>
+                    <div class="text-gray-600">Icons Loaded</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-red-600" id="icons-failed">0</div>
+                    <div class="text-gray-600">Failed to Load</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600" id="loading-time">0ms</div>
+                    <div class="text-gray-600">Loading Time</div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h3 class="font-semibold text-blue-900 mb-2">🔧 Debugging Information</h3>
+                <ul class="text-sm text-blue-800 space-y-1">
+                    <li>Font Awesome Version: 6.5.1 (with fallbacks to 5.15.4 and 4.7.0)</li>
+                    <li>CDN: CloudFlare CDNJS (Primary)</li>
+                    <li>Custom CSS: <span id="custom-css-status">Loading...</span></li>
+                    <li>Tailwind CSS: <span id="tailwind-css-status">Loading...</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Icon testing script
+        let startTime = performance.now();
+        let loadedIcons = 0;
+        let failedIcons = 0;
+
+        // Check if stylesheets are loaded
+        function checkStylesheets() {
+            const customCss = document.querySelector('link[href="/css/custom.css"]');
+            const tailwindCss = document.querySelector('link[href="/css/tailwind.css"]');
+
+            document.getElementById('custom-css-status').textContent = customCss ? '✅ Loaded' : '❌ Not Found';
+            document.getElementById('tailwind-css-status').textContent = tailwindCss ? '✅ Loaded' : '❌ Not Found';
+        }
+
+        // Count icons and check loading
+        function countIcons() {
+            const icons = document.querySelectorAll('.fas, .far, .fab');
+            const statusIndicators = document.querySelectorAll('.status-indicator');
+
+            icons.forEach((icon, index) => {
+                try {
+                    const computedStyle = window.getComputedStyle(icon, '::before');
+                    const content = computedStyle.getPropertyValue('content');
+
+                    if (content && content !== 'none' && content !== '""') {
+                        loadedIcons++;
+                        if (statusIndicators[index]) {
+                            statusIndicators[index].className = 'status-indicator status-ok';
+                        }
+                    } else {
+                        failedIcons++;
+                        if (statusIndicators[index]) {
+                            statusIndicators[index].className = 'status-indicator status-error';
+                        }
+                    }
+                } catch (e) {
+                    failedIcons++;
+                    if (statusIndicators[index]) {
+                        statusIndicators[index].className = 'status-indicator status-error';
+                    }
+                }
+            });
+
+            const endTime = performance.now();
+            const loadingTime = Math.round(endTime - startTime);
+
+            document.getElementById('icons-loaded').textContent = loadedIcons;
+            document.getElementById('icons-failed').textContent = failedIcons;
+            document.getElementById('loading-time').textContent = loadingTime + 'ms';
+        }
+
+        // Wait for fonts to load
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                setTimeout(() => {
+                    checkStylesheets();
+                    countIcons();
+                }, 1000);
+            });
+        } else {
+            // Fallback for older browsers
+            setTimeout(() => {
+                checkStylesheets();
+                countIcons();
+            }, 2000);
+        }
+
+        console.log('Icon Test Page Loaded');
+        console.log('Font Awesome:', document.querySelector('link[href*="font-awesome"]') ? 'Loaded' : 'Not Loaded');
+        console.log('Custom CSS:', document.querySelector('link[href="/css/custom.css"]') ? 'Loaded' : 'Not Loaded');
+        console.log('Tailwind CSS:', document.querySelector('link[href="/css/tailwind.css"]') ? 'Loaded' : 'Not Loaded');
+    </script>
+</body>
+</html>

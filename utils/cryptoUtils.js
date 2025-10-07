@@ -383,7 +383,7 @@ class CryptoUtils {
     }
 
     maskPhone(phone) {
-        if (phone.length < 4) return '*'.repeat(phone.length);
+        if (phone.length < 4) {return '*'.repeat(phone.length);}
         return phone.substring(0, 3) + '*'.repeat(phone.length - 6) + phone.substring(phone.length - 3);
     }
 
@@ -429,8 +429,8 @@ class CryptoUtils {
         ].filter(Boolean).length;
 
         let strength = 'weak';
-        if (score >= 5) strength = 'strong';
-        else if (score >= 3) strength = 'medium';
+        if (score >= 5) {strength = 'strong';}
+        else if (score >= 3) {strength = 'medium';}
 
         return {
             score: score,

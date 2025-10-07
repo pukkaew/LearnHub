@@ -26,8 +26,8 @@ class Article {
         return title
             .toLowerCase()
             .replace(/[^\w\s-]/g, '') // Remove special characters
-            .replace(/\s+/g, '-')     // Replace spaces with hyphens
-            .replace(/-+/g, '-')      // Replace multiple hyphens with single
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Replace multiple hyphens with single
             .trim();
     }
 
@@ -46,7 +46,7 @@ class Article {
                     .input('slug', sql.NVarChar(200), slug)
                     .query('SELECT article_id FROM articles WHERE slug = @slug');
 
-                if (slugCheck.recordset.length === 0) break;
+                if (slugCheck.recordset.length === 0) {break;}
 
                 slug = `${baseSlug}-${counter}`;
                 counter++;
@@ -464,7 +464,7 @@ class Article {
             // Get current article info
             const currentArticle = await pool.request()
                 .input('articleId', sql.Int, articleId)
-                .query(`SELECT category FROM articles WHERE article_id = @articleId`);
+                .query('SELECT category FROM articles WHERE article_id = @articleId');
 
             if (currentArticle.recordset.length === 0) {
                 return [];

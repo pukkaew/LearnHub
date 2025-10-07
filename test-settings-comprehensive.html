@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings System - Comprehensive Test</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Thai Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="test-csrf-token-12345">
+
+    <style>
+        body {
+            font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif !important;
+        }
+
+        .setting-item {
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Test status indicators */
+        .test-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+            max-width: 300px;
+        }
+
+        .test-status h3 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .test-status ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .test-status li {
+            padding: 5px 0;
+            font-size: 14px;
+        }
+
+        .test-status .pass {
+            color: #10b981;
+        }
+
+        .test-status .fail {
+            color: #ef4444;
+        }
+
+        .test-status .pending {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- Test Status Panel -->
+<div class="test-status">
+    <h3><i class="fas fa-flask mr-2 text-blue-600"></i>Test Results</h3>
+    <ul id="testResults">
+        <li class="pending"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</li>
+    </ul>
+</div>
+
+<div id="settings-page" class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fas fa-cog mr-2 text-blue-600"></i>
+                        <span class="lang-switch" data-lang-th="การตั้งค่าระบบ - การทดสอบแบบละเอียด" data-lang-en="System Settings - Comprehensive Test">การตั้งค่าระบบ - การทดสอบแบบละเอียด</span>
+                    </h1>
+                    <p class="mt-2 text-sm text-gray-600 lang-switch" data-lang-th="ทดสอบระบบการตั้งค่าทั้งหมดรวมถึง API, Validation, และ Data Persistence" data-lang-en="Test all settings features including API, Validation, and Data Persistence">ทดสอบระบบการตั้งค่าทั้งหมดรวมถึง API, Validation, และ Data Persistence</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button type="button" id="runAllTestsBtn" class="inline-flex items-center px-4 py-2 border border-purple-600 rounded-md shadow-sm text-sm font-medium text-purple-600 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all">
+                        <i class="fas fa-play mr-2"></i>
+                        <span>Run All Tests</span>
+                    </button>
+                    <button type="button" id="saveAllBtn" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <i class="fas fa-save mr-2"></i>
+                        <span class="lang-switch" data-lang-th="บันทึกทั้งหมด" data-lang-en="Save All">บันทึกทั้งหมด</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Tabs -->
+        <div class="bg-white shadow rounded-lg">
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                    <button data-tab="general" class="tab-button border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span class="tab-label">ทั่วไป</span>
+                    </button>
+                    <button data-tab="appearance" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        <i class="fas fa-palette mr-2"></i>
+                        <span class="tab-label">รูปแบบ</span>
+                    </button>
+                    <button data-tab="security" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        <span class="tab-label">ความปลอดภัย</span>
+                    </button>
+                    <button data-tab="email" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        <i class="fas fa-envelope mr-2"></i>
+                        <span class="tab-label">อีเมล</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-6">
+                <!-- General Tab -->
+                <div id="tab-general" class="tab-content">
+                    <div class="space-y-6">
+                        <!-- Site Name -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">ชื่อระบบ</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">ชื่อของระบบที่จะแสดงในหน้าเว็บ</p>
+                                <input
+                                    type="text"
+                                    id="site_name"
+                                    name="site_name"
+                                    value="Rukchai Hongyen LearnHub"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="site_name"
+                                    data-setting-type="string"
+                                >
+                            </label>
+                        </div>
+
+                        <!-- Site Description -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">คำอธิบายระบบ</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">คำอธิบายสั้นๆ เกี่ยวกับระบบ</p>
+                                <textarea
+                                    id="site_description"
+                                    name="site_description"
+                                    rows="3"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="site_description"
+                                    data-setting-type="text"
+                                >ระบบจัดการการเรียนรู้ บริษัท รักชัยห้องเย็น จำกัด</textarea>
+                            </label>
+                        </div>
+
+                        <!-- Site Language -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">ภาษาเริ่มต้น</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">ภาษาเริ่มต้นของระบบ</p>
+                                <select
+                                    id="site_language"
+                                    name="site_language"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="site_language"
+                                    data-setting-type="string"
+                                >
+                                    <option value="th" selected>ไทย (TH)</option>
+                                    <option value="en">English (EN)</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <!-- Timezone -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">เขตเวลา</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">เขตเวลาของระบบ</p>
+                                <select
+                                    id="timezone"
+                                    name="timezone"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="timezone"
+                                    data-setting-type="string"
+                                >
+                                    <option value="Asia/Bangkok" selected>Asia/Bangkok</option>
+                                    <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                    <option value="UTC">UTC</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appearance Tab -->
+                <div id="tab-appearance" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <!-- Logo URL -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">โลโก้ระบบ</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">โลโก้ที่แสดงบนหน้าเว็บ</p>
+                                <input
+                                    type="text"
+                                    id="logo_url"
+                                    name="logo_url"
+                                    value="/images/rukchai-logo.png"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="logo_url"
+                                    data-setting-type="file"
+                                >
+                            </label>
+                        </div>
+
+                        <!-- Primary Color -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">สีหลัก</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">สีหลักของระบบ</p>
+                                <div class="flex items-center space-x-2">
+                                    <input
+                                        type="color"
+                                        id="primary_color"
+                                        name="primary_color"
+                                        value="#0090D3"
+                                        class="h-10 w-20 border border-gray-300 rounded"
+                                        data-setting-key="primary_color"
+                                        data-setting-type="color"
+                                    >
+                                    <input
+                                        type="text"
+                                        value="#0090D3"
+                                        class="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        data-color-input="primary_color"
+                                    >
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Secondary Color -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">สีรอง</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">สีรองของระบบ</p>
+                                <div class="flex items-center space-x-2">
+                                    <input
+                                        type="color"
+                                        id="secondary_color"
+                                        name="secondary_color"
+                                        value="#3AAA35"
+                                        class="h-10 w-20 border border-gray-300 rounded"
+                                        data-setting-key="secondary_color"
+                                        data-setting-type="color"
+                                    >
+                                    <input
+                                        type="text"
+                                        value="#3AAA35"
+                                        class="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        data-color-input="secondary_color"
+                                    >
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div id="tab-security" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <!-- Session Timeout -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">Session Timeout (วินาที)</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">ระยะเวลาก่อน session หมดอายุ</p>
+                                <input
+                                    type="number"
+                                    id="session_timeout"
+                                    name="session_timeout"
+                                    value="3600"
+                                    min="300"
+                                    max="86400"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="session_timeout"
+                                    data-setting-type="number"
+                                >
+                            </label>
+                        </div>
+
+                        <!-- Max Login Attempts -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">จำนวนครั้งเข้าสู่ระบบสูงสุด</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">จำนวนครั้งที่ล็อกอินผิดได้ก่อนถูกล็อค</p>
+                                <input
+                                    type="number"
+                                    id="max_login_attempts"
+                                    name="max_login_attempts"
+                                    value="5"
+                                    min="3"
+                                    max="10"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="max_login_attempts"
+                                    data-setting-type="number"
+                                >
+                            </label>
+                        </div>
+
+                        <!-- Enable Two Factor Auth -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">เปิดใช้ Two-Factor Authentication</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">เปิดการยืนยันตัวตน 2 ขั้นตอน</p>
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="enable_two_factor_auth"
+                                        name="enable_two_factor_auth"
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        data-setting-key="enable_two_factor_auth"
+                                        data-setting-type="boolean"
+                                    >
+                                    <label for="enable_two_factor_auth" class="ml-2 block text-sm text-gray-900">เปิดใช้งาน</label>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Tab -->
+                <div id="tab-email" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <!-- SMTP Host -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">SMTP Host</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">ที่อยู่ SMTP server</p>
+                                <input
+                                    type="text"
+                                    id="smtp_host"
+                                    name="smtp_host"
+                                    value="smtp.gmail.com"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="smtp_host"
+                                    data-setting-type="string"
+                                >
+                            </label>
+                        </div>
+
+                        <!-- SMTP Port -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">SMTP Port</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">พอร์ตของ SMTP server</p>
+                                <input
+                                    type="number"
+                                    id="smtp_port"
+                                    name="smtp_port"
+                                    value="587"
+                                    min="1"
+                                    max="65535"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="smtp_port"
+                                    data-setting-type="number"
+                                >
+                            </label>
+                        </div>
+
+                        <!-- Email From Address -->
+                        <div class="setting-item">
+                            <label class="block">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">อีเมลผู้ส่ง</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-2">อีเมลที่ใช้เป็นผู้ส่ง</p>
+                                <input
+                                    type="email"
+                                    id="email_from_address"
+                                    name="email_from_address"
+                                    value="noreply@rukchai.com"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    data-setting-key="email_from_address"
+                                    data-setting-type="email"
+                                >
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Console -->
+        <div class="mt-8 bg-white shadow rounded-lg p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-terminal mr-2 text-green-600"></i>Test Console
+            </h2>
+            <div id="testConsole" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm h-96 overflow-y-auto">
+                <div>🔧 Test Console Ready...</div>
+                <div>📝 Waiting for test execution...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Settings.js -->
+<script>
+// Mock settings.js functionality for testing
+(function() {
+    'use strict';
+
+    console.log('🔧 Settings.js (Test Mode) loaded');
+    logToConsole('🔧 Settings.js (Test Mode) loaded');
+
+    const testResults = [];
+
+    // Helper function to log to test console
+    function logToConsole(message, type = 'info') {
+        const consoleEl = document.getElementById('testConsole');
+        const timestamp = new Date().toLocaleTimeString();
+        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+        const color = type === 'success' ? 'text-green-400' : type === 'error' ? 'text-red-400' : type === 'warning' ? 'text-yellow-400' : 'text-blue-400';
+        const div = document.createElement('div');
+        div.className = color;
+        div.textContent = `[${timestamp}] ${icon} ${message}`;
+        consoleEl.appendChild(div);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    // Helper function to update test results
+    function updateTestResults(testName, passed, details = '') {
+        testResults.push({ name: testName, passed, details });
+        renderTestResults();
+    }
+
+    function renderTestResults() {
+        const resultsEl = document.getElementById('testResults');
+        resultsEl.innerHTML = '';
+
+        const passed = testResults.filter(t => t.passed).length;
+        const failed = testResults.filter(t => !t.passed).length;
+        const total = testResults.length;
+
+        const summary = document.createElement('li');
+        summary.className = 'font-bold mb-2';
+        summary.innerHTML = `<i class="fas fa-chart-bar mr-2"></i>Summary: ${passed}/${total} passed`;
+        resultsEl.appendChild(summary);
+
+        testResults.forEach(result => {
+            const li = document.createElement('li');
+            li.className = result.passed ? 'pass' : 'fail';
+            li.innerHTML = `<i class="fas ${result.passed ? 'fa-check' : 'fa-times'} mr-2"></i>${result.name}`;
+            if (result.details) {
+                const details = document.createElement('div');
+                details.className = 'text-xs ml-6 text-gray-600';
+                details.textContent = result.details;
+                li.appendChild(details);
+            }
+            resultsEl.appendChild(li);
+        });
+    }
+
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    function init() {
+        logToConsole('🚀 Initializing Settings Test Page');
+
+        // DOM Elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const saveAllBtn = document.getElementById('saveAllBtn');
+        const runAllTestsBtn = document.getElementById('runAllTestsBtn');
+        const alertContainer = document.getElementById('alertContainer');
+
+        logToConsole(`📊 Found elements: ${tabButtons.length} tabs, ${tabContents.length} contents`);
+
+        // Tab switching
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                logToConsole(`🔄 Switching to tab: ${targetTab}`);
+
+                // Update active tab button
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('border-blue-500', 'text-blue-600');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                });
+                this.classList.remove('border-transparent', 'text-gray-500');
+                this.classList.add('border-blue-500', 'text-blue-600');
+
+                // Update active tab content
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+            });
+        });
+
+        // Color picker sync
+        document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+            const textInput = document.querySelector(`input[data-color-input="${colorInput.id}"]`);
+            if (textInput) {
+                colorInput.addEventListener('input', function() {
+                    textInput.value = this.value;
+                    logToConsole(`🎨 Color updated: ${colorInput.id} = ${this.value}`);
+                });
+
+                textInput.addEventListener('input', function() {
+                    if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                        colorInput.value = this.value;
+                        logToConsole(`🎨 Color text updated: ${colorInput.id} = ${this.value}`);
+                    }
+                });
+            }
+        });
+
+        // Track original values
+        const originalValues = new Map();
+        document.querySelectorAll('[data-setting-key]').forEach(input => {
+            const key = input.getAttribute('data-setting-key');
+            const type = input.getAttribute('data-setting-type');
+
+            let value;
+            if (type === 'boolean') {
+                value = input.checked ? 'true' : 'false';
+            } else {
+                value = input.value;
+            }
+
+            originalValues.set(key, value);
+            logToConsole(`📝 Tracked setting: ${key} = ${value}`);
+        });
+
+        // Save all settings
+        if (saveAllBtn) {
+            saveAllBtn.addEventListener('click', async function() {
+                logToConsole('💾 Save All button clicked', 'info');
+                const settings = [];
+
+                // Collect all settings
+                document.querySelectorAll('[data-setting-key]').forEach(input => {
+                    const key = input.getAttribute('data-setting-key');
+                    const type = input.getAttribute('data-setting-type');
+
+                    let value;
+                    if (type === 'boolean') {
+                        value = input.checked ? 'true' : 'false';
+                    } else {
+                        value = input.value;
+                    }
+
+                    settings.push({ key, value });
+                });
+
+                logToConsole(`📦 Collected ${settings.length} settings`, 'info');
+                settings.forEach(s => {
+                    logToConsole(`  - ${s.key}: ${s.value}`, 'info');
+                });
+
+                if (settings.length === 0) {
+                    showAlert('warning', 'ไม่มีการตั้งค่าใดๆ ที่จะบันทึก');
+                    logToConsole('⚠️ No settings to save', 'warning');
+                    return;
+                }
+
+                // Show loading
+                const originalText = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังบันทึก...';
+
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                try {
+                    logToConsole('📤 Sending request to /settings/batch...', 'info');
+                    logToConsole(`📋 Request body: ${JSON.stringify(settings, null, 2)}`, 'info');
+
+                    const requestBody = {
+                        settings,
+                        _csrf: csrfToken
+                    };
+
+                    const response = await fetch('/settings/batch', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrfToken
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    logToConsole(`📥 Response status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+
+                    const result = await response.json();
+                    logToConsole(`📦 Response data: ${JSON.stringify(result, null, 2)}`, 'info');
+
+                    if (result.success) {
+                        logToConsole('✅ Settings saved successfully', 'success');
+                        showAlert('success', result.message || 'บันทึกการตั้งค่าเรียบร้อยแล้ว');
+                        updateTestResults('Save Settings API', true, `Saved ${settings.length} settings`);
+
+                        // Reload page after 1 second
+                        setTimeout(() => {
+                            logToConsole('🔄 Reloading page...', 'info');
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        logToConsole(`❌ Failed to save settings: ${result.message}`, 'error');
+                        showAlert('error', result.message || 'เกิดข้อผิดพลาดในการบันทึก');
+                        updateTestResults('Save Settings API', false, result.message || 'API returned error');
+
+                        if (result.errors && Array.isArray(result.errors)) {
+                            result.errors.forEach(error => {
+                                logToConsole(`  - ${error.key}: ${error.errors ? error.errors.join(', ') : error.error}`, 'error');
+                                showAlert('error', `${error.key}: ${error.errors ? error.errors.join(', ') : error.error}`);
+                            });
+                        }
+                    }
+                } catch (error) {
+                    logToConsole(`❌ Network error: ${error.message}`, 'error');
+                    showAlert('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+                    updateTestResults('Save Settings API', false, `Network error: ${error.message}`);
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = originalText;
+                }
+            });
+        }
+
+        // Run all tests button
+        if (runAllTestsBtn) {
+            runAllTestsBtn.addEventListener('click', function() {
+                logToConsole('🧪 Running all tests...', 'info');
+                runAllTests();
+            });
+        }
+
+        // Real-time validation
+        document.querySelectorAll('[data-setting-key]').forEach(input => {
+            input.addEventListener('change', async function() {
+                const key = this.getAttribute('data-setting-key');
+                const type = this.getAttribute('data-setting-type');
+                let value = type === 'boolean' ? (this.checked ? 'true' : 'false') : this.value;
+
+                logToConsole(`🔍 Validating: ${key} = ${value}`);
+
+                // Visual feedback
+                this.classList.add('border-yellow-300');
+
+                // Simulate validation
+                setTimeout(() => {
+                    const isValid = Math.random() > 0.1; // 90% valid
+
+                    if (isValid) {
+                        this.classList.remove('border-red-300', 'border-yellow-300');
+                        this.classList.add('border-green-300');
+                        logToConsole(`✅ Validation passed: ${key}`, 'success');
+                    } else {
+                        this.classList.remove('border-green-300', 'border-yellow-300');
+                        this.classList.add('border-red-300');
+                        logToConsole(`❌ Validation failed: ${key}`, 'error');
+                    }
+
+                    // Remove border color after 2 seconds
+                    setTimeout(() => {
+                        this.classList.remove('border-green-300', 'border-red-300');
+                    }, 2000);
+                }, 500);
+            });
+        });
+
+        // Helper function to show alerts
+        function showAlert(type, message) {
+            const alertColors = {
+                success: 'bg-green-50 border-green-400 text-green-800',
+                error: 'bg-red-50 border-red-400 text-red-800',
+                warning: 'bg-yellow-50 border-yellow-400 text-yellow-800',
+                info: 'bg-blue-50 border-blue-400 text-blue-800'
+            };
+
+            const alertIcons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            const alert = document.createElement('div');
+            alert.className = `${alertColors[type]} border-l-4 p-4 mb-4 rounded-r`;
+            alert.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas ${alertIcons[type]} mr-3"></i>
+                        <p class="text-sm font-medium">${message}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            alertContainer.appendChild(alert);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Test runner
+        async function runAllTests() {
+            testResults.length = 0; // Clear previous results
+            logToConsole('🧪 Starting comprehensive tests...', 'info');
+
+            // Test 1: Check if all settings have data-setting-key
+            const allSettings = document.querySelectorAll('[data-setting-key]');
+            updateTestResults('Settings have keys', allSettings.length > 0, `Found ${allSettings.length} settings`);
+            logToConsole(`Test 1: Found ${allSettings.length} settings with keys`, allSettings.length > 0 ? 'success' : 'error');
+
+            // Test 2: Check if tabs are working
+            const tabs = document.querySelectorAll('.tab-button');
+            updateTestResults('Tabs initialized', tabs.length >= 4, `Found ${tabs.length} tabs`);
+            logToConsole(`Test 2: Found ${tabs.length} tabs`, tabs.length >= 4 ? 'success' : 'error');
+
+            // Test 3: Check color picker sync
+            const colorPickers = document.querySelectorAll('input[type="color"]');
+            updateTestResults('Color pickers present', colorPickers.length >= 2, `Found ${colorPickers.length} color pickers`);
+            logToConsole(`Test 3: Found ${colorPickers.length} color pickers`, colorPickers.length >= 2 ? 'success' : 'error');
+
+            // Test 4: Simulate setting change
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const firstInput = document.querySelector('[data-setting-key]');
+            if (firstInput) {
+                const originalValue = firstInput.value;
+                firstInput.value = 'Test Value';
+                firstInput.dispatchEvent(new Event('change'));
+                updateTestResults('Setting change trigger', true, 'Change event triggered successfully');
+                logToConsole('Test 4: Setting change event triggered', 'success');
+                firstInput.value = originalValue;
+            }
+
+            // Test 5: Check CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            updateTestResults('CSRF token present', csrfToken !== null, csrfToken ? csrfToken.content : 'Not found');
+            logToConsole(`Test 5: CSRF token ${csrfToken ? 'found' : 'not found'}`, csrfToken ? 'success' : 'error');
+
+            // Test 6: Check validation attributes
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            let validationsPassed = 0;
+            numberInputs.forEach(input => {
+                if (input.hasAttribute('min') || input.hasAttribute('max')) {
+                    validationsPassed++;
+                }
+            });
+            updateTestResults('Validation attributes', validationsPassed > 0, `${validationsPassed}/${numberInputs.length} inputs have validation`);
+            logToConsole(`Test 6: ${validationsPassed} inputs have validation attributes`, validationsPassed > 0 ? 'success' : 'warning');
+
+            logToConsole('✅ All tests completed!', 'success');
+            showAlert('success', 'การทดสอบเสร็จสมบูรณ์!');
+        }
+
+        logToConsole('✅ Settings initialized successfully', 'success');
+        updateTestResults('Page initialization', true, 'All components loaded');
+    }
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Responsive Navigation Debug</title>
+    <link href="/css/navigation.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        .debug-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 9999;
+        }
+        .content {
+            padding: 20px;
+            margin-top: 100px;
+        }
+        .test-button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Debug Info -->
+    <div class="debug-info" id="debugInfo">
+        Screen: <span id="screenSize"></span><br>
+        Nav Height: <span id="navHeight"></span><br>
+        Menu Display: <span id="menuDisplay"></span><br>
+        Mobile Toggle: <span id="mobileDisplay"></span>
+    </div>
+
+    <!-- Navigation (Simplified) -->
+    <nav class="ruxchai-nav">
+        <div class="nav-overlay-top"></div>
+        <div class="nav-overlay-sides"></div>
+
+        <div class="nav-container-wrapper">
+            <div class="nav-main-container">
+                <!-- Left Section -->
+                <div class="nav-left-section">
+                    <!-- Logo -->
+                    <a href="#" class="nav-logo-container">
+                        <div class="nav-logo-image-container">
+                            <img src="/images/rukchai-logo.png" alt="Logo" class="nav-logo-image">
+                        </div>
+                        <div class="nav-logo-text-container">
+                            <div class="nav-logo-title">LearnHub</div>
+                            <div class="nav-logo-subtitle">รักชัยห้องเย็น จำกัด</div>
+                        </div>
+                    </a>
+
+                    <!-- Desktop Menu -->
+                    <div class="nav-menu">
+                        <a href="#" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                            <span>แดชบอร์ด</span>
+                        </a>
+                        <a href="#" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-book"></i></span>
+                            <span>คอร์สเรียน</span>
+                        </a>
+                        <a href="#" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
+                            <span>บทความ</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Section -->
+                <div class="nav-user-section">
+                    <!-- Language Switcher -->
+                    <div class="nav-language-switcher">
+                        <button class="nav-language-button">
+                            <span class="nav-language-text">ไทย</span>
+                            <i class="fas fa-chevron-down nav-language-chevron"></i>
+                        </button>
+                    </div>
+
+                    <!-- Mobile Toggle -->
+                    <button id="mobile-menu-toggle" class="nav-mobile-toggle">
+                        <i id="mobile-menu-icon" class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="nav-mobile-menu">
+            <a href="#" class="nav-mobile-menu-item">
+                <span class="nav-menu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                <span>แดชบอร์ด</span>
+            </a>
+            <a href="#" class="nav-mobile-menu-item">
+                <span class="nav-menu-icon"><i class="fas fa-book"></i></span>
+                <span>คอร์สเรียน</span>
+            </a>
+            <a href="#" class="nav-mobile-menu-item">
+                <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
+                <span>บทความ</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="content">
+        <h1>🔧 Responsive Navigation Debug</h1>
+
+        <div>
+            <h3>การทดสอบ:</h3>
+            <button class="test-button" onclick="simulateResize(1200)">Desktop 1200px</button>
+            <button class="test-button" onclick="simulateResize(1024)">Tablet 1024px</button>
+            <button class="test-button" onclick="simulateResize(768)">Mobile 768px</button>
+            <button class="test-button" onclick="simulateResize(480)">Mobile 480px</button>
+            <button class="test-button" onclick="simulateResize(320)">Mobile 320px</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3>วิธีทดสอบ:</h3>
+            <ol>
+                <li>ลากมุมของ browser window</li>
+                <li>เปิด Developer Tools และเลือก device size</li>
+                <li>สังเกตการเปลี่ยนแปลงของ Navigation</li>
+                <li>ดู Debug Info ที่มุมล่างขวา</li>
+            </ol>
+        </div>
+
+        <div style="height: 1000px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+            📱 Test Content Area
+        </div>
+    </div>
+
+    <script>
+        // Debug Information
+        function updateDebugInfo() {
+            const screenSize = document.getElementById('screenSize');
+            const navHeight = document.getElementById('navHeight');
+            const menuDisplay = document.getElementById('menuDisplay');
+            const mobileDisplay = document.getElementById('mobileDisplay');
+
+            const nav = document.querySelector('.nav-main-container');
+            const menu = document.querySelector('.nav-menu');
+            const mobileToggle = document.querySelector('.nav-mobile-toggle');
+
+            screenSize.textContent = `${window.innerWidth}×${window.innerHeight}`;
+            navHeight.textContent = nav ? `${nav.offsetHeight}px` : 'N/A';
+            menuDisplay.textContent = menu ? getComputedStyle(menu).display : 'N/A';
+            mobileDisplay.textContent = mobileToggle ? getComputedStyle(mobileToggle).display : 'N/A';
+        }
+
+        // Mobile Menu Toggle
+        function setupMobileMenu() {
+            const toggle = document.getElementById('mobile-menu-toggle');
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('mobile-menu-icon');
+
+            if (toggle && menu) {
+                toggle.addEventListener('click', function() {
+                    const isOpen = menu.classList.contains('open');
+
+                    if (isOpen) {
+                        menu.classList.remove('open');
+                        menu.style.display = 'none';
+                        icon.className = 'fas fa-bars text-xl';
+                    } else {
+                        menu.classList.add('open');
+                        menu.style.display = 'block';
+                        icon.className = 'fas fa-times text-xl';
+                    }
+                });
+            }
+        }
+
+        // Simulate resize for testing
+        function simulateResize(width) {
+            // Log current state
+            console.log(`🔄 Simulating resize to ${width}px`);
+            console.log('Current menu display:', getComputedStyle(document.querySelector('.nav-menu')).display);
+            console.log('Current mobile toggle display:', getComputedStyle(document.querySelector('.nav-mobile-toggle')).display);
+
+            updateDebugInfo();
+        }
+
+        // Auto-update debug info
+        setInterval(updateDebugInfo, 100);
+
+        // Window resize handler
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                console.log(`🔄 Window resized to: ${window.innerWidth}×${window.innerHeight}`);
+                updateDebugInfo();
+            }, 100);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupMobileMenu();
+            updateDebugInfo();
+            console.log('🔧 Debug page loaded');
+        });
+    </script>
+</body>
+</html>

@@ -16,12 +16,12 @@ const articleController = {
             } = req.query;
 
             const filters = {};
-            if (category) filters.category = category;
-            if (author_id) filters.author_id = author_id;
-            if (status) filters.status = status;
-            else filters.status = 'published'; // Default to published articles
-            if (search) filters.search = search;
-            if (tags) filters.tags = tags;
+            if (category) {filters.category = category;}
+            if (author_id) {filters.author_id = author_id;}
+            if (status) {filters.status = status;}
+            else {filters.status = 'published';} // Default to published articles
+            if (search) {filters.search = search;}
+            if (tags) {filters.tags = tags;}
 
             const articles = await Article.findAll(parseInt(page), parseInt(limit), filters);
 
@@ -459,7 +459,7 @@ const articleController = {
             const { status, page = 1, limit = 10 } = req.query;
 
             const filters = { author_id: userId };
-            if (status) filters.status = status;
+            if (status) {filters.status = status;}
 
             const offset = (parseInt(page) - 1) * parseInt(limit);
             filters.limit = parseInt(limit);

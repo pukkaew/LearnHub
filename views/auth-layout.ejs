@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%
+        const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteDescription = typeof getSetting === 'function' ? getSetting('site_description', 'ระบบจัดการการเรียนรู้') : 'ระบบจัดการการเรียนรู้';
+    %>
+    <title><%= title || siteName %> - <%= siteDescription %></title>
+    <link rel="icon" href="<%= typeof getSetting === 'function' ? getSetting('favicon_url', '/favicon.ico') : '/favicon.ico' %>" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700;800&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome - Multiple CDN Fallbacks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Fallback for offline/CDN issues -->
+    <style>
+        .fa-fallback:before { content: "🔹"; }
+        .fas.fa-id-badge:before, .fa.fa-id-badge:before { content: "👤"; }
+        .fas.fa-lock:before, .fa.fa-lock:before { content: "🔒"; }
+        .fas.fa-eye:before, .fa.fa-eye:before { content: "👁"; }
+        .fas.fa-eye-slash:before, .fa.fa-eye-slash:before { content: "🙈"; }
+        .fas.fa-sign-in-alt:before, .fa.fa-sign-in-alt:before { content: "➡️"; }
+        .fas.fa-spinner:before, .fa.fa-spinner:before { content: "⏳"; }
+        .fas.fa-graduation-cap:before, .fa.fa-graduation-cap:before { content: "🎓"; }
+        .fas.fa-clipboard-check:before, .fa.fa-clipboard-check:before { content: "📋"; }
+        .fas.fa-trophy:before, .fa.fa-trophy:before { content: "🏆"; }
+        .fas.fa-users:before, .fa.fa-users:before { content: "👥"; }
+        .fas.fa-info-circle:before, .fa.fa-info-circle:before { content: "ℹ️"; }
+        .fas.fa-exclamation-circle:before, .fa.fa-exclamation-circle:before { content: "⚠️"; }
+        .fas.fa-check-circle:before, .fa.fa-check-circle:before { content: "✅"; }
+    </style>
+
+    <style>
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Ruxchai Brand Colors - ตาม CI Document */
+        /* Colors can be customized via System Settings */
+        :root {
+            --ruxchai-blue: <%= typeof getSetting === 'function' ? getSetting('primary_color', '#0090D3') : '#0090D3' %>;
+            --ruxchai-blue-dark: <%= typeof getSetting === 'function' ? getSetting('accent_color', '#006BA6') : '#006BA6' %>;
+            --ruxchai-green: <%= typeof getSetting === 'function' ? getSetting('secondary_color', '#3AAA35') : '#3AAA35' %>;
+            --ruxchai-dark-gray: #555452;     /* สีเทาเข้ม HEX: #555452 */
+            --ruxchai-white: #FFFFFF;         /* สีขาว */
+            --ruxchai-light-gray: #F5F5F5;    /* สีเทาอ่อน */
+            --ruxchai-text-primary: #2D2D2D;  /* ข้อความหลัก */
+            --ruxchai-text-secondary: #666666; /* ข้อความรอง */
+            --ruxchai-border: #E0E0E0;        /* เส้นขอบ */
+            --ruxchai-error: #DC2626;         /* สีแดงแสดงข้อผิดพลาด */
+            --ruxchai-success: #16A34A;       /* สีเขียวแสดงความสำเร็จ */
+            --ruxchai-background: #F8FBFF;    /* สีพื้นหลัง */
+        }
+
+        /* Base Styles */
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Prompt', 'Arial', sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--ruxchai-text-primary) !important;
+            background: linear-gradient(135deg, var(--ruxchai-background) 0%, #E6F4FF 100%) !important;
+            min-height: 100vh;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            visibility: visible !important;
+            opacity: 1 !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Force visibility for all elements except conditional ones */
+        .lang-switcher, .logo-section, .card, .form-group, .btn-submit, .features, .feature {
+            visibility: visible !important;
+            opacity: 1 !important;
+            display: block !important;
+        }
+
+        .lang-switcher {
+            display: flex !important;
+        }
+
+        .features {
+            display: grid !important;
+        }
+
+        /* Language Switcher - มุมบนขวา */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 144, 211, 0.15);
+            overflow: hidden;
+            z-index: 1000;
+            border: 1px solid var(--ruxchai-border);
+        }
+
+        .lang-btn {
+            padding: 12px 18px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ruxchai-text-secondary);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Sarabun', sans-serif;
+            min-width: 70px;
+            justify-content: center;
+        }
+
+        .lang-btn:first-child {
+            border-right: 1px solid var(--ruxchai-border);
+        }
+
+        .lang-btn:hover {
+            background: var(--ruxchai-light-gray);
+            color: var(--ruxchai-blue);
+        }
+
+        .lang-btn.active {
+            background: var(--ruxchai-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        .lang-btn .text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 480px;
+            z-index: 10;
+        }
+
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo-container {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-image {
+            max-width: 400px;
+            max-height: 160px;
+            height: auto;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-section h2 {
+            color: var(--ruxchai-text-primary);
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .logo-section .subtitle {
+            color: var(--ruxchai-text-secondary);
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .logo-section .company {
+            color: var(--ruxchai-blue);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Main Card */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 12px 35px rgba(0, 144, 211, 0.12);
+            padding: 40px;
+            border: 1px solid var(--ruxchai-border);
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--ruxchai-blue) 0%, var(--ruxchai-green) 100%);
+            border-radius: 16px 16px 0 0;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Hide empty alert boxes - แก้ปัญหา alert ว่างแสดงขึ้นมา */
+        .alert:has(div:empty),
+        .alert div:empty {
+            display: none !important;
+        }
+
+        .alert-error {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: var(--ruxchai-error);
+        }
+
+        .alert-success {
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            color: var(--ruxchai-success);
+        }
+
+        .alert-icon {
+            margin-right: 12px;
+            font-size: 18px;
+            margin-top: 1px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--ruxchai-text-primary);
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .form-label i {
+            color: var(--ruxchai-blue);
+            margin-right: 8px;
+            font-size: 16px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--ruxchai-border);
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            font-family: 'Sarabun', sans-serif;
+            color: var(--ruxchai-text-primary);
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--ruxchai-blue);
+            box-shadow: 0 0 0 4px rgba(0, 144, 211, 0.1);
+            background: white;
+        }
+
+        .form-input::placeholder {
+            color: #9CA3AF;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--ruxchai-text-secondary);
+            cursor: pointer;
+            padding: 6px;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--ruxchai-blue);
+        }
+
+        /* Form Row - Remember & Forgot */
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            accent-color: var(--ruxchai-blue);
+        }
+
+        .checkbox-wrapper label {
+            color: var(--ruxchai-text-primary);
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .link {
+            color: var(--ruxchai-blue);
+            font-size: 15px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .link:hover {
+            color: var(--ruxchai-green);
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--ruxchai-blue) 0%, var(--ruxchai-blue-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Prompt', sans-serif;
+            box-shadow: 0 6px 20px rgba(0, 144, 211, 0.3);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--ruxchai-blue-dark) 0%, #004B7A 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 144, 211, 0.4);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-text i {
+            font-size: 16px;
+        }
+
+        .btn-loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-loading i {
+            font-size: 16px;
+        }
+
+        /* Spinner Animation */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Divider */
+        .divider {
+            border-top: 1px solid var(--ruxchai-border);
+            margin: 28px 0;
+        }
+
+        /* Register Section */
+        .register-section {
+            text-align: center;
+        }
+
+        .register-text {
+            color: var(--ruxchai-text-secondary);
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .register-link {
+            color: var(--ruxchai-blue);
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .register-link:hover {
+            color: var(--ruxchai-green);
+            text-decoration: underline;
+        }
+
+        /* Info Box */
+        .info-box {
+            margin-top: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #F0F8FF 0%, #E6F2FF 100%);
+            border: 2px solid var(--ruxchai-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            color: var(--ruxchai-blue);
+            margin-right: 14px;
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .info-content h4 {
+            color: var(--ruxchai-text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .info-content p {
+            color: var(--ruxchai-text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .info-content .mono {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--ruxchai-blue);
+            background: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Features Grid */
+        .features {
+            margin-top: 35px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--ruxchai-border);
+        }
+
+        .feature:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 144, 211, 0.15);
+            border-color: var(--ruxchai-blue);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .feature:nth-child(1) .feature-icon { color: var(--ruxchai-blue); }
+        .feature:nth-child(2) .feature-icon { color: var(--ruxchai-green); }
+        .feature:nth-child(3) .feature-icon { color: var(--ruxchai-error); }
+        .feature:nth-child(4) .feature-icon { color: var(--ruxchai-blue); }
+
+        .feature-title {
+            color: var(--ruxchai-text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .feature-desc {
+            color: var(--ruxchai-text-secondary);
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px;
+            }
+
+            .logo-section h2 {
+                font-size: 28px;
+            }
+
+            .logo-text,
+            .logo-arrow {
+                font-size: 36px;
+            }
+
+            .logo-snowflake {
+                font-size: 32px;
+            }
+
+            .features {
+                gap: 12px;
+            }
+
+            .feature {
+                padding: 20px;
+            }
+
+            .lang-switcher {
+                top: 15px;
+                right: 15px;
+            }
+
+            .lang-btn {
+                padding: 10px 14px;
+                min-width: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .form-input {
+                padding: 14px 16px;
+            }
+
+            .btn-submit {
+                padding: 16px;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .lang-switcher {
+                display: none;
+            }
+        }
+    </style>
+
+    <!-- Custom Ruxchai CSS -->
+    <link href="/css/custom.css" rel="stylesheet">
+</head>
+<body>
+    <%- body %>
+</body>
+</html>

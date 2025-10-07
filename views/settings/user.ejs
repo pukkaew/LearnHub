@@ -1,0 +1,365 @@
+<%- contentFor('body') %>
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fas fa-user-cog mr-2 text-blue-600"></i>
+                        <span class="lang-text" data-lang-th="การตั้งค่าส่วนตัว" data-lang-en="Personal Settings">การตั้งค่าส่วนตัว</span>
+                    </h1>
+                    <p class="mt-2 text-sm text-gray-600 lang-text" data-lang-th="ปรับแต่งการตั้งค่าส่วนบุคคลของคุณ" data-lang-en="Customize your personal preferences">
+                        ปรับแต่งการตั้งค่าส่วนบุคคลของคุณ
+                    </p>
+                </div>
+                <div class="flex items-center">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        <i class="fas fa-user mr-2"></i>
+                        <%= user.username %>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Settings Form -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="p-6 space-y-6">
+                <!-- Language Preference - Info Only -->
+                <div class="setting-item bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h3 class="text-sm font-medium text-blue-900">การเปลี่ยนภาษา / Language Settings</h3>
+                            <p class="mt-1 text-sm text-blue-700">
+                                สามารถเปลี่ยนภาษาได้ที่ **เมนูด้านบน** (คลิกที่ธงภาษา ไทย/English)
+                                <br>
+                                You can change the language from the **top navigation menu** (click on the language flag)
+                            </p>
+                            <div class="mt-3 flex items-center text-sm">
+                                <span class="text-blue-600 font-medium">ภาษาปัจจุบัน / Current:</span>
+                                <span class="ml-2 inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-medium">
+                                    <%= settings.language === 'en' ? '🇬🇧 English' : '🇹🇭 ภาษาไทย' %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Preference -->
+                <div class="setting-item">
+                    <label class="block">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-palette text-blue-600 mr-2"></i>
+                            <span class="text-sm font-medium text-gray-700 lang-text" data-lang-th="ธีม" data-lang-en="Theme">ธีม</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2 lang-text" data-lang-th="เลือกโหมดการแสดงผล" data-lang-en="Choose display mode">เลือกโหมดการแสดงผล</p>
+                        <select
+                            id="theme"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+                            data-setting-key="theme"
+                        >
+                            <option value="light" <%= settings.theme === 'light' ? 'selected' : '' %> class="lang-text" data-lang-th="สว่าง" data-lang-en="Light">สว่าง / Light</option>
+                            <option value="dark" <%= settings.theme === 'dark' ? 'selected' : '' %> class="lang-text" data-lang-th="มืด" data-lang-en="Dark">มืด / Dark</option>
+                            <option value="auto" <%= settings.theme === 'auto' ? 'selected' : '' %> class="lang-text" data-lang-th="ตามระบบ" data-lang-en="Auto">ตามระบบ / Auto</option>
+                        </select>
+                    </label>
+                </div>
+
+                <!-- Notification Preferences -->
+                <div class="setting-item">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-bell text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700 lang-text" data-lang-th="การแจ้งเตือน" data-lang-en="Notifications">การแจ้งเตือน</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3 lang-text" data-lang-th="เลือกช่องทางที่ต้องการรับการแจ้งเตือน" data-lang-en="Choose how you want to receive notifications">เลือกช่องทางที่ต้องการรับการแจ้งเตือน</p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="notify_email"
+                                <%= settings.notify_email ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="notify_email"
+                            >
+                            <label for="notify_email" class="ml-2 block text-sm text-gray-900">
+                                แจ้งเตือนทางอีเมล
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="notify_browser"
+                                <%= settings.notify_browser ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="notify_browser"
+                            >
+                            <label for="notify_browser" class="ml-2 block text-sm text-gray-900">
+                                แจ้งเตือนบน Browser
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="notify_course_updates"
+                                <%= settings.notify_course_updates ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="notify_course_updates"
+                            >
+                            <label for="notify_course_updates" class="ml-2 block text-sm text-gray-900">
+                                การอัพเดทคอร์ส
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="notify_assignment_due"
+                                <%= settings.notify_assignment_due ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="notify_assignment_due"
+                            >
+                            <label for="notify_assignment_due" class="ml-2 block text-sm text-gray-900">
+                                กำหนดส่งงาน
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="notify_achievements"
+                                <%= settings.notify_achievements ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="notify_achievements"
+                            >
+                            <label for="notify_achievements" class="ml-2 block text-sm text-gray-900">
+                                ความสำเร็จและรางวัล
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="setting-item">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-shield-alt text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700 lang-text" data-lang-th="ความเป็นส่วนตัว" data-lang-en="Privacy">ความเป็นส่วนตัว</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3 lang-text" data-lang-th="จัดการความเป็นส่วนตัวของคุณ" data-lang-en="Manage your privacy settings">จัดการความเป็นส่วนตัวของคุณ</p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="show_profile_public"
+                                <%= settings.show_profile_public ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="show_profile_public"
+                            >
+                            <label for="show_profile_public" class="ml-2 block text-sm text-gray-900">
+                                แสดงโปรไฟล์แบบสาธารณะ
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="show_progress_public"
+                                <%= settings.show_progress_public ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="show_progress_public"
+                            >
+                            <label for="show_progress_public" class="ml-2 block text-sm text-gray-900">
+                                แสดงความก้าวหน้าการเรียนแบบสาธารณะ
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="show_leaderboard"
+                                <%= settings.show_leaderboard ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="show_leaderboard"
+                            >
+                            <label for="show_leaderboard" class="ml-2 block text-sm text-gray-900">
+                                แสดงในกระดานคะแนน
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display Settings -->
+                <div class="setting-item">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-desktop text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700 lang-text" data-lang-th="การแสดงผล" data-lang-en="Display">การแสดงผล</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3 lang-text" data-lang-th="ปรับแต่งการแสดงผลของหน้าจอ" data-lang-en="Customize display settings">ปรับแต่งการแสดงผลของหน้าจอ</p>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label for="items_per_page" class="text-sm text-gray-700">จำนวนรายการต่อหน้า</label>
+                            <select
+                                id="items_per_page"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                data-setting-key="items_per_page"
+                            >
+                                <option value="10" <%= settings.items_per_page == 10 ? 'selected' : '' %>>10</option>
+                                <option value="20" <%= settings.items_per_page == 20 ? 'selected' : '' %>>20</option>
+                                <option value="50" <%= settings.items_per_page == 50 ? 'selected' : '' %>>50</option>
+                                <option value="100" <%= settings.items_per_page == 100 ? 'selected' : '' %>>100</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="dashboard_layout" class="text-sm text-gray-700">รูปแบบ Dashboard</label>
+                            <select
+                                id="dashboard_layout"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                data-setting-key="dashboard_layout"
+                            >
+                                <option value="grid" <%= settings.dashboard_layout === 'grid' ? 'selected' : '' %>>ตาราง (Grid)</option>
+                                <option value="list" <%= settings.dashboard_layout === 'list' ? 'selected' : '' %>>รายการ (List)</option>
+                                <option value="compact" <%= settings.dashboard_layout === 'compact' ? 'selected' : '' %>>กระชับ (Compact)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Preferences -->
+                <div class="setting-item">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-graduation-cap text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700 lang-text" data-lang-th="การเรียนรู้" data-lang-en="Learning">การเรียนรู้</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3 lang-text" data-lang-th="ปรับแต่งประสบการณ์การเรียนรู้" data-lang-en="Customize your learning experience">ปรับแต่งประสบการณ์การเรียนรู้</p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="auto_play_video"
+                                <%= settings.auto_play_video ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="auto_play_video"
+                            >
+                            <label for="auto_play_video" class="ml-2 block text-sm text-gray-900">
+                                เล่นวิดีโออัตโนมัติ
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="enable_subtitles"
+                                <%= settings.enable_subtitles ? 'checked' : '' %>
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                data-setting-key="enable_subtitles"
+                            >
+                            <label for="enable_subtitles" class="ml-2 block text-sm text-gray-900">
+                                เปิดคำบรรยายวิดีโอ
+                            </label>
+                        </div>
+
+                        <div>
+                            <label for="video_quality" class="text-sm text-gray-700">คุณภาพวิดีโอเริ่มต้น</label>
+                            <select
+                                id="video_quality"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                data-setting-key="video_quality"
+                            >
+                                <option value="auto" <%= settings.video_quality === 'auto' ? 'selected' : '' %>>อัตโนมัติ</option>
+                                <option value="1080p" <%= settings.video_quality === '1080p' ? 'selected' : '' %>>1080p</option>
+                                <option value="720p" <%= settings.video_quality === '720p' ? 'selected' : '' %>>720p</option>
+                                <option value="480p" <%= settings.video_quality === '480p' ? 'selected' : '' %>>480p</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
+                <button
+                    type="button"
+                    id="resetBtn"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+                >
+                    <i class="fas fa-undo mr-2"></i>
+                    <span class="lang-text" data-lang-th="รีเซ็ตเป็นค่าเริ่มต้น" data-lang-en="Reset to Default">รีเซ็ตเป็นค่าเริ่มต้น</span>
+                </button>
+                <button
+                    type="button"
+                    id="saveUserSettingsBtn"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+                >
+                    <i class="fas fa-save mr-2"></i>
+                    <span class="lang-text" data-lang-th="บันทึกการตั้งค่า" data-lang-en="Save Settings">บันทึกการตั้งค่า</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Language Support for User Settings
+(function() {
+    'use strict';
+
+    // Get current language from navigation or default to Thai
+    const currentLang = document.querySelector('html').getAttribute('lang') || 'th';
+
+    console.log('🌐 Current language:', currentLang);
+
+    // Update all text elements based on language
+    function updateLanguage() {
+        document.querySelectorAll('.lang-text').forEach(element => {
+            const thText = element.getAttribute('data-lang-th');
+            const enText = element.getAttribute('data-lang-en');
+
+            if (currentLang === 'en' && enText) {
+                element.textContent = enText;
+            } else if (thText) {
+                element.textContent = thText;
+            }
+        });
+    }
+
+    // Initialize on page load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateLanguage);
+    } else {
+        updateLanguage();
+    }
+
+    // Watch for language changes from navigation
+    window.addEventListener('languageChanged', function(e) {
+        console.log('Language changed event:', e.detail);
+        updateLanguage();
+    });
+})();
+</script>
+
+<script src="/js/user-settings.js"></script>
+
+<style>
+.setting-item {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+</style>

@@ -17,12 +17,12 @@ const courseController = {
             } = req.query;
 
             const filters = {};
-            if (category_id) filters.category_id = category_id;
-            if (instructor_id) filters.instructor_id = instructor_id;
-            if (difficulty_level) filters.difficulty_level = difficulty_level;
-            if (course_type) filters.course_type = course_type;
-            if (is_active !== undefined) filters.is_active = is_active === 'true';
-            if (search) filters.search = search;
+            if (category_id) {filters.category_id = category_id;}
+            if (instructor_id) {filters.instructor_id = instructor_id;}
+            if (difficulty_level) {filters.difficulty_level = difficulty_level;}
+            if (course_type) {filters.course_type = course_type;}
+            if (is_active !== undefined) {filters.is_active = is_active === 'true';}
+            if (search) {filters.search = search;}
 
             const offset = (parseInt(page) - 1) * parseInt(limit);
             filters.limit = parseInt(limit);
@@ -341,8 +341,8 @@ const courseController = {
             const { status, completion_status } = req.query;
 
             const filters = { user_id: userId };
-            if (status) filters.status = status;
-            if (completion_status) filters.completion_status = completion_status;
+            if (status) {filters.status = status;}
+            if (completion_status) {filters.completion_status = completion_status;}
 
             const enrollments = await Enrollment.findByUser(userId, filters);
 

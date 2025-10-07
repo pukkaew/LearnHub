@@ -1,0 +1,32 @@
+🔧 Setting up Settings System tables...
+
+Connected to MSSQL database
+✅ Connected to database
+
+📄 Reading SQL file: D:\App\LearnHub\sql\create_settings_system.sql
+📝 Found 1 SQL batches to execute
+
+⚙️  Executing batch 1/1...
+   Preview: PRINT 'Settings System Schema created successfully!';
+✅ Batch 1 completed
+
+
+🔍 Verifying tables...
+
+📊 Tables found:
+   ✓ DepartmentSettings
+   ✓ SettingAuditLog
+   ✓ SystemSettings
+   ✓ UserSettings
+
+🔍 Verifying stored procedures...
+
+📋 Stored procedures found:
+   ✓ sp_GetAllUserSettings
+   ✓ sp_GetSettingAuditLog
+   ✓ sp_GetUserSetting
+   ✓ sp_UpsertUserSetting
+
+📈 System Settings count: 49
+
+🎉 Settings System setup completed successfully!

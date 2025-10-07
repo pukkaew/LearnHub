@@ -89,7 +89,7 @@ class FileUploadComponent {
     }
 
     setupStyles() {
-        if (document.querySelector('#file-upload-styles')) return;
+        if (document.querySelector('#file-upload-styles')) {return;}
 
         const styles = document.createElement('style');
         styles.id = 'file-upload-styles';
@@ -480,9 +480,9 @@ class FileUploadComponent {
 
         fileItem.innerHTML = `
             ${this.options.showPreview && fileData.type === 'image' ?
-                `<img class="preview-image" src="${URL.createObjectURL(fileData.file)}" alt="Preview">` :
-                `<div class="file-icon ${fileData.type}"><i class="${iconClass}"></i></div>`
-            }
+        `<img class="preview-image" src="${URL.createObjectURL(fileData.file)}" alt="Preview">` :
+        `<div class="file-icon ${fileData.type}"><i class="${iconClass}"></i></div>`
+}
 
             <div class="file-info">
                 <div class="file-name">${fileData.name}</div>
@@ -510,7 +510,7 @@ class FileUploadComponent {
 
     updateFileItem(fileData) {
         const fileItem = this.container.querySelector(`#file-${fileData.id}`);
-        if (!fileItem) return;
+        if (!fileItem) {return;}
 
         const progressElement = fileItem.querySelector('.file-progress');
         const progressFill = fileItem.querySelector('.progress-fill');
@@ -526,25 +526,25 @@ class FileUploadComponent {
         statusElement.className = `file-status ${fileData.status}`;
 
         switch (fileData.status) {
-            case 'uploading':
-                statusElement.innerHTML = `<i class="fas fa-spinner animate-spin mr-1"></i>${fileData.progress}%`;
-                break;
-            case 'completed':
-                statusElement.innerHTML = '<i class="fas fa-check mr-1"></i>เสร็จสิ้น';
-                progressElement.style.display = 'none';
-                break;
-            case 'error':
-                statusElement.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>ผิดพลาด';
-                progressElement.style.display = 'none';
-                break;
-            default:
-                statusElement.innerHTML = '<i class="fas fa-clock mr-1"></i>รอการอัปโหลด';
+        case 'uploading':
+            statusElement.innerHTML = `<i class="fas fa-spinner animate-spin mr-1"></i>${fileData.progress}%`;
+            break;
+        case 'completed':
+            statusElement.innerHTML = '<i class="fas fa-check mr-1"></i>เสร็จสิ้น';
+            progressElement.style.display = 'none';
+            break;
+        case 'error':
+            statusElement.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>ผิดพลาด';
+            progressElement.style.display = 'none';
+            break;
+        default:
+            statusElement.innerHTML = '<i class="fas fa-clock mr-1"></i>รอการอัปโหลด';
         }
     }
 
     updateOverallProgress() {
         const totalFiles = this.files.length;
-        if (totalFiles === 0) return;
+        if (totalFiles === 0) {return;}
 
         const totalProgress = this.files.reduce((sum, file) => sum + file.progress, 0);
         const averageProgress = Math.round(totalProgress / totalFiles);
@@ -612,23 +612,23 @@ class FileUploadComponent {
     }
 
     getFileType(file) {
-        if (file.type.startsWith('image/')) return 'image';
-        if (file.type.startsWith('video/')) return 'video';
-        if (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text')) return 'document';
+        if (file.type.startsWith('image/')) {return 'image';}
+        if (file.type.startsWith('video/')) {return 'video';}
+        if (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text')) {return 'document';}
         return 'other';
     }
 
     getFileIconClass(type) {
         switch (type) {
-            case 'image': return 'fas fa-image';
-            case 'video': return 'fas fa-video';
-            case 'document': return 'fas fa-file-alt';
-            default: return 'fas fa-file';
+        case 'image': return 'fas fa-image';
+        case 'video': return 'fas fa-video';
+        case 'document': return 'fas fa-file-alt';
+        default: return 'fas fa-file';
         }
     }
 
     formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
+        if (bytes === 0) {return '0 Bytes';}
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -648,7 +648,7 @@ class FileUploadComponent {
 
         // Auto hide after 5 seconds
         setTimeout(() => {
-            if (errorDiv) errorDiv.remove();
+            if (errorDiv) {errorDiv.remove();}
         }, 5000);
     }
 

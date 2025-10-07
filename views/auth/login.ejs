@@ -1,189 +1,776 @@
+<!DOCTYPE html>
+<html lang="<%= currentLanguage %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t('login') %> - LearnHub</title>
+    <link href="/css/tailwind.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
 
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <div>
-            <div class="mx-auto h-12 w-auto flex justify-center">
-                <img class="h-12 w-auto" src="/images/rukchai-logo.svg" alt="Rukchai Hongyen">
-            </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                เข้าสู่ระบบ LearnHub
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                ระบบจัดการการเรียนรู้ของ บริษัท รักชัยห้องเย็น จำกัด
-            </p>
-        </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <form id="login-form" class="mt-8 space-y-6" action="/auth/login" method="POST">
-            <div class="rounded-md shadow-sm -space-y-px">
-                <div>
-                    <label for="employee_id" class="sr-only">รหัสพนักงาน</label>
-                    <input id="employee_id" name="employee_id" type="text" required
-                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary focus:z-10 sm:text-sm"
-                           placeholder="รหัสพนักงาน">
-                </div>
-                <div>
-                    <label for="password" class="sr-only">รหัสผ่าน</label>
-                    <input id="password" name="password" type="password" required
-                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary focus:z-10 sm:text-sm"
-                           placeholder="รหัสผ่าน">
-                </div>
-            </div>
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
 
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <input id="remember-me" name="remember-me" type="checkbox"
-                           class="h-4 w-4 text-ruxchai-primary focus:ring-ruxchai-primary border-gray-300 rounded">
-                    <label for="remember-me" class="ml-2 block text-sm text-gray-900">
-                        จดจำการเข้าสู่ระบบ
-                    </label>
-                </div>
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 2rem;
+            position: relative;
+        }
 
-                <div class="text-sm">
-                    <a href="/auth/forgot-password" class="font-medium text-ruxchai-primary hover:text-ruxchai-blue-700">
-                        ลืมรหัสผ่าน?
-                    </a>
-                </div>
-            </div>
+        /* Enhanced Language Switcher for Login */
+        .language-selector {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+        }
 
-            <div>
-                <button type="submit" id="login-btn"
-                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ruxchai-primary disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i class="fas fa-sign-in-alt text-blue-300 group-hover:text-blue-200"></i>
-                    </span>
-                    <span id="login-text">เข้าสู่ระบบ</span>
-                    <span id="login-loading" class="hidden">
-                        <i class="fas fa-spinner fa-spin mr-2"></i>กำลังเข้าสู่ระบบ...
-                    </span>
+        .auth-language-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: rgba(0, 102, 204, 0.1);
+            border: 1px solid rgba(0, 102, 204, 0.2);
+            color: #0066cc;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-language-button:hover {
+            background: rgba(0, 102, 204, 0.15);
+            border-color: rgba(0, 102, 204, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+        }
+
+
+        .auth-language-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 180px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 8px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.95);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(0, 102, 204, 0.1);
+        }
+
+        .auth-language-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .auth-language-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            position: relative;
+        }
+
+        .auth-language-option:hover {
+            background: #f8fafc;
+            color: #0066cc;
+        }
+
+        .auth-language-option.active {
+            background: rgba(0, 102, 204, 0.1);
+            color: #0066cc;
+            font-weight: 600;
+        }
+
+        .auth-language-option.active::after {
+            content: '✓';
+            position: absolute;
+            right: 16px;
+            font-weight: bold;
+            color: #22c55e;
+        }
+
+        .auth-language-option-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-language-option-name {
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .auth-language-option-native {
+            font-size: 0.75rem;
+            color: #6b7280;
+            line-height: 1.2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            margin-top: 3rem;
+            padding-top: 0;
+        }
+
+        .logo {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0;
+            line-height: 0;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0066cc;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+
+        .subtitle {
+            color: #374151;
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            line-height: 1.1;
+        }
+
+        .company {
+            color: #6b7280;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .form {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: white;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1rem;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .input:focus ~ .input-icon {
+            color: #0066cc;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox {
+            width: 1rem;
+            height: 1rem;
+            accent-color: #0066cc;
+        }
+
+        .checkbox-label {
+            color: #6b7280;
+        }
+
+        .forgot-link {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background: #0052a3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .register-link {
+            text-align: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .register-link a {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-alert {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #dc2626;
+            font-size: 0.875rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-alert.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem 0.75rem;
+            }
+
+            .login-container {
+                padding: 0.5rem 1.5rem;
+                border-radius: 12px;
+            }
+
+            .header {
+                margin-top: 2.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .logo {
+                max-width: 500px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .company {
+                font-size: 0.875rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .forgot-link {
+                text-align: center;
+            }
+        }
+
+        /* Animation */
+        .login-container {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Enhanced Language Selector -->
+        <div class="language-selector">
+            <button id="auth-language-switcher" class="auth-language-button">
+                <span id="auth-current-language-text"><%= currentLanguage === 'en' ? 'English' : 'ไทย' %></span>
+                <i class="fas fa-chevron-down" style="font-size: 0.75rem; transition: transform 0.25s ease;"></i>
+            </button>
+            <div id="auth-language-menu" class="auth-language-dropdown hidden">
+                <button id="auth-lang-th-btn" class="auth-language-option <%= currentLanguage === 'th' ? 'active' : '' %>">
+                    <div class="auth-language-option-text">
+                        <div class="auth-language-option-name">ไทย</div>
+                        <div class="auth-language-option-native">ภาษาไทย</div>
+                    </div>
+                </button>
+                <button id="auth-lang-en-btn" class="auth-language-option <%= currentLanguage === 'en' ? 'active' : '' %>">
+                    <div class="auth-language-option-text">
+                        <div class="auth-language-option-name">English</div>
+                        <div class="auth-language-option-native">English</div>
+                    </div>
                 </button>
             </div>
+        </div>
 
-            <div class="text-center">
-                <p class="text-sm text-gray-600">
-                    ไม่มีบัญชีผู้ใช้?
-                    <a href="/auth/register" class="font-medium text-ruxchai-primary hover:text-ruxchai-blue-700">
-                        สมัครสมาชิก
-                    </a>
-                </p>
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <img src="/images/rukchai-logo.png" alt="Logo">
             </div>
+            <h1 class="title">LearnHub</h1>
+            <p class="subtitle" data-th="เข้าสู่ระบบ" data-en="Sign In"><%= t('signIn') %></p>
+            <p class="company" data-th="บริษัท รักชัยห้องเย็น จำกัด" data-en="Rukchai Hongyen Co., Ltd."><%= currentLanguage === 'en' ? 'Rukchai Hongyen Co., Ltd.' : 'บริษัท รักชัยห้องเย็น จำกัด' %></p>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="error-alert" class="error-alert">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16"><path d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>
+            <span id="error-text"></span>
+        </div>
+
+        <!-- Login Form -->
+        <form class="form" id="login-form" action="/auth/login" method="POST">
+            <div class="form-group">
+                <label for="employee_id" class="label" data-th="รหัสพนักงาน" data-en="Employee ID"><%= t('employeeId') %></label>
+                <div class="input-group">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
+                    <input
+                        type="text"
+                        id="employee_id"
+                        name="employee_id"
+                        class="input"
+                        data-th-placeholder="กรอกรหัสพนักงาน"
+                        data-en-placeholder="Enter employee ID"
+                        placeholder="<%= currentLanguage === 'en' ? 'Enter employee ID' : 'กรอกรหัสพนักงาน' %>"
+                        required
+                        autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="label" data-th="รหัสผ่าน" data-en="Password"><%= t('password') %></label>
+                <div class="input-group">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16"><path d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z"/></svg>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="input"
+                        data-th-placeholder="กรอกรหัสผ่าน"
+                        data-en-placeholder="Enter password"
+                        placeholder="<%= currentLanguage === 'en' ? 'Enter password' : 'กรอกรหัสผ่าน' %>"
+                        required
+                        autocomplete="current-password">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember-me" class="checkbox">
+                    <label for="remember" class="checkbox-label" data-th="จดจำการเข้าสู่ระบบ" data-en="Remember me"><%= t('rememberMe') %></label>
+                </div>
+                <a href="/auth/forgot-password" class="forgot-link" data-th="ลืมรหัสผ่าน?" data-en="Forgot password?"><%= t('forgotPassword') %></a>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+                <span id="btn-text" data-th="เข้าสู่ระบบ" data-en="Sign In"><%= t('signIn') %></span>
+                <span id="btn-loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <span data-th="กำลังเข้าสู่ระบบ..." data-en="Signing in..."><%= currentLanguage === 'en' ? 'Signing in...' : 'กำลังเข้าสู่ระบบ...' %></span>
+                </span>
+            </button>
         </form>
 
-        <!-- Error Display -->
-        <div id="login-error" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            <div class="flex">
-                <div class="py-1">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                </div>
-                <div>
-                    <p id="error-message" class="text-sm"></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Features Section -->
-        <div class="mt-12">
-            <div class="text-center">
-                <h3 class="text-lg font-medium text-gray-900 mb-6">ระบบ LearnHub ของเรา</h3>
-            </div>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-ruxchai-primary">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-graduation-cap text-ruxchai-primary text-xl"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900">คอร์สเรียนออนไลน์</p>
-                        <p class="text-sm text-gray-500">เรียนรู้ทักษะใหม่ๆ</p>
-                    </div>
-                </div>
-
-                <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-ruxchai-primary">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-clipboard-check text-ruxchai-primary text-xl"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900">แบบทดสอบ</p>
-                        <p class="text-sm text-gray-500">ประเมินความรู้</p>
-                    </div>
-                </div>
-
-                <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-ruxchai-primary">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-users text-ruxchai-primary text-xl"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900">แชร์ความรู้</p>
-                        <p class="text-sm text-gray-500">แลกเปลี่ยนประสบการณ์</p>
-                    </div>
-                </div>
-
-                <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-ruxchai-primary">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-trophy text-ruxchai-primary text-xl"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900">ระบบคะแนน</p>
-                        <p class="text-sm text-gray-500">รับเหรียญรางวัล</p>
-                    </div>
-                </div>
-            </div>
+        <!-- Register Link -->
+        <div class="register-link">
+            <span data-th="ยังไม่มีบัญชี?" data-en="Don't have an account?"><%= t('dontHaveAccount') %></span>
+            <a href="/auth/register" data-th="สมัครสมาชิก" data-en="Create account"><%= t('createAccount') %></a>
         </div>
     </div>
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('login-form');
-    const loginBtn = document.getElementById('login-btn');
-    const loginText = document.getElementById('login-text');
-    const loginLoading = document.getElementById('login-loading');
-    const errorDiv = document.getElementById('login-error');
-    const errorMessage = document.getElementById('error-message');
+    <script>
+        let currentLang = 'th';
+        let isLoading = false;
 
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+        // Enhanced Language Manager for Auth
+        const AuthLanguageManager = {
+            current: 'th',
+            languages: {
+                th: { name: 'ไทย', native: 'ภาษาไทย', flag: 'th' },
+                en: { name: 'English', native: 'English', flag: 'en' }
+            },
 
-        // Show loading state
-        loginBtn.disabled = true;
-        loginText.classList.add('hidden');
-        loginLoading.classList.remove('hidden');
-        errorDiv.classList.add('hidden');
+            init() {
+                // Get current language from server-side template, then sync with localStorage
+                const serverLang = '<%= currentLanguage %>' || 'th';
+                const savedLang = this.getSavedLanguage();
 
-        try {
-            const formData = new FormData(form);
-            const response = await fetch('/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    employee_id: formData.get('employee_id'),
-                    password: formData.get('password'),
-                    remember: formData.get('remember-me') ? true : false
-                })
+                // If server and localStorage don't match, update localStorage to match server
+                if (savedLang && savedLang !== serverLang) {
+                    console.log(`🔄 [LOGIN] Syncing localStorage (${savedLang}) with server (${serverLang})`);
+                    localStorage.setItem('ruxchai_language', serverLang);
+                    localStorage.setItem('preferred_language', serverLang);
+                    sessionStorage.setItem('ruxchai_language', serverLang);
+                }
+
+                this.current = serverLang;
+                console.log('📍 [LOGIN] Current language:', this.current);
+                this.updateUI();
+                this.bindEvents();
+                currentLang = this.current;
+            },
+
+            getSavedLanguage() {
+                return localStorage.getItem('ruxchai_language') ||
+                       localStorage.getItem('preferred_language') ||
+                       sessionStorage.getItem('ruxchai_language');
+            },
+
+            updateUI() {
+                const currentLangText = document.getElementById('auth-current-language-text');
+                const thBtn = document.getElementById('auth-lang-th-btn');
+                const enBtn = document.getElementById('auth-lang-en-btn');
+
+                // Update language button text
+                if (currentLangText) {
+                    const lang = this.languages[this.current];
+                    currentLangText.textContent = lang.name;
+                    console.log('✅ [LOGIN] Updated UI language text to:', lang.name);
+                }
+
+                // Update active states
+                if (thBtn && enBtn) {
+                    thBtn.classList.toggle('active', this.current === 'th');
+                    enBtn.classList.toggle('active', this.current === 'en');
+                    console.log('✅ [LOGIN] Updated button states:', { th: this.current === 'th', en: this.current === 'en' });
+                }
+
+                // Update all translatable content
+                this.updateContent();
+
+                // Update document language
+                document.documentElement.lang = this.current;
+            },
+
+            updateContent() {
+                // Update text content
+                document.querySelectorAll('[data-th][data-en]').forEach(el => {
+                    const text = this.current === 'th' ? el.dataset.th : el.dataset.en;
+                    if (text) el.textContent = text;
+                });
+
+                // Update placeholders
+                document.querySelectorAll('[data-th-placeholder][data-en-placeholder]').forEach(el => {
+                    const placeholder = this.current === 'th' ? el.dataset.thPlaceholder : el.dataset.enPlaceholder;
+                    if (placeholder) el.placeholder = placeholder;
+                });
+            },
+
+            bindEvents() {
+                const languageSwitcher = document.getElementById('auth-language-switcher');
+                const languageMenu = document.getElementById('auth-language-menu');
+                const thBtn = document.getElementById('auth-lang-th-btn');
+                const enBtn = document.getElementById('auth-lang-en-btn');
+
+                if (languageSwitcher && languageMenu) {
+                    languageSwitcher.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isOpen = !languageMenu.classList.contains('hidden');
+
+                        if (isOpen) {
+                            languageMenu.classList.add('hidden');
+                            languageMenu.classList.remove('open');
+                        } else {
+                            languageMenu.classList.remove('hidden');
+                            languageMenu.classList.add('open');
+                        }
+
+                        const chevron = languageSwitcher.querySelector('.fa-chevron-down');
+                        if (chevron) {
+                            chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+                        }
+                    });
+
+                    document.addEventListener('click', () => {
+                        languageMenu.classList.add('hidden');
+                        languageMenu.classList.remove('open');
+                        const chevron = languageSwitcher.querySelector('.fa-chevron-down');
+                        if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    });
+
+                    languageMenu.addEventListener('click', (e) => e.stopPropagation());
+                }
+
+                if (thBtn) thBtn.addEventListener('click', () => this.changeLanguage('th'));
+                if (enBtn) enBtn.addEventListener('click', () => this.changeLanguage('en'));
+            },
+
+            async changeLanguage(lang) {
+                if (lang === this.current) return;
+
+                this.current = lang;
+                currentLang = lang;
+
+                // Save to localStorage with consistent key
+                localStorage.setItem('ruxchai_language', lang);
+                localStorage.setItem('preferred_language', lang);
+                sessionStorage.setItem('ruxchai_language', lang);
+
+                // Save to backend session/cookies immediately
+                try {
+                    await fetch('/language/switch', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ language: lang })
+                    });
+                    console.log(`✅ Language saved to backend: ${lang}`);
+                } catch (error) {
+                    console.error('Failed to save language to backend:', error);
+                }
+
+                this.updateUI();
+
+                // Close dropdown
+                const languageMenu = document.getElementById('auth-language-menu');
+                if (languageMenu) {
+                    languageMenu.classList.add('hidden');
+                    languageMenu.classList.remove('open');
+                }
+
+                // Show notification
+                this.showNotification(
+                    lang === 'th' ? 'เปลี่ยนภาษาเป็นไทยเรียบร้อยแล้ว' : 'Language changed to English'
+                );
+            },
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300';
+                notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => notification.remove(), 2000);
+            }
+        };
+
+        // Legacy function for compatibility
+        function switchLanguage(lang) {
+            AuthLanguageManager.changeLanguage(lang);
+        }
+
+        // Error handling
+        function showError(message) {
+            const errorAlert = document.getElementById('error-alert');
+            const errorText = document.getElementById('error-text');
+            errorText.textContent = message;
+            errorAlert.classList.add('show');
+        }
+
+        function hideError() {
+            document.getElementById('error-alert').classList.remove('show');
+        }
+
+        // Loading state
+        function setLoading(loading) {
+            isLoading = loading;
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+
+            btn.disabled = loading;
+            btnText.style.display = loading ? 'none' : 'inline';
+            btnLoading.style.display = loading ? 'flex' : 'none';
+        }
+
+        // Form submission
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (isLoading) return;
+
+            hideError();
+            setLoading(true);
+
+            const formData = new FormData(this);
+            const data = {
+                employee_id: formData.get('employee_id'),
+                password: formData.get('password'),
+                remember: formData.get('remember-me') ? true : false
+            };
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = result.redirectTo || result.redirectUrl || '/dashboard';
+                } else {
+                    const errorMsg = result.message || (currentLang === 'th'
+                        ? 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาตรวจสอบข้อมูลอีกครั้ง'
+                        : 'Login failed. Please check your credentials.');
+                    showError(errorMsg);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                const errorMsg = currentLang === 'th'
+                    ? 'เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง'
+                    : 'Connection error. Please try again.';
+                showError(errorMsg);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize enhanced language manager
+            AuthLanguageManager.init();
+
+            // Hide error on input
+            document.querySelectorAll('.input').forEach(input => {
+                input.addEventListener('input', hideError);
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                window.location.href = data.redirectTo || '/dashboard';
-            } else {
-                throw new Error(data.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
-            }
-        } catch (error) {
-            // Show error
-            errorMessage.textContent = error.message;
-            errorDiv.classList.remove('hidden');
-        } finally {
-            // Reset loading state
-            loginBtn.disabled = false;
-            loginText.classList.remove('hidden');
-            loginLoading.classList.add('hidden');
-        }
-    });
-
-    // Hide error on input change
-    form.addEventListener('input', function() {
-        errorDiv.classList.add('hidden');
-    });
-});
-</script>
+            // Auto focus first input
+            document.getElementById('employee_id').focus();
+        });
+    </script>
+</body>
+</html>

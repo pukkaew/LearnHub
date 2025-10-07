@@ -1,0 +1,768 @@
+/* Additional custom styles to complement the main tailwind.css */
+
+/* Official Ruxchai Government Gradient - ตรงตาม CI ฟ้า-เขียว */
+.ruxchai-gradient {
+  background: linear-gradient(135deg, #1565C0 0%, #1976D2 20%, #1E88E5 40%, #2196F3 60%, #4CAF50 80%, #00ACC1 100%);
+  position: relative;
+}
+
+.ruxchai-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.1) 100%);
+  pointer-events: none;
+}
+
+.ruxchai-gradient-reverse {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+}
+
+/* Modern Pill Navigation Styles */
+.nav-link {
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.88);
+  padding: 0.625rem 1.25rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  gap: 0.625rem;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  position: relative;
+  letter-spacing: 0.015em;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.nav-link:hover::after {
+  width: 70%;
+}
+
+.nav-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link-active,
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.nav-link-active::after,
+.nav-link.active::after {
+  width: 80%;
+  background: white;
+}
+
+.nav-link:active {
+  transform: translateY(0);
+}
+
+
+.nav-link-active {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.nav-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.25s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link:hover .nav-icon {
+  color: white;
+  transform: scale(1.05);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link-active .nav-icon,
+.nav-link.active .nav-icon {
+  color: white;
+  filter: brightness(110%);
+}
+
+/* Button Styles */
+.btn-ruxchai-primary {
+  background-color: #1e40af;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-ruxchai-primary:hover {
+  background-color: #1d4ed8;
+}
+
+/* Font Awesome icon spacing */
+i.fas, i.far, i.fab {
+    margin-right: 0.25rem;
+}
+
+/* Smooth transitions for all interactive elements */
+a, button, input, select, textarea {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Focus states for accessibility */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Icon Containers */
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+}
+
+.icon-container-primary {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.icon-container-secondary {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.icon-sm {
+  font-size: 0.875rem;
+}
+
+/* Status Online */
+.status-online {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: #10b981;
+  border: 2px solid white;
+  border-radius: 9999px;
+}
+
+/* Animation classes */
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ruxchai specific colors */
+.text-ruxchai-primary {
+  color: #1e40af;
+}
+
+.bg-ruxchai-primary {
+  background-color: #1e40af;
+}
+
+.bg-ruxchai-primary\/10 {
+  background-color: rgba(30, 64, 175, 0.1);
+}
+
+.bg-ruxchai-primary\/20 {
+  background-color: rgba(30, 64, 175, 0.2);
+}
+
+.border-ruxchai-primary {
+  border-color: #1e40af;
+}
+
+.ruxchai-icon-primary {
+  color: #ffffff;
+}
+
+.ruxchai-icon-secondary {
+  color: #bfdbfe;
+}
+
+/* Ruxchai Color System */
+.ruxchai-secondary {
+  background-color: #dc2626;
+}
+
+.text-ruxchai-secondary {
+  color: #dc2626;
+}
+
+.bg-ruxchai-secondary {
+  background-color: #dc2626;
+}
+
+.from-ruxchai-secondary {
+  --tw-gradient-from: #dc2626;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(220, 38, 38, 0));
+}
+
+.border-ruxchai-secondary {
+  border-color: #dc2626;
+}
+
+/* Fix for Tailwind utilities that might not be compiled */
+.bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.bg-white\/20 {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.border-white\/20 {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.border-white\/30 {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.text-white\/90 {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.text-white\/70 {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.border-blue-800\/20 {
+  border-color: rgba(30, 64, 175, 0.2);
+}
+
+/* Additional Font Awesome icon fixes */
+.fas, .far, .fab {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro";
+  font-weight: 900;
+}
+
+.far {
+  font-weight: 400;
+}
+
+.fab {
+  font-family: "Font Awesome 6 Brands";
+}
+
+/* Ensure icons display properly */
+i.fas::before, i.far::before, i.fab::before {
+  display: inline-block;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Logo Responsive Design */
+.logo-container {
+  transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: translateY(-1px);
+}
+
+/* Mobile Logo Adjustments */
+@media (max-width: 768px) {
+  .logo-container {
+    padding: 0.875rem 1rem !important;
+    border-radius: 1.25rem !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+    backdrop-filter: blur(12px) !important;
+  }
+
+  .logo-container .logo-image {
+    height: 4rem !important; /* 64px */
+    width: auto !important;
+  }
+
+  .logo-container .logo-text {
+    font-size: 1.25rem !important; /* 20px */
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+  }
+
+  .logo-container .logo-subtitle {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.2 !important;
+    font-weight: 500 !important;
+  }
+
+  .logo-container > div:first-child {
+    width: 4rem !important;
+    height: 4rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .logo-container {
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .logo-container .logo-image {
+    height: 2.5rem !important; /* 40px */
+  }
+
+  .logo-container .logo-text {
+    font-size: 1.125rem !important; /* 18px */
+  }
+
+  .logo-container .logo-subtitle {
+    display: none;
+  }
+
+  .logo-container > div:first-child {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  .logo-container > div:last-child {
+    margin-left: 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-container {
+    padding: 0.375rem 0.5rem !important;
+  }
+
+  .logo-container .logo-image {
+    height: 2rem !important; /* 32px */
+  }
+
+  .logo-container .logo-text {
+    font-size: 1rem !important; /* 16px */
+  }
+
+  .logo-container > div:first-child {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+}
+
+/* Professional Navigation Responsive Design */
+@media (min-width: 768px) {
+  .nav-height {
+    height: 5rem; /* 80px - for h-20 */
+  }
+}
+
+@media (max-width: 767px) {
+  .nav-height {
+    height: 4rem; /* 64px - tablet */
+  }
+
+  .logo-container {
+    padding: 0.625rem 0.875rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .logo-container .h-14 {
+    height: 2.5rem !important; /* 40px */
+    width: auto !important;
+  }
+
+  .logo-container .w-14 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  .logo-container .text-lg {
+    font-size: 1rem !important; /* 16px */
+  }
+
+  .logo-container .text-xs {
+    font-size: 0.7rem !important; /* 11px */
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-height {
+    height: 3.5rem; /* 56px - mobile */
+  }
+
+  .logo-container {
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  .logo-container .h-14 {
+    height: 2rem !important; /* 32px */
+  }
+
+  .logo-container .w-14 {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  .logo-container .text-lg {
+    font-size: 0.875rem !important; /* 14px */
+  }
+
+  .logo-container .text-xs {
+    display: none; /* Hide subtitle on small screens */
+  }
+}
+
+/* Modern Professional Logo Styles */
+.premium-logo-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  position: relative;
+}
+
+.premium-logo-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.premium-logo-container:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.15),
+    0 6px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.premium-logo-container:active {
+  transform: translateY(-1px) scale(1.01);
+  transition-duration: 0.15s;
+}
+
+/* Legacy logo container for compatibility */
+.logo-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+.logo-container:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.logo-container:active {
+  transform: translateY(-1px);
+}
+
+/* Modern Logo Text Effects */
+.premium-logo-text {
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 1px 4px rgba(0, 0, 0, 0.4);
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.015em;
+  filter: brightness(105%);
+  transition: all 0.3s ease;
+}
+
+.premium-logo-container:hover .premium-logo-text {
+  text-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+  filter: brightness(110%);
+}
+
+.premium-logo-subtitle {
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.3),
+    0 0 10px rgba(191, 219, 254, 0.3);
+  color: rgba(224, 242, 254, 0.92) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.025em;
+  transition: all 0.3s ease;
+}
+
+.premium-logo-container:hover .premium-logo-subtitle {
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+/* Legacy logo styles for compatibility */
+.logo-text {
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 1px 4px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(255, 255, 255, 0.2);
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.025em;
+  filter: brightness(105%);
+  transition: all 0.3s ease;
+}
+
+.logo-container:hover .logo-text {
+  text-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.6),
+    0 0 32px rgba(255, 255, 255, 0.3);
+  filter: brightness(110%);
+}
+
+.logo-subtitle {
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(191, 219, 254, 0.3);
+  color: rgba(191, 219, 254, 0.95) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+.logo-container:hover .logo-subtitle {
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure consistent font rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Loading spinner animation */
+.fa-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile Navigation Enhancements */
+@media (max-width: 767px) {
+  /* Navigation adjustments */
+  .nav-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Mobile menu button */
+  #mobile-menu-toggle {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  #mobile-menu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  #mobile-menu-toggle:active {
+    transform: scale(0.95);
+  }
+
+  /* Mobile menu styling */
+  #mobile-menu {
+    background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    backdrop-filter: blur(12px);
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  #mobile-menu .nav-link {
+    margin: 0.25rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+  }
+
+  #mobile-menu .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  #mobile-menu .nav-link:active {
+    transform: translateX(2px);
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Mobile menu icons */
+  #mobile-menu .nav-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Mobile menu text */
+  #mobile-menu .nav-link span {
+    font-size: 0.925rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 640px) {
+  .nav-container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  #mobile-menu-toggle {
+    padding: 0.625rem;
+  }
+
+  #mobile-menu .nav-link {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Very small mobile adjustments */
+@media (max-width: 480px) {
+  .nav-container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  #mobile-menu-toggle {
+    padding: 0.5rem;
+  }
+
+  #mobile-menu .nav-link {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  #mobile-menu .nav-link span {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Mobile navigation animations */
+@media (max-width: 767px) {
+  .mobile-slide-in {
+    animation: mobileSlideIn 0.3s ease-out;
+  }
+
+  .mobile-slide-out {
+    animation: mobileSlideOut 0.3s ease-in;
+  }
+
+  @keyframes mobileSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes mobileSlideOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Touch-friendly adjustments */
+  .nav-link, #mobile-menu-toggle {
+    min-height: 44px; /* Apple's recommended touch target size */
+    min-width: 44px;
+  }
+}

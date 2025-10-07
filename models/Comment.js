@@ -492,7 +492,7 @@ class Comment {
                     WHERE a.article_id = @articleId AND a.author_id != @commenterId
                 `);
 
-            if (authorResult.recordset.length === 0) return;
+            if (authorResult.recordset.length === 0) {return;}
 
             const article = authorResult.recordset[0];
 
@@ -542,7 +542,7 @@ class Comment {
                     WHERE c.comment_id = @parentCommentId AND c.user_id != @replierId
                 `);
 
-            if (parentResult.recordset.length === 0) return;
+            if (parentResult.recordset.length === 0) {return;}
 
             const parent = parentResult.recordset[0];
 
@@ -598,7 +598,7 @@ class Comment {
                     .input('title', sql.NVarChar(200), 'Comment Reported')
                     .input('message', sql.NVarChar(1000),
                         `A comment has been reported for: ${reason}`)
-                    .input('link', sql.NVarChar(500), `/admin/comments/reports`)
+                    .input('link', sql.NVarChar(500), '/admin/comments/reports')
                     .query(`
                         INSERT INTO Notifications (
                             notification_id, user_id, notification_type, title, message, link

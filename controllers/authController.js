@@ -7,8 +7,15 @@ const { poolPromise } = require('../config/database');
 
 const authController = {
     async renderLogin(req, res) {
+        const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+        const currentLang = getCurrentLanguage(req);
+        const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
         res.render('auth/login', {
-            title: 'เข้าสู่ระบบ',
+            layout: false,
+            title: t('login'),
+            currentLanguage: currentLang,
+            t: t,
             message: req.flash('message'),
             error: req.flash('error_msg')
         });
@@ -16,9 +23,12 @@ const authController = {
 
     async login(req, res) {
         try {
+            console.log('Login attempt - Content-Type:', req.get('Content-Type'));
+            console.log('Login attempt - Body:', req.body);
             const { employee_id, password, remember } = req.body;
 
             if (!employee_id || !password) {
+                console.log('Missing credentials - employee_id:', employee_id, 'password:', password ? '[REDACTED]' : 'undefined');
                 return res.status(400).json({
                     success: false,
                     message: 'กรุณากรอกรหัสพนักงานและรหัสผ่าน'
@@ -113,11 +123,16 @@ const authController = {
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days for refresh token
             });
 
+            // Preserve existing language setting before updating session
+            const existingLanguage = req.session.language;
+
             // Also store user data in session for compatibility
             req.session.user = {
                 user_id: user.user_id,
                 employee_id: user.employee_id,
+                username: user.employee_id, // Add username for compatibility
                 email: user.email,
+                role: user.role_name, // Add role field (same as role_name)
                 role_name: user.role_name,
                 first_name: user.first_name,
                 last_name: user.last_name,
@@ -127,6 +142,12 @@ const authController = {
                 department_name: user.department_name,
                 position_name: user.position_name
             };
+
+            // Restore language setting if it existed
+            if (existingLanguage) {
+                req.session.language = existingLanguage;
+                console.log(`🌐 Preserved language setting during login: ${existingLanguage}`);
+            }
 
             await ActivityLog.logLogin(user.user_id, req.ip, req.get('User-Agent'), req.sessionID, true);
 
@@ -171,10 +192,13 @@ const authController = {
                 }
             }
 
-            // Clear JWT cookies
-            res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
-            res.clearCookie('connect.sid'); // Clear session cookie
+            // Clear JWT cookies but preserve language cookies
+            res.clearCookie('accessToken', { path: '/' });
+            res.clearCookie('refreshToken', { path: '/' });
+            res.clearCookie('connect.sid', { path: '/' }); // Clear session cookie with correct path
+
+            // Note: We deliberately DO NOT clear language cookies (ruxchai_language, language, preferred_language)
+            // to preserve language preference across login sessions
 
             req.session.destroy((err) => {
                 if (err) {
@@ -510,8 +534,17 @@ const authController = {
         if (req.session.user) {
             return res.redirect('/dashboard');
         }
+
+        // Import language helpers
+        const { getTranslation, getCurrentLanguage } = require('../utils/languages');
+        const currentLang = getCurrentLanguage(req);
+        const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
         res.render('auth/login', {
-            title: 'เข้าสู่ระบบ - Rukchai Hongyen LearnHub'
+            title: `${t('login')} - Rukchai Hongyen LearnHub`,
+            currentLanguage: currentLang,
+            t: t,
+            language: currentLang
         });
     },
 

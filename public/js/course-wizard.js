@@ -18,7 +18,7 @@ function initializeWizard() {
 function changeStep(direction) {
     const nextStep = currentStep + direction;
 
-    if (nextStep < 1 || nextStep > totalSteps) return;
+    if (nextStep < 1 || nextStep > totalSteps) {return;}
 
     // Validate current step before moving
     if (direction > 0 && !validateStep(currentStep)) {
@@ -68,23 +68,23 @@ function updateStepDisplay() {
     const nextBtn = document.getElementById('next-btn');
     const submitBtn = document.getElementById('submit-btn');
 
-    if (prevBtn) prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
-    if (nextBtn) nextBtn.style.display = currentStep < totalSteps ? 'block' : 'none';
-    if (submitBtn) submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';
+    if (prevBtn) {prevBtn.style.display = currentStep > 1 ? 'block' : 'none';}
+    if (nextBtn) {nextBtn.style.display = currentStep < totalSteps ? 'block' : 'none';}
+    if (submitBtn) {submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';}
 }
 
 function validateStep(step) {
     switch (step) {
-        case 1:
-            return validateStep1();
-        case 2:
-            return validateStep2();
-        case 3:
-            return validateStep3();
-        case 4:
-            return validateStep4();
-        default:
-            return true;
+    case 1:
+        return validateStep1();
+    case 2:
+        return validateStep2();
+    case 3:
+        return validateStep3();
+    case 4:
+        return validateStep4();
+    default:
+        return true;
     }
 }
 
@@ -113,7 +113,7 @@ function validateStep2() {
     const objectives = document.querySelectorAll('input[name="objectives[]"]');
     let validObjectives = 0;
     objectives.forEach(obj => {
-        if (obj.value.trim()) validObjectives++;
+        if (obj.value.trim()) {validObjectives++;}
     });
 
     if (validObjectives < 3) {
@@ -135,7 +135,7 @@ function validateStep3() {
     const lessonTitles = document.querySelectorAll('input[name="lesson_titles[]"]');
     let validLessons = 0;
     lessonTitles.forEach(lesson => {
-        if (lesson.value.trim()) validLessons++;
+        if (lesson.value.trim()) {validLessons++;}
     });
 
     if (validLessons < 1) {
@@ -168,7 +168,7 @@ function setupRichTextEditor() {
     const hiddenInput = document.getElementById('description-input');
     const charCount = document.getElementById('char-count');
 
-    if (!editor) return;
+    if (!editor) {return;}
 
     editor.addEventListener('input', function() {
         const text = this.textContent;
@@ -380,7 +380,7 @@ function removeMaterial(button) {
 }
 
 function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) {return '0 Bytes';}
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -493,7 +493,7 @@ function generateCourseCode() {
 
 // Form Submission
 async function submitCourse() {
-    if (!validateStep(currentStep)) return;
+    if (!validateStep(currentStep)) {return;}
 
     try {
         const formData = collectFormData();

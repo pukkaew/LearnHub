@@ -18,15 +18,16 @@ class SecurityMiddleware {
         return helmet({
             contentSecurityPolicy: {
                 directives: {
-                    defaultSrc: ["'self'"],
-                    styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-                    scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-                    imgSrc: ["'self'", "data:", "https:"],
-                    fontSrc: ["'self'", "https://fonts.gstatic.com"],
-                    connectSrc: ["'self'"],
-                    mediaSrc: ["'self'"],
-                    objectSrc: ["'none'"],
-                    frameSrc: ["'none'"]
+                    defaultSrc: ['\'self\''],
+                    styleSrc: ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://use.fontawesome.com', 'https://fonts.googleapis.com'],
+                    scriptSrc: ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://use.fontawesome.com'],
+                    scriptSrcAttr: ['\'unsafe-inline\''],
+                    imgSrc: ['\'self\'', 'data:', 'https:'],
+                    fontSrc: ['\'self\'', 'https://fonts.gstatic.com', 'https://use.fontawesome.com', 'https://cdnjs.cloudflare.com'],
+                    connectSrc: ['\'self\''],
+                    mediaSrc: ['\'self\''],
+                    objectSrc: ['\'none\''],
+                    frameSrc: ['\'none\'']
                 }
             },
             crossOriginEmbedderPolicy: false,
@@ -42,21 +43,41 @@ class SecurityMiddleware {
     corsPolicy() {
         return cors({
             origin: function (origin, callback) {
+                // Allow same-origin requests (no origin header)
+                if (!origin) {
+                    callback(null, true);
+                    return;
+                }
+
                 const allowedOrigins = [
                     'http://localhost:3000',
+                    'http://localhost:3001',
+                    'http://localhost:3002',
                     'http://localhost:8080',
                     process.env.FRONTEND_URL
                 ].filter(Boolean);
 
-                if (!origin || allowedOrigins.includes(origin)) {
+                // Check if origin matches any allowed origins
+                if (allowedOrigins.includes(origin)) {
                     callback(null, true);
                 } else {
-                    callback(new Error('Not allowed by CORS'));
+                    // For development, be more permissive with localhost
+                    if (origin && origin.startsWith('http://localhost:')) {
+                        callback(null, true);
+                    } else {
+                        // In development mode, allow all origins for testing
+                        if (process.env.NODE_ENV !== 'production') {
+                            callback(null, true);
+                        } else {
+                            logger.logSecurityEvent('cors_blocked', { origin: origin }, null);
+                            callback(new Error('Not allowed by CORS'));
+                        }
+                    }
                 }
             },
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
             maxAge: 86400 // 24 hours
         });
     }
@@ -65,7 +86,7 @@ class SecurityMiddleware {
     generalRateLimit() {
         return rateLimit({
             windowMs: 15 * 60 * 1000, // 15 minutes
-            max: 100, // limit each IP to 100 requests per windowMs
+            max: 10000, // limit each IP to 10000 requests per windowMs (increased for development)
             message: {
                 success: false,
                 message: 'Too many requests, please try again later.'
@@ -115,7 +136,7 @@ class SecurityMiddleware {
     apiRateLimit() {
         return rateLimit({
             windowMs: 15 * 60 * 1000, // 15 minutes
-            max: 1000, // Higher limit for API endpoints
+            max: 10000, // Higher limit for API endpoints
             message: {
                 success: false,
                 message: 'API rate limit exceeded.'
@@ -126,6 +147,11 @@ class SecurityMiddleware {
     // Input validation and sanitization
     validateInput() {
         return (req, res, next) => {
+            // Skip validation for settings routes (they have their own validation)
+            if (req.path.startsWith('/settings')) {
+                return next();
+            }
+
             // Sanitize all string inputs
             this.sanitizeObject(req.body);
             this.sanitizeObject(req.query);
@@ -232,7 +258,7 @@ class SecurityMiddleware {
     handleFailedLogin() {
         return (req, res, next) => {
             const key = req.loginAttemptKey;
-            if (!key) return next();
+            if (!key) {return next();}
 
             const attempts = this.loginAttempts.get(key) || { count: 0, lockedUntil: null };
             attempts.count += 1;

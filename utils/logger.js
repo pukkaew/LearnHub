@@ -491,7 +491,7 @@ class Logger {
             files.forEach(file => {
                 const filePath = path.join(logsDir, file);
                 fs.stat(filePath, (err, stats) => {
-                    if (err) return;
+                    if (err) {return;}
 
                     if (stats.mtime < cutoffDate) {
                         fs.unlink(filePath, (err) => {

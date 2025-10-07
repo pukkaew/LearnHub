@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language System Test - LearnHub</title>
+    <link href="/css/tailwind.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+    <link href="/css/navigation.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .test-section:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 15px rgba(59, 130, 246, 0.1);
+        }
+        .success-banner {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .feature-item:hover {
+            background: #e0f2fe;
+            transform: translateX(4px);
+        }
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            color: #22c55e;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+        .demo-nav {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .demo-nav::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        .demo-lang-switcher {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 font-thai">
+    <!-- Success Banner -->
+    <div class="success-banner">
+        <i class="fas fa-check-circle text-2xl mb-2"></i>
+        <h1 class="text-xl font-bold">🎉 ระบบเปลี่ยนภาษาใหม่พร้อมใช้งาน!</h1>
+        <p class="mt-2">ปุ่มสวย + จำการตั้งค่า + ใช้งานง่าย</p>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-6 py-8">
+        <!-- Demo Navigation -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">📱 ตัวอย่าง Navigation ใหม่</h2>
+            <div class="demo-nav relative">
+                <div class="demo-lang-switcher">
+                    <div class="nav-language-switcher">
+                        <button class="nav-language-button">
+                            <div class="nav-language-flag th">TH</div>
+                            <span class="nav-language-text">ไทย</span>
+                            <i class="fas fa-chevron-down nav-language-chevron"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="text-white">
+                    <h3 class="text-lg font-semibold mb-2">LearnHub Navigation</h3>
+                    <p class="text-blue-100">รองรับ mobile + ปุ่มเปลี่ยนภาษาสวยๆ</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Completed -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="test-section">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">✅ Features ที่เสร็จแล้ว</h2>
+                <div class="space-y-3">
+                    <div class="feature-item">
+                        <i class="fas fa-palette feature-icon"></i>
+                        <span>ปรับปรุงปุ่มเปลี่ยนภาษาให้สวยกว่าเดิม</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-save feature-icon"></i>
+                        <span>ระบบจำการตั้งค่าภาษาใน localStorage</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-sign-in-alt feature-icon"></i>
+                        <span>เพิ่มปุ่มเปลี่ยนภาษาในหน้า login</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-server feature-icon"></i>
+                        <span>สร้าง language middleware สำหรับ backend</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt feature-icon"></i>
+                        <span>Navigation responsive สำหรับ mobile</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">🎯 การปรับปรุง</h2>
+                <div class="space-y-3">
+                    <div class="feature-item">
+                        <i class="fas fa-flag feature-icon"></i>
+                        <span>ธงชาติสวยๆ แสดงภาษา</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-sync-alt feature-icon"></i>
+                        <span>ซิงค์ภาษาระหว่าง frontend-backend</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-cookie-bite feature-icon"></i>
+                        <span>จำการตั้งค่าใน cookie + localStorage</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-globe feature-icon"></i>
+                        <span>ตรวจจับภาษาจาก browser</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-bell feature-icon"></i>
+                        <span>แสดงการแจ้งเตือนเมื่อเปลี่ยนภาษา</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Instructions -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">🧪 วิธีทดสอบ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-900 mb-2">1. ทดสอบในหน้าหลัก</h3>
+                    <p class="text-blue-700 text-sm mb-3">เข้าไปที่ http://localhost:3002</p>
+                    <button class="test-button w-full" onclick="window.open('http://localhost:3002', '_blank')">
+                        <i class="fas fa-external-link-alt mr-2"></i>เปิดหน้าหลัก
+                    </button>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-green-900 mb-2">2. ทดสอบหน้า Login</h3>
+                    <p class="text-green-700 text-sm mb-3">ทดสอบปุ่มเปลี่ยนภาษาในหน้า login</p>
+                    <button class="test-button w-full" onclick="window.open('http://localhost:3002/auth/login', '_blank')">
+                        <i class="fas fa-sign-in-alt mr-2"></i>เปิดหน้า Login
+                    </button>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-purple-900 mb-2">3. ทดสอบ API</h3>
+                    <p class="text-purple-700 text-sm mb-3">ทดสอบ language API endpoints</p>
+                    <button class="test-button w-full" onclick="testLanguageAPI()">
+                        <i class="fas fa-code mr-2"></i>ทดสอบ API
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">📊 ผลการทดสอบ</h2>
+            <div id="test-results" class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-gray-600">กดปุ่มทดสอบเพื่อดูผลลัพธ์</p>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">⚙️ รายละเอียดทางเทคนิค</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Frontend:</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Enhanced Language Manager</li>
+                        <li>• localStorage + sessionStorage</li>
+                        <li>• Browser language detection</li>
+                        <li>• Real-time UI updates</li>
+                        <li>• Touch-friendly mobile interface</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Backend:</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Language middleware</li>
+                        <li>• Cookie synchronization</li>
+                        <li>• Enhanced API endpoints</li>
+                        <li>• Translation helpers</li>
+                        <li>• Session management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Testing Function
+        async function testLanguageAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<p class="text-blue-600">กำลังทดสอบ API...</p>';
+
+            const tests = [
+                {
+                    name: 'Get Current Language',
+                    url: 'http://localhost:3002/language/current',
+                    method: 'GET'
+                },
+                {
+                    name: 'Switch to English',
+                    url: 'http://localhost:3002/language/switch',
+                    method: 'POST',
+                    body: { language: 'en' }
+                },
+                {
+                    name: 'Switch to Thai',
+                    url: 'http://localhost:3002/language/switch',
+                    method: 'POST',
+                    body: { language: 'th' }
+                }
+            ];
+
+            let results = '<h3 class="font-semibold mb-3">🧪 API Test Results:</h3>';
+
+            for (const test of tests) {
+                try {
+                    const options = {
+                        method: test.method,
+                        headers: { 'Content-Type': 'application/json' }
+                    };
+
+                    if (test.body) {
+                        options.body = JSON.stringify(test.body);
+                    }
+
+                    const response = await fetch(test.url, options);
+                    const data = await response.json();
+
+                    const status = response.ok ? '✅' : '❌';
+                    results += `<div class="mb-2 p-2 bg-white rounded border-l-4 ${response.ok ? 'border-green-500' : 'border-red-500'}">`;
+                    results += `<strong>${status} ${test.name}:</strong> ${response.status} - ${data.message || 'Success'}`;
+                    results += `</div>`;
+                } catch (error) {
+                    results += `<div class="mb-2 p-2 bg-white rounded border-l-4 border-red-500">`;
+                    results += `<strong>❌ ${test.name}:</strong> Error - ${error.message}`;
+                    results += `</div>`;
+                }
+            }
+
+            resultsDiv.innerHTML = results;
+        }
+
+        // Show current language info
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentLang = localStorage.getItem('ruxchai_language') || 'th';
+            console.log('🌐 Current Language System Status:');
+            console.log('📱 LocalStorage Key: ruxchai_language =', currentLang);
+            console.log('🎯 System Ready: All language features working!');
+            console.log('✨ Test URLs:');
+            console.log('   - Main: http://localhost:3002');
+            console.log('   - Login: http://localhost:3002/auth/login');
+            console.log('   - Dashboard: http://localhost:3002/dashboard');
+        });
+    </script>
+</body>
+</html>

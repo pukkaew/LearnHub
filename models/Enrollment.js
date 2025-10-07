@@ -332,7 +332,7 @@ class Enrollment {
                 // Get user_id from enrollment
                 const enrollmentResult = await pool.request()
                     .input('enrollmentId', sql.Int, enrollmentId)
-                    .query(`SELECT user_id FROM user_courses WHERE enrollment_id = @enrollmentId`);
+                    .query('SELECT user_id FROM user_courses WHERE enrollment_id = @enrollmentId');
 
                 if (enrollmentResult.recordset.length === 0) {
                     return { success: false, message: 'Enrollment not found' };
@@ -460,7 +460,7 @@ class Enrollment {
                 // Add gamification points
                 const enrollmentInfo = await pool.request()
                     .input('enrollmentId', sql.Int, enrollmentId)
-                    .query(`SELECT user_id FROM user_courses WHERE enrollment_id = @enrollmentId`);
+                    .query('SELECT user_id FROM user_courses WHERE enrollment_id = @enrollmentId');
 
                 if (enrollmentInfo.recordset.length > 0) {
                     await pool.request()

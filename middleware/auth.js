@@ -145,7 +145,9 @@ const authMiddleware = {
                     res.locals.isAuthenticated = true;
                 } else {
                     // User no longer exists or is inactive
-                    req.session.destroy();
+                    if (req.session && typeof req.session.destroy === 'function') {
+                        req.session.destroy(() => {});
+                    }
                     res.locals.user = null;
                     res.locals.isAuthenticated = false;
                 }
@@ -187,44 +189,44 @@ const authMiddleware = {
 
                 // Resource-specific access control
                 switch (resourceType) {
-                    case 'user':
-                        // Users can only edit their own profile
-                        if (user.user_id === resourceId ||
+                case 'user':
+                    // Users can only edit their own profile
+                    if (user.user_id === resourceId ||
                             ['Admin', 'HR', 'Manager'].includes(user.role_name)) {
-                            return next();
-                        }
-                        break;
-
-                    case 'course':
-                        // Instructors can edit their own courses
-                        if (['Admin', 'HR', 'Manager', 'Instructor'].includes(user.role_name)) {
-                            return next();
-                        }
-                        break;
-
-                    case 'test':
-                        // Instructors can edit their own tests
-                        if (['Admin', 'HR', 'Manager', 'Instructor'].includes(user.role_name)) {
-                            return next();
-                        }
-                        break;
-
-                    case 'article':
-                        // Authors can edit their own articles
-                        if (['Admin', 'HR', 'Manager', 'Instructor'].includes(user.role_name)) {
-                            return next();
-                        }
-                        break;
-
-                    case 'applicant':
-                        // HR can manage applicants
-                        if (['Admin', 'HR'].includes(user.role_name)) {
-                            return next();
-                        }
-                        break;
-
-                    default:
                         return next();
+                    }
+                    break;
+
+                case 'course':
+                    // Instructors can edit their own courses
+                    if (['Admin', 'HR', 'Manager', 'Instructor'].includes(user.role_name)) {
+                        return next();
+                    }
+                    break;
+
+                case 'test':
+                    // Instructors can edit their own tests
+                    if (['Admin', 'HR', 'Manager', 'Instructor'].includes(user.role_name)) {
+                        return next();
+                    }
+                    break;
+
+                case 'article':
+                    // Authors can edit their own articles
+                    if (['Admin', 'HR', 'Manager', 'Instructor'].includes(user.role_name)) {
+                        return next();
+                    }
+                    break;
+
+                case 'applicant':
+                    // HR can manage applicants
+                    if (['Admin', 'HR'].includes(user.role_name)) {
+                        return next();
+                    }
+                    break;
+
+                default:
+                    return next();
                 }
 
                 // Access denied
@@ -314,6 +316,136 @@ const authMiddleware = {
             req.flash('error_msg', 'กรุณาเปลี่ยนรหัสผ่านก่อนใช้งาน');
             return res.redirect('/change-password');
         }
+        next();
+    },
+
+    // Helper middlewares
+    isAuthenticated: function(req, res, next) {
+        // Check session first
+        if (req.session && req.session.user) {
+            return next();
+        }
+
+        // Check JWT from cookies
+        const accessToken = req.cookies?.accessToken;
+        if (accessToken) {
+            try {
+                const decoded = JWTUtils.verifyAccessToken(accessToken);
+                req.user = decoded;
+                req.session = req.session || {};
+                req.session.user = {
+                    user_id: decoded.userId,
+                    username: decoded.email,
+                    role: decoded.role,
+                    role_name: decoded.role,
+                    email: decoded.email,
+                    first_name: decoded.firstName,
+                    last_name: decoded.lastName
+                };
+                return next();
+            } catch (error) {
+                // Token invalid, continue to error
+            }
+        }
+
+        if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+            return res.status(401).json({
+                success: false,
+                message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน'
+            });
+        }
+        req.flash('error_msg', 'กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        return res.redirect('/auth/login');
+    },
+
+    isAdmin: function(req, res, next) {
+        // Check session first
+        if (!req.session || !req.session.user) {
+            // Try JWT from cookies
+            const accessToken = req.cookies?.accessToken;
+            if (accessToken) {
+                try {
+                    const decoded = JWTUtils.verifyAccessToken(accessToken);
+                    req.user = decoded;
+                    req.session = req.session || {};
+                    req.session.user = {
+                        user_id: decoded.userId,
+                        username: decoded.email,
+                        role: decoded.role,
+                        role_name: decoded.role,
+                        email: decoded.email,
+                        first_name: decoded.firstName,
+                        last_name: decoded.lastName
+                    };
+                } catch (error) {
+                    if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+                        return res.status(401).json({
+                            success: false,
+                            message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน'
+                        });
+                    }
+                    req.flash('error_msg', 'กรุณาเข้าสู่ระบบก่อนใช้งาน');
+                    return res.redirect('/auth/login');
+                }
+            } else {
+                if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+                    return res.status(401).json({
+                        success: false,
+                        message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน'
+                    });
+                }
+                req.flash('error_msg', 'กรุณาเข้าสู่ระบบก่อนใช้งาน');
+                return res.redirect('/auth/login');
+            }
+        }
+
+        // Support both 'role' and 'role_name' fields
+        const userRole = (req.session.user.role || req.session.user.role_name || '').toUpperCase();
+        const allowedRoles = ['ADMIN', 'SUPER_ADMIN'];
+
+        if (!allowedRoles.includes(userRole)) {
+            console.log('❌ Access denied - User role:', userRole, 'User:', req.session.user.username);
+            if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้'
+                });
+            }
+            req.flash('error_msg', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (Admin Only)');
+            return res.redirect('/dashboard');
+        }
+
+        console.log('✅ Admin access granted - User:', req.session.user.username, 'Role:', userRole);
+        next();
+    },
+
+    isAdminOrManager: function(req, res, next) {
+        if (!req.session || !req.session.user) {
+            if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน'
+                });
+            }
+            req.flash('error_msg', 'กรุณาเข้าสู่ระบบก่อนใช้งาน');
+            return res.redirect('/auth/login');
+        }
+
+        // Support both 'role' and 'role_name' fields
+        const userRole = req.session.user.role || req.session.user.role_name || '';
+        const allowedRoles = ['ADMIN', 'SUPER_ADMIN', 'MANAGER'];
+
+        if (!allowedRoles.includes(userRole)) {
+            if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้'
+                });
+            }
+            req.flash('error_msg', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+            return res.redirect('/dashboard');
+        }
+
         next();
     }
 };

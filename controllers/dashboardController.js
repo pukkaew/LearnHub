@@ -1,4 +1,3 @@
-const Dashboard = require('../models/Dashboard');
 const Notification = require('../models/Notification');
 const ActivityLog = require('../models/ActivityLog');
 const { poolPromise } = require('../config/database');
@@ -9,11 +8,17 @@ const dashboardController = {
             const userId = req.user.userId;
             const userRole = req.user.role;
 
-            const dashboardResult = await Dashboard.getUserDashboardData(userId, userRole);
-
-            if (!dashboardResult.success) {
-                return res.status(400).json(dashboardResult);
-            }
+            // Simple dashboard data without Dashboard model
+            const dashboardData = {
+                user_id: userId,
+                role: userRole,
+                stats: {
+                    courses: 0,
+                    tests: 0,
+                    articles: 0,
+                    badges: 0
+                }
+            };
 
             await ActivityLog.create({
                 user_id: userId,
@@ -29,7 +34,7 @@ const dashboardController = {
 
             res.json({
                 success: true,
-                data: dashboardResult.data
+                data: dashboardData
             });
 
         } catch (error) {
@@ -47,38 +52,42 @@ const dashboardController = {
             const userRole = req.user.role;
             const user = req.session.user;
 
-            const dashboardResult = await Dashboard.getUserDashboardData(userId, userRole);
+            // Ensure translation function exists
+            const { getTranslation, getCurrentLanguage } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
+            // TODO: Implement Dashboard model later
+            // const dashboardResult = await Dashboard.getUserDashboardData(userId, userRole);
+            const dashboardResult = { success: true, data: { stats: {} } };
 
             if (!dashboardResult.success) {
                 return res.render('dashboard/index', {
                     title: 'แดשบอร์ด - Rukchai Hongyen LearnHub',
                     user: user,
                     userRole: userRole,
-                    error: 'ไม่สามารถโหลดข้อมูลแดชบอร์ดได้'
+                    error: 'ไม่สามารถโหลดข้อมูลแดชบอร์ดได้',
+                    t: t,
+                    language: currentLang
                 });
             }
 
             const dashboardData = dashboardResult.data;
 
             let pageTitle = 'แดชบอร์ด';
-            let template = 'dashboard/index';
 
             switch (userRole) {
                 case 'Admin':
                     pageTitle = 'แดชบอร์ดผู้ดูแลระบบ';
-                    template = 'dashboard/admin';
                     break;
                 case 'HR':
                     pageTitle = 'แดชบอร์ดฝ่ายทรัพยากรบุคคล';
-                    template = 'dashboard/hr';
                     break;
                 case 'Instructor':
                     pageTitle = 'แดชบอร์ดผู้สอน';
-                    template = 'dashboard/instructor';
                     break;
                 case 'Learner':
                     pageTitle = 'แดชบอร์ดผู้เรียน';
-                    template = 'dashboard/learner';
                     break;
             }
 
@@ -94,20 +103,27 @@ const dashboardController = {
                 module: 'Dashboard'
             });
 
-            res.render(template, {
+            res.render('dashboard/index', {
                 title: `${pageTitle} - Rukchai Hongyen LearnHub`,
                 user: user,
                 userRole: userRole,
-                dashboardData: dashboardData
+                dashboardData: dashboardData,
+                t: t,
+                language: currentLang
             });
 
         } catch (error) {
             console.error('Render dashboard error:', error);
+            const { getTranslation, getCurrentLanguage } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = (key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue;
             res.render('dashboard/index', {
                 title: 'แดชบอร์ด - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role,
-                error: 'เกิดข้อผิดพลาดในการโหลดแดชบอร์ด'
+                error: 'เกิดข้อผิดพลาดในการโหลดแดชบอร์ด',
+                t: t,
+                language: currentLang
             });
         }
     },
@@ -538,6 +554,128 @@ const dashboardController = {
             res.status(500).json({
                 success: false,
                 message: 'เกิดข้อผิดพลาดในการโหลดกิจกรรมที่กำลังจะมาถึง'
+            });
+        }
+    },
+
+    async getRecentCourses(req, res) {
+        try {
+            const userId = req.user?.userId || req.session.user?.user_id;
+            const pool = await poolPromise;
+
+            // Demo data for now
+            const courses = [
+                {
+                    course_id: 1,
+                    title: 'Introduction to Node.js',
+                    instructor_name: 'John Doe',
+                    thumbnail: '/images/course-default.jpg',
+                    progress_percentage: 75
+                },
+                {
+                    course_id: 2,
+                    title: 'JavaScript Fundamentals',
+                    instructor_name: 'Jane Smith',
+                    thumbnail: '/images/course-default.jpg',
+                    progress_percentage: 45
+                }
+            ];
+
+            res.json({
+                success: true,
+                data: courses
+            });
+
+        } catch (error) {
+            console.error('Get recent courses error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดคอร์สล่าสุด'
+            });
+        }
+    },
+
+    async getProgress(req, res) {
+        try {
+            const userId = req.user?.userId || req.session.user?.user_id;
+
+            // Demo data for now
+            const progress = [
+                { title: 'Node.js Advanced', progress_percentage: 85 },
+                { title: 'React Development', progress_percentage: 60 },
+                { title: 'Database Design', progress_percentage: 30 }
+            ];
+
+            res.json({
+                success: true,
+                data: progress
+            });
+
+        } catch (error) {
+            console.error('Get progress error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดความคืบหน้า'
+            });
+        }
+    },
+
+    async getRecentArticles(req, res) {
+        try {
+            // Demo data for now
+            const articles = [
+                {
+                    article_id: 1,
+                    title: 'Getting Started with Express.js',
+                    excerpt: 'Learn the basics of Express.js framework...',
+                    author_name: 'Admin User',
+                    published_at: new Date(),
+                    view_count: 125
+                },
+                {
+                    article_id: 2,
+                    title: 'Best Practices in JavaScript',
+                    excerpt: 'Improve your JavaScript coding skills...',
+                    author_name: 'Jane Doe',
+                    published_at: new Date(),
+                    view_count: 89
+                }
+            ];
+
+            res.json({
+                success: true,
+                data: articles
+            });
+
+        } catch (error) {
+            console.error('Get recent articles error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดบทความล่าสุด'
+            });
+        }
+    },
+
+    async getMyBadges(req, res) {
+        try {
+            // Demo data for now
+            const badges = [
+                { name: 'First Login', icon: 'fa-star' },
+                { name: 'Course Complete', icon: 'fa-graduation-cap' },
+                { name: 'Test Master', icon: 'fa-trophy' },
+                { name: 'Article Writer', icon: 'fa-pen' }
+            ];
+
+            res.json({
+                success: true,
+                data: badges
+            });
+
+        } catch (error) {
+            console.error('Get my badges error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดเหรียญรางวัล'
             });
         }
     }

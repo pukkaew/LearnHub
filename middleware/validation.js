@@ -464,7 +464,7 @@ class ValidationMiddleware {
     // Email validation
     validateEmailUniqueness() {
         return async (req, res, next) => {
-            if (!req.body.email) return next();
+            if (!req.body.email) {return next();}
 
             try {
                 const db = require('../config/database');

@@ -127,26 +127,26 @@ class RichTextEditor {
     handleKeyboardShortcuts(e) {
         if (e.ctrlKey || e.metaKey) {
             switch (e.key) {
-                case 'b':
-                    e.preventDefault();
-                    this.formatText('bold');
-                    break;
-                case 'i':
-                    e.preventDefault();
-                    this.formatText('italic');
-                    break;
-                case 'u':
-                    e.preventDefault();
-                    this.formatText('underline');
-                    break;
-                case 'k':
-                    e.preventDefault();
-                    this.insertLink();
-                    break;
-                case 's':
-                    e.preventDefault();
-                    this.autoSave();
-                    break;
+            case 'b':
+                e.preventDefault();
+                this.formatText('bold');
+                break;
+            case 'i':
+                e.preventDefault();
+                this.formatText('italic');
+                break;
+            case 'u':
+                e.preventDefault();
+                this.formatText('underline');
+                break;
+            case 'k':
+                e.preventDefault();
+                this.insertLink();
+                break;
+            case 's':
+                e.preventDefault();
+                this.autoSave();
+                break;
             }
         }
 
@@ -248,7 +248,7 @@ class RichTextEditor {
     }
 
     formatHeading(tag) {
-        if (!tag) return;
+        if (!tag) {return;}
 
         this.formatText('formatBlock', tag);
     }
@@ -366,7 +366,7 @@ class RichTextEditor {
                     <pre style="background-color: #f8f8f8; border: 1px solid #e1e1e1; border-radius: 4px; padding: 16px; margin: 16px 0; overflow-x: auto;"><code contenteditable="true" style="font-family: 'Courier New', monospace;">// Your code here</code></pre>
                 `);
             } else {
-                this.insertHTML(`<code style="background-color: #f1f1f1; padding: 2px 4px; border-radius: 3px; font-family: monospace;">code</code>`);
+                this.insertHTML('<code style="background-color: #f1f1f1; padding: 2px 4px; border-radius: 3px; font-family: monospace;">code</code>');
             }
         }
     }

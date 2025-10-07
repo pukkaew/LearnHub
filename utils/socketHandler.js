@@ -12,7 +12,7 @@ class SocketHandler {
     }
 
     setupEventHandlers() {
-        if (!this.io) return;
+        if (!this.io) {return;}
 
         this.io.on('connection', (socket) => {
             console.log('New socket connection:', socket.id);

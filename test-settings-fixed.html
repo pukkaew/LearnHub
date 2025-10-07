@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบ Settings - Fixed Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-pass { color: #10b981; }
+        .test-fail { color: #ef4444; }
+        .test-pending { color: #f59e0b; }
+        .log-entry {
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-info { background: #e0f2fe; }
+        .log-success { background: #d1fae5; }
+        .log-error { background: #fee2e2; }
+        .log-warning { background: #fef3c7; }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-vial text-blue-600"></i>
+                ทดสอบระบบ Settings (Fixed Version)
+            </h1>
+            <p class="text-gray-600 mb-4">ทดสอบการแก้ไข User Settings Error และ CSRF Token</p>
+
+            <!-- Status Summary -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-blue-600" id="totalTests">0</div>
+                    <div class="text-sm text-gray-600">Total Tests</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-green-600" id="passedTests">0</div>
+                    <div class="text-sm text-gray-600">Passed</div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-red-600" id="failedTests">0</div>
+                    <div class="text-sm text-gray-600">Failed</div>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                    <div class="text-3xl font-bold text-yellow-600" id="pendingTests">0</div>
+                    <div class="text-sm text-gray-600">Pending</div>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginSection" class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h2 class="text-xl font-semibold mb-3">
+                    <i class="fas fa-sign-in-alt text-blue-600"></i> Login
+                </h2>
+                <div class="flex gap-3">
+                    <input type="text" id="employeeId" value="ADM001"
+                           class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                           placeholder="Employee ID">
+                    <input type="password" id="password" value="password123"
+                           class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                           placeholder="Password">
+                    <button onclick="login()"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 mb-6">
+                <button onclick="runAllTests()"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                    <i class="fas fa-play mr-2"></i>Run All Tests
+                </button>
+                <button onclick="testUserSettingsMiddleware()"
+                        class="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    <i class="fas fa-user-cog mr-2"></i>Test User Settings
+                </button>
+                <button onclick="testCSRFToken()"
+                        class="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    <i class="fas fa-shield-alt mr-2"></i>Test CSRF Token
+                </button>
+                <button onclick="testBatchUpdate()"
+                        class="px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                    <i class="fas fa-save mr-2"></i>Test Batch Update
+                </button>
+                <button onclick="clearLog()"
+                        class="px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                    <i class="fas fa-trash mr-2"></i>Clear Log
+                </button>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-list-check text-green-600"></i>
+                Test Results
+            </h2>
+            <div id="testResults" class="space-y-2">
+                <div class="text-gray-500 italic">No tests run yet...</div>
+            </div>
+        </div>
+
+        <!-- Console Log -->
+        <div class="bg-gray-900 rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold text-white mb-4">
+                <i class="fas fa-terminal text-green-400"></i>
+                Console Log
+            </h2>
+            <div id="consoleLog" class="space-y-1 max-h-96 overflow-y-auto">
+                <div class="log-entry log-info">System ready...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cookies = '';
+        let csrfToken = '';
+        let testResults = [];
+        let stats = { total: 0, passed: 0, failed: 0, pending: 0 };
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('consoleLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('totalTests').textContent = stats.total;
+            document.getElementById('passedTests').textContent = stats.passed;
+            document.getElementById('failedTests').textContent = stats.failed;
+            document.getElementById('pendingTests').textContent = stats.pending;
+        }
+
+        function addTestResult(name, status, message, details = null) {
+            const resultsDiv = document.getElementById('testResults');
+            if (testResults.length === 0) {
+                resultsDiv.innerHTML = '';
+            }
+
+            const result = { name, status, message, details, timestamp: new Date() };
+            testResults.push(result);
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `p-4 rounded-lg border-l-4 ${
+                status === 'pass' ? 'bg-green-50 border-green-500' :
+                status === 'fail' ? 'bg-red-50 border-red-500' :
+                'bg-yellow-50 border-yellow-500'
+            }`;
+
+            const icon = status === 'pass' ? 'fa-check-circle text-green-600' :
+                        status === 'fail' ? 'fa-times-circle text-red-600' :
+                        'fa-clock text-yellow-600';
+
+            resultDiv.innerHTML = `
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <i class="fas ${icon}"></i>
+                            <span class="font-semibold">${name}</span>
+                            <span class="text-xs text-gray-500">${result.timestamp.toLocaleTimeString()}</span>
+                        </div>
+                        <div class="text-sm text-gray-700 mt-1">${message}</div>
+                        ${details ? `<pre class="text-xs bg-gray-100 p-2 mt-2 rounded overflow-x-auto">${JSON.stringify(details, null, 2)}</pre>` : ''}
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.insertBefore(resultDiv, resultsDiv.firstChild);
+
+            stats.total++;
+            if (status === 'pass') stats.passed++;
+            else if (status === 'fail') stats.failed++;
+            else stats.pending++;
+            updateStats();
+        }
+
+        function clearLog() {
+            document.getElementById('consoleLog').innerHTML = '<div class="log-entry log-info">Log cleared...</div>';
+            testResults = [];
+            document.getElementById('testResults').innerHTML = '<div class="text-gray-500 italic">No tests run yet...</div>';
+            stats = { total: 0, passed: 0, failed: 0, pending: 0 };
+            updateStats();
+        }
+
+        async function login() {
+            try {
+                log('Attempting login...', 'info');
+                const employeeId = document.getElementById('employeeId').value;
+                const password = document.getElementById('password').value;
+
+                const response = await fetch('http://localhost:3000/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ employee_id: employeeId, password }),
+                    credentials: 'include'
+                });
+
+                const setCookieHeader = response.headers.get('set-cookie');
+                if (setCookieHeader) {
+                    cookies = setCookieHeader;
+                    log(`Cookies captured: ${cookies.substring(0, 50)}...`, 'success');
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('✅ Login successful!', 'success');
+                    addTestResult('Login', 'pass', `Logged in as ${employeeId}`, data);
+                } else {
+                    log(`❌ Login failed: ${data.message}`, 'error');
+                    addTestResult('Login', 'fail', data.message, data);
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+                addTestResult('Login', 'fail', error.message);
+            }
+        }
+
+        async function testUserSettingsMiddleware() {
+            try {
+                log('Testing User Settings Middleware...', 'info');
+
+                const response = await fetch('http://localhost:3000/settings', {
+                    method: 'GET',
+                    headers: {
+                        'Cookie': cookies
+                    },
+                    credentials: 'include'
+                });
+
+                const html = await response.text();
+
+                // Check for User Settings error
+                const hasUserSettingsError = html.includes('sp_GetAllUserSettings') ||
+                                            html.includes('expects parameter');
+
+                if (hasUserSettingsError) {
+                    log('❌ User Settings Error still exists!', 'error');
+                    addTestResult('User Settings Middleware', 'fail',
+                        'Still getting sp_GetAllUserSettings error');
+                } else {
+                    log('✅ User Settings Middleware working correctly!', 'success');
+                    addTestResult('User Settings Middleware', 'pass',
+                        'No user settings errors found',
+                        { responseSize: html.length, status: response.status });
+                }
+
+            } catch (error) {
+                log(`❌ Test error: ${error.message}`, 'error');
+                addTestResult('User Settings Middleware', 'fail', error.message);
+            }
+        }
+
+        async function testCSRFToken() {
+            try {
+                log('Testing CSRF Token...', 'info');
+
+                const response = await fetch('http://localhost:3000/settings', {
+                    method: 'GET',
+                    headers: {
+                        'Cookie': cookies
+                    },
+                    credentials: 'include'
+                });
+
+                const html = await response.text();
+
+                // Extract CSRF token from meta tag
+                const metaMatch = html.match(/<meta name="csrf-token" content="([^"]+)">/);
+
+                if (!metaMatch) {
+                    log('❌ CSRF meta tag not found!', 'error');
+                    addTestResult('CSRF Meta Tag', 'fail', 'Meta tag not found in HTML');
+                    return;
+                }
+
+                csrfToken = metaMatch[1];
+
+                if (!csrfToken || csrfToken === '') {
+                    log('❌ CSRF token is empty!', 'error');
+                    addTestResult('CSRF Token', 'fail', 'Token is empty string');
+                } else {
+                    log(`✅ CSRF Token found: ${csrfToken.substring(0, 20)}...`, 'success');
+                    addTestResult('CSRF Token', 'pass',
+                        'Token generated successfully',
+                        { tokenLength: csrfToken.length, tokenPreview: csrfToken.substring(0, 32) + '...' });
+                }
+
+            } catch (error) {
+                log(`❌ Test error: ${error.message}`, 'error');
+                addTestResult('CSRF Token', 'fail', error.message);
+            }
+        }
+
+        async function testBatchUpdate() {
+            try {
+                log('Testing Batch Update with CSRF...', 'info');
+
+                if (!csrfToken) {
+                    log('⚠️ No CSRF token - running testCSRFToken first...', 'warning');
+                    await testCSRFToken();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                const testSettings = [
+                    { key: 'system_name', value: 'LearnHub Test Fixed', reason: 'Testing fixed version' },
+                    { key: 'accent_color', value: '#ff0000', reason: 'Testing color update' }
+                ];
+
+                log(`Sending batch update with ${testSettings.length} settings...`, 'info');
+                log(`Using CSRF token: ${csrfToken.substring(0, 20)}...`, 'info');
+
+                const response = await fetch('http://localhost:3000/settings/batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cookie': cookies,
+                        'X-CSRF-Token': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        settings: testSettings,
+                        _csrf: csrfToken
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    log('✅ Batch update successful!', 'success');
+                    addTestResult('Batch Update with CSRF', 'pass',
+                        data.message,
+                        { settings: testSettings, response: data });
+                } else {
+                    log(`❌ Batch update failed: ${data.message}`, 'error');
+                    addTestResult('Batch Update with CSRF', 'fail',
+                        data.message,
+                        { status: response.status, response: data });
+                }
+
+            } catch (error) {
+                log(`❌ Test error: ${error.message}`, 'error');
+                addTestResult('Batch Update with CSRF', 'fail', error.message);
+            }
+        }
+
+        async function testSettingsPageLoad() {
+            try {
+                log('Testing Settings page load...', 'info');
+
+                const response = await fetch('http://localhost:3000/settings', {
+                    method: 'GET',
+                    headers: {
+                        'Cookie': cookies
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const html = await response.text();
+                    const hasContent = html.includes('การตั้งค่าระบบ') || html.includes('System Settings');
+
+                    if (hasContent) {
+                        log('✅ Settings page loaded successfully!', 'success');
+                        addTestResult('Settings Page Load', 'pass',
+                            'Page loaded with all content',
+                            { size: html.length, status: response.status });
+                    } else {
+                        log('⚠️ Settings page loaded but missing content', 'warning');
+                        addTestResult('Settings Page Load', 'fail', 'Content missing from page');
+                    }
+                } else {
+                    log(`❌ Settings page failed to load: ${response.status}`, 'error');
+                    addTestResult('Settings Page Load', 'fail',
+                        `HTTP ${response.status}`,
+                        { status: response.status, statusText: response.statusText });
+                }
+
+            } catch (error) {
+                log(`❌ Test error: ${error.message}`, 'error');
+                addTestResult('Settings Page Load', 'fail', error.message);
+            }
+        }
+
+        async function runAllTests() {
+            log('=== Starting All Tests ===', 'info');
+
+            // Clear previous results
+            testResults = [];
+            stats = { total: 0, passed: 0, failed: 0, pending: 0 };
+            updateStats();
+            document.getElementById('testResults').innerHTML = '';
+
+            // Run tests in sequence
+            await login();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            await testSettingsPageLoad();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            await testUserSettingsMiddleware();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            await testCSRFToken();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            await testBatchUpdate();
+
+            log('=== All Tests Completed ===', 'success');
+            log(`Results: ${stats.passed} passed, ${stats.failed} failed out of ${stats.total} tests`, 'info');
+        }
+
+        // Auto-update stats on load
+        updateStats();
+    </script>
+</body>
+</html>

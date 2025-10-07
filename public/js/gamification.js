@@ -27,7 +27,7 @@ class GamificationUI {
     }
 
     setupSocketListeners() {
-        if (!this.socket) return;
+        if (!this.socket) {return;}
 
         // Listen for points updates
         this.socket.on('points-update', (data) => {
@@ -87,10 +87,10 @@ class GamificationUI {
     }
 
     createPointsDisplay() {
-        if (!this.currentUser) return;
+        if (!this.currentUser) {return;}
 
         const pointsContainer = document.querySelector('#points-display');
-        if (!pointsContainer) return;
+        if (!pointsContainer) {return;}
 
         pointsContainer.innerHTML = `
             <div class="points-widget bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6 shadow-lg">
@@ -117,10 +117,10 @@ class GamificationUI {
     }
 
     createLevelIndicator() {
-        if (!this.currentUser) return;
+        if (!this.currentUser) {return;}
 
         const levelContainer = document.querySelector('#level-indicator');
-        if (!levelContainer) return;
+        if (!levelContainer) {return;}
 
         const progressPercentage = this.currentUser.nextLevelInfo ?
             Math.max(0, 100 - (this.currentUser.pointsToNextLevel / (this.currentUser.nextLevelInfo.minPoints - this.currentUser.levelInfo.minPoints)) * 100) : 100;
@@ -131,8 +131,8 @@ class GamificationUI {
                     <h4 class="text-lg font-semibold text-gray-800">ความก้าวหน้าระดับ</h4>
                     <span class="text-sm text-gray-600">
                         ${this.currentUser.nextLevelInfo ?
-                            `อีก ${this.currentUser.pointsToNextLevel.toLocaleString()} คะแนน` :
-                            'ระดับสูงสุด'}
+        `อีก ${this.currentUser.pointsToNextLevel.toLocaleString()} คะแนน` :
+        'ระดับสูงสุด'}
                     </span>
                 </div>
 
@@ -171,18 +171,18 @@ class GamificationUI {
                 <div class="level-info text-center">
                     <p class="text-sm text-gray-600 mb-2">${this.currentUser.levelInfo.title}</p>
                     ${this.currentUser.nextLevelInfo ?
-                        `<p class="text-xs text-gray-500">ถัดไป: ${this.currentUser.nextLevelInfo.title}</p>` :
-                        '<p class="text-xs text-gray-500">คุณมาถึงระดับสูงสุดแล้ว!</p>'}
+        `<p class="text-xs text-gray-500">ถัดไป: ${this.currentUser.nextLevelInfo.title}</p>` :
+        '<p class="text-xs text-gray-500">คุณมาถึงระดับสูงสุดแล้ว!</p>'}
                 </div>
             </div>
         `;
     }
 
     createProgressBar() {
-        if (!this.currentUser) return;
+        if (!this.currentUser) {return;}
 
         const progressContainer = document.querySelector('#progress-summary');
-        if (!progressContainer) return;
+        if (!progressContainer) {return;}
 
         progressContainer.innerHTML = `
             <div class="progress-summary-card bg-white rounded-lg shadow-md p-6">
@@ -226,10 +226,10 @@ class GamificationUI {
     }
 
     createAchievementsList() {
-        if (!this.currentUser) return;
+        if (!this.currentUser) {return;}
 
         const achievementsContainer = document.querySelector('#achievements-list');
-        if (!achievementsContainer) return;
+        if (!achievementsContainer) {return;}
 
         const recentAchievements = this.currentUser.achievements.slice(0, 6);
 
@@ -267,11 +267,11 @@ class GamificationUI {
 
     async createLeaderboardWidget() {
         const leaderboardContainer = document.querySelector('#leaderboard-widget');
-        if (!leaderboardContainer) return;
+        if (!leaderboardContainer) {return;}
 
         try {
             const response = await fetch('/api/gamification/leaderboard?limit=5');
-            if (!response.ok) return;
+            if (!response.ok) {return;}
 
             const leaderboard = await response.json();
 
@@ -288,8 +288,8 @@ class GamificationUI {
                                 <div class="flex items-center space-x-3">
                                     <div class="rank-badge w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
                                                 ${user.rank === 1 ? 'bg-yellow-100 text-yellow-800' :
-                                                  user.rank === 2 ? 'bg-gray-100 text-gray-800' :
-                                                  user.rank === 3 ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'}">
+        user.rank === 2 ? 'bg-gray-100 text-gray-800' :
+            user.rank === 3 ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'}">
                                         ${user.rank}
                                     </div>
                                     <img src="${user.profileImage || '/images/default-avatar.png'}"
@@ -375,7 +375,7 @@ class GamificationUI {
 
     showPointsGainedAnimation(points) {
         const pointsDisplay = document.querySelector('.points-widget');
-        if (!pointsDisplay) return;
+        if (!pointsDisplay) {return;}
 
         const animation = document.createElement('div');
         animation.className = 'points-gained-animation absolute text-green-400 font-bold text-lg pointer-events-none z-50';

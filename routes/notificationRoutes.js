@@ -10,8 +10,8 @@ router.get('/', authMiddleware.requireAuth, async (req, res) => {
         const userId = req.session.user.user_id;
 
         const filters = { user_id: userId };
-        if (type) filters.type = type;
-        if (unreadOnly === 'true') filters.is_read = false;
+        if (type) {filters.type = type;}
+        if (unreadOnly === 'true') {filters.is_read = false;}
 
         const result = await Notification.findAll(page, limit, filters);
 
@@ -42,6 +42,45 @@ router.get('/', authMiddleware.requireAuth, async (req, res) => {
             req.flash('error_msg', 'เกิดข้อผิดพลาดในการโหลดการแจ้งเตือน');
             res.redirect('/dashboard');
         }
+    }
+});
+
+// Get recent notifications (for Dashboard)
+router.get('/recent', authMiddleware.requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.user?.user_id || req.user?.userId;
+        const { limit = 5 } = req.query;
+
+        // Demo data for now
+        const notifications = [
+            {
+                notification_id: 1,
+                title: 'ยินดีต้อนรับสู่ระบบ LearnHub',
+                message: 'ยินดีต้อนรับสู่ระบบ LearnHub ของเรา',
+                type: 'info',
+                is_read: false,
+                created_at: new Date()
+            },
+            {
+                notification_id: 2,
+                title: 'การทดสอบใหม่พร้อมแล้ว',
+                message: 'มีการทดสอบใหม่พร้อมให้ทำ',
+                type: 'success',
+                is_read: true,
+                created_at: new Date()
+            }
+        ];
+
+        res.json({
+            success: true,
+            data: notifications
+        });
+    } catch (error) {
+        console.error('Get recent notifications error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการโหลดการแจ้งเตือน'
+        });
     }
 });
 

@@ -1,6 +1,7 @@
 const Applicant = require('../models/Applicant');
 const JobPosition = require('../models/JobPosition');
 const Test = require('../models/Test');
+const Question = require('../models/Question');
 const ActivityLog = require('../models/ActivityLog');
 
 const applicantController = {
@@ -329,10 +330,10 @@ const applicantController = {
             } = req.query;
 
             const filters = {};
-            if (position_id) filters.position_id = position_id;
-            if (status) filters.status = status;
-            if (test_completed !== undefined) filters.test_completed = test_completed === 'true';
-            if (search) filters.search = search;
+            if (position_id) {filters.position_id = position_id;}
+            if (status) {filters.status = status;}
+            if (test_completed !== undefined) {filters.test_completed = test_completed === 'true';}
+            if (search) {filters.search = search;}
 
             const offset = (parseInt(page) - 1) * parseInt(limit);
             filters.limit = parseInt(limit);
@@ -433,7 +434,7 @@ const applicantController = {
             }
 
             const updateData = { status };
-            if (notes) updateData.notes = notes;
+            if (notes) {updateData.notes = notes;}
 
             const result = await Applicant.updateStatus(applicant_id, updateData);
 
