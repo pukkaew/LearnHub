@@ -145,6 +145,7 @@
 </div>
 
 <script>
+const SITE_NAME = '<%= typeof getSetting === "function" ? getSetting("site_name", "Rukchai Hongyen LearnHub") : "Rukchai Hongyen LearnHub" %>';
 let testResults = null;
 let attemptId = '<%= locals.attemptId || "" %>';
 let scoreChart = null;
@@ -539,7 +540,7 @@ function printResults() {
 function shareResults(platform) {
     const score = testResults.score;
     const testTitle = testResults.test_title;
-    const text = `ฉันได้คะแนน ${score}% ในแบบทดสอบ "${testTitle}" บน Rukchai Hongyen LearnHub!`;
+    const text = `ฉันได้คะแนน ${score}% ในแบบทดสอบ "${testTitle}" บน ${SITE_NAME}!`;
     const url = window.location.href;
 
     switch (platform) {
@@ -556,7 +557,7 @@ function shareResults(platform) {
 }
 
 function copyShareLink() {
-    const text = `ฉันได้คะแนน ${testResults.score}% ในแบบทดสอบ "${testResults.test_title}" บน Rukchai Hongyen LearnHub! ${window.location.href}`;
+    const text = `ฉันได้คะแนน ${testResults.score}% ในแบบทดสอบ "${testResults.test_title}" บน ${SITE_NAME}! ${window.location.href}`;
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {

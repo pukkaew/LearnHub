@@ -28,11 +28,14 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const apiRoutes = require('./routes/apiRoutes');
 const languageRoutes = require('./routes/languageRoutes');
 const settingRoutes = require('./routes/settingRoutes');
+const debugRoutes = require('./routes/debugRoutes');
 
 // Import services
 const proctoringService = require('./utils/proctoringService');
 const socketHandler = require('./utils/socketHandler');
 const { languageMiddleware } = require('./utils/languages');
+const sessionConfigService = require('./utils/sessionConfig');
+const passwordExpiryChecker = require('./utils/passwordExpiryChecker');
 
 const app = express();
 const server = http.createServer(app);
@@ -116,6 +119,12 @@ app.use(session({
 // Flash messages
 app.use(flash());
 
+// Session timeout middleware (must be after session and flash)
+app.use(sessionConfigService.checkSessionTimeout());
+
+// Password expiry check middleware (must be after session)
+app.use(passwordExpiryChecker.checkPasswordExpiryMiddleware());
+
 // Rate limiting middleware
 app.use(securityMiddleware.generalRateLimit());
 
@@ -173,6 +182,7 @@ app.use('/reports', reportRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/language', languageRoutes);
 app.use('/settings', settingRoutes);
+app.use('/debug', debugRoutes);
 
 // Home page redirect
 app.get('/', (req, res) => {

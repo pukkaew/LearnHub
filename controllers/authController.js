@@ -4,6 +4,8 @@ const User = require('../models/User');
 const ActivityLog = require('../models/ActivityLog');
 const JWTUtils = require('../utils/jwtUtils');
 const { poolPromise } = require('../config/database');
+const passwordValidator = require('../utils/passwordValidator');
+const loginAttemptTracker = require('../utils/loginAttemptTracker');
 
 const authController = {
     async renderLogin(req, res) {
@@ -35,8 +37,21 @@ const authController = {
                 });
             }
 
+            // Check if account is locked
+            const lockStatus = await loginAttemptTracker.isAccountLocked(employee_id);
+            if (lockStatus.locked) {
+                await loginAttemptTracker.recordAttempt(employee_id, null, req.ip, req.get('User-Agent'), false, 'Account locked');
+                return res.status(401).json({
+                    success: false,
+                    message: `บัญชีของคุณถูกล็อคชั่วคราว กรุณารออีก ${lockStatus.minutesRemaining} นาที`,
+                    locked: true,
+                    lockedUntil: lockStatus.lockedUntil
+                });
+            }
+
             const user = await User.findByEmployeeId(employee_id);
             if (!user) {
+                await loginAttemptTracker.recordAttempt(employee_id, null, req.ip, req.get('User-Agent'), false, 'User not found');
                 await ActivityLog.logLogin(null, req.ip, req.get('User-Agent'), req.sessionID, false);
                 return res.status(401).json({
                     success: false,
@@ -45,6 +60,7 @@ const authController = {
             }
 
             if (!user.is_active) {
+                await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), false, 'Account inactive');
                 return res.status(401).json({
                     success: false,
                     message: 'บัญชีของคุณถูกระงับการใช้งาน'
@@ -52,6 +68,7 @@ const authController = {
             }
 
             if (user.is_locked) {
+                await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), false, 'Account locked');
                 return res.status(401).json({
                     success: false,
                     message: 'บัญชีของคุณถูกล็อค กรุณาติดต่อผู้ดูแลระบบ'
@@ -60,12 +77,31 @@ const authController = {
 
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
+                // Record failed attempt
+                await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), false, 'Invalid password');
                 await ActivityLog.logLogin(user.user_id, req.ip, req.get('User-Agent'), req.sessionID, false);
+
+                // Check if should lock account
+                const lockCheck = await loginAttemptTracker.checkAndLockIfNeeded(employee_id, user.user_id);
+
+                if (lockCheck.shouldLock) {
+                    return res.status(401).json({
+                        success: false,
+                        message: `รหัสผ่านไม่ถูกต้อง บัญชีของคุณถูกล็อคชั่วคราว ${lockCheck.lockDuration} นาที เนื่องจากพยายาม login ผิดเกิน ${lockCheck.maxAttempts} ครั้ง`,
+                        locked: true
+                    });
+                }
+
                 return res.status(401).json({
                     success: false,
-                    message: 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง'
+                    message: `รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง (เหลือ ${lockCheck.remainingAttempts} ครั้ง)`,
+                    remainingAttempts: lockCheck.remainingAttempts
                 });
             }
+
+            // Successful login - record and clear failed attempts
+            await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), true);
+            await loginAttemptTracker.clearFailedAttempts(employee_id);
 
             await User.updateLoginInfo(user.user_id);
 
@@ -247,6 +283,17 @@ const authController = {
                 });
             }
 
+            // Validate password strength
+            const passwordValidation = await passwordValidator.validate(password);
+            if (!passwordValidation.valid) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'รหัสผ่านไม่ตรงตามเงื่อนไข',
+                    errors: passwordValidation.errors,
+                    requirements: await passwordValidator.getRequirements()
+                });
+            }
+
             const userData = {
                 employee_id,
                 email,
@@ -376,6 +423,17 @@ const authController = {
                 });
             }
 
+            // Validate password strength
+            const passwordValidation = await passwordValidator.validate(password);
+            if (!passwordValidation.valid) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'รหัสผ่านไม่ตรงตามเงื่อนไข',
+                    errors: passwordValidation.errors,
+                    requirements: await passwordValidator.getRequirements()
+                });
+            }
+
             let decoded;
             try {
                 decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -444,6 +502,17 @@ const authController = {
                 return res.status(400).json({
                     success: false,
                     message: 'รหัสผ่านใหม่ไม่ตรงกัน'
+                });
+            }
+
+            // Validate new password strength
+            const passwordValidation = await passwordValidator.validate(new_password);
+            if (!passwordValidation.valid) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'รหัสผ่านใหม่ไม่ตรงตามเงื่อนไข',
+                    errors: passwordValidation.errors,
+                    requirements: await passwordValidator.getRequirements()
                 });
             }
 

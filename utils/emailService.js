@@ -2,35 +2,94 @@ const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 const fs = require('fs').promises;
 const path = require('path');
+const Setting = require('../models/Setting');
 
 class EmailService {
     constructor() {
         this.transporter = null;
         this.templates = new Map();
+        this.settings = null;
+        this.lastSettingsFetch = null;
+        this.settingsCacheDuration = 5 * 60 * 1000; // 5 minutes
         this.init();
+    }
+
+    async getEmailSettings() {
+        const now = Date.now();
+
+        if (this.settings && this.lastSettingsFetch && (now - this.lastSettingsFetch < this.settingsCacheDuration)) {
+            return this.settings;
+        }
+
+        try {
+            const allSettings = await Setting.getAllSystemSettings();
+            const emailSettings = allSettings.EMAIL || [];
+
+            this.settings = {
+                smtpHost: this.getSettingValue(emailSettings, 'smtp_host', process.env.SMTP_HOST || 'smtp.gmail.com'),
+                smtpPort: parseInt(this.getSettingValue(emailSettings, 'smtp_port', process.env.SMTP_PORT || '587')),
+                smtpSecure: this.getSettingValue(emailSettings, 'smtp_secure', process.env.SMTP_SECURE || 'false') === 'true',
+                smtpUser: this.getSettingValue(emailSettings, 'smtp_user', process.env.SMTP_USER || ''),
+                smtpPassword: this.getSettingValue(emailSettings, 'smtp_password', process.env.SMTP_PASS || ''),
+                emailFromAddress: this.getSettingValue(emailSettings, 'email_from_address', process.env.SMTP_FROM || 'noreply@ruxchai.com'),
+                emailFromName: this.getSettingValue(emailSettings, 'email_from_name', 'Rukchai LearnHub')
+            };
+
+            this.lastSettingsFetch = now;
+            return this.settings;
+
+        } catch (error) {
+            console.error('Failed to fetch email settings:', error);
+            return {
+                smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
+                smtpPort: parseInt(process.env.SMTP_PORT || '587'),
+                smtpSecure: process.env.SMTP_SECURE === 'true',
+                smtpUser: process.env.SMTP_USER || '',
+                smtpPassword: process.env.SMTP_PASS || '',
+                emailFromAddress: process.env.SMTP_FROM || 'noreply@ruxchai.com',
+                emailFromName: 'Rukchai LearnHub'
+            };
+        }
+    }
+
+    getSettingValue(settings, key, defaultValue) {
+        const setting = settings.find(s => s.setting_key === key);
+        if (!setting) return defaultValue;
+
+        const value = setting.setting_value !== null && setting.setting_value !== ''
+            ? setting.setting_value
+            : setting.default_value;
+
+        return value || defaultValue;
     }
 
     async init() {
         try {
-            // Create transporter based on environment
+            const emailSettings = await this.getEmailSettings();
+
             if (process.env.NODE_ENV === 'production') {
-                // Production: Use real SMTP service
+                if (!emailSettings.smtpUser || !emailSettings.smtpPassword) {
+                    console.warn('⚠️ SMTP credentials not configured, email disabled');
+                    this.transporter = null;
+                    return;
+                }
+
                 this.transporter = nodemailer.createTransporter({
-                    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-                    port: parseInt(process.env.SMTP_PORT) || 587,
-                    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+                    host: emailSettings.smtpHost,
+                    port: emailSettings.smtpPort,
+                    secure: emailSettings.smtpSecure,
                     auth: {
-                        user: process.env.SMTP_USER,
-                        pass: process.env.SMTP_PASS
+                        user: emailSettings.smtpUser,
+                        pass: emailSettings.smtpPassword
                     },
                     tls: {
                         rejectUnauthorized: false
                     }
                 });
+                console.log(`📧 Email: ${emailSettings.smtpHost}:${emailSettings.smtpPort}`);
             } else {
-                // Development: Use Ethereal Email for testing
                 const testAccount = await nodemailer.createTestAccount();
-                this.transporter = nodemailer.createTransporter({
+                this.transporter = nodemailer.createTransport({
                     host: 'smtp.ethereal.email',
                     port: 587,
                     secure: false,
@@ -39,18 +98,18 @@ class EmailService {
                         pass: testAccount.pass
                     }
                 });
-                console.log('📧 Email service initialized with test account:', testAccount.user);
+                console.log('📧 Email (TEST): ethereal.email');
             }
 
-            // Verify transporter
-            await this.transporter.verify();
-            console.log('📧 Email service is ready');
+            if (this.transporter) {
+                await this.transporter.verify();
+                console.log('✅ Email ready');
+            }
 
-            // Preload templates
             await this.loadTemplates();
 
         } catch (error) {
-            console.error('❌ Email service initialization failed:', error);
+            console.error('❌ Email init failed:', error.message);
             this.transporter = null;
         }
     }
@@ -82,8 +141,11 @@ class EmailService {
             throw new Error('Email service not initialized');
         }
 
+        const emailSettings = await this.getEmailSettings();
+        const fromAddress = `"${emailSettings.emailFromName}" <${emailSettings.emailFromAddress}>`;
+
         const defaultOptions = {
-            from: process.env.SMTP_FROM || '"Ruxchai LearnHub" <noreply@rukchaihongyen.com>',
+            from: fromAddress,
         };
 
         const mailOptions = { ...defaultOptions, ...options };

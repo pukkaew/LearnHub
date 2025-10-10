@@ -369,6 +369,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+const SITE_NAME = '<%= typeof getSetting === "function" ? getSetting("site_name", "LearnHub").replace("Rukchai Hongyen ", "") : "LearnHub" %>';
 let certificationsData = {};
 let charts = {};
 let currentPage = 1;
@@ -887,7 +888,7 @@ async function previewCertificate(certificateId) {
                             </div>
                             <div class="text-right">
                                 <p class="text-sm text-gray-600">Instructor</p>
-                                <p class="text-lg font-semibold">${data.certificate.instructor || 'LearnHub'}</p>
+                                <p class="text-lg font-semibold">${data.certificate.instructor || SITE_NAME}</p>
                             </div>
                         </div>
                     </div>

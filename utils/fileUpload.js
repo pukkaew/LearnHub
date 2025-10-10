@@ -3,12 +3,57 @@ const path = require('path');
 const fs = require('fs').promises;
 const sharp = require('sharp');
 const crypto = require('crypto');
+const Setting = require('../models/Setting');
 
 class FileUploadService {
     constructor() {
         this.uploadsDir = path.join(__dirname, '../uploads');
         this.tempDir = path.join(this.uploadsDir, 'temp');
+        this.settings = null;
+        this.lastSettingsFetch = null;
+        this.settingsCacheDuration = 5 * 60 * 1000; // 5 minutes
         this.initDirectories();
+    }
+
+    async getUploadSettings() {
+        const now = Date.now();
+
+        if (this.settings && this.lastSettingsFetch && (now - this.lastSettingsFetch < this.settingsCacheDuration)) {
+            return this.settings;
+        }
+
+        try {
+            const allSettings = await Setting.getAllSystemSettings();
+            const uploadSettings = allSettings.UPLOAD || [];
+
+            this.settings = {
+                maxFileSize: parseInt(this.getSettingValue(uploadSettings, 'max_file_size', '104857600')), // 100MB default
+                uploadPath: this.getSettingValue(uploadSettings, 'upload_path', './uploads'),
+                allowedFileTypes: this.getSettingValue(uploadSettings, 'allowed_file_types', 'jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,mp4,avi,mov,wmv')
+            };
+
+            this.lastSettingsFetch = now;
+            return this.settings;
+
+        } catch (error) {
+            console.error('Failed to fetch upload settings:', error);
+            return {
+                maxFileSize: 104857600, // 100MB
+                uploadPath: './uploads',
+                allowedFileTypes: 'jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,mp4,avi,mov,wmv'
+            };
+        }
+    }
+
+    getSettingValue(settings, key, defaultValue) {
+        const setting = settings.find(s => s.setting_key === key);
+        if (!setting) return defaultValue;
+
+        const value = setting.setting_value !== null && setting.setting_value !== ''
+            ? setting.setting_value
+            : setting.default_value;
+
+        return value || defaultValue;
     }
 
     async initDirectories() {
@@ -49,87 +94,115 @@ class FileUploadService {
     }
 
     // Image upload configuration
-    createImageUpload(maxSize = 5 * 1024 * 1024) { // 5MB default
-        const storage = multer.diskStorage({
-            destination: (req, file, cb) => {
-                cb(null, path.join(this.uploadsDir, 'images'));
-            },
-            filename: (req, file, cb) => {
-                cb(null, this.generateFilename(file.originalname, 'img_'));
-            }
-        });
+    createImageUpload(customMaxSize = null) {
+        return async (req, res, next) => {
+            const settings = await this.getUploadSettings();
+            const maxSize = customMaxSize || Math.min(settings.maxFileSize, 5 * 1024 * 1024); // 5MB max for images
 
-        return multer({
-            storage,
-            limits: { fileSize: maxSize },
-            fileFilter: this.createFileFilter(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'])
-        });
+            const storage = multer.diskStorage({
+                destination: (req, file, cb) => {
+                    cb(null, path.join(this.uploadsDir, 'images'));
+                },
+                filename: (req, file, cb) => {
+                    cb(null, this.generateFilename(file.originalname, 'img_'));
+                }
+            });
+
+            const upload = multer({
+                storage,
+                limits: { fileSize: maxSize },
+                fileFilter: this.createFileFilter(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'])
+            });
+
+            return upload.single('file')(req, res, next);
+        };
     }
 
     // Document upload configuration
-    createDocumentUpload(maxSize = 10 * 1024 * 1024) { // 10MB default
-        const storage = multer.diskStorage({
-            destination: (req, file, cb) => {
-                cb(null, path.join(this.uploadsDir, 'documents'));
-            },
-            filename: (req, file, cb) => {
-                cb(null, this.generateFilename(file.originalname, 'doc_'));
-            }
-        });
+    createDocumentUpload(customMaxSize = null) {
+        return async (req, res, next) => {
+            const settings = await this.getUploadSettings();
+            const maxSize = customMaxSize || Math.min(settings.maxFileSize, 10 * 1024 * 1024); // 10MB max for documents
 
-        const allowedTypes = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'text/plain',
-            'text/csv'
-        ];
+            const storage = multer.diskStorage({
+                destination: (req, file, cb) => {
+                    cb(null, path.join(this.uploadsDir, 'documents'));
+                },
+                filename: (req, file, cb) => {
+                    cb(null, this.generateFilename(file.originalname, 'doc_'));
+                }
+            });
 
-        return multer({
-            storage,
-            limits: { fileSize: maxSize },
-            fileFilter: this.createFileFilter(allowedTypes)
-        });
+            const allowedTypes = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'text/plain',
+                'text/csv'
+            ];
+
+            const upload = multer({
+                storage,
+                limits: { fileSize: maxSize },
+                fileFilter: this.createFileFilter(allowedTypes)
+            });
+
+            return upload.single('file')(req, res, next);
+        };
     }
 
     // Video upload configuration
-    createVideoUpload(maxSize = 100 * 1024 * 1024) { // 100MB default
-        const storage = multer.diskStorage({
-            destination: (req, file, cb) => {
-                cb(null, path.join(this.uploadsDir, 'videos'));
-            },
-            filename: (req, file, cb) => {
-                cb(null, this.generateFilename(file.originalname, 'vid_'));
-            }
-        });
+    createVideoUpload(customMaxSize = null) {
+        return async (req, res, next) => {
+            const settings = await this.getUploadSettings();
+            const maxSize = customMaxSize || settings.maxFileSize; // Use full max for videos
 
-        return multer({
-            storage,
-            limits: { fileSize: maxSize },
-            fileFilter: this.createFileFilter(['video/mp4', 'video/mpeg', 'video/quicktime', 'video/webm'])
-        });
+            const storage = multer.diskStorage({
+                destination: (req, file, cb) => {
+                    cb(null, path.join(this.uploadsDir, 'videos'));
+                },
+                filename: (req, file, cb) => {
+                    cb(null, this.generateFilename(file.originalname, 'vid_'));
+                }
+            });
+
+            const upload = multer({
+                storage,
+                limits: { fileSize: maxSize },
+                fileFilter: this.createFileFilter(['video/mp4', 'video/mpeg', 'video/quicktime', 'video/webm'])
+            });
+
+            return upload.single('file')(req, res, next);
+        };
     }
 
     // Avatar upload configuration
-    createAvatarUpload(maxSize = 2 * 1024 * 1024) { // 2MB default
-        const storage = multer.diskStorage({
-            destination: (req, file, cb) => {
-                cb(null, path.join(this.uploadsDir, 'avatars'));
-            },
-            filename: (req, file, cb) => {
-                cb(null, this.generateFilename(file.originalname, 'avatar_'));
-            }
-        });
+    createAvatarUpload(customMaxSize = null) {
+        return async (req, res, next) => {
+            const settings = await this.getUploadSettings();
+            const maxSize = customMaxSize || Math.min(settings.maxFileSize, 2 * 1024 * 1024); // 2MB max for avatars
 
-        return multer({
-            storage,
-            limits: { fileSize: maxSize },
-            fileFilter: this.createFileFilter(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-        });
+            const storage = multer.diskStorage({
+                destination: (req, file, cb) => {
+                    cb(null, path.join(this.uploadsDir, 'avatars'));
+                },
+                filename: (req, file, cb) => {
+                    cb(null, this.generateFilename(file.originalname, 'avatar_'));
+                }
+            });
+
+            const upload = multer({
+                storage,
+                limits: { fileSize: maxSize },
+                fileFilter: this.createFileFilter(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+            });
+
+            return upload.single('file')(req, res, next);
+        };
     }
 
     // Process uploaded image (resize, optimize)
@@ -296,6 +369,12 @@ class FileUploadService {
             valid: errors.length === 0,
             errors
         };
+    }
+
+    // Clear cache (useful for testing or after settings update)
+    clearCache() {
+        this.settings = null;
+        this.lastSettingsFetch = null;
     }
 
     // Generate upload progress tracking

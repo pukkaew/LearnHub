@@ -291,7 +291,7 @@ class Setting {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('userId', sql.Int, userId)
+                .input('user_id', sql.Int, userId)
                 .execute('sp_GetAllUserSettings');
 
             // Convert to key-value object

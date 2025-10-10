@@ -110,9 +110,9 @@
         }
     });
 
-    // Track original values
+    // Track original values - only from input, select, textarea elements
     const originalValues = new Map();
-    document.querySelectorAll('[data-setting-key]').forEach(input => {
+    document.querySelectorAll('input[data-setting-key], select[data-setting-key], textarea[data-setting-key]').forEach(input => {
         const key = input.getAttribute('data-setting-key');
         const type = input.getAttribute('data-setting-type');
 
@@ -120,7 +120,7 @@
         if (type === 'boolean') {
             value = input.checked ? 'true' : 'false';
         } else {
-            value = input.value;
+            value = input.value || '';
         }
 
         originalValues.set(key, value);
@@ -132,8 +132,8 @@
             const settings = [];
             const seenKeys = new Set();
 
-            // Collect all changed settings
-            document.querySelectorAll('[data-setting-key]').forEach(input => {
+            // Collect all changed settings - only from input, select, textarea elements
+            document.querySelectorAll('input[data-setting-key], select[data-setting-key], textarea[data-setting-key]').forEach(input => {
                 if (input.disabled) return;
 
                 const key = input.getAttribute('data-setting-key');
@@ -147,12 +147,22 @@
 
                 let value;
 
+                // Get value based on input type
                 if (type === 'boolean') {
                     value = input.checked ? 'true' : 'false';
                 } else if (input.tagName === 'TEXTAREA') {
-                    value = input.value;
+                    value = input.value || '';
+                } else if (input.tagName === 'SELECT') {
+                    value = input.value || '';
+                } else if (input.tagName === 'INPUT') {
+                    value = input.value || '';
                 } else {
-                    value = input.value;
+                    value = input.value || '';
+                }
+
+                // Ensure value is never undefined
+                if (value === undefined || value === null) {
+                    value = '';
                 }
 
                 // Get original value
@@ -162,16 +172,22 @@
                 console.log('📝 Collecting setting:', {
                     key,
                     value,
+                    valueType: typeof value,
                     originalValue,
                     type,
                     tagName: input.tagName,
                     inputType: input.type,
                     hasValue: value !== undefined && value !== null && value !== '',
-                    hasChanged: value !== originalValue
+                    hasChanged: value !== originalValue,
+                    element: input
                 });
 
-                // Always send the setting with its value
-                settings.push({ key, value });
+                // Always send the setting with its value (never undefined)
+                // Convert undefined to empty string explicitly for JSON.stringify
+                settings.push({
+                    key: key,
+                    value: String(value === undefined || value === null ? '' : value)
+                });
                 seenKeys.add(key);
             });
 
@@ -224,10 +240,11 @@
                     console.log('✅ Save successful, reloading in 1 second...');
                     showAlert('success', result.message || getMessage('saveSuccess'));
 
-                    // Reload page after 1 second
+                    // Reload page after 1 second with cache-busting
                     setTimeout(() => {
-                        console.log('🔄 Reloading page now...');
-                        window.location.reload();
+                        console.log('🔄 Reloading page now with cache-busting...');
+                        // Force reload without cache by adding timestamp
+                        window.location.href = window.location.href.split('?')[0] + '?t=' + Date.now();
                     }, 1000);
                 } else {
                     console.error('❌ Save failed:', result);
@@ -376,4 +393,4 @@
     }
 
 })();
-/* Cache buster: 1759662799 */
+// Version: 2.0 - Fixed value sending issue

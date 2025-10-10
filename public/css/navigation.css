@@ -16,12 +16,10 @@
 .ruxchai-nav {
   position: relative;
   background: linear-gradient(90deg,
-    #42a5f5 0%,
-    #2196f3 20%,
-    #1976d2 40%,
-    #1565c0 60%,
-    #0d47a1 80%,
-    #01579b 100%
+    var(--primary-color, #0090D3) 0%,
+    color-mix(in srgb, var(--primary-color, #0090D3) 90%, #000 10%) 30%,
+    color-mix(in srgb, var(--primary-color, #0090D3) 80%, #000 20%) 60%,
+    color-mix(in srgb, var(--primary-color, #0090D3) 70%, #000 30%) 100%
   );
   box-shadow:
     0 8px 40px rgba(0, 0, 0, 0.3),

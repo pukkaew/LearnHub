@@ -5,7 +5,7 @@
     <div class="flex justify-between items-center mb-6">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Create New Article</h1>
-            <p class="text-gray-600 mt-2">Share knowledge and insights with the LearnHub community</p>
+            <p class="text-gray-600 mt-2">Share knowledge and insights with the <%= typeof getSetting === 'function' ? getSetting('site_name', 'LearnHub').replace('Rukchai Hongyen ', '') : 'LearnHub' %> community</p>
         </div>
         <div class="flex space-x-3">
             <button onclick="previewArticle()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">

@@ -205,6 +205,7 @@
 
 <script>
 // Global variables
+const SITE_NAME = '<%= typeof getSetting === "function" ? getSetting("site_name", "Rukchai Hongyen LearnHub") : "Rukchai Hongyen LearnHub" %>';
 let articleId;
 let currentUser;
 let comments = [];
@@ -270,7 +271,7 @@ async function loadArticle() {
 
 // Display article
 function displayArticle(article) {
-    document.title = `${article.title} - Rukchai Hongyen LearnHub`;
+    document.title = `${article.title} - ${SITE_NAME}`;
 
     document.getElementById('featuredImage').src = article.featured_image || '/images/default-article.jpg';
     document.getElementById('featuredImage').alt = article.title;

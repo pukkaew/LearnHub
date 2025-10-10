@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - Rukchai Hongyen LearnHub</title>
+    <% const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub'; const companyName = typeof getSetting === 'function' ? getSetting('company_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub'; %>
+    <title><%= title %> - <%= siteName %></title>
     <link href="/css/tailwind.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -27,7 +28,7 @@
 
             <!-- Error Message -->
             <p class="text-gray-600 mb-6">
-                <%= message %>
+                <%= typeof message !== 'undefined' ? message : 'เกิดข้อผิดพลาด' %>
             </p>
 
             <!-- Error Details (Development Only) -->
@@ -75,7 +76,7 @@
         <!-- Footer -->
         <div class="text-center mt-6">
             <p class="text-sm text-gray-500">
-                © 2024 Rukchai Hongyen LearnHub. สงวนลิขสิทธิ์.
+                © <%= new Date().getFullYear() %> <%= companyName %>. สงวนลิขสิทธิ์.
             </p>
         </div>
     </div>

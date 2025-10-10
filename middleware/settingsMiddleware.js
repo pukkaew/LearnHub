@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
 // Cache settings to reduce database queries
 let settingsCache = null;
 let cacheTimestamp = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 30 * 1000; // 30 seconds (reduced from 5 minutes for Settings updates)
 
 /**
  * Load all system settings and make them available to views
@@ -20,6 +20,15 @@ async function loadSystemSettings(req, res, next) {
         const now = Date.now();
         if (settingsCache && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
             res.locals.systemSettings = settingsCache;
+            logger.info('Settings loaded from cache:', {
+                count: Object.keys(settingsCache).length,
+                system_name: settingsCache.system_name,
+                site_name: settingsCache.site_name,
+                primary_color: settingsCache.primary_color,
+                secondary_color: settingsCache.secondary_color,
+                cached: true,
+                cacheAge: Math.floor((now - cacheTimestamp) / 1000) + 's'
+            });
             return next();
         }
 
@@ -30,7 +39,11 @@ async function loadSystemSettings(req, res, next) {
         const settingsFlat = {};
         Object.values(allSettings).forEach(categorySettings => {
             categorySettings.forEach(setting => {
-                settingsFlat[setting.setting_key] = setting.setting_value;
+                // Use setting_value if not null/empty, otherwise use default_value
+                const value = (setting.setting_value !== null && setting.setting_value !== '')
+                    ? setting.setting_value
+                    : setting.default_value;
+                settingsFlat[setting.setting_key] = value;
             });
         });
 
@@ -40,6 +53,16 @@ async function loadSystemSettings(req, res, next) {
 
         // Make settings available to all views
         res.locals.systemSettings = settingsFlat;
+
+        // Debug logging
+        logger.info('Settings loaded from database:', {
+            count: Object.keys(settingsFlat).length,
+            system_name: settingsFlat.system_name,
+            site_name: settingsFlat.site_name,
+            primary_color: settingsFlat.primary_color,
+            secondary_color: settingsFlat.secondary_color,
+            cached: false
+        });
 
         next();
     } catch (error) {

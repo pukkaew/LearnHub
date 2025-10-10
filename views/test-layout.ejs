@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || 'Rukchai Hongyen LearnHub - ระบบสอบออนไลน์' %></title>
+    <% const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub'; %>
+    <title><%= title || siteName + ' - ระบบสอบออนไลน์' %></title>
 
     <!-- Prevent caching for security -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">

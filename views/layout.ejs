@@ -5,13 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
     <%
-        const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        // Get current language (default to Thai if not set)
+        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
+        const isEnglish = currentLang === 'en';
+
+        // Use system_name or system_name_en based on current language
+        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteName = isEnglish ? siteNameEn : siteNameTh;
+
         const siteDescription = typeof getSetting === 'function' ? getSetting('site_description', 'ระบบจัดการการเรียนรู้') : 'ระบบจัดการการเรียนรู้';
+
+        // Use company_name or company_name_en based on current language
+        const companyNameTh = typeof getSetting === 'function' ? getSetting('company_name', 'บริษัท รักชัยห้องเย็น จำกัด') : 'บริษัท รักชัยห้องเย็น จำกัด';
+        const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
+        const companyName = isEnglish ? companyNameEn : companyNameTh;
+
         const primaryColor = typeof getSetting === 'function' ? getSetting('primary_color', '#0090D3') : '#0090D3';
         const secondaryColor = typeof getSetting === 'function' ? getSetting('secondary_color', '#3AAA35') : '#3AAA35';
         const sidebarColor = typeof getSetting === 'function' ? getSetting('sidebar_color', '#1f2937') : '#1f2937';
         const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/rukchai-logo.png') : '/images/rukchai-logo.png';
         const faviconUrl = typeof getSetting === 'function' ? getSetting('favicon_url', '/favicon.ico') : '/favicon.ico';
+        const contactPhone = typeof getSetting === 'function' ? getSetting('contact_phone', '02-000-0000') : '02-000-0000';
+        const contactEmail = typeof getSetting === 'function' ? getSetting('contact_email', 'hr@rukchaihongyen.co.th') : 'hr@rukchaihongyen.co.th';
+        const facebookUrl = typeof getSetting === 'function' ? getSetting('facebook_url', 'https://www.facebook.com/rukchaicoldroom') : 'https://www.facebook.com/rukchaicoldroom';
+        const lineId = typeof getSetting === 'function' ? getSetting('line_id', '@rukchaicoldroom') : '@rukchaicoldroom';
+        const infoEmail = typeof getSetting === 'function' ? getSetting('info_email', 'info@rukchaicoldroom.com') : 'info@rukchaicoldroom.com';
+
+        // Appearance settings
+        const themeMode = typeof getSetting === 'function' ? getSetting('theme_mode', 'light') : 'light';
+        const fontFamily = typeof getSetting === 'function' ? getSetting('font_family', 'Sarabun') : 'Sarabun';
+        const accentColor = typeof getSetting === 'function' ? getSetting('accent_color', '#3b82f6') : '#3b82f6';
+        const backgroundColor = typeof getSetting === 'function' ? getSetting('background_color', '#f9fafb') : '#f9fafb';
+        const textColor = typeof getSetting === 'function' ? getSetting('text_color', '#111827') : '#111827';
+        const borderRadius = typeof getSetting === 'function' ? getSetting('border_radius', '0.5rem') : '0.5rem';
+        const fontSizeBase = typeof getSetting === 'function' ? getSetting('font_size_base', '16px') : '16px';
+        const headerHeight = typeof getSetting === 'function' ? getSetting('header_height', '64px') : '64px';
+        const sidebarWidth = typeof getSetting === 'function' ? getSetting('sidebar_width', '256px') : '256px';
+        const enableAnimations = typeof getSetting === 'function' ? getSetting('enable_animations', 'true') : 'true';
+        const enableShadows = typeof getSetting === 'function' ? getSetting('enable_shadows', 'true') : 'true';
+        const compactMode = typeof getSetting === 'function' ? getSetting('compact_mode', 'false') : 'false';
     %>
     <title><%= title || siteName %> - <%= siteDescription %></title>
     <link rel="icon" href="<%= faviconUrl %>" type="image/x-icon">
@@ -20,14 +53,76 @@
     <style>
         /* Dynamic CSS Variables from Settings */
         :root {
+            /* Color Settings */
             --primary-color: <%= primaryColor %>;
             --secondary-color: <%= secondaryColor %>;
             --sidebar-color: <%= sidebarColor %>;
+            --accent-color: <%= accentColor %>;
+            --background-color: <%= backgroundColor %>;
+            --text-color: <%= textColor %>;
+
+            /* Typography Settings */
+            --font-family: '<%= fontFamily %>', 'Prompt', 'Noto Sans Thai', sans-serif;
+            --font-size-base: <%= fontSizeBase %>;
+
+            /* Layout Settings */
+            --border-radius: <%= borderRadius %>;
+            --header-height: <%= headerHeight %>;
+            --sidebar-width: <%= sidebarWidth %>;
+
+            /* Feature Toggles */
+            --enable-animations: <%= enableAnimations %>;
+            --enable-shadows: <%= enableShadows %>;
+            --compact-mode: <%= compactMode %>;
+
+            /* Spacing (adjusted for compact mode) */
+            --spacing-unit: <%= compactMode === 'true' ? '0.75rem' : '1rem' %>;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { font-size: 16px; }
-        body { font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif; line-height: 1.5; }
+        html { font-size: var(--font-size-base); }
+        body {
+            font-family: var(--font-family);
+            line-height: 1.5;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        /* Dark Mode Support */
+        <% if (themeMode === 'dark') { %>
+        body {
+            --background-color: #1f2937;
+            --text-color: #f3f4f6;
+            --sidebar-color: #111827;
+        }
+        .bg-gray-50 { background-color: #374151 !important; }
+        .bg-gray-100 { background-color: #4b5563 !important; }
+        .bg-white { background-color: #1f2937 !important; }
+        .text-gray-900 { color: #f3f4f6 !important; }
+        .text-gray-700 { color: #d1d5db !important; }
+        .text-gray-600 { color: #9ca3af !important; }
+        <% } %>
+
+        /* Animations Toggle */
+        <% if (enableAnimations === 'false') { %>
+        * {
+            animation: none !important;
+            transition: none !important;
+        }
+        <% } %>
+
+        /* Shadows Toggle */
+        <% if (enableShadows === 'false') { %>
+        .shadow-sm, .shadow-lg, .shadow-xl, .shadow-2xl, .shadow-3xl,
+        .hover\:shadow-md:hover, .hover\:shadow-lg:hover {
+            box-shadow: none !important;
+        }
+        <% } %>
+
+        /* Border Radius (applied globally) */
+        .rounded { border-radius: var(--border-radius); }
+        .rounded-lg { border-radius: calc(var(--border-radius) * 2); }
+        .rounded-xl { border-radius: calc(var(--border-radius) * 3); }
 
         .bg-gray-50 { background-color: #f9fafb; }
         .bg-gray-100 { background-color: #f3f4f6; }
@@ -366,20 +461,25 @@
 
         .font-thai { font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif; }
 
-        .text-ruxchai-primary { color: #1e40af; }
-        .bg-ruxchai-primary { background-color: #1e40af; }
-        .bg-ruxchai-primary\/10 { background-color: rgba(30, 64, 175, 0.1); }
-        .bg-ruxchai-primary\/20 { background-color: rgba(30, 64, 175, 0.2); }
+        .text-ruxchai-primary { color: var(--primary-color); }
+        .bg-ruxchai-primary { background-color: var(--primary-color); }
+        .bg-ruxchai-primary\/10 { background-color: color-mix(in srgb, var(--primary-color) 10%, transparent); }
+        .bg-ruxchai-primary\/20 { background-color: color-mix(in srgb, var(--primary-color) 20%, transparent); }
+
+        .text-ruxchai-secondary { color: var(--secondary-color); }
+        .bg-ruxchai-secondary { background-color: var(--secondary-color); }
+        .bg-ruxchai-secondary\/20 { background-color: color-mix(in srgb, var(--secondary-color) 20%, transparent); }
 
         button { cursor: pointer; border: none; background: none; }
         a { text-decoration: none; color: inherit; }
 
         .ruxchai-gradient {
-            background: linear-gradient(135deg, #03A9F4 0%, #2196F3 25%, #4CAF50 75%, #00BCD4 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         }
-        .ruxchai-gradient {
-            background: linear-gradient(135deg, #03A9F4 0%, #2196F3 25%, #4CAF50 75%, #00BCD4 100%);
-        }
+
+        /* Gradient variants for use with Tailwind utilities */
+        .from-ruxchai-primary\/20 { --tw-gradient-from: color-mix(in srgb, var(--primary-color) 20%, transparent); }
+        .to-ruxchai-secondary\/20 { --tw-gradient-to: color-mix(in srgb, var(--secondary-color) 20%, transparent); }
         .nav-link {
             display: flex;
             align-items: center;
@@ -516,12 +616,12 @@
                     <!-- Logo ชิดซ้าย -->
                     <a href="/dashboard" class="nav-logo-container">
                         <div class="relative group">
-                            <img src="/images/rukchai-logo.png" alt="บริษัท รักชัยห้องเย็น จำกัด" class="nav-logo-image transform transition-transform group-hover:scale-105" style="min-width: 80px; max-width: 100px;">
-                            <div class="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-indigo-600/20 rounded-lg blur opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                            <img src="<%= logoUrl %>" alt="<%= siteName %>" class="nav-logo-image transform transition-transform group-hover:scale-105" style="min-width: 80px; max-width: 100px;">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-ruxchai-primary/20 to-ruxchai-secondary/20 rounded-lg blur opacity-50 group-hover:opacity-80 transition-opacity"></div>
                         </div>
                         <div class="nav-logo-text-container ml-3">
-                            <div class="nav-logo-title">LearnHub</div>
-                            <div class="nav-logo-subtitle">รักชัยห้องเย็น จำกัด</div>
+                            <div class="nav-logo-title"><%= siteName.replace('Rukchai Hongyen ', '') %></div>
+                            <div class="nav-logo-subtitle"><%= companyName.replace('บริษัท ', '').replace(' จำกัด', '') %></div>
                         </div>
                     </a>
 
@@ -722,7 +822,7 @@
                         <img class="w-12 h-12 rounded-lg border-2 border-white/30" src="<%= user.profile_image || '/images/default-avatar.png' %>" alt="Profile">
                         <div class="ml-3">
                             <div class="text-white text-sm font-semibold"><%= user.first_name %> <%= user.last_name %></div>
-                            <div class="text-blue-100 text-xs font-medium"><%= user.role_name %></div>
+                            <div class="text-white/90 text-xs font-medium"><%= user.role_name %></div>
                         </div>
                     </div>
                     <a href="/users/profile" class="nav-mobile-menu-item">
@@ -754,7 +854,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+    <main class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <!-- Flash Messages -->
         <% if (locals.successMessage) { %>
         <div id="success-message" class="mx-4 mt-6 animate-slide-up">
@@ -810,14 +910,14 @@
                         <div class="flex items-center space-x-4 mb-4">
                             <div class="relative group">
                                 <div class="bg-white p-3 rounded-lg shadow-lg transform transition-transform group-hover:scale-105">
-                                    <img class="h-14 w-auto" src="/images/rukchai-logo.png" alt="บริษัท รักชัยห้องเย็น จำกัด" style="min-width: 100px; max-width: 140px;">
+                                    <img class="h-14 w-auto" src="<%= logoUrl %>" alt="<%= siteName %>" style="min-width: 100px; max-width: 140px;">
                                 </div>
-                                <div class="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-indigo-600/30 rounded-lg blur opacity-60 group-hover:opacity-90 transition-opacity"></div>
+                                <div class="absolute -inset-1 ruxchai-gradient opacity-30 rounded-lg blur group-hover:opacity-50 transition-opacity"></div>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold text-white">LearnHub</h2>
-                                <p class="text-blue-200 text-sm font-medium">บริษัท รักชัยห้องเย็น จำกัด</p>
-                                <p class="text-blue-300/70 text-xs">Rukchai Hongyen Co., Ltd.</p>
+                                <h2 class="text-xl font-bold text-white"><%= siteName.replace('Rukchai Hongyen ', '') %></h2>
+                                <p class="text-white/90 text-sm font-medium"><%= companyName %></p>
+                                <p class="text-white/70 text-xs"><%= companyNameEn %></p>
                             </div>
                         </div>
 
@@ -828,7 +928,7 @@
 
                         <!-- Working Hours -->
                         <div class="flex items-center text-gray-400 text-sm">
-                            <i class="fas fa-clock mr-2 text-blue-400"></i>
+                            <i class="fas fa-clock mr-2 text-ruxchai-primary"></i>
                             <span class="font-medium mr-2"><%= t('workingHours') %>:</span>
                             <span><%= t('workingTime') %></span>
                         </div>
@@ -858,11 +958,11 @@
                             </div>
                             <div class="flex items-center text-gray-300 text-sm">
                                 <i class="fas fa-phone mr-3 text-green-400 w-4"></i>
-                                <a href="tel:020000000" class="hover:text-white transition-colors">02-000-0000</a>
+                                <a href="tel:<%= contactPhone.replace(/[^0-9]/g, '') %>" class="hover:text-white transition-colors"><%= contactPhone %></a>
                             </div>
                             <div class="flex items-center text-gray-300 text-sm">
-                                <i class="fas fa-envelope mr-3 text-blue-400 w-4"></i>
-                                <a href="mailto:hr@rukchaihongyen.co.th" class="hover:text-white transition-colors break-all">hr@rukchaihongyen.co.th</a>
+                                <i class="fas fa-envelope mr-3 text-ruxchai-primary w-4"></i>
+                                <a href="mailto:<%= contactEmail %>" class="hover:text-white transition-colors break-all"><%= contactEmail %></a>
                             </div>
                         </div>
 
@@ -870,13 +970,13 @@
                         <div class="mb-4">
                             <h4 class="text-white font-medium text-sm mb-2"><%= t('followUs') %></h4>
                             <div class="flex space-x-3">
-                                <a href="https://www.facebook.com/rukchaicoldroom" target="_blank" rel="noopener noreferrer" class="bg-gray-700 hover:bg-blue-600 p-2 rounded transition-colors">
+                                <a href="<%= facebookUrl %>" target="_blank" rel="noopener noreferrer" class="bg-gray-700 hover:bg-ruxchai-primary p-2 rounded transition-colors">
                                     <i class="fab fa-facebook-f text-white"></i>
                                 </a>
-                                <a href="https://line.me/ti/p/~@rukchaicoldroom" target="_blank" rel="noopener noreferrer" class="bg-gray-700 hover:bg-green-500 p-2 rounded transition-colors">
+                                <a href="https://line.me/ti/p/~<%= lineId %>" target="_blank" rel="noopener noreferrer" class="bg-gray-700 hover:bg-green-500 p-2 rounded transition-colors">
                                     <i class="fab fa-line text-white"></i>
                                 </a>
-                                <a href="mailto:info@rukchaicoldroom.com" class="bg-gray-700 hover:bg-red-500 p-2 rounded transition-colors">
+                                <a href="mailto:<%= infoEmail %>" class="bg-gray-700 hover:bg-red-500 p-2 rounded transition-colors">
                                     <i class="fas fa-envelope text-white"></i>
                                 </a>
                             </div>
@@ -890,7 +990,7 @@
                 <div class="flex flex-col md:flex-row md:justify-between md:items-center text-sm">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-2 md:mb-0">
                         <p class="text-gray-400">
-                            &copy; <%= new Date().getFullYear() %> บริษัท รักชัยห้องเย็น จำกัด. <%= t('allRightsReserved') %>
+                            &copy; <%= new Date().getFullYear() %> <%= companyName %>. <%= t('allRightsReserved') %>
                         </p>
                     </div>
                     <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
@@ -898,8 +998,8 @@
                             <a href="/privacy" class="hover:text-white transition-colors"><%= t('privacyPolicy') %></a>
                             <a href="/terms" class="hover:text-white transition-colors"><%= t('termsOfService') %></a>
                         </div>
-                        <p class="text-blue-400 font-medium mt-2 sm:mt-0">
-                            Powered by LearnHub Technology
+                        <p class="text-ruxchai-primary font-medium mt-2 sm:mt-0">
+                            Powered by <%= siteName.replace('Rukchai Hongyen ', '') %> Technology
                         </p>
                     </div>
                 </div>

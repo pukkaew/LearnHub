@@ -127,14 +127,14 @@ class User {
                         employee_id, username, password, email,
                         first_name, last_name,
                         department_id, position_id, role_id,
-                        phone, is_active, email_verified, created_at
+                        phone, is_active, email_verified, created_at, password_changed_at
                     )
                     OUTPUT INSERTED.user_id
                     VALUES (
                         @employeeId, @username, @password, @email,
                         @firstName, @lastName,
                         @departmentId, @positionId, @roleId,
-                        @phone, 1, 0, GETDATE()
+                        @phone, 1, 0, GETDATE(), GETDATE()
                     )
                 `);
 
@@ -220,8 +220,36 @@ class User {
         }
     }
 
-    // Update password
-    static async updatePassword(userId, oldPassword, newPassword) {
+    // Update password (direct - no verification, used by reset/register)
+    static async updatePassword(userId, newPassword) {
+        try {
+            const pool = await poolPromise;
+
+            // Hash the new password
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            const result = await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('password', sql.NVarChar(255), hashedPassword)
+                .query(`
+                    UPDATE Users
+                    SET password = @password,
+                        password_changed_at = GETDATE(),
+                        updated_at = GETDATE()
+                    WHERE user_id = @userId
+                `);
+
+            return {
+                success: result.rowsAffected[0] > 0,
+                message: result.rowsAffected[0] > 0 ? 'Password updated successfully' : 'Failed to update password'
+            };
+        } catch (error) {
+            throw new Error(`Error updating password: ${error.message}`);
+        }
+    }
+
+    // Change password (with old password verification)
+    static async changePassword(userId, oldPassword, newPassword) {
         try {
             const pool = await poolPromise;
 
@@ -236,24 +264,10 @@ class User {
                 return { success: false, message: 'Current password is incorrect' };
             }
 
-            // Update password
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-            const result = await pool.request()
-                .input('userId', sql.Int, userId)
-                .input('password', sql.NVarChar(255), hashedPassword)
-                .query(`
-                    UPDATE Users
-                    SET password = @password,
-                        updated_at = GETDATE()
-                    WHERE user_id = @userId
-                `);
-
-            return {
-                success: result.rowsAffected[0] > 0,
-                message: result.rowsAffected[0] > 0 ? 'Password updated successfully' : 'Failed to update password'
-            };
+            // Update password using updatePassword method
+            return await this.updatePassword(userId, newPassword);
         } catch (error) {
-            throw new Error(`Error updating password: ${error.message}`);
+            throw new Error(`Error changing password: ${error.message}`);
         }
     }
 

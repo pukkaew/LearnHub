@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub</title>
+    <%
+        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
+        const isEnglish = currentLang === 'en';
+        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteName = isEnglish ? siteNameEn : siteNameTh;
+        const companyNameTh = typeof getSetting === 'function' ? getSetting('company_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
+        const companyName = isEnglish ? companyNameEn : companyNameTh;
+    %>
+    <title>ไม่มีสิทธิ์เข้าถึง - <%= siteName %></title>
     <link href="/css/tailwind.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -27,7 +37,7 @@
 
             <!-- Error Message -->
             <p class="text-gray-600 mb-6">
-                <%= message || 'คุณไม่มีสิทธิ์ในการเข้าถึงหน้านี้' %>
+                <%= typeof message !== 'undefined' ? message : 'คุณไม่มีสิทธิ์ในการเข้าถึงหน้านี้' %>
             </p>
 
             <!-- Action Buttons -->
@@ -65,7 +75,7 @@
         <!-- Footer -->
         <div class="text-center mt-6">
             <p class="text-sm text-gray-500">
-                © 2025 Rukchai Hongyen LearnHub. สงวนลิขสิทธิ์.
+                © <%= new Date().getFullYear() %> <%= companyName %>. สงวนลิขสิทธิ์.
             </p>
         </div>
     </div>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test CSS Variables</title>
+    <style>
+        :root {
+            --primary-color: #ff5900;
+            --secondary-color: #10b981;
+        }
+
+        .test-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            margin: 10px;
+        }
+
+        .test-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px;
+            margin: 10px;
+        }
+
+        .test-gradient {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 20px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body style="font-family: Arial; padding: 20px;">
+    <h1>CSS Variables Test</h1>
+
+    <div class="test-primary">
+        Primary Color: #ff5900 (Orange-Red)
+    </div>
+
+    <div class="test-secondary">
+        Secondary Color: #10b981 (Green)
+    </div>
+
+    <div class="test-gradient">
+        Gradient: Primary → Secondary
+    </div>
+
+    <script>
+        // Check computed CSS variables
+        const root = document.documentElement;
+        const primaryColor = getComputedStyle(root).getPropertyValue('--primary-color').trim();
+        const secondaryColor = getComputedStyle(root).getPropertyValue('--secondary-color').trim();
+
+        console.log('Primary Color:', primaryColor);
+        console.log('Secondary Color:', secondaryColor);
+
+        document.body.innerHTML += `
+            <div style="margin-top: 20px; padding: 10px; background: #f0f0f0;">
+                <h2>Computed Values:</h2>
+                <p>Primary: <code>${primaryColor}</code></p>
+                <p>Secondary: <code>${secondaryColor}</code></p>
+            </div>
+        `;
+    </script>
+</body>
+</html>
