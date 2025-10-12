@@ -100,7 +100,7 @@ class PasswordExpiryChecker {
     }
 
     // Middleware to check password expiry on login
-    async checkPasswordExpiryMiddleware() {
+    checkPasswordExpiryMiddleware() {
         return async (req, res, next) => {
             // Skip for public routes and password change routes
             if (!req.session || !req.session.user) {

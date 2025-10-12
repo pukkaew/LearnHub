@@ -29,6 +29,7 @@ const apiRoutes = require('./routes/apiRoutes');
 const languageRoutes = require('./routes/languageRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const debugRoutes = require('./routes/debugRoutes');
+const organizationRoutes = require('./routes/organizationRoutes');
 
 // Import services
 const proctoringService = require('./utils/proctoringService');
@@ -183,6 +184,7 @@ app.use('/notifications', notificationRoutes);
 app.use('/language', languageRoutes);
 app.use('/settings', settingRoutes);
 app.use('/debug', debugRoutes);
+app.use('/organization', organizationRoutes);
 
 // Home page redirect
 app.get('/', (req, res) => {

@@ -119,7 +119,7 @@ const userController = {
 
     async getAllUsers(req, res) {
         try {
-            const userRole = req.user.role;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
@@ -183,8 +183,8 @@ const userController = {
     async getUserById(req, res) {
         try {
             const { user_id } = req.params;
-            const userRole = req.user.role;
-            const requestingUserId = req.user.userId;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
+            const requestingUserId = req.user.user_id || req.user.userId || req.session.user.user_id;
 
             if (!['Admin', 'HR'].includes(userRole) && user_id !== requestingUserId) {
                 return res.status(403).json({
@@ -238,7 +238,7 @@ const userController = {
 
     async createUser(req, res) {
         try {
-            const userRole = req.user.role;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
@@ -322,7 +322,7 @@ const userController = {
     async updateUser(req, res) {
         try {
             const { user_id } = req.params;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
@@ -415,7 +415,7 @@ const userController = {
     async deactivateUser(req, res) {
         try {
             const { user_id } = req.params;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
 
             if (userRole !== 'Admin') {
                 return res.status(403).json({
@@ -571,7 +571,7 @@ const userController = {
 
     async renderUserManagement(req, res) {
         try {
-            const userRole = req.user.role;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.render('error', {
@@ -583,7 +583,7 @@ const userController = {
             const departments = await Department.findAll({ is_active: true });
             const positions = await Position.findAll({ is_active: true });
 
-            res.render('users/management', {
+            res.render('users/index', {
                 title: 'จัดการผู้ใช้ - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: userRole,

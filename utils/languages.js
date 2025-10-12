@@ -2,12 +2,16 @@
 const translations = {
     th: {
         // Navigation
+        home: 'หน้าหลัก',
         dashboard: 'แดชบอร์ด',
         courses: 'คอร์สเรียน',
+        learning: 'การเรียนรู้',
         tests: 'แบบทดสอบ',
         articles: 'บทความ',
         users: 'จัดการผู้ใช้',
         applicants: 'ผู้สมัครงาน',
+        hrManagement: 'จัดการ HR',
+        organization: 'โครงสร้างองค์กร',
         profile: 'โปรไฟล์',
         settings: 'ตั้งค่า',
         userSettings: 'การตั้งค่าส่วนตัว',
@@ -112,12 +116,16 @@ const translations = {
     },
     en: {
         // Navigation
+        home: 'Home',
         dashboard: 'Dashboard',
         courses: 'Courses',
+        learning: 'Learning',
         tests: 'Tests',
         articles: 'Articles',
         users: 'Manage Users',
         applicants: 'Job Applicants',
+        hrManagement: 'HR Management',
+        organization: 'Organization Structure',
         profile: 'Profile',
         settings: 'Settings',
         userSettings: 'User Settings',

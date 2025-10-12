@@ -33,7 +33,7 @@ const authController = {
                 console.log('Missing credentials - employee_id:', employee_id, 'password:', password ? '[REDACTED]' : 'undefined');
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกรหัสพนักงานและรหัสผ่าน'
+                    message: 'กรุณากรอกรหัสพนักงาน/เลขบัตรประชาชนและรหัสผ่าน'
                 });
             }
 
@@ -49,13 +49,25 @@ const authController = {
                 });
             }
 
-            const user = await User.findByEmployeeId(employee_id);
+            // Try to find user by employee_id first (for EMPLOYEE)
+            let user = await User.findByEmployeeId(employee_id);
+            let loginType = 'employee';
+
+            // If not found, try ID card number (for APPLICANT)
+            if (!user) {
+                // Check if it's a valid ID card format (13 digits)
+                if (/^\d{13}$/.test(employee_id)) {
+                    user = await User.findByIdCardNumber(employee_id);
+                    loginType = 'applicant';
+                }
+            }
+
             if (!user) {
                 await loginAttemptTracker.recordAttempt(employee_id, null, req.ip, req.get('User-Agent'), false, 'User not found');
                 await ActivityLog.logLogin(null, req.ip, req.get('User-Agent'), req.sessionID, false);
                 return res.status(401).json({
                     success: false,
-                    message: 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง'
+                    message: 'รหัสพนักงาน/เลขบัตรประชาชนหรือรหัสผ่านไม่ถูกต้อง'
                 });
             }
 
@@ -64,6 +76,15 @@ const authController = {
                 return res.status(401).json({
                     success: false,
                     message: 'บัญชีของคุณถูกระงับการใช้งาน'
+                });
+            }
+
+            // Check status for applicants (DISABLED status)
+            if (loginType === 'applicant' && user.status === 'DISABLED') {
+                await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), false, 'Account disabled');
+                return res.status(401).json({
+                    success: false,
+                    message: 'บัญชีของคุณถูกปิดการใช้งานแล้ว กรุณาติดต่อฝ่าย HR'
                 });
             }
 
@@ -108,7 +129,9 @@ const authController = {
             // Prepare user data for JWT
             const userData = {
                 userId: user.user_id,
-                employeeId: user.employee_id,
+                employeeId: user.employee_id || null,
+                idCardNumber: user.id_card_number || null,
+                userType: user.user_type || 'EMPLOYEE',
                 email: user.email,
                 role: user.role_name,
                 firstName: user.first_name,
@@ -118,7 +141,9 @@ const authController = {
                 positionId: user.position_id,
                 departmentName: user.department_name,
                 positionName: user.position_name,
-                isActive: user.is_active
+                appliedPosition: user.applied_position || null,
+                isActive: user.is_active,
+                status: user.status || 'ACTIVE'
             };
 
             // Generate JWT tokens
@@ -165,8 +190,10 @@ const authController = {
             // Also store user data in session for compatibility
             req.session.user = {
                 user_id: user.user_id,
-                employee_id: user.employee_id,
-                username: user.employee_id, // Add username for compatibility
+                employee_id: user.employee_id || null,
+                id_card_number: user.id_card_number || null,
+                user_type: user.user_type || 'EMPLOYEE',
+                username: user.employee_id || user.id_card_number, // Add username for compatibility
                 email: user.email,
                 role: user.role_name, // Add role field (same as role_name)
                 role_name: user.role_name,
@@ -176,7 +203,9 @@ const authController = {
                 department_id: user.department_id,
                 position_id: user.position_id,
                 department_name: user.department_name,
-                position_name: user.position_name
+                position_name: user.position_name,
+                applied_position: user.applied_position || null,
+                status: user.status || 'ACTIVE'
             };
 
             // Restore language setting if it existed
@@ -187,14 +216,18 @@ const authController = {
 
             await ActivityLog.logLogin(user.user_id, req.ip, req.get('User-Agent'), req.sessionID, true);
 
+            // Determine redirect URL based on user type
+            const redirectTo = loginType === 'applicant' ? '/applicant/dashboard' : '/dashboard';
+
             res.json({
                 success: true,
                 message: 'เข้าสู่ระบบสำเร็จ',
                 data: {
                     user: userData,
-                    tokens: tokens
+                    tokens: tokens,
+                    userType: loginType
                 },
-                redirectTo: '/dashboard'
+                redirectTo: redirectTo
             });
 
         } catch (error) {

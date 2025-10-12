@@ -59,7 +59,7 @@ class SessionConfigService {
     }
 
     // Middleware to check session timeout
-    async checkSessionTimeout() {
+    checkSessionTimeout() {
         return async (req, res, next) => {
             // Skip for public routes
             if (!req.session || !req.session.user) {

@@ -1,33 +1,51 @@
 const { poolPromise, sql } = require('../config/database');
 
 class Position {
+    constructor(data) {
+        this.position_id = data.position_id;
+        this.unit_id = data.unit_id;
+        this.position_code = data.position_code || data.code;
+        this.position_name_th = data.position_name_th || data.title;
+        this.position_name_en = data.position_name_en;
+        this.position_type = data.position_type;
+        this.position_level = data.position_level || data.level;
+        this.job_grade = data.job_grade || data.grade;
+        this.description = data.description;
+        this.responsibilities = data.responsibilities;
+        this.requirements = data.requirements;
+        this.min_salary = data.min_salary || data.salary_min;
+        this.max_salary = data.max_salary || data.salary_max;
+        this.is_active = data.is_active;
+    }
+
     static async create(positionData) {
         try {
             const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('title', sql.NVarChar(255), positionData.title)
-                .input('code', sql.VarChar(50), positionData.code)
-                .input('department_id', sql.Int, positionData.department_id)
-                .input('level', sql.VarChar(50), positionData.level)
-                .input('grade', sql.VarChar(20), positionData.grade)
-                .input('description', sql.NText, positionData.description)
-                .input('requirements', sql.NText, positionData.requirements)
-                .input('responsibilities', sql.NText, positionData.responsibilities)
-                .input('salary_min', sql.Decimal(10, 2), positionData.salary_min)
-                .input('salary_max', sql.Decimal(10, 2), positionData.salary_max)
-                .input('reports_to', sql.Int, positionData.reports_to)
-                .input('is_management', sql.Bit, positionData.is_management || false)
-                .input('is_active', sql.Bit, positionData.is_active !== undefined ? positionData.is_active : true)
-                .input('created_by', sql.Int, positionData.created_by)
+                .input('unit_id', sql.Int, positionData.unit_id || positionData.department_id || null)
+                .input('position_code', sql.NVarChar(20), positionData.position_code || positionData.code)
+                .input('position_name_th', sql.NVarChar(100), positionData.position_name_th || positionData.title)
+                .input('position_name_en', sql.NVarChar(100), positionData.position_name_en || null)
+                .input('position_type', sql.NVarChar(20), positionData.position_type || 'EMPLOYEE')
+                .input('position_level', sql.NVarChar(20), positionData.position_level || positionData.level || null)
+                .input('job_grade', sql.NVarChar(10), positionData.job_grade || positionData.grade || null)
+                .input('description', sql.NVarChar(500), positionData.description || null)
+                .input('responsibilities', sql.NVarChar(sql.MAX), positionData.responsibilities || null)
+                .input('requirements', sql.NVarChar(sql.MAX), positionData.requirements || null)
+                .input('min_salary', sql.Decimal(10, 2), positionData.min_salary || positionData.salary_min || null)
+                .input('max_salary', sql.Decimal(10, 2), positionData.max_salary || positionData.salary_max || null)
+                .input('created_by', sql.Int, positionData.created_by || null)
                 .query(`
                     INSERT INTO Positions
-                    (title, code, department_id, level, grade, description, requirements,
-                     responsibilities, salary_min, salary_max, reports_to, is_management, is_active, created_by)
+                    (unit_id, position_code, position_name_th, position_name_en, position_type,
+                     position_level, job_grade, description, responsibilities, requirements,
+                     min_salary, max_salary, is_active, created_by)
                     OUTPUT INSERTED.*
                     VALUES
-                    (@title, @code, @department_id, @level, @grade, @description, @requirements,
-                     @responsibilities, @salary_min, @salary_max, @reports_to, @is_management, @is_active, @created_by)
+                    (@unit_id, @position_code, @position_name_th, @position_name_en, @position_type,
+                     @position_level, @job_grade, @description, @responsibilities, @requirements,
+                     @min_salary, @max_salary, 1, @created_by)
                 `);
 
             return { success: true, data: result.recordset[0] };
@@ -48,12 +66,14 @@ class Position {
                 .input('position_id', sql.Int, positionId)
                 .query(`
                     SELECT p.*,
-                           d.name as department_name,
-                           rp.title as reports_to_title,
-                           c.first_name + ' ' + c.last_name as created_by_name
+                           ou.unit_name_th,
+                           ou.unit_code,
+                           ol.level_name_th as unit_level_name,
+                           c.first_name + ' ' + c.last_name as created_by_name,
+                           (SELECT COUNT(*) FROM Users WHERE position_id = p.position_id AND is_active = 1) as employee_count
                     FROM Positions p
-                    LEFT JOIN Departments d ON p.department_id = d.department_id
-                    LEFT JOIN Positions rp ON p.reports_to = rp.position_id
+                    LEFT JOIN OrganizationUnits ou ON p.unit_id = ou.unit_id
+                    LEFT JOIN OrganizationLevels ol ON ou.level_id = ol.level_id
                     LEFT JOIN Users c ON p.created_by = c.user_id
                     WHERE p.position_id = @position_id
                 `);
@@ -70,20 +90,27 @@ class Position {
             const pool = await poolPromise;
             let query = `
                 SELECT p.*,
-                       d.name as department_name,
-                       rp.title as reports_to_title,
+                       ou.unit_name_th,
+                       ou.unit_code,
+                       ol.level_name_th as unit_level_name,
                        (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1) as employee_count
                 FROM Positions p
-                LEFT JOIN Departments d ON p.department_id = d.department_id
-                LEFT JOIN Positions rp ON p.reports_to = rp.position_id
+                LEFT JOIN OrganizationUnits ou ON p.unit_id = ou.unit_id
+                LEFT JOIN OrganizationLevels ol ON ou.level_id = ol.level_id
                 WHERE 1=1
             `;
 
             const request = pool.request();
 
-            if (filters.department_id) {
-                query += ' AND p.department_id = @department_id';
-                request.input('department_id', sql.Int, filters.department_id);
+            // Support both unit_id (new) and department_id (old)
+            if (filters.unit_id || filters.department_id) {
+                query += ' AND p.unit_id = @unit_id';
+                request.input('unit_id', sql.Int, filters.unit_id || filters.department_id);
+            }
+
+            if (filters.position_type) {
+                query += ' AND p.position_type = @position_type';
+                request.input('position_type', sql.NVarChar(20), filters.position_type);
             }
 
             if (filters.is_active !== undefined) {
@@ -91,27 +118,24 @@ class Position {
                 request.input('is_active', sql.Bit, filters.is_active);
             }
 
-            if (filters.level) {
-                query += ' AND p.level = @level';
-                request.input('level', sql.VarChar(50), filters.level);
+            // Support both position_level (new) and level (old)
+            if (filters.position_level || filters.level) {
+                query += ' AND p.position_level = @position_level';
+                request.input('position_level', sql.NVarChar(20), filters.position_level || filters.level);
             }
 
-            if (filters.grade) {
-                query += ' AND p.grade = @grade';
-                request.input('grade', sql.VarChar(20), filters.grade);
-            }
-
-            if (filters.is_management !== undefined) {
-                query += ' AND p.is_management = @is_management';
-                request.input('is_management', sql.Bit, filters.is_management);
+            // Support both job_grade (new) and grade (old)
+            if (filters.job_grade || filters.grade) {
+                query += ' AND p.job_grade = @job_grade';
+                request.input('job_grade', sql.NVarChar(10), filters.job_grade || filters.grade);
             }
 
             if (filters.search) {
-                query += ' AND (p.title LIKE @search OR p.code LIKE @search OR p.description LIKE @search)';
+                query += ' AND (p.position_name_th LIKE @search OR p.position_code LIKE @search OR p.description LIKE @search)';
                 request.input('search', sql.NVarChar(255), `%${filters.search}%`);
             }
 
-            query += ' ORDER BY d.name, p.level, p.title';
+            query += ' ORDER BY p.position_type, ou.unit_name_th, p.position_level, p.position_name_th';
 
             const result = await request.query(query);
             return result.recordset;
@@ -465,17 +489,123 @@ class Position {
             const pool = await poolPromise;
 
             const result = await pool.request().query(`
-                SELECT p.position_id, p.title, p.code, d.name as department_name
+                SELECT p.position_id,
+                       p.position_name_th as title,
+                       p.position_code as code,
+                       p.position_type,
+                       ou.unit_name_th as department_name
                 FROM Positions p
-                LEFT JOIN Departments d ON p.department_id = d.department_id
+                LEFT JOIN OrganizationUnits ou ON p.unit_id = ou.unit_id
                 WHERE p.is_active = 1
-                ORDER BY d.name, p.title
+                ORDER BY p.position_type, ou.unit_name_th, p.position_name_th
             `);
 
             return result.recordset;
         } catch (error) {
             console.error('Error finding active Positions:', error);
             return [];
+        }
+    }
+
+    // ============ NEW METHODS FOR ORGANIZATION STRUCTURE ============
+
+    // Get positions by type (EMPLOYEE or APPLICANT)
+    static async getByType(positionType) {
+        try {
+            return await this.findAll({ position_type: positionType, is_active: true });
+        } catch (error) {
+            console.error('Error getting positions by type:', error);
+            return [];
+        }
+    }
+
+    // Get employee positions (for internal staff)
+    static async getEmployeePositions(unitId = null) {
+        try {
+            const filters = {
+                position_type: 'EMPLOYEE',
+                is_active: true
+            };
+
+            if (unitId) {
+                filters.unit_id = unitId;
+            }
+
+            return await this.findAll(filters);
+        } catch (error) {
+            console.error('Error getting employee positions:', error);
+            return [];
+        }
+    }
+
+    // Get applicant positions (job openings)
+    static async getApplicantPositions() {
+        try {
+            return await this.findAll({
+                position_type: 'APPLICANT',
+                is_active: true
+            });
+        } catch (error) {
+            console.error('Error getting applicant positions:', error);
+            return [];
+        }
+    }
+
+    // Get positions by organization unit
+    static async getByUnit(unitId) {
+        try {
+            return await this.findAll({ unit_id: unitId, is_active: true });
+        } catch (error) {
+            console.error('Error getting positions by unit:', error);
+            return [];
+        }
+    }
+
+    // Check if position code exists
+    static async existsByCode(positionCode, excludeId = null) {
+        try {
+            const pool = await poolPromise;
+            const request = pool.request()
+                .input('positionCode', sql.NVarChar(20), positionCode);
+
+            let query = `
+                SELECT COUNT(*) as count
+                FROM Positions
+                WHERE position_code = @positionCode
+            `;
+
+            if (excludeId) {
+                query += ' AND position_id != @excludeId';
+                request.input('excludeId', sql.Int, excludeId);
+            }
+
+            const result = await request.query(query);
+            return result.recordset[0].count > 0;
+        } catch (error) {
+            console.error('Error checking position code:', error);
+            return false;
+        }
+    }
+
+    // Get position statistics
+    static async getStatistics() {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT
+                    COUNT(*) as total_positions,
+                    SUM(CASE WHEN position_type = 'EMPLOYEE' THEN 1 ELSE 0 END) as employee_positions,
+                    SUM(CASE WHEN position_type = 'APPLICANT' THEN 1 ELSE 0 END) as applicant_positions,
+                    SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_positions,
+                    (SELECT COUNT(*) FROM Users WHERE position_id IS NOT NULL AND is_active = 1) as total_employees
+                FROM Positions
+            `);
+
+            return result.recordset[0];
+        } catch (error) {
+            console.error('Error getting position statistics:', error);
+            return null;
         }
     }
 }

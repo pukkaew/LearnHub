@@ -420,6 +420,274 @@ class User {
             throw new Error(`Error fetching users by department: ${error.message}`);
         }
     }
+
+    // ==========================================
+    // APPLICANT-SPECIFIC METHODS
+    // ==========================================
+
+    // Find user by ID card number (for applicant login)
+    static async findByIdCardNumber(idCardNumber) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('idCardNumber', sql.NVarChar(13), idCardNumber)
+                .query(`
+                    SELECT u.*, r.role_name
+                    FROM Users u
+                    JOIN Roles r ON u.role_id = r.role_id
+                    WHERE u.id_card_number = @idCardNumber
+                        AND u.user_type = 'APPLICANT'
+                        AND u.is_active = 1
+                `);
+
+            return result.recordset[0] || null;
+        } catch (error) {
+            throw new Error(`Error finding user by ID card number: ${error.message}`);
+        }
+    }
+
+    // Create applicant
+    static async createApplicant(applicantData) {
+        try {
+            const pool = await poolPromise;
+            const hashedPassword = await bcrypt.hash(applicantData.password, 10);
+
+            // Get default applicant role (role_id = 4 or find by role_name = 'Applicant')
+            const roleResult = await pool.request().query(`
+                SELECT role_id
+                FROM Roles
+                WHERE role_name = 'Applicant'
+            `);
+
+            if (roleResult.recordset.length === 0) {
+                throw new Error('Applicant role not found. Please create "Applicant" role first.');
+            }
+
+            const applicantRoleId = roleResult.recordset[0].role_id;
+
+            const result = await pool.request()
+                .input('idCardNumber', sql.NVarChar(13), applicantData.id_card_number)
+                .input('password', sql.NVarChar(255), hashedPassword)
+                .input('email', sql.NVarChar(100), applicantData.email || null)
+                .input('firstName', sql.NVarChar(50), applicantData.first_name)
+                .input('lastName', sql.NVarChar(50), applicantData.last_name)
+                .input('phone', sql.NVarChar(20), applicantData.phone || null)
+                .input('appliedPosition', sql.NVarChar(100), applicantData.applied_position)
+                .input('autoDisable', sql.Bit, applicantData.auto_disable_after_test || 0)
+                .input('roleId', sql.Int, applicantRoleId)
+                .query(`
+                    INSERT INTO Users (
+                        user_type, id_card_number, password, email,
+                        first_name, last_name, phone,
+                        applied_position, auto_disable_after_test,
+                        role_id, status, is_active, email_verified,
+                        created_at, password_changed_at
+                    )
+                    OUTPUT INSERTED.user_id
+                    VALUES (
+                        'APPLICANT', @idCardNumber, @password, @email,
+                        @firstName, @lastName, @phone,
+                        @appliedPosition, @autoDisable,
+                        @roleId, 'ACTIVE', 1, 0,
+                        GETDATE(), GETDATE()
+                    )
+                `);
+
+            const insertedUserId = result.recordset[0]?.user_id;
+            return { success: true, userId: insertedUserId };
+        } catch (error) {
+            if (error.message.includes('Violation of UNIQUE KEY') || error.message.includes('duplicate key')) {
+                if (error.message.includes('id_card_number') || error.message.toLowerCase().includes('uq_users_id_card_number')) {
+                    throw new Error('ID card number already exists');
+                }
+            }
+            throw new Error(`Error creating applicant: ${error.message}`);
+        }
+    }
+
+    // Update applicant status (ACTIVE, DISABLED, etc.)
+    static async updateStatus(userId, status) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('status', sql.NVarChar(20), status)
+                .query(`
+                    UPDATE Users
+                    SET status = @status,
+                        updated_at = GETDATE()
+                    WHERE user_id = @userId
+                `);
+
+            return {
+                success: result.rowsAffected[0] > 0,
+                message: result.rowsAffected[0] > 0 ? 'Status updated successfully' : 'User not found'
+            };
+        } catch (error) {
+            throw new Error(`Error updating user status: ${error.message}`);
+        }
+    }
+
+    // Get all applicants with pagination
+    static async getAllApplicants(page = 1, limit = 20, filters = {}) {
+        try {
+            const pool = await poolPromise;
+            const offset = (page - 1) * limit;
+
+            let whereClause = "WHERE u.user_type = 'APPLICANT' AND u.is_active = 1";
+            const request = pool.request()
+                .input('offset', sql.Int, offset)
+                .input('limit', sql.Int, limit);
+
+            // Add filters
+            if (filters.applied_position) {
+                whereClause += ' AND u.applied_position = @appliedPosition';
+                request.input('appliedPosition', sql.NVarChar(100), filters.applied_position);
+            }
+            if (filters.status) {
+                whereClause += ' AND u.status = @status';
+                request.input('status', sql.NVarChar(20), filters.status);
+            }
+            if (filters.search) {
+                whereClause += ` AND (
+                    u.first_name LIKE @search OR
+                    u.last_name LIKE @search OR
+                    u.id_card_number LIKE @search OR
+                    u.email LIKE @search
+                )`;
+                request.input('search', sql.NVarChar(100), `%${filters.search}%`);
+            }
+
+            // Get total count
+            const countResult = await request.query(`
+                SELECT COUNT(*) as total
+                FROM Users u
+                ${whereClause}
+            `);
+
+            // Get paginated data with test statistics
+            const result = await request.query(`
+                SELECT u.*,
+                    (SELECT COUNT(*) FROM ApplicantTestAssignments WHERE applicant_id = u.user_id AND is_active = 1) as total_tests_assigned,
+                    (SELECT COUNT(*) FROM ApplicantTestAssignments WHERE applicant_id = u.user_id AND status = 'COMPLETED') as tests_completed,
+                    (SELECT COUNT(*) FROM ApplicantTestResults WHERE applicant_id = u.user_id AND passed = 1) as tests_passed
+                FROM Users u
+                ${whereClause}
+                ORDER BY u.created_at DESC
+                OFFSET @offset ROWS
+                FETCH NEXT @limit ROWS ONLY
+            `);
+
+            return {
+                data: result.recordset,
+                total: countResult.recordset[0].total,
+                page: page,
+                totalPages: Math.ceil(countResult.recordset[0].total / limit)
+            };
+        } catch (error) {
+            throw new Error(`Error fetching applicants: ${error.message}`);
+        }
+    }
+
+    // Update applicant info
+    static async updateApplicant(userId, updateData) {
+        try {
+            const pool = await poolPromise;
+
+            const updateFields = [];
+            const request = pool.request()
+                .input('userId', sql.Int, userId);
+
+            if (updateData.first_name !== undefined) {
+                updateFields.push('first_name = @firstName');
+                request.input('firstName', sql.NVarChar(50), updateData.first_name);
+            }
+            if (updateData.last_name !== undefined) {
+                updateFields.push('last_name = @lastName');
+                request.input('lastName', sql.NVarChar(50), updateData.last_name);
+            }
+            if (updateData.email !== undefined) {
+                updateFields.push('email = @email');
+                request.input('email', sql.NVarChar(100), updateData.email);
+            }
+            if (updateData.phone !== undefined) {
+                updateFields.push('phone = @phone');
+                request.input('phone', sql.NVarChar(20), updateData.phone);
+            }
+            if (updateData.applied_position !== undefined) {
+                updateFields.push('applied_position = @appliedPosition');
+                request.input('appliedPosition', sql.NVarChar(100), updateData.applied_position);
+            }
+            if (updateData.auto_disable_after_test !== undefined) {
+                updateFields.push('auto_disable_after_test = @autoDisable');
+                request.input('autoDisable', sql.Bit, updateData.auto_disable_after_test);
+            }
+
+            if (updateFields.length === 0) {
+                return { success: false, message: 'No fields to update' };
+            }
+
+            updateFields.push('updated_at = GETDATE()');
+
+            const updateQuery = `
+                UPDATE Users
+                SET ${updateFields.join(', ')}
+                WHERE user_id = @userId AND user_type = 'APPLICANT'
+            `;
+
+            const result = await request.query(updateQuery);
+
+            return {
+                success: result.rowsAffected[0] > 0,
+                message: result.rowsAffected[0] > 0 ? 'Applicant updated successfully' : 'Applicant not found'
+            };
+        } catch (error) {
+            throw new Error(`Error updating applicant: ${error.message}`);
+        }
+    }
+
+    // Validate Thai ID card number (checksum algorithm)
+    static validateThaiIdCard(idCardNumber) {
+        if (!idCardNumber || idCardNumber.length !== 13) {
+            return false;
+        }
+
+        if (!/^\d{13}$/.test(idCardNumber)) {
+            return false;
+        }
+
+        // Thai ID card checksum validation
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+            sum += parseInt(idCardNumber.charAt(i)) * (13 - i);
+        }
+
+        const checkDigit = (11 - (sum % 11)) % 10;
+        return checkDigit === parseInt(idCardNumber.charAt(12));
+    }
+
+    // Get applicant statistics
+    static async getApplicantStatistics() {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT
+                    COUNT(*) as total_applicants,
+                    SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) as active,
+                    SUM(CASE WHEN status = 'DISABLED' THEN 1 ELSE 0 END) as disabled,
+                    (SELECT COUNT(DISTINCT applicant_id) FROM ApplicantTestResults WHERE passed = 1) as applicants_with_passed_tests,
+                    (SELECT COUNT(DISTINCT applied_position) FROM Users WHERE user_type = 'APPLICANT') as total_positions
+                FROM Users
+                WHERE user_type = 'APPLICANT' AND is_active = 1
+            `);
+
+            return result.recordset[0];
+        } catch (error) {
+            throw new Error(`Error getting applicant statistics: ${error.message}`);
+        }
+    }
 }
 
 module.exports = User;

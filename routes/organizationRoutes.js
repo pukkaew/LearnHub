@@ -1,0 +1,65 @@
+const express = require('express');
+const router = express.Router();
+const authMiddleware = require('../middleware/auth');
+const organizationController = require('../controllers/organizationController');
+
+// ============ ORGANIZATION UNITS ROUTES ============
+
+// หน้าหลัก - รายการหน่วยงาน
+router.get('/', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.index);
+
+// API: ดึงข้อมูลหน่วยงานทั้งหมด
+router.get('/api/units', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getUnits);
+
+// API: ดึงข้อมูล Tree
+router.get('/api/tree', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getTree);
+
+// API: ดึงข้อมูลหน่วยงานตาม ID
+router.get('/api/units/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getUnitById);
+
+// API: ดึงข้อมูล Hierarchy Path
+router.get('/api/units/:id/path', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getHierarchyPath);
+
+// API: ดึงหน่วยงานลูก
+router.get('/api/units/:id/children', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getChildren);
+
+// API: ดึงหน่วยงานตามระดับ
+router.get('/api/units/level/:levelCode', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getUnitsByLevel);
+
+// แสดงฟอร์มสร้างหน่วยงานใหม่
+router.get('/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.createForm);
+
+// สร้างหน่วยงานใหม่
+router.post('/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.create);
+
+// แสดงฟอร์มแก้ไขหน่วยงาน
+router.get('/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.editForm);
+
+// แก้ไขหน่วยงาน
+router.post('/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.update);
+router.put('/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.update);
+
+// ลบหน่วยงาน (soft delete)
+router.delete('/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin']), organizationController.delete);
+
+// ============ POSITIONS ROUTES ============
+
+// หน้ารายการตำแหน่งงาน
+router.get('/positions', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.positionsIndex);
+
+// API: ดึงตำแหน่งงานทั้งหมด
+router.get('/api/positions', authMiddleware.requireAuth, organizationController.getPositions);
+
+// API: ดึงตำแหน่งสำหรับพนักงาน (EMPLOYEE)
+router.get('/api/positions/employee', authMiddleware.requireAuth, organizationController.getEmployeePositions);
+
+// API: ดึงตำแหน่งสำหรับผู้สมัคร (APPLICANT)
+router.get('/api/positions/applicant', organizationController.getApplicantPositions);
+
+// แสดงฟอร์มสร้างตำแหน่งใหม่
+router.get('/positions/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.createPositionForm);
+
+// สร้างตำแหน่งใหม่
+router.post('/positions/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.createPosition);
+
+module.exports = router;

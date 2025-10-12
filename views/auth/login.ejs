@@ -324,22 +324,6 @@
             transform: none;
         }
 
-        .register-link {
-            text-align: center;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        .register-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-
         .error-alert {
             background: #fef2f2;
             border: 1px solid #fecaca;
@@ -473,7 +457,7 @@
         <!-- Login Form -->
         <form class="form" id="login-form" action="/auth/login" method="POST">
             <div class="form-group">
-                <label for="employee_id" class="label" data-th="รหัสพนักงาน" data-en="Employee ID"><%= t('employeeId') %></label>
+                <label for="employee_id" class="label" data-th="รหัสพนักงาน / เลขบัตรประชาชน" data-en="Employee ID / ID Card Number"><%= currentLanguage === 'en' ? 'Employee ID / ID Card Number' : 'รหัสพนักงาน / เลขบัตรประชาชน' %></label>
                 <div class="input-group">
                     <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>
                     <input
@@ -481,9 +465,9 @@
                         id="employee_id"
                         name="employee_id"
                         class="input"
-                        data-th-placeholder="กรอกรหัสพนักงาน"
-                        data-en-placeholder="Enter employee ID"
-                        placeholder="<%= currentLanguage === 'en' ? 'Enter employee ID' : 'กรอกรหัสพนักงาน' %>"
+                        data-th-placeholder="กรอกรหัสพนักงานหรือเลขบัตรประชาชน"
+                        data-en-placeholder="Enter employee ID or ID card number"
+                        placeholder="<%= currentLanguage === 'en' ? 'Enter employee ID or ID card number' : 'กรอกรหัสพนักงานหรือเลขบัตรประชาชน' %>"
                         required
                         autocomplete="username">
                 </div>
@@ -522,12 +506,6 @@
                 </span>
             </button>
         </form>
-
-        <!-- Register Link -->
-        <div class="register-link">
-            <span data-th="ยังไม่มีบัญชี?" data-en="Don't have an account?"><%= t('dontHaveAccount') %></span>
-            <a href="/auth/register" data-th="สมัครสมาชิก" data-en="Create account"><%= t('createAccount') %></a>
-        </div>
     </div>
 
     <script>
