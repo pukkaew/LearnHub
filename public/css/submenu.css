@@ -1,0 +1,197 @@
+/* ========================================
+   DROPDOWN SUBMENU STYLES
+   For nested navigation menus
+   ======================================== */
+
+/* Menu Item with Dropdown */
+.nav-menu-item-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-menu-item.has-submenu {
+  position: relative;
+  padding-right: 28px;
+}
+
+.nav-menu-item.has-submenu::after {
+  content: '\f107'; /* FontAwesome chevron-down */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  transition: transform 0.3s ease;
+}
+
+.nav-menu-item.has-submenu:hover::after,
+.nav-menu-item.has-submenu.open::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Submenu Dropdown */
+.nav-submenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 220px;
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 8px;
+  z-index: 1100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+}
+
+.nav-submenu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: none;
+  border-right: none;
+  transform: rotate(45deg);
+  z-index: -1;
+}
+
+.nav-menu-item-dropdown:hover .nav-submenu,
+.nav-menu-item.has-submenu.open + .nav-submenu,
+.nav-submenu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Submenu Items */
+.nav-submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #374151;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-submenu-item:hover {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #1e40af;
+  transform: translateX(2px);
+}
+
+.nav-submenu-item.active {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.nav-submenu-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.nav-submenu-item:hover .nav-submenu-icon {
+  color: #1e40af;
+}
+
+.nav-submenu-item.active .nav-submenu-icon {
+  color: #1e40af;
+}
+
+/* Mobile Submenu */
+.nav-mobile-submenu {
+  display: none;
+  padding-left: 32px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.nav-mobile-submenu.open {
+  display: block;
+}
+
+.nav-mobile-submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-mobile-submenu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateX(4px);
+}
+
+.nav-mobile-submenu-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: 600;
+}
+
+.nav-mobile-menu-item.has-submenu {
+  position: relative;
+}
+
+.nav-mobile-menu-item.has-submenu::after {
+  content: '\f107';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  margin-left: auto;
+  font-size: 0.75rem;
+  transition: transform 0.3s ease;
+}
+
+.nav-mobile-menu-item.has-submenu.open::after {
+  transform: rotate(180deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-menu-item-dropdown {
+    display: block;
+  }
+
+  .nav-submenu {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .nav-mobile-submenu {
+    display: none !important;
+  }
+}

@@ -507,7 +507,7 @@ const applicantController = {
         try {
             res.render('applicants/test-login', {
                 title: 'เข้าสู่ระบบทดสอบ - Rukchai Hongyen LearnHub',
-                layout: 'applicant'
+                layout: false
             });
 
         } catch (error) {
@@ -515,7 +515,7 @@ const applicantController = {
             res.render('error/500', {
                 title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
                 message: 'ไม่สามารถโหลดหน้าเข้าสู่ระบบได้',
-                layout: 'applicant',
+                layout: false,
                 error: error
             });
         }
@@ -529,13 +529,13 @@ const applicantController = {
             if (!applicant) {
                 return res.render('error/404', {
                     title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
-                    layout: 'applicant'
+                    layout: false
                 });
             }
 
             res.render('applicants/test-interface', {
                 title: 'ระบบทดสอบ - Rukchai Hongyen LearnHub',
-                layout: 'applicant',
+                layout: false,
                 applicant: {
                     first_name: applicant.first_name,
                     last_name: applicant.last_name,
@@ -549,7 +549,7 @@ const applicantController = {
             res.render('error/500', {
                 title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
                 message: 'ไม่สามารถโหลดระบบทดสอบได้',
-                layout: 'applicant',
+                layout: false,
                 error: error
             });
         }

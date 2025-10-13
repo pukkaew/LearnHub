@@ -28,6 +28,26 @@ const organizationController = {
     },
 
     /**
+     * API: ดึงข้อมูล Organization Levels (ระดับองค์กร)
+     */
+    async getLevels(req, res) {
+        try {
+            const levels = await OrganizationUnit.getLevels();
+
+            res.json({
+                success: true,
+                data: levels
+            });
+        } catch (error) {
+            console.error('Error getting organization levels:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการดึงข้อมูลระดับองค์กร'
+            });
+        }
+    },
+
+    /**
      * API: ดึงข้อมูลหน่วยงานทั้งหมดแบบ JSON
      */
     async getUnits(req, res) {

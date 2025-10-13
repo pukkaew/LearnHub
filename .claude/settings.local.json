@@ -9,7 +9,12 @@
       "Bash(powershell:*)",
       "Bash(wmic:*)",
       "Bash(copy:*)",
-      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:3000/users)"
+      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:3000/users)",
+      "Bash(dir:*)",
+      "Bash(curl:*)",
+      "Read(//d/**)",
+      "Bash(taskkill:*)",
+      "Bash(sqlcmd:*)"
     ],
     "deny": [],
     "ask": []

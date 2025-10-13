@@ -598,6 +598,9 @@
     <!-- Comprehensive Navigation CSS -->
     <link href="/css/navigation.css" rel="stylesheet">
 
+    <!-- Submenu Dropdown CSS -->
+    <link href="/css/submenu.css" rel="stylesheet">
+
     <% if (locals.additionalCSS) { %>
         <%- additionalCSS %>
     <% } %>
@@ -628,11 +631,13 @@
                     <!-- Desktop Menu -->
                     <% if (locals.user) { %>
                     <div class="nav-menu">
+                        <!-- หน้าหลัก -->
                         <a href="/dashboard" class="nav-menu-item">
                             <span class="nav-menu-icon"><i class="fas fa-home"></i></span>
                             <span><%= typeof t === 'function' ? t('home') : 'หน้าหลัก' %></span>
                         </a>
 
+                        <!-- ส่วนการเรียนรู้ -->
                         <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
                         <a href="/courses" class="nav-menu-item">
                             <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
@@ -640,18 +645,42 @@
                         </a>
                         <% } %>
 
+                        <a href="/tests" class="nav-menu-item">
+                            <span class="nav-menu-icon"><i class="fas fa-clipboard-list"></i></span>
+                            <span><%= typeof t === 'function' ? t('tests') : 'แบบทดสอบ' %></span>
+                        </a>
+
+                        <!-- ส่วนความรู้ -->
                         <a href="/articles" class="nav-menu-item">
                             <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
-                            <span><%= typeof t === 'function' ? t('articles') : 'ข่าวสาร' %></span>
+                            <span><%= typeof t === 'function' ? t('articles') : 'บทความ' %></span>
                         </a>
 
+                        <!-- ส่วน HR & Admin -->
                         <% if (['Admin', 'HR'].includes(user.role_name)) { %>
-                        <a href="/users" class="nav-menu-item">
-                            <span class="nav-menu-icon"><i class="fas fa-users-cog"></i></span>
-                            <span><%= typeof t === 'function' ? t('hrManagement') : 'จัดการ HR' %></span>
-                        </a>
+                        <div class="nav-menu-item-dropdown">
+                            <a href="#" class="nav-menu-item has-submenu" onclick="event.preventDefault()">
+                                <span class="nav-menu-icon"><i class="fas fa-users-cog"></i></span>
+                                <span><%= typeof t === 'function' ? t('hrManagement') : 'จัดการ HR' %></span>
+                            </a>
+                            <div class="nav-submenu">
+                                <a href="/users" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-users"></i></span>
+                                    <span><%= typeof t === 'function' ? t('users') : 'พนักงาน' %></span>
+                                </a>
+                                <a href="/organization" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-sitemap"></i></span>
+                                    <span><%= typeof t === 'function' ? t('organization') : 'แผนก' %></span>
+                                </a>
+                                <a href="/organization/positions" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-briefcase"></i></span>
+                                    <span><%= typeof t === 'function' ? t('positions') : 'ตำแหน่ง' %></span>
+                                </a>
+                            </div>
+                        </div>
                         <% } %>
 
+                        <!-- ส่วนตั้งค่า -->
                         <% if (['Admin', 'ADMIN', 'SUPER_ADMIN'].includes(user.role_name || user.role)) { %>
                         <a href="/settings" class="nav-menu-item">
                             <span class="nav-menu-icon"><i class="fas fa-cog"></i></span>
@@ -757,28 +786,51 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="nav-mobile-menu">
             <% if (locals.user) { %>
+                <!-- หน้าหลัก -->
                 <a href="/dashboard" class="nav-mobile-menu-item">
                     <span class="nav-menu-icon"><i class="fas fa-home"></i></span>
                     <span><%= typeof t === 'function' ? t('home') : 'หน้าหลัก' %></span>
                 </a>
 
+                <!-- ส่วนการเรียนรู้ -->
                 <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
                 <a href="/courses" class="nav-mobile-menu-item">
                     <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
-                    <span><%= typeof t === 'function' ? t('learning') : 'การเรียนรู้' %></span>
+                    <span><%= typeof t === 'function' ? t('learning') : 'หลักสูตรเรียน' %></span>
                 </a>
                 <% } %>
 
-                <a href="/articles" class="nav-mobile-menu-item">
-                    <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
-                    <span><%= typeof t === 'function' ? t('articles') : 'ข่าวสาร' %></span>
+                <a href="/tests" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <span><%= typeof t === 'function' ? t('tests') : 'แบบทดสอบ' %></span>
                 </a>
 
+                <!-- ส่วนความรู้ -->
+                <a href="/articles" class="nav-mobile-menu-item">
+                    <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
+                    <span><%= typeof t === 'function' ? t('articles') : 'บทความ' %></span>
+                </a>
+
+                <!-- ส่วน HR & Admin -->
                 <% if (['Admin', 'HR'].includes(user.role_name)) { %>
-                <a href="/users" class="nav-mobile-menu-item">
+                <button class="nav-mobile-menu-item has-submenu" id="mobile-hr-menu-toggle">
                     <span class="nav-menu-icon"><i class="fas fa-users-cog"></i></span>
                     <span><%= typeof t === 'function' ? t('hrManagement') : 'จัดการ HR' %></span>
-                </a>
+                </button>
+                <div class="nav-mobile-submenu" id="mobile-hr-submenu">
+                    <a href="/users" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-users"></i></span>
+                        <span><%= typeof t === 'function' ? t('users') : 'พนักงาน' %></span>
+                    </a>
+                    <a href="/organization" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-sitemap"></i></span>
+                        <span><%= typeof t === 'function' ? t('organization') : 'แผนก' %></span>
+                    </a>
+                    <a href="/organization/positions" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-briefcase"></i></span>
+                        <span><%= typeof t === 'function' ? t('positions') : 'ตำแหน่ง' %></span>
+                    </a>
+                </div>
                 <% } %>
 
                 <% if (['Admin', 'ADMIN', 'SUPER_ADMIN'].includes(user.role_name || user.role)) { %>
@@ -1505,6 +1557,26 @@
                         if (mobileMenuIcon) {
                             mobileMenuIcon.className = 'fas fa-times text-xl';
                         }
+                    }
+                });
+            }
+
+            // Mobile HR Submenu Toggle
+            const mobileHrToggle = document.getElementById('mobile-hr-menu-toggle');
+            const mobileHrSubmenu = document.getElementById('mobile-hr-submenu');
+
+            if (mobileHrToggle && mobileHrSubmenu) {
+                mobileHrToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const isOpen = mobileHrSubmenu.classList.contains('open');
+
+                    if (isOpen) {
+                        mobileHrSubmenu.classList.remove('open');
+                        mobileHrToggle.classList.remove('open');
+                    } else {
+                        mobileHrSubmenu.classList.add('open');
+                        mobileHrToggle.classList.add('open');
                     }
                 });
             }

@@ -1,0 +1,490 @@
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">จัดการโครงสร้างองค์กร</h1>
+                <p class="text-gray-600">ระบบจัดการหน่วยงานและโครงสร้างองค์กร</p>
+            </div>
+            <div class="flex space-x-3">
+                <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                    <i class="fas fa-download mr-2"></i>ส่งออกข้อมูล
+                </button>
+                <button id="addUnitBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
+                    <i class="fas fa-plus mr-2"></i>เพิ่มหน่วยงาน
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-lg">
+                        <i class="fas fa-building text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">สาขา</h3>
+                        <p id="branchCount" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-lg">
+                        <i class="fas fa-sitemap text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">สำนัก</h3>
+                        <p id="officeCount" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 p-3 rounded-lg">
+                        <i class="fas fa-layer-group text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">ฝ่าย</h3>
+                        <p id="divisionCount" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-lg">
+                        <i class="fas fa-project-diagram text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">แผนก</h3>
+                        <p id="departmentCount" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Organization Tree View -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="mb-6 pb-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">โครงสร้างองค์กร</h2>
+                <p class="text-sm text-gray-500 mt-1">แสดงโครงสร้างองค์กรแบบลำดับชั้น</p>
+            </div>
+
+            <!-- Tree Container -->
+            <div id="orgTree" class="space-y-2">
+                <!-- Tree will be loaded here -->
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="p-8 text-center">
+                <div class="inline-flex items-center">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                    กำลังโหลดข้อมูล...
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="p-8 text-center hidden">
+                <i class="fas fa-building text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500">ยังไม่มีหน่วยงาน</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Unit Modal -->
+<div id="addUnitModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-900">เพิ่มหน่วยงานใหม่</h3>
+                <button id="closeAddModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="addUnitForm" class="p-6 space-y-6">
+                <div class="space-y-4">
+                    <!-- Level Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            ระดับหน่วยงาน <span class="text-red-500">*</span>
+                        </label>
+                        <select name="level_id" id="levelSelect" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            <option value="">-- เลือกระดับ --</option>
+                            <% levels.forEach(level => { %>
+                                <option value="<%= level.level_id %>"><%= level.level_name_th %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <!-- Parent Unit -->
+                    <div id="parentField">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            หน่วยงานหลัก
+                        </label>
+                        <select name="parent_id" id="parentSelect"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            <option value="">-- ไม่มี (เป็นหน่วยงานระดับสูงสุด) --</option>
+                        </select>
+                    </div>
+
+                    <!-- Unit Code -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            รหัสหน่วยงาน <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="unit_code" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                               placeholder="เช่น BR001">
+                    </div>
+
+                    <!-- Unit Names -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อหน่วยงาน (ไทย) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="unit_name_th" required
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="ชื่อภาษาไทย">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อหน่วยงาน (EN)
+                            </label>
+                            <input type="text" name="unit_name_en"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="English Name">
+                        </div>
+                    </div>
+
+                    <!-- Abbreviation -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            ชื่อย่อ
+                        </label>
+                        <input type="text" name="unit_abbr"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                               placeholder="ชื่อย่อ">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            คำอธิบาย
+                        </label>
+                        <textarea name="description" rows="3"
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                  placeholder="รายละเอียดเพิ่มเติม"></textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <button type="button" id="cancelAdd"
+                            class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
+                        <i class="fas fa-times mr-2"></i>ยกเลิก
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <i class="fas fa-plus mr-2"></i>เพิ่มหน่วยงาน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let units = [];
+let levels = [];
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadUnits();
+    setupEventListeners();
+});
+
+// Event listeners
+function setupEventListeners() {
+    // Add unit modal
+    document.getElementById('addUnitBtn').addEventListener('click', () => {
+        document.getElementById('addUnitModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeAddModal').addEventListener('click', closeAddModal);
+    document.getElementById('cancelAdd').addEventListener('click', closeAddModal);
+
+    // Form submission
+    document.getElementById('addUnitForm').addEventListener('submit', handleAddUnit);
+
+    // Level change for parent filtering
+    document.getElementById('levelSelect').addEventListener('change', updateParentOptions);
+}
+
+// Load units
+async function loadUnits() {
+    try {
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('emptyState').classList.add('hidden');
+
+        const response = await fetch('/organization/api/units');
+        const data = await response.json();
+
+        if (data.success) {
+            units = data.data;
+            displayOrgTree();
+            updateStats();
+
+            if (units.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading units:', error);
+        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+    } finally {
+        document.getElementById('loadingState').classList.add('hidden');
+    }
+}
+
+// Display organization tree
+function displayOrgTree() {
+    const treeContainer = document.getElementById('orgTree');
+
+    // Get root units (no parent)
+    const rootUnits = units.filter(u => !u.parent_id);
+
+    treeContainer.innerHTML = rootUnits.map(unit => createTreeNode(unit, 0)).join('');
+}
+
+// Create tree node
+function createTreeNode(unit, level) {
+    const children = units.filter(u => u.parent_id === unit.unit_id);
+    const hasChildren = children.length > 0;
+    const paddingLeft = level * 2;
+
+    let html = `
+        <div class="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-all" style="margin-left: ${paddingLeft}rem;">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center flex-1">
+                    ${hasChildren ? `
+                        <button onclick="toggleChildren(this, ${unit.unit_id})" class="mr-2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    ` : '<span class="mr-2 w-4"></span>'}
+
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-lg ${getLevelColor(unit.level_code)} flex items-center justify-center mr-3">
+                            <i class="fas ${getLevelIcon(unit.level_code)} text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${unit.unit_name_th}</h3>
+                            <p class="text-sm text-gray-500">${unit.level_name_th || 'หน่วยงาน'} ${unit.unit_code ? `(${unit.unit_code})` : ''}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="viewUnit(${unit.unit_id})"
+                            class="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-eye mr-1"></i>ดู
+                    </button>
+                    <button onclick="editUnit(${unit.unit_id})"
+                            class="px-3 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-edit mr-1"></i>แก้ไข
+                    </button>
+                    <button onclick="deleteUnit(${unit.unit_id})"
+                            class="px-3 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (hasChildren) {
+        html += `<div class="children-${unit.unit_id}">`;
+        html += children.map(child => createTreeNode(child, level + 1)).join('');
+        html += '</div>';
+    }
+
+    return html;
+}
+
+// Toggle children visibility
+function toggleChildren(button, unitId) {
+    const container = document.querySelector(`.children-${unitId}`);
+    const icon = button.querySelector('i');
+
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+    } else {
+        container.style.display = 'none';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+    }
+}
+
+// Get level color
+function getLevelColor(levelCode) {
+    const colors = {
+        'BRANCH': 'bg-blue-500',
+        'OFFICE': 'bg-green-500',
+        'DIVISION': 'bg-yellow-500',
+        'DEPARTMENT': 'bg-purple-500'
+    };
+    return colors[levelCode] || 'bg-gray-500';
+}
+
+// Get level icon
+function getLevelIcon(levelCode) {
+    const icons = {
+        'BRANCH': 'fa-code-branch',
+        'OFFICE': 'fa-building',
+        'DIVISION': 'fa-layer-group',
+        'DEPARTMENT': 'fa-sitemap'
+    };
+    return icons[levelCode] || 'fa-building';
+}
+
+// Update statistics
+function updateStats() {
+    const stats = {
+        branch: 0,
+        office: 0,
+        division: 0,
+        department: 0
+    };
+
+    units.forEach(unit => {
+        switch(unit.level_code) {
+            case 'BRANCH': stats.branch++; break;
+            case 'OFFICE': stats.office++; break;
+            case 'DIVISION': stats.division++; break;
+            case 'DEPARTMENT': stats.department++; break;
+        }
+    });
+
+    document.getElementById('branchCount').textContent = stats.branch;
+    document.getElementById('officeCount').textContent = stats.office;
+    document.getElementById('divisionCount').textContent = stats.division;
+    document.getElementById('departmentCount').textContent = stats.department;
+}
+
+// Update parent options based on level
+function updateParentOptions() {
+    const levelSelect = document.getElementById('levelSelect');
+    const parentSelect = document.getElementById('parentSelect');
+    const selectedLevel = levelSelect.value;
+
+    if (!selectedLevel) {
+        parentSelect.innerHTML = '<option value="">-- เลือกระดับก่อน --</option>';
+        return;
+    }
+
+    // Filter units that can be parents based on hierarchy
+    const levelOrder = ['BRANCH', 'OFFICE', 'DIVISION', 'DEPARTMENT'];
+    const selectedLevelCode = levels.find(l => l.level_id == selectedLevel)?.level_code;
+    const selectedIndex = levelOrder.indexOf(selectedLevelCode);
+
+    let parentUnits = [];
+    if (selectedIndex > 0) {
+        // Get units from previous level
+        const parentLevelCode = levelOrder[selectedIndex - 1];
+        parentUnits = units.filter(u => u.level_code === parentLevelCode);
+    }
+
+    parentSelect.innerHTML = '<option value="">-- ไม่มี (เป็นหน่วยงานระดับสูงสุด) --</option>' +
+        parentUnits.map(u => `<option value="${u.unit_id}">${u.unit_name_th}</option>`).join('');
+}
+
+// Handle add unit
+async function handleAddUnit(e) {
+    e.preventDefault();
+
+    try {
+        const formData = new FormData(e.target);
+
+        const response = await fetch('/organization/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('เพิ่มหน่วยงานสำเร็จ', 'success');
+            closeAddModal();
+            loadUnits();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding unit:', error);
+        showMessage('เกิดข้อผิดพลาดในการเพิ่มหน่วยงาน', 'error');
+    }
+}
+
+// View unit
+function viewUnit(unitId) {
+    window.location.href = `/organization/${unitId}`;
+}
+
+// Edit unit
+function editUnit(unitId) {
+    window.location.href = `/organization/${unitId}/edit`;
+}
+
+// Delete unit
+async function deleteUnit(unitId) {
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบหน่วยงานนี้?')) return;
+
+    try {
+        const response = await fetch(`/organization/${unitId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('ลบหน่วยงานสำเร็จ', 'success');
+            loadUnits();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting unit:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Close modal
+function closeAddModal() {
+    document.getElementById('addUnitModal').classList.add('hidden');
+    document.getElementById('addUnitForm').reset();
+}
+
+// Show message
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+// Load levels from server data
+levels = <%- JSON.stringify(levels) %>;
+</script>

@@ -124,27 +124,22 @@
             </div>
         </div>
 
-        <!-- Users Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th class="p-4 text-left">
-                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary">
-                            </th>
-                            <th class="p-4 text-left text-sm font-medium text-gray-900">ผู้ใช้</th>
-                            <th class="p-4 text-left text-sm font-medium text-gray-900">บทบาท</th>
-                            <th class="p-4 text-left text-sm font-medium text-gray-900">แผนก</th>
-                            <th class="p-4 text-left text-sm font-medium text-gray-900">สถานะ</th>
-                            <th class="p-4 text-left text-sm font-medium text-gray-900">เข้าใช้ล่าสุด</th>
-                            <th class="p-4 text-left text-sm font-medium text-gray-900">การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody" class="divide-y divide-gray-200">
-                        <!-- Users will be loaded here -->
-                    </tbody>
-                </table>
+        <!-- Users Grid -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <!-- Select All Header -->
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-3">
+                    <label for="selectAll" class="text-sm font-medium text-gray-700">เลือกทั้งหมด</label>
+                </div>
+                <div class="text-sm text-gray-500">
+                    แสดง <span id="displayCount">0</span> ผู้ใช้
+                </div>
+            </div>
+
+            <!-- Users Card Grid -->
+            <div id="usersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- User cards will be loaded here -->
             </div>
 
             <!-- Loading State -->
@@ -180,80 +175,285 @@
                 </button>
             </div>
             <form id="addUserForm" class="p-6 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ *</label>
-                        <input type="text" name="first_name" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
+                <!-- Profile Image Upload Section -->
+                <div class="flex flex-col items-center mb-6 pb-6 border-b border-gray-200">
+                    <div class="relative mb-4">
+                        <img id="profilePreview" src="/images/default-avatar.png" alt="Profile Preview"
+                             class="w-24 h-24 rounded-full object-cover border-4 border-gray-200">
+                        <label for="profileImageInput" class="absolute bottom-0 right-0 bg-ruxchai-primary text-white p-2 rounded-full cursor-pointer hover:bg-ruxchai-primary/90 transition-colors">
+                            <i class="fas fa-camera text-sm"></i>
+                        </label>
+                        <input type="file" id="profileImageInput" name="profile_image" accept="image/*" class="hidden">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล *</label>
-                        <input type="text" name="last_name" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล *</label>
-                        <input type="email" name="email" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
-                        <input type="tel" name="phone"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน *</label>
-                        <input type="password" name="password" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ยืนยันรหัสผ่าน *</label>
-                        <input type="password" name="confirm_password" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">บทบาท *</label>
-                        <select name="role" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                            <option value="">เลือกบทบาท</option>
-                            <option value="employee">พนักงาน</option>
-                            <option value="manager">ผู้จัดการ</option>
-                            <option value="hr">HR</option>
-                            <option value="admin">ผู้ดูแลระบบ</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
-                        <select name="department_id"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                            <option value="">เลือกแผนก</option>
-                            <!-- Departments will be loaded dynamically -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่ง</label>
-                        <input type="text" name="position"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">วันเริ่มงาน</label>
-                        <input type="date" name="start_date"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
+                    <p class="text-xs text-gray-500">อัปโหลดรูปโปรไฟล์ (ไม่บังคับ)</p>
+                </div>
+
+                <!-- Basic Information Section -->
+                <div class="border-b border-gray-200 pb-6 mb-6">
+                    <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-ruxchai-primary/10 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-user-circle text-ruxchai-primary"></i>
+                        </div>
+                        ข้อมูลส่วนตัว
+                    </h4>
+
+                    <div class="space-y-4">
+                        <!-- User Type -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ประเภทผู้ใช้ <span class="text-red-500">*</span>
+                            </label>
+                            <select name="user_type" id="userTypeSelect" required onchange="handleUserTypeChange()"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                <option value="">-- เลือกประเภทผู้ใช้ --</option>
+                                <option value="employee">👤 พนักงาน (มีสิทธิ์เข้าใช้ระบบ)</option>
+                                <option value="applicant">📋 ผู้สมัครงาน (ยังไม่มีสิทธิ์เข้าระบบ)</option>
+                            </select>
+                        </div>
+
+                        <!-- Employee ID - Only for Employee -->
+                        <div id="employeeIdField" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-id-badge text-ruxchai-primary mr-1"></i>
+                                รหัสพนักงาน <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="employee_id" id="employeeIdInput"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="เช่น EMP001">
+                        </div>
+
+                        <!-- ID Card - Only for Applicant -->
+                        <div id="idCardField" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-id-card text-gray-400 mr-1"></i>
+                                เลขบัตรประชาชน <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="id_card_number" id="idCardInput" maxlength="13"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="1234567890123">
+                        </div>
+
+                        <!-- Name Fields - Grid Layout -->
+                        <div id="nameFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    ชื่อ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="first_name" id="firstNameInput"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="ชื่อ">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    นามสกุล <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="last_name" id="lastNameInput"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="นามสกุล">
+                            </div>
+                        </div>
+
+                        <!-- Contact Fields - Grid Layout -->
+                        <div id="contactFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-envelope text-gray-400 mr-1"></i>
+                                    อีเมล <span class="text-red-500">*</span>
+                                </label>
+                                <input type="email" name="email" id="emailInput"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="example@email.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-phone text-gray-400 mr-1"></i>
+                                    เบอร์โทรศัพท์ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" name="phone" id="phoneInput"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="0812345678">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-center">
-                    <input type="checkbox" name="send_welcome_email" id="sendWelcomeEmail" checked
-                           class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-2">
-                    <label for="sendWelcomeEmail" class="text-sm text-gray-700">ส่งอีเมลยินดีต้อนรับ</label>
+                <!-- Organization Information Section (Only for Employees) -->
+                <div id="organizationSection" class="border-b border-gray-200 pb-6 mb-6 hidden">
+                    <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-building text-blue-600"></i>
+                        </div>
+                        ข้อมูลองค์กร
+                    </h4>
+
+                    <div class="space-y-4">
+                        <!-- Organization Units - Cascade Selection -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div id="branchField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-code-branch text-gray-400 mr-1"></i>
+                                    สาขา
+                                </label>
+                                <select name="branch_id" id="branchSelect" onchange="loadOfficesByBranch(this.value)"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="">-- เลือกสาขา --</option>
+                                </select>
+                            </div>
+                            <div id="officeField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building text-gray-400 mr-1"></i>
+                                    สำนัก
+                                </label>
+                                <select name="office_id" id="officeSelect" onchange="loadDivisionsByOffice(this.value)"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="">-- เลือกสำนัก --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div id="divisionField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-layer-group text-gray-400 mr-1"></i>
+                                    ฝ่าย
+                                </label>
+                                <select name="division_id" id="divisionSelect" onchange="loadDepartmentsByDivision(this.value)"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="">-- เลือกฝ่าย --</option>
+                                </select>
+                            </div>
+                            <div id="departmentField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-sitemap text-gray-400 mr-1"></i>
+                                    แผนก <span class="text-red-500">*</span>
+                                </label>
+                                <select name="department_id" id="departmentSelect"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="">-- เลือกแผนก --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Position and Start Date -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div id="positionField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-briefcase text-gray-400 mr-1"></i>
+                                    ตำแหน่ง <span class="text-red-500">*</span>
+                                </label>
+                                <select name="position_id" id="addPositionSelect"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="">-- เลือกตำแหน่ง --</option>
+                                    <!-- Positions will be loaded dynamically -->
+                                </select>
+                            </div>
+                            <div id="startDateField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
+                                    วันเริ่มงาน
+                                </label>
+                                <input type="date" name="start_date"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex justify-end space-x-3 pt-4 border-t">
-                    <button type="button" id="cancelAdd" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        ยกเลิก
+                <!-- Applicant Information Section (Only for Applicants) -->
+                <div id="applicantSection" class="border-b border-gray-200 pb-6 mb-6 hidden">
+                    <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-briefcase text-green-600"></i>
+                        </div>
+                        ข้อมูลการสมัครงาน
+                    </h4>
+
+                    <div class="space-y-4">
+                        <div id="appliedPositionField">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user-tag text-gray-400 mr-1"></i>
+                                ตำแหน่งที่สมัคร <span class="text-red-500">*</span>
+                            </label>
+                            <select name="applied_position_id" id="appliedPositionSelect"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                <option value="">-- เลือกตำแหน่งที่สมัคร --</option>
+                                <!-- Positions will be loaded dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Access (Only for Employees) -->
+                <div id="systemAccessSection" class="border-b border-gray-200 pb-6 mb-6 hidden">
+                    <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-key text-purple-600"></i>
+                        </div>
+                        การเข้าถึงระบบ
+                    </h4>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div id="roleField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user-shield text-gray-400 mr-1"></i>
+                                    บทบาท <span class="text-red-500">*</span>
+                                </label>
+                                <select name="role" id="roleSelect"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="">-- เลือกบทบาท --</option>
+                                    <option value="employee">👤 พนักงาน</option>
+                                    <option value="manager">👔 ผู้จัดการ</option>
+                                    <option value="hr">💼 HR</option>
+                                    <option value="admin">⚙️ ผู้ดูแลระบบ</option>
+                                </select>
+                            </div>
+                            <div id="statusField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-toggle-on text-gray-400 mr-1"></i>
+                                    สถานะ
+                                </label>
+                                <select name="status"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="active">✅ ใช้งานอยู่</option>
+                                    <option value="pending">⏳ รอการอนุมัติ</option>
+                                    <option value="inactive">❌ ไม่ใช้งาน</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div id="passwordField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-lock text-gray-400 mr-1"></i>
+                                    รหัสผ่าน <span class="text-red-500">*</span>
+                                </label>
+                                <input type="password" name="password" id="passwordInput"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="••••••••">
+                            </div>
+                            <div id="confirmPasswordField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-lock text-gray-400 mr-1"></i>
+                                    ยืนยันรหัสผ่าน <span class="text-red-500">*</span>
+                                </label>
+                                <input type="password" name="confirm_password" id="confirmPasswordInput"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="••••••••">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <button type="button" id="cancelAdd"
+                            class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
+                        <i class="fas fa-times mr-2"></i>ยกเลิก
                     </button>
-                    <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        เพิ่มผู้ใช้
+                    <button type="submit"
+                            class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <i class="fas fa-user-plus mr-2"></i>เพิ่มผู้ใช้
                     </button>
                 </div>
             </form>
@@ -272,58 +472,112 @@
                 </button>
             </div>
             <form id="editUserForm" class="p-6 space-y-6">
-                <!-- Form content similar to add user but with edit data -->
                 <input type="hidden" name="user_id" id="editUserId">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ *</label>
-                        <input type="text" name="first_name" id="editFirstName" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล *</label>
-                        <input type="text" name="last_name" id="editLastName" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล *</label>
-                        <input type="email" name="email" id="editEmail" required
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
-                        <input type="tel" name="phone" id="editPhone"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">บทบาท *</label>
-                        <select name="role" id="editRole" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                            <option value="employee">พนักงาน</option>
-                            <option value="manager">ผู้จัดการ</option>
-                            <option value="hr">HR</option>
-                            <option value="admin">ผู้ดูแลระบบ</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">สถานะ *</label>
-                        <select name="status" id="editStatus" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                            <option value="active">ใช้งานอยู่</option>
-                            <option value="inactive">ไม่ใช้งาน</option>
-                            <option value="pending">รอการอนุมัติ</option>
-                            <option value="suspended">ถูกระงับ</option>
-                        </select>
+                <!-- Basic Information Section -->
+                <div class="border-b border-gray-200 pb-6 mb-6">
+                    <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-ruxchai-primary/10 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-user-circle text-ruxchai-primary"></i>
+                        </div>
+                        ข้อมูลส่วนตัว
+                    </h4>
+
+                    <div class="space-y-4">
+                        <!-- Name Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    ชื่อ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="first_name" id="editFirstName" required
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="ชื่อ">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    นามสกุล <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="last_name" id="editLastName" required
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="นามสกุล">
+                            </div>
+                        </div>
+
+                        <!-- Contact Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-envelope text-gray-400 mr-1"></i>
+                                    อีเมล <span class="text-red-500">*</span>
+                                </label>
+                                <input type="email" name="email" id="editEmail" required
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="example@email.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-phone text-gray-400 mr-1"></i>
+                                    เบอร์โทรศัพท์
+                                </label>
+                                <input type="tel" name="phone" id="editPhone"
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                       placeholder="0812345678">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex justify-end space-x-3 pt-4 border-t">
-                    <button type="button" id="cancelEdit" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        ยกเลิก
+                <!-- System Access Section -->
+                <div class="border-b border-gray-200 pb-6 mb-6">
+                    <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-key text-purple-600"></i>
+                        </div>
+                        การเข้าถึงระบบ
+                    </h4>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user-shield text-gray-400 mr-1"></i>
+                                    บทบาท <span class="text-red-500">*</span>
+                                </label>
+                                <select name="role" id="editRole" required
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="employee">👤 พนักงาน</option>
+                                    <option value="manager">👔 ผู้จัดการ</option>
+                                    <option value="hr">💼 HR</option>
+                                    <option value="admin">⚙️ ผู้ดูแลระบบ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-toggle-on text-gray-400 mr-1"></i>
+                                    สถานะ <span class="text-red-500">*</span>
+                                </label>
+                                <select name="status" id="editStatus" required
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value="active">✅ ใช้งานอยู่</option>
+                                    <option value="inactive">❌ ไม่ใช้งาน</option>
+                                    <option value="pending">⏳ รอการอนุมัติ</option>
+                                    <option value="suspended">🚫 ถูกระงับ</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <button type="button" id="cancelEdit"
+                            class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
+                        <i class="fas fa-times mr-2"></i>ยกเลิก
                     </button>
-                    <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        บันทึกการแก้ไข
+                    <button type="submit"
+                            class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <i class="fas fa-save mr-2"></i>บันทึกการแก้ไข
                     </button>
                 </div>
             </form>
@@ -340,8 +594,10 @@ let selectedUsers = [];
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     loadUsers();
-    loadDepartments();
+    loadOrganizationUnits();
+    loadPositions();
     setupEventListeners();
+    setupProfileImagePreview();
 });
 
 // Event listeners
@@ -426,69 +682,102 @@ async function loadUsers() {
 
 // Display users
 function displayUsers() {
-    const tbody = document.getElementById('usersTableBody');
-    tbody.innerHTML = users.map(user => createUserRow(user)).join('');
+    const grid = document.getElementById('usersGrid');
+    const displayCount = document.getElementById('displayCount');
+    grid.innerHTML = users.map(user => createUserCard(user)).join('');
+    displayCount.textContent = users.length;
 }
 
-// Create user row
-function createUserRow(user) {
+// Create user card
+function createUserCard(user) {
     const statusBadge = getStatusBadge(user.status);
     const roleBadge = getRoleBadge(user.role);
 
     return `
-        <tr class="hover:bg-gray-50">
-            <td class="p-4">
+        <div class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all duration-300 relative group">
+            <!-- Checkbox -->
+            <div class="absolute top-4 right-4">
                 <input type="checkbox" class="user-checkbox rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary"
                        value="${user.user_id}" onchange="handleUserSelection(this)">
-            </td>
-            <td class="p-4">
-                <div class="flex items-center space-x-3">
+            </div>
+
+            <!-- User Avatar and Info -->
+            <div class="flex flex-col items-center text-center mb-4 pt-2">
+                <div class="relative mb-3">
                     <img src="${user.profile_image || '/images/default-avatar.png'}"
-                         alt="${user.first_name} ${user.last_name}" class="w-10 h-10 rounded-full">
-                    <div>
-                        <p class="font-medium text-gray-900">${user.first_name} ${user.last_name}</p>
-                        <p class="text-sm text-gray-500">${user.email}</p>
-                        ${user.phone ? `<p class="text-sm text-gray-500">${user.phone}</p>` : ''}
+                         alt="${user.first_name} ${user.last_name}"
+                         class="w-20 h-20 rounded-full object-cover border-4 border-gray-100">
+                    <!-- Online indicator (optional) -->
+                    <div class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+
+                <h3 class="font-semibold text-gray-900 text-lg mb-1">${user.first_name} ${user.last_name}</h3>
+                <p class="text-sm text-gray-500 mb-2">${user.email}</p>
+                ${user.phone ? `<p class="text-xs text-gray-400"><i class="fas fa-phone mr-1"></i>${user.phone}</p>` : ''}
+            </div>
+
+            <!-- Role and Status Badges -->
+            <div class="flex justify-center space-x-2 mb-4">
+                ${roleBadge}
+                ${statusBadge}
+            </div>
+
+            <!-- Department and Position -->
+            <div class="bg-gray-50 rounded-lg p-3 mb-4 text-center">
+                <div class="text-sm">
+                    <div class="flex items-center justify-center mb-1">
+                        <i class="fas fa-building text-gray-400 mr-2 text-xs"></i>
+                        <span class="text-gray-700 font-medium">${user.department_name || 'ไม่ระบุแผนก'}</span>
                     </div>
+                    ${user.position ? `
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-briefcase text-gray-400 mr-2 text-xs"></i>
+                            <span class="text-gray-500 text-xs">${user.position}</span>
+                        </div>
+                    ` : ''}
                 </div>
-            </td>
-            <td class="p-4">${roleBadge}</td>
-            <td class="p-4">
-                <span class="text-sm text-gray-900">${user.department_name || '-'}</span>
-                ${user.position ? `<br><span class="text-sm text-gray-500">${user.position}</span>` : ''}
-            </td>
-            <td class="p-4">${statusBadge}</td>
-            <td class="p-4">
-                <span class="text-sm text-gray-900">${user.last_active ? formatDate(user.last_active) : 'ยังไม่เคยเข้าใช้'}</span>
-            </td>
-            <td class="p-4">
-                <div class="flex space-x-2">
-                    <button onclick="viewUser(${user.user_id})"
-                            class="text-blue-600 hover:text-blue-800 p-1" title="ดูรายละเอียด">
-                        <i class="fas fa-eye"></i>
+            </div>
+
+            <!-- Last Active -->
+            <div class="text-center mb-4 pb-4 border-b border-gray-200">
+                <p class="text-xs text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    ${user.last_active ? 'เข้าใช้: ' + formatDate(user.last_active) : 'ยังไม่เคยเข้าใช้'}
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center space-x-2">
+                <button onclick="viewUser(${user.user_id})"
+                        class="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+                        title="ดูรายละเอียด">
+                    <i class="fas fa-eye mr-1"></i>ดู
+                </button>
+                <button onclick="editUser(${user.user_id})"
+                        class="flex-1 bg-green-50 text-green-600 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+                        title="แก้ไข">
+                    <i class="fas fa-edit mr-1"></i>แก้ไข
+                </button>
+                ${user.status !== 'suspended' ? `
+                    <button onclick="suspendUser(${user.user_id})"
+                            class="flex-1 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+                            title="ระงับ">
+                        <i class="fas fa-ban mr-1"></i>ระงับ
                     </button>
-                    <button onclick="editUser(${user.user_id})"
-                            class="text-green-600 hover:text-green-800 p-1" title="แก้ไข">
-                        <i class="fas fa-edit"></i>
+                ` : `
+                    <button onclick="activateUser(${user.user_id})"
+                            class="flex-1 bg-green-50 text-green-600 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+                            title="เปิดใช้">
+                        <i class="fas fa-check mr-1"></i>เปิด
                     </button>
-                    ${user.status !== 'suspended' ? `
-                        <button onclick="suspendUser(${user.user_id})"
-                                class="text-red-600 hover:text-red-800 p-1" title="ระงับการใช้งาน">
-                            <i class="fas fa-ban"></i>
-                        </button>
-                    ` : `
-                        <button onclick="activateUser(${user.user_id})"
-                                class="text-green-600 hover:text-green-800 p-1" title="เปิดใช้งาน">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    `}
-                    <button onclick="deleteUser(${user.user_id})"
-                            class="text-red-600 hover:text-red-800 p-1" title="ลบ">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
+                `}
+                <button onclick="deleteUser(${user.user_id})"
+                        class="bg-gray-50 text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors text-sm"
+                        title="ลบ">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
     `;
 }
 
@@ -514,27 +803,251 @@ function getRoleBadge(role) {
     return badges[role] || '';
 }
 
-// Load departments
-async function loadDepartments() {
+// Load organization units - Load branches (top level)
+async function loadOrganizationUnits() {
     try {
-        const response = await fetch('/departments/api/list');
+        const response = await fetch('/organization/api/units');
         const data = await response.json();
 
         if (data.success) {
-            const departmentSelects = document.querySelectorAll('select[name="department_id"], #departmentFilter');
+            const branchSelect = document.getElementById('branchSelect');
+            const departmentFilter = document.getElementById('departmentFilter');
 
-            departmentSelects.forEach(select => {
-                if (select.id === 'departmentFilter') {
-                    select.innerHTML = '<option value="">แผนกทั้งหมด</option>' +
-                        data.departments.map(dept => `<option value="${dept.department_id}">${dept.name}</option>`).join('');
-                } else {
-                    select.innerHTML = '<option value="">เลือกแผนก</option>' +
-                        data.departments.map(dept => `<option value="${dept.department_id}">${dept.name}</option>`).join('');
-                }
-            });
+            // Get branches (level_code = 'BRANCH' or parent_id is null)
+            const branches = data.data.filter(unit =>
+                unit.level_code === 'BRANCH' || unit.parent_id === null
+            );
+
+            // Load branches for add user form
+            if (branchSelect) {
+                branchSelect.innerHTML = '<option value="">-- เลือกสาขา --</option>' +
+                    branches.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
+            }
+
+            // Keep department filter for backward compatibility
+            if (departmentFilter) {
+                departmentFilter.innerHTML = '<option value="">หน่วยงานทั้งหมด</option>' +
+                    data.data.map(unit => {
+                        const levelName = unit.level_name_th || 'หน่วยงาน';
+                        return `<option value="${unit.unit_id}">${levelName} ${unit.unit_name_th}</option>`;
+                    }).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading organization units:', error);
+    }
+}
+
+// Load offices by branch (cascade)
+async function loadOfficesByBranch(branchId) {
+    const officeSelect = document.getElementById('officeSelect');
+    const divisionSelect = document.getElementById('divisionSelect');
+    const departmentSelect = document.getElementById('departmentSelect');
+
+    // Reset child dropdowns
+    officeSelect.innerHTML = '<option value="">-- เลือกสำนัก --</option>';
+    divisionSelect.innerHTML = '<option value="">-- เลือกฝ่าย --</option>';
+    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+    if (!branchId) return;
+
+    try {
+        const response = await fetch(`/organization/api/units/${branchId}/children`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+            officeSelect.innerHTML = '<option value="">-- เลือกสำนัก --</option>' +
+                data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading offices:', error);
+    }
+}
+
+// Load divisions by office (cascade)
+async function loadDivisionsByOffice(officeId) {
+    const divisionSelect = document.getElementById('divisionSelect');
+    const departmentSelect = document.getElementById('departmentSelect');
+
+    // Reset child dropdowns
+    divisionSelect.innerHTML = '<option value="">-- เลือกฝ่าย --</option>';
+    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+    if (!officeId) return;
+
+    try {
+        const response = await fetch(`/organization/api/units/${officeId}/children`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+            divisionSelect.innerHTML = '<option value="">-- เลือกฝ่าย --</option>' +
+                data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading divisions:', error);
+    }
+}
+
+// Load departments by division (cascade)
+async function loadDepartmentsByDivision(divisionId) {
+    const departmentSelect = document.getElementById('departmentSelect');
+
+    // Reset dropdown
+    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+    if (!divisionId) return;
+
+    try {
+        const response = await fetch(`/organization/api/units/${divisionId}/children`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+            departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>' +
+                data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
         }
     } catch (error) {
         console.error('Error loading departments:', error);
+    }
+}
+
+// Load positions
+async function loadPositions() {
+    try {
+        const response = await fetch('/organization/positions/api/list');
+        const data = await response.json();
+
+        if (data.success) {
+            const positionSelect = document.getElementById('addPositionSelect');
+            const appliedPositionSelect = document.getElementById('appliedPositionSelect');
+
+            const positionsHTML = data.positions.map(pos =>
+                `<option value="${pos.position_id}">${pos.position_name_th || pos.position_name}</option>`
+            ).join('');
+
+            if (positionSelect) {
+                positionSelect.innerHTML = '<option value="">เลือกตำแหน่ง</option>' + positionsHTML;
+            }
+
+            // Load positions for applicants too
+            if (appliedPositionSelect) {
+                appliedPositionSelect.innerHTML = '<option value="">เลือกตำแหน่งที่สมัคร</option>' + positionsHTML;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading positions:', error);
+    }
+}
+
+// Setup profile image preview
+function setupProfileImagePreview() {
+    const profileInput = document.getElementById('profileImageInput');
+    const profilePreview = document.getElementById('profilePreview');
+
+    if (profileInput && profilePreview) {
+        profileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+}
+
+// Handle user type change - Show/hide fields based on user type
+function handleUserTypeChange() {
+    const userType = document.getElementById('userTypeSelect').value;
+
+    // Get all field elements
+    const nameFields = document.getElementById('nameFields');
+    const contactFields = document.getElementById('contactFields');
+    const employeeIdField = document.getElementById('employeeIdField');
+    const idCardField = document.getElementById('idCardField');
+    const organizationSection = document.getElementById('organizationSection');
+    const systemAccessSection = document.getElementById('systemAccessSection');
+    const applicantSection = document.getElementById('applicantSection');
+
+    // Get form inputs
+    const firstNameInput = document.getElementById('firstNameInput');
+    const lastNameInput = document.getElementById('lastNameInput');
+    const emailInput = document.getElementById('emailInput');
+    const phoneInput = document.getElementById('phoneInput');
+    const employeeIdInput = document.getElementById('employeeIdInput');
+    const idCardInput = document.getElementById('idCardInput');
+    const departmentSelect = document.getElementById('departmentSelect');
+    const positionSelect = document.getElementById('addPositionSelect');
+    const roleSelect = document.getElementById('roleSelect');
+    const passwordInput = document.getElementById('passwordInput');
+    const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+    const appliedPositionSelect = document.getElementById('appliedPositionSelect');
+
+    // Hide all sections and remove required first
+    if (nameFields) nameFields.classList.add('hidden');
+    if (contactFields) contactFields.classList.add('hidden');
+    if (employeeIdField) employeeIdField.classList.add('hidden');
+    if (idCardField) idCardField.classList.add('hidden');
+    if (organizationSection) organizationSection.classList.add('hidden');
+    if (systemAccessSection) systemAccessSection.classList.add('hidden');
+    if (applicantSection) applicantSection.classList.add('hidden');
+
+    // Remove all required attributes
+    if (firstNameInput) firstNameInput.removeAttribute('required');
+    if (lastNameInput) lastNameInput.removeAttribute('required');
+    if (emailInput) emailInput.removeAttribute('required');
+    if (phoneInput) phoneInput.removeAttribute('required');
+    if (employeeIdInput) employeeIdInput.removeAttribute('required');
+    if (idCardInput) idCardInput.removeAttribute('required');
+    if (departmentSelect) departmentSelect.removeAttribute('required');
+    if (positionSelect) positionSelect.removeAttribute('required');
+    if (roleSelect) roleSelect.removeAttribute('required');
+    if (passwordInput) passwordInput.removeAttribute('required');
+    if (confirmPasswordInput) confirmPasswordInput.removeAttribute('required');
+    if (appliedPositionSelect) appliedPositionSelect.removeAttribute('required');
+
+    // Show relevant fields based on user type
+    if (userType === 'employee') {
+        // Show basic fields
+        if (nameFields) nameFields.classList.remove('hidden');
+        if (contactFields) contactFields.classList.remove('hidden');
+        if (firstNameInput) firstNameInput.setAttribute('required', 'required');
+        if (lastNameInput) lastNameInput.setAttribute('required', 'required');
+        if (emailInput) emailInput.setAttribute('required', 'required');
+        if (phoneInput) phoneInput.setAttribute('required', 'required');
+
+        // Show Employee ID
+        if (employeeIdField) employeeIdField.classList.remove('hidden');
+        if (employeeIdInput) employeeIdInput.setAttribute('required', 'required');
+
+        // Show organization section for employees
+        if (organizationSection) organizationSection.classList.remove('hidden');
+        if (departmentSelect) departmentSelect.setAttribute('required', 'required');
+        if (positionSelect) positionSelect.setAttribute('required', 'required');
+
+        // Show system access section for employees
+        if (systemAccessSection) systemAccessSection.classList.remove('hidden');
+        if (roleSelect) roleSelect.setAttribute('required', 'required');
+        if (passwordInput) passwordInput.setAttribute('required', 'required');
+        if (confirmPasswordInput) confirmPasswordInput.setAttribute('required', 'required');
+
+    } else if (userType === 'applicant') {
+        // Show basic fields
+        if (nameFields) nameFields.classList.remove('hidden');
+        if (contactFields) contactFields.classList.remove('hidden');
+        if (firstNameInput) firstNameInput.setAttribute('required', 'required');
+        if (lastNameInput) lastNameInput.setAttribute('required', 'required');
+        if (emailInput) emailInput.setAttribute('required', 'required');
+        if (phoneInput) phoneInput.setAttribute('required', 'required');
+
+        // Show ID Card for applicants
+        if (idCardField) idCardField.classList.remove('hidden');
+        if (idCardInput) idCardInput.setAttribute('required', 'required');
+
+        // Show applicant section
+        if (applicantSection) applicantSection.classList.remove('hidden');
+        if (appliedPositionSelect) appliedPositionSelect.setAttribute('required', 'required');
     }
 }
 

@@ -8,6 +8,9 @@ const organizationController = require('../controllers/organizationController');
 // หน้าหลัก - รายการหน่วยงาน
 router.get('/', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.index);
 
+// API: ดึงข้อมูล Organization Levels (ระดับองค์กร)
+router.get('/api/levels', authMiddleware.requireAuth, organizationController.getLevels);
+
 // API: ดึงข้อมูลหน่วยงานทั้งหมด
 router.get('/api/units', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getUnits);
 

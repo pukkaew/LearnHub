@@ -3,6 +3,19 @@ const router = express.Router();
 const applicantController = require('../controllers/applicantController');
 const authMiddleware = require('../middleware/auth');
 
+// Root route - redirect based on user role
+router.get('/', (req, res) => {
+    // If user is logged in and has HR/Admin role, redirect to admin panel
+    if (req.session && req.session.user) {
+        const userRole = req.session.user.role;
+        if (userRole === 'Admin' || userRole === 'HR') {
+            return res.redirect('/applicants/admin/');
+        }
+    }
+    // Otherwise, redirect to applicant test login page
+    return res.redirect('/applicants/test/login');
+});
+
 // Public routes (no authentication required)
 router.post('/register', applicantController.registerApplicant);
 router.get('/test/login', applicantController.renderTestLogin);
