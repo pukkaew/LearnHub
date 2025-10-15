@@ -1,0 +1,256 @@
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-6">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li><a href="/organization" class="text-ruxchai-primary hover:underline">โครงสร้างองค์กร</a></li>
+                <li class="text-gray-400">/</li>
+                <% if (hierarchyPath && hierarchyPath.length > 0) { %>
+                    <% hierarchyPath.reverse().forEach((item, index) => { %>
+                        <% if (index > 0) { %>
+                            <li class="text-gray-400">/</li>
+                        <% } %>
+                        <li>
+                            <% if (index < hierarchyPath.length - 1) { %>
+                                <a href="/organization/<%= item.unit_id %>" class="text-ruxchai-primary hover:underline"><%= item.unit_name_th %></a>
+                            <% } else { %>
+                                <span class="text-gray-700 font-medium"><%= item.unit_name_th %></span>
+                            <% } %>
+                        </li>
+                    <% }); %>
+                <% } else { %>
+                    <li class="text-gray-700 font-medium"><%= unit.unit_name_th %></li>
+                <% } %>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div class="mb-4 md:mb-0">
+                <div class="flex items-center mb-2">
+                    <div class="w-12 h-12 rounded-lg bg-<%=
+                        unit.level_code === 'COMPANY' ? 'red-600' :
+                        unit.level_code === 'BRANCH' ? 'blue-500' :
+                        unit.level_code === 'OFFICE' ? 'green-500' :
+                        unit.level_code === 'DIVISION' ? 'yellow-500' :
+                        unit.level_code === 'DEPARTMENT' ? 'purple-500' : 'gray-500'
+                    %> flex items-center justify-center mr-4">
+                        <i class="fas <%=
+                            unit.level_code === 'COMPANY' ? 'fa-building' :
+                            unit.level_code === 'BRANCH' ? 'fa-code-branch' :
+                            unit.level_code === 'OFFICE' ? 'fa-sitemap' :
+                            unit.level_code === 'DIVISION' ? 'fa-layer-group' :
+                            unit.level_code === 'DEPARTMENT' ? 'fa-project-diagram' : 'fa-building'
+                        %> text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900"><%= unit.unit_name_th %></h1>
+                        <p class="text-gray-600"><%= unit.level_name_th %> <%= unit.unit_code ? `(${unit.unit_code})` : '' %></p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <% if (unit.level_code !== 'COMPANY') { %>
+                    <a href="/organization/<%= unit.unit_id %>/edit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                        <i class="fas fa-edit mr-2"></i>แก้ไข
+                    </a>
+                <% } %>
+                <a href="/organization" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
+                    <i class="fas fa-arrow-left mr-2"></i>กลับ
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Main Info -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic Information -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-ruxchai-primary mr-2"></i>
+                        ข้อมูลพื้นฐาน
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">รหัสหน่วยงาน</label>
+                            <p class="text-gray-900"><%= unit.unit_code || '-' %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">ชื่อย่อ</label>
+                            <p class="text-gray-900"><%= unit.unit_abbr || '-' %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">ชื่อภาษาอังกฤษ</label>
+                            <p class="text-gray-900"><%= unit.unit_name_en || '-' %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">ระดับ</label>
+                            <p class="text-gray-900"><%= unit.level_name_th %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">หน่วยงานหลัก</label>
+                            <p class="text-gray-900"><%= unit.parent_name || '-' %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">ผู้จัดการ</label>
+                            <p class="text-gray-900"><%= unit.manager_name || '-' %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Cost Center</label>
+                            <p class="text-gray-900"><%= unit.cost_center || '-' %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">สถานะ</label>
+                            <span class="px-3 py-1 rounded-full text-sm font-medium <%=
+                                unit.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                                unit.status === 'INACTIVE' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                            %>">
+                                <%= unit.status === 'ACTIVE' ? 'ใช้งาน' : 'ไม่ใช้งาน' %>
+                            </span>
+                        </div>
+                    </div>
+                    <% if (unit.description) { %>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">คำอธิบาย</label>
+                            <p class="text-gray-900"><%= unit.description %></p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Children Units -->
+                <% if (children && children.length > 0) { %>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-sitemap text-ruxchai-primary mr-2"></i>
+                            หน่วยงานย่อย (<%= children.length %>)
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <% children.forEach(child => { %>
+                                <a href="/organization/<%= child.unit_id %>" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all hover:border-ruxchai-primary">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-lg bg-<%=
+                                            child.level_code === 'BRANCH' ? 'blue-500' :
+                                            child.level_code === 'OFFICE' ? 'green-500' :
+                                            child.level_code === 'DIVISION' ? 'yellow-500' :
+                                            child.level_code === 'DEPARTMENT' ? 'purple-500' : 'gray-500'
+                                        %> flex items-center justify-center mr-3">
+                                            <i class="fas <%=
+                                                child.level_code === 'BRANCH' ? 'fa-code-branch' :
+                                                child.level_code === 'OFFICE' ? 'fa-sitemap' :
+                                                child.level_code === 'DIVISION' ? 'fa-layer-group' :
+                                                child.level_code === 'DEPARTMENT' ? 'fa-project-diagram' : 'fa-building'
+                                            %> text-white"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-900"><%= child.unit_name_th %></h3>
+                                            <p class="text-sm text-gray-500"><%= child.level_name_th %></p>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </a>
+                            <% }); %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Right Column - Statistics & Employees -->
+            <div class="space-y-6">
+                <!-- Statistics -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-chart-bar text-ruxchai-primary mr-2"></i>
+                        สถิติ
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-users text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">พนักงาน</p>
+                                    <p class="text-xl font-bold text-gray-900"><%= unit.employee_count || 0 %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-sitemap text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">หน่วยงานย่อย</p>
+                                    <p class="text-xl font-bold text-gray-900"><%= children ? children.length : 0 %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% if (unit.position_count) { %>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-briefcase text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">ตำแหน่งงาน</p>
+                                        <p class="text-xl font-bold text-gray-900"><%= unit.position_count %></p>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Employees List -->
+                <% if (employees && employees.length > 0) { %>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-users text-ruxchai-primary mr-2"></i>
+                            พนักงาน (<%= employees.length %>)
+                        </h2>
+                        <div class="space-y-3 max-h-96 overflow-y-auto">
+                            <% employees.forEach(emp => { %>
+                                <a href="/users/<%= emp.user_id %>" class="block border border-gray-200 rounded-lg p-3 hover:shadow-md transition-all hover:border-ruxchai-primary">
+                                    <div class="flex items-center">
+                                        <% if (emp.profile_image) { %>
+                                            <img src="<%= emp.profile_image %>" alt="<%= emp.first_name %>" class="w-10 h-10 rounded-full mr-3 object-cover">
+                                        <% } else { %>
+                                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                                                <i class="fas fa-user text-gray-500"></i>
+                                            </div>
+                                        <% } %>
+                                        <div class="flex-1">
+                                            <h3 class="font-medium text-gray-900"><%= emp.first_name %> <%= emp.last_name %></h3>
+                                            <p class="text-sm text-gray-500"><%= emp.position_name || 'ไม่ระบุตำแหน่ง' %></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            <% }); %>
+                        </div>
+                    </div>
+                <% } %>
+
+                <!-- Manager Info -->
+                <% if (unit.manager_name) { %>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-user-tie text-ruxchai-primary mr-2"></i>
+                            ผู้จัดการ
+                        </h2>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-ruxchai-primary/10 flex items-center justify-center mr-3">
+                                <i class="fas fa-user-tie text-ruxchai-primary text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900"><%= unit.manager_name %></h3>
+                                <% if (unit.manager_employee_id) { %>
+                                    <p class="text-sm text-gray-500">รหัส: <%= unit.manager_employee_id %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

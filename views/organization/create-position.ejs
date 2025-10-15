@@ -1,0 +1,329 @@
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">สร้างตำแหน่งงานใหม่</h1>
+                <p class="text-gray-600">เพิ่มตำแหน่งงานในองค์กร</p>
+            </div>
+            <a href="/organization/positions" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
+                <i class="fas fa-times mr-2"></i>ยกเลิก
+            </a>
+        </div>
+
+        <!-- Form -->
+        <form id="createPositionForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+            <div class="space-y-6">
+                <!-- Basic Information Section -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
+                        <i class="fas fa-info-circle text-ruxchai-primary mr-2"></i>
+                        ข้อมูลพื้นฐาน
+                    </h2>
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Position Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อตำแหน่ง <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="position_name" required
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="เช่น วิศวกรซอฟต์แวร์, นักวิเคราะห์ระบบ, ผู้จัดการฝ่าย">
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                คำอธิบายตำแหน่ง
+                            </label>
+                            <textarea name="description" rows="2"
+                                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                      placeholder="คำอธิบายสั้นๆ เกี่ยวกับตำแหน่งนี้"></textarea>
+                        </div>
+
+                        <!-- Units Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                เลือกหน่วยงาน <span class="text-red-500">*</span>
+                            </label>
+
+                            <!-- Selected Units Pills -->
+                            <div id="selectedUnits" class="mb-3 p-3 border border-gray-300 rounded-lg bg-white min-h-[60px]">
+                                <div id="selectedPills" class="flex flex-wrap gap-2">
+                                    <div class="text-sm text-gray-400 italic">ยังไม่ได้เลือกหน่วยงาน - กรุณาค้นหาและเลือก</div>
+                                </div>
+                            </div>
+
+                            <!-- Search Box -->
+                            <div class="relative mb-3">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="unitSearch" placeholder="ค้นหาและเลือกหน่วยงาน..."
+                                       class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                                       onfocus="showUnitsList()"
+                                       onkeyup="filterUnits()">
+                            </div>
+
+                            <!-- Units Dropdown -->
+                            <div id="unitsDropdown" class="hidden border border-gray-300 rounded-lg bg-white shadow-lg">
+                                <!-- Filter Bar -->
+                                <div class="p-3 border-b border-gray-200 bg-gray-50">
+                                    <div class="flex gap-2">
+                                        <select id="levelFilter" onchange="filterUnits()" class="flex-1 text-xs px-3 py-1.5 border border-gray-300 rounded focus:ring-2 focus:ring-ruxchai-primary">
+                                            <option value="">ทุกระดับ</option>
+                                            <option value="COMPANY">บริษัท</option>
+                                            <option value="BRANCH">สาขา</option>
+                                            <option value="OFFICE">สำนัก</option>
+                                            <option value="DIVISION">ฝ่าย</option>
+                                            <option value="DEPARTMENT">แผนก</option>
+                                        </select>
+                                        <button type="button" onclick="selectAllVisible()" class="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
+                                            <i class="fas fa-check-double mr-1"></i>ทั้งหมด
+                                        </button>
+                                        <button type="button" onclick="hideUnitsList()" class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200">
+                                            <i class="fas fa-times mr-1"></i>ปิด
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Units List -->
+                                <div class="max-h-64 overflow-y-auto">
+                                    <div id="unitsContainer" class="p-2">
+                                        <% units.forEach(unit => { %>
+                                            <label class="unit-item flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors"
+                                                   data-unit-id="<%= unit.unit_id %>"
+                                                   data-unit-name="<%= unit.unit_name_th.toLowerCase() %>"
+                                                   data-level-code="<%= unit.level_code || '' %>"
+                                                   data-display-name="<%= unit.unit_name_th %>">
+                                                <input type="checkbox"
+                                                       class="unit-checkbox rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-3"
+                                                       onchange="toggleUnit(this, '<%= unit.unit_id %>', '<%= unit.unit_name_th.replace(/'/g, "\\'") %>')">
+                                                <div class="flex-1">
+                                                    <span class="text-sm font-medium text-gray-900"><%= unit.unit_name_th %></span>
+                                                    <% if (unit.level_name_th) { %>
+                                                        <span class="text-xs text-gray-500 ml-2">(<%= unit.level_name_th %>)</span>
+                                                    <% } %>
+                                                </div>
+                                            </label>
+                                        <% }); %>
+                                    </div>
+                                    <div id="noResults" class="hidden text-center py-8 text-gray-500 text-sm">
+                                        <i class="fas fa-search text-2xl mb-2"></i>
+                                        <p>ไม่พบหน่วยงานที่ค้นหา</p>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="p-3 border-t border-gray-200 bg-gray-50 text-xs text-gray-500 flex justify-between">
+                                    <span>เลือกแล้ว <span id="selectedCount" class="font-semibold text-ruxchai-primary">0</span> หน่วยงาน</span>
+                                    <span class="text-gray-400">ทั้งหมด <%= units.length %> หน่วยงาน</span>
+                                </div>
+                            </div>
+
+                            <p class="text-xs text-gray-500 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                ค้นหาและคลิกเพื่อเลือกหน่วยงาน - สามารถเลือกได้หลายหน่วยงาน
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex">
+                            <i class="fas fa-lightbulb text-blue-600 mt-1 mr-3"></i>
+                            <div class="text-sm text-blue-800">
+                                <p class="font-semibold mb-1">ตัวอย่างการใช้งาน:</p>
+                                <p>• เลือกตำแหน่ง "วิศวกรซอฟต์แวร์" และเลือกหน่วยงาน: ฝ่าย IT, แผนก Development, ฝ่าย Digital</p>
+                                <p class="mt-1">• ระบบจะสร้างตำแหน่ง "วิศวกรซอฟต์แวร์" ให้ทั้ง 3 หน่วยงานในครั้งเดียว</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="/organization/positions" class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
+                        <i class="fas fa-times mr-2"></i>ยกเลิก
+                    </a>
+                    <button type="submit" class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <i class="fas fa-save mr-2"></i>บันทึก
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Selected units storage
+let selectedUnitsMap = new Map();
+
+// Show units dropdown
+function showUnitsList() {
+    document.getElementById('unitsDropdown').classList.remove('hidden');
+}
+
+// Hide units dropdown
+function hideUnitsList() {
+    document.getElementById('unitsDropdown').classList.add('hidden');
+}
+
+// Filter units by search and level
+function filterUnits() {
+    const searchText = document.getElementById('unitSearch').value.toLowerCase();
+    const levelFilter = document.getElementById('levelFilter').value;
+    const unitItems = document.querySelectorAll('.unit-item');
+    let visibleCount = 0;
+
+    unitItems.forEach(item => {
+        const unitName = item.dataset.unitName;
+        const levelCode = item.dataset.levelCode;
+
+        const matchesSearch = unitName.includes(searchText);
+        const matchesLevel = !levelFilter || levelCode === levelFilter;
+
+        if (matchesSearch && matchesLevel) {
+            item.classList.remove('hidden');
+            visibleCount++;
+        } else {
+            item.classList.add('hidden');
+        }
+    });
+
+    // Show/hide no results message
+    const noResults = document.getElementById('noResults');
+    const unitsContainer = document.getElementById('unitsContainer');
+    if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+        unitsContainer.classList.add('hidden');
+    } else {
+        noResults.classList.add('hidden');
+        unitsContainer.classList.remove('hidden');
+    }
+}
+
+// Toggle unit selection
+function toggleUnit(checkbox, unitId, unitName) {
+    if (checkbox.checked) {
+        selectedUnitsMap.set(unitId, unitName);
+    } else {
+        selectedUnitsMap.delete(unitId);
+    }
+    updateSelectedPills();
+}
+
+// Remove unit from selection
+function removeUnit(unitId) {
+    selectedUnitsMap.delete(unitId);
+
+    // Uncheck the checkbox
+    const checkboxes = document.querySelectorAll('.unit-checkbox');
+    checkboxes.forEach(cb => {
+        const item = cb.closest('.unit-item');
+        if (item.dataset.unitId === unitId) {
+            cb.checked = false;
+        }
+    });
+
+    updateSelectedPills();
+}
+
+// Update selected pills display
+function updateSelectedPills() {
+    const pillsContainer = document.getElementById('selectedPills');
+    const selectedCount = document.getElementById('selectedCount');
+
+    selectedCount.textContent = selectedUnitsMap.size;
+
+    if (selectedUnitsMap.size === 0) {
+        pillsContainer.innerHTML = '<div class="text-sm text-gray-400 italic">ยังไม่ได้เลือกหน่วยงาน - กรุณาค้นหาและเลือก</div>';
+    } else {
+        let pillsHTML = '';
+        selectedUnitsMap.forEach((name, id) => {
+            pillsHTML += `
+                <span class="inline-flex items-center px-3 py-1.5 bg-ruxchai-primary/10 text-ruxchai-primary rounded-full text-sm font-medium">
+                    <i class="fas fa-building mr-2 text-xs"></i>
+                    ${name}
+                    <button type="button" onclick="removeUnit('${id}')" class="ml-2 hover:text-red-600 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </span>
+            `;
+        });
+        pillsContainer.innerHTML = pillsHTML;
+    }
+}
+
+// Select all visible units
+function selectAllVisible() {
+    const visibleItems = document.querySelectorAll('.unit-item:not(.hidden)');
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('.unit-checkbox');
+        const unitId = item.dataset.unitId;
+        const unitName = item.dataset.displayName;
+
+        if (!checkbox.checked) {
+            checkbox.checked = true;
+            selectedUnitsMap.set(unitId, unitName);
+        }
+    });
+    updateSelectedPills();
+}
+
+document.getElementById('createPositionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    try {
+        const formData = new FormData(e.target);
+
+        // Get unit IDs from selectedUnitsMap
+        const unitIds = Array.from(selectedUnitsMap.keys()).map(id => parseInt(id));
+
+        // Validate that at least one unit is selected
+        if (unitIds.length === 0) {
+            showMessage('กรุณาเลือกหน่วยงานอย่างน้อย 1 หน่วย', 'error');
+            return;
+        }
+
+        const jsonData = {
+            position_name: formData.get('position_name'),
+            unit_ids: unitIds,
+            description: formData.get('description') || null
+        };
+
+        const response = await fetch('/organization/positions/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage(`สร้างตำแหน่งสำเร็จในทั้ง ${unitIds.length} หน่วยงาน`, 'success');
+            setTimeout(() => {
+                window.location.href = '/organization/positions';
+            }, 1500);
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error creating position:', error);
+        showMessage('เกิดข้อผิดพลาดในการสร้างตำแหน่ง', 'error');
+    }
+});
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+</script>

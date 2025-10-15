@@ -12,9 +12,6 @@ class OrganizationUnit {
         this.description = data.description;
         this.manager_id = data.manager_id;
         this.cost_center = data.cost_center;
-        this.address = data.address;
-        this.phone = data.phone;
-        this.email = data.email;
         this.status = data.status;
         this.is_active = data.is_active;
     }
@@ -223,6 +220,19 @@ class OrganizationUnit {
         try {
             const pool = await poolPromise;
 
+            // Check for duplicate unit_code in ACTIVE units only
+            const duplicateCheck = await pool.request()
+                .input('unitCode', sql.NVarChar(20), unitData.unit_code)
+                .query(`
+                    SELECT unit_id, unit_name_th
+                    FROM OrganizationUnits
+                    WHERE unit_code = @unitCode AND is_active = 1
+                `);
+
+            if (duplicateCheck.recordset.length > 0) {
+                throw new Error('รหัสหน่วยงานซ้ำ');
+            }
+
             const result = await pool.request()
                 .input('parentId', sql.Int, unitData.parent_id || null)
                 .input('levelId', sql.Int, unitData.level_id)
@@ -233,20 +243,17 @@ class OrganizationUnit {
                 .input('description', sql.NVarChar(500), unitData.description || null)
                 .input('managerId', sql.Int, unitData.manager_id || null)
                 .input('costCenter', sql.NVarChar(20), unitData.cost_center || null)
-                .input('address', sql.NVarChar(500), unitData.address || null)
-                .input('phone', sql.NVarChar(20), unitData.phone || null)
-                .input('email', sql.NVarChar(100), unitData.email || null)
                 .input('createdBy', sql.Int, unitData.created_by || null)
                 .query(`
                     INSERT INTO OrganizationUnits (
                         parent_id, level_id, unit_code, unit_name_th, unit_name_en, unit_abbr,
-                        description, manager_id, cost_center, address, phone, email,
+                        description, manager_id, cost_center,
                         status, created_by
                     )
                     OUTPUT INSERTED.unit_id
                     VALUES (
                         @parentId, @levelId, @unitCode, @unitNameTh, @unitNameEn, @unitAbbr,
-                        @description, @managerId, @costCenter, @address, @phone, @email,
+                        @description, @managerId, @costCenter,
                         'ACTIVE', @createdBy
                     )
                 `);
@@ -256,6 +263,9 @@ class OrganizationUnit {
                 unitId: result.recordset[0].unit_id
             };
         } catch (error) {
+            if (error.message === 'รหัสหน่วยงานซ้ำ') {
+                throw error;
+            }
             if (error.message.includes('UNIQUE KEY') || error.message.includes('duplicate')) {
                 throw new Error('รหัสหน่วยงานซ้ำ');
             }
@@ -294,18 +304,6 @@ class OrganizationUnit {
             if (updateData.cost_center !== undefined) {
                 updateFields.push('cost_center = @costCenter');
                 request.input('costCenter', sql.NVarChar(20), updateData.cost_center);
-            }
-            if (updateData.address !== undefined) {
-                updateFields.push('address = @address');
-                request.input('address', sql.NVarChar(500), updateData.address);
-            }
-            if (updateData.phone !== undefined) {
-                updateFields.push('phone = @phone');
-                request.input('phone', sql.NVarChar(20), updateData.phone);
-            }
-            if (updateData.email !== undefined) {
-                updateFields.push('email = @email');
-                request.input('email', sql.NVarChar(100), updateData.email);
             }
             if (updateData.status !== undefined) {
                 updateFields.push('status = @status');
@@ -380,10 +378,7 @@ class OrganizationUnit {
             const result = await pool.request()
                 .input('unitId', sql.Int, unitId)
                 .query(`
-                    UPDATE OrganizationUnits
-                    SET is_active = 0,
-                        status = 'INACTIVE',
-                        updated_at = GETDATE()
+                    DELETE FROM OrganizationUnits
                     WHERE unit_id = @unitId
                 `);
 

@@ -187,7 +187,17 @@ const organizationController = {
         try {
             const levels = await OrganizationUnit.getLevels();
             const units = await OrganizationUnit.getAll(false);
-            const managers = await User.findAll({ is_active: true });
+
+            // Get managers (direct SQL query)
+            const { poolPromise, sql } = require('../config/database');
+            const pool = await poolPromise;
+            const mgrResult = await pool.request().query(`
+                SELECT user_id, employee_id, first_name, last_name
+                FROM Users
+                WHERE is_active = 1
+                ORDER BY first_name, last_name
+            `);
+            const managers = mgrResult.recordset;
 
             res.render('organization/create', {
                 title: 'สร้างหน่วยงานใหม่',
@@ -209,18 +219,15 @@ const organizationController = {
     async create(req, res) {
         try {
             const unitData = {
-                parent_id: req.body.parent_id || null,
-                level_id: req.body.level_id,
+                parent_id: req.body.parent_id ? parseInt(req.body.parent_id) : null,
+                level_id: parseInt(req.body.level_id),
                 unit_code: req.body.unit_code,
                 unit_name_th: req.body.unit_name_th,
                 unit_name_en: req.body.unit_name_en || null,
                 unit_abbr: req.body.unit_abbr || null,
                 description: req.body.description || null,
-                manager_id: req.body.manager_id || null,
+                manager_id: req.body.manager_id ? parseInt(req.body.manager_id) : null,
                 cost_center: req.body.cost_center || null,
-                address: req.body.address || null,
-                phone: req.body.phone || null,
-                email: req.body.email || null,
                 created_by: req.session.user.user_id
             };
 
@@ -235,7 +242,11 @@ const organizationController = {
                     ip_address: req.ip
                 });
 
-                if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+                const isJsonRequest = req.xhr ||
+                                     req.headers.accept?.indexOf('json') > -1 ||
+                                     req.headers['content-type']?.indexOf('json') > -1;
+
+                if (isJsonRequest) {
                     return res.json({
                         success: true,
                         message: 'สร้างหน่วยงานสำเร็จ',
@@ -249,7 +260,11 @@ const organizationController = {
         } catch (error) {
             console.error('Error creating organization unit:', error);
 
-            if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+            const isJsonRequest = req.xhr ||
+                                 req.headers.accept?.indexOf('json') > -1 ||
+                                 req.headers['content-type']?.indexOf('json') > -1;
+
+            if (isJsonRequest) {
                 return res.status(400).json({
                     success: false,
                     message: error.message || 'เกิดข้อผิดพลาดในการสร้างหน่วยงาน'
@@ -258,6 +273,53 @@ const organizationController = {
                 req.flash('error_msg', error.message || 'เกิดข้อผิดพลาดในการสร้างหน่วยงาน');
                 return res.redirect('/organization/create');
             }
+        }
+    },
+
+    /**
+     * แสดงรายละเอียดหน่วยงาน
+     */
+    async view(req, res) {
+        try {
+            const unitId = parseInt(req.params.id);
+            const unit = await OrganizationUnit.findById(unitId);
+
+            if (!unit) {
+                req.flash('error_msg', 'ไม่พบหน่วยงาน');
+                return res.redirect('/organization');
+            }
+
+            // Get hierarchy path (breadcrumb)
+            const hierarchyPath = await OrganizationUnit.getHierarchyPath(unitId);
+
+            // Get children units
+            const children = await OrganizationUnit.getChildren(unitId);
+
+            // Get employees in this unit (simplified query)
+            const { poolPromise, sql } = require('../config/database');
+            const pool = await poolPromise;
+            const empResult = await pool.request()
+                .input('unitId', sql.Int, unitId)
+                .query(`
+                    SELECT user_id, employee_id, first_name, last_name, profile_image
+                    FROM Users
+                    WHERE unit_id = @unitId AND is_active = 1
+                    ORDER BY first_name, last_name
+                `);
+            const employees = empResult.recordset;
+
+            res.render('organization/view', {
+                title: `รายละเอียด${unit.unit_name_th}`,
+                unit,
+                hierarchyPath,
+                children,
+                employees,
+                user: req.session.user
+            });
+        } catch (error) {
+            console.error('Error loading unit details:', error);
+            req.flash('error_msg', 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
+            res.redirect('/organization');
         }
     },
 
@@ -276,7 +338,17 @@ const organizationController = {
 
             const levels = await OrganizationUnit.getLevels();
             const units = await OrganizationUnit.getAll(false);
-            const managers = await User.findAll({ is_active: true });
+
+            // Get managers (direct SQL query)
+            const { poolPromise, sql } = require('../config/database');
+            const pool = await poolPromise;
+            const mgrResult = await pool.request().query(`
+                SELECT user_id, employee_id, first_name, last_name
+                FROM Users
+                WHERE is_active = 1
+                ORDER BY first_name, last_name
+            `);
+            const managers = mgrResult.recordset;
 
             res.render('organization/edit', {
                 title: 'แก้ไขหน่วยงาน',
@@ -306,9 +378,6 @@ const organizationController = {
                 description: req.body.description,
                 manager_id: req.body.manager_id || null,
                 cost_center: req.body.cost_center,
-                address: req.body.address,
-                phone: req.body.phone,
-                email: req.body.email,
                 status: req.body.status,
                 updated_by: req.session.user.user_id
             };

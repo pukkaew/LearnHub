@@ -29,23 +29,8 @@ router.get('/api/units/:id/children', authMiddleware.requireAuth, authMiddleware
 // API: ดึงหน่วยงานตามระดับ
 router.get('/api/units/level/:levelCode', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getUnitsByLevel);
 
-// แสดงฟอร์มสร้างหน่วยงานใหม่
-router.get('/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.createForm);
-
-// สร้างหน่วยงานใหม่
-router.post('/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.create);
-
-// แสดงฟอร์มแก้ไขหน่วยงาน
-router.get('/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.editForm);
-
-// แก้ไขหน่วยงาน
-router.post('/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.update);
-router.put('/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.update);
-
-// ลบหน่วยงาน (soft delete)
-router.delete('/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin']), organizationController.delete);
-
 // ============ POSITIONS ROUTES ============
+// Note: These must come BEFORE /:id routes to avoid conflicts
 
 // หน้ารายการตำแหน่งงาน
 router.get('/positions', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.positionsIndex);
@@ -64,5 +49,27 @@ router.get('/positions/create', authMiddleware.requireAuth, authMiddleware.requi
 
 // สร้างตำแหน่งใหม่
 router.post('/positions/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.createPosition);
+
+// ============ ORGANIZATION UNITS CRUD ROUTES ============
+// Note: These MUST come after all specific routes (like /positions, /create) to avoid conflicts
+
+// แสดงฟอร์มสร้างหน่วยงานใหม่
+router.get('/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.createForm);
+
+// สร้างหน่วยงานใหม่
+router.post('/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.create);
+
+// แสดงรายละเอียดหน่วยงาน
+router.get('/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.view);
+
+// แสดงฟอร์มแก้ไขหน่วยงาน
+router.get('/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.editForm);
+
+// แก้ไขหน่วยงาน
+router.post('/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.update);
+router.put('/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.update);
+
+// ลบหน่วยงาน (hard delete)
+router.delete('/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin']), organizationController.delete);
 
 module.exports = router;

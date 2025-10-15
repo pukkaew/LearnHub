@@ -1,0 +1,189 @@
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">แก้ไขหน่วยงาน</h1>
+                <p class="text-gray-600"><%= unit.unit_name_th %></p>
+            </div>
+            <a href="/organization/<%= unit.unit_id %>" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
+                <i class="fas fa-times mr-2"></i>ยกเลิก
+            </a>
+        </div>
+
+        <!-- Form -->
+        <form id="editUnitForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+            <div class="space-y-6">
+                <!-- Basic Information Section -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
+                        <i class="fas fa-info-circle text-ruxchai-primary mr-2"></i>
+                        ข้อมูลพื้นฐาน
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Unit Code (Read-only) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                รหัสหน่วยงาน <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" value="<%= unit.unit_code %>" disabled
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed">
+                            <p class="text-xs text-gray-500 mt-1">รหัสหน่วยงานไม่สามารถแก้ไขได้</p>
+                        </div>
+
+                        <!-- Level (Read-only) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ระดับหน่วยงาน <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" value="<%= unit.level_name_th %>" disabled
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed">
+                            <p class="text-xs text-gray-500 mt-1">ระดับหน่วยงานไม่สามารถแก้ไขได้</p>
+                        </div>
+
+                        <!-- Unit Name TH -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อหน่วยงาน (ไทย) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="unit_name_th" value="<%= unit.unit_name_th %>" required
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="ชื่อภาษาไทย">
+                        </div>
+
+                        <!-- Unit Name EN -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อหน่วยงาน (EN)
+                            </label>
+                            <input type="text" name="unit_name_en" value="<%= unit.unit_name_en || '' %>"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="English Name">
+                        </div>
+
+                        <!-- Abbreviation -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ชื่อย่อ
+                            </label>
+                            <input type="text" name="unit_abbr" value="<%= unit.unit_abbr || '' %>"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="ชื่อย่อ">
+                        </div>
+
+                        <!-- Manager -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ผู้จัดการ
+                            </label>
+                            <select name="manager_id"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                <option value="">-- ไม่มี --</option>
+                                <% managers.forEach(manager => { %>
+                                    <option value="<%= manager.user_id %>" <%= unit.manager_id == manager.user_id ? 'selected' : '' %>>
+                                        <%= manager.first_name %> <%= manager.last_name %> <%= manager.employee_id ? `(${manager.employee_id})` : '' %>
+                                    </option>
+                                <% }); %>
+                            </select>
+                        </div>
+
+                        <!-- Cost Center -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Cost Center
+                            </label>
+                            <input type="text" name="cost_center" value="<%= unit.cost_center || '' %>"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="Cost Center">
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                สถานะ <span class="text-red-500">*</span>
+                            </label>
+                            <select name="status" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                <option value="ACTIVE" <%= unit.status === 'ACTIVE' ? 'selected' : '' %>>ใช้งาน</option>
+                                <option value="INACTIVE" <%= unit.status === 'INACTIVE' ? 'selected' : '' %>>ไม่ใช้งาน</option>
+                            </select>
+                        </div>
+
+                        <!-- Description (Full Width) -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                คำอธิบาย
+                            </label>
+                            <textarea name="description" rows="3"
+                                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                      placeholder="รายละเอียดเพิ่มเติม"><%= unit.description || '' %></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="/organization/<%= unit.unit_id %>" class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
+                        <i class="fas fa-times mr-2"></i>ยกเลิก
+                    </a>
+                    <button type="submit" class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <i class="fas fa-save mr-2"></i>บันทึกการแก้ไข
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('editUnitForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    try {
+        const formData = new FormData(e.target);
+        const jsonData = {};
+
+        formData.forEach((value, key) => {
+            if (value !== '') {
+                jsonData[key] = value;
+            }
+        });
+
+        const response = await fetch('/organization/<%= unit.unit_id %>', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('แก้ไขหน่วยงานสำเร็จ', 'success');
+            setTimeout(() => {
+                window.location.href = '/organization/<%= unit.unit_id %>';
+            }, 1000);
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error updating unit:', error);
+        showMessage('เกิดข้อผิดพลาดในการแก้ไขหน่วยงาน', 'error');
+    }
+});
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+</script>

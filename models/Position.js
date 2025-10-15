@@ -22,39 +22,35 @@ class Position {
         try {
             const pool = await poolPromise;
 
+            // Map to actual table columns
             const result = await pool.request()
-                .input('unit_id', sql.Int, positionData.unit_id || positionData.department_id || null)
-                .input('position_code', sql.NVarChar(20), positionData.position_code || positionData.code)
-                .input('position_name_th', sql.NVarChar(100), positionData.position_name_th || positionData.title)
-                .input('position_name_en', sql.NVarChar(100), positionData.position_name_en || null)
+                .input('position_name', sql.NVarChar(100), positionData.position_name_th || positionData.position_name || positionData.title)
+                .input('department_id', sql.Int, positionData.department_id || positionData.unit_id)
+                .input('description', sql.NVarChar(255), positionData.description || null)
+                .input('level', sql.Int, positionData.level || positionData.position_level || null)
                 .input('position_type', sql.NVarChar(20), positionData.position_type || 'EMPLOYEE')
-                .input('position_level', sql.NVarChar(20), positionData.position_level || positionData.level || null)
+                .input('unit_id', sql.Int, positionData.unit_id || positionData.department_id || null)
+                .input('position_level', sql.NVarChar(20), positionData.position_level || null)
                 .input('job_grade', sql.NVarChar(10), positionData.job_grade || positionData.grade || null)
-                .input('description', sql.NVarChar(500), positionData.description || null)
-                .input('responsibilities', sql.NVarChar(sql.MAX), positionData.responsibilities || null)
-                .input('requirements', sql.NVarChar(sql.MAX), positionData.requirements || null)
                 .input('min_salary', sql.Decimal(10, 2), positionData.min_salary || positionData.salary_min || null)
                 .input('max_salary', sql.Decimal(10, 2), positionData.max_salary || positionData.salary_max || null)
-                .input('created_by', sql.Int, positionData.created_by || null)
                 .query(`
                     INSERT INTO Positions
-                    (unit_id, position_code, position_name_th, position_name_en, position_type,
-                     position_level, job_grade, description, responsibilities, requirements,
-                     min_salary, max_salary, is_active, created_by)
+                    (position_name, department_id, description, level, is_active,
+                     position_type, unit_id, position_level, job_grade, min_salary, max_salary)
                     OUTPUT INSERTED.*
                     VALUES
-                    (@unit_id, @position_code, @position_name_th, @position_name_en, @position_type,
-                     @position_level, @job_grade, @description, @responsibilities, @requirements,
-                     @min_salary, @max_salary, 1, @created_by)
+                    (@position_name, @department_id, @description, @level, 1,
+                     @position_type, @unit_id, @position_level, @job_grade, @min_salary, @max_salary)
                 `);
 
             return { success: true, data: result.recordset[0] };
         } catch (error) {
             console.error('Error creating position:', error);
             if (error.number === 2627) {
-                return { success: false, message: 'Position code already exists' };
+                return { success: false, message: 'รหัสตำแหน่งซ้ำ' };
             }
-            return { success: false, message: 'Failed to create position' };
+            return { success: false, message: 'เกิดข้อผิดพลาดในการสร้างตำแหน่ง' };
         }
     }
 
@@ -104,7 +100,7 @@ class Position {
 
             // Support both unit_id (new) and department_id (old)
             if (filters.unit_id || filters.department_id) {
-                query += ' AND p.unit_id = @unit_id';
+                query += ' AND (p.unit_id = @unit_id OR p.department_id = @unit_id)';
                 request.input('unit_id', sql.Int, filters.unit_id || filters.department_id);
             }
 
@@ -120,8 +116,11 @@ class Position {
 
             // Support both position_level (new) and level (old)
             if (filters.position_level || filters.level) {
-                query += ' AND p.position_level = @position_level';
+                query += ' AND (p.position_level = @position_level OR p.level = @level_int)';
                 request.input('position_level', sql.NVarChar(20), filters.position_level || filters.level);
+                // Try to convert to int for old level column
+                const levelInt = parseInt(filters.position_level || filters.level);
+                request.input('level_int', sql.Int, isNaN(levelInt) ? null : levelInt);
             }
 
             // Support both job_grade (new) and grade (old)
@@ -131,11 +130,11 @@ class Position {
             }
 
             if (filters.search) {
-                query += ' AND (p.position_name_th LIKE @search OR p.position_code LIKE @search OR p.description LIKE @search)';
+                query += ' AND (p.position_name LIKE @search OR p.description LIKE @search)';
                 request.input('search', sql.NVarChar(255), `%${filters.search}%`);
             }
 
-            query += ' ORDER BY p.position_type, ou.unit_name_th, p.position_level, p.position_name_th';
+            query += ' ORDER BY p.position_type, ou.unit_name_th, p.level, p.position_name';
 
             const result = await request.query(query);
             return result.recordset;

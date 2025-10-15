@@ -292,6 +292,30 @@ class ActivityLog {
         }
     }
 
+    static async log(logData) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('user_id', sql.Int, logData.user_id)
+                .input('action', sql.VarChar(100), logData.action)
+                .input('description', sql.NVarChar(500), logData.description)
+                .input('ip_address', sql.VarChar(45), logData.ip_address || null)
+                .query(`
+                    INSERT INTO audit_logs
+                    (user_id, action, description, ip_address, severity, module)
+                    OUTPUT INSERTED.*
+                    VALUES
+                    (@user_id, @action, @description, @ip_address, 'Info', 'Organization')
+                `);
+
+            return { success: true, data: result.recordset[0] };
+        } catch (error) {
+            console.error('Error creating activity log:', error);
+            return { success: false, message: 'Failed to create activity log' };
+        }
+    }
+
     static async getActivitySummary(userId, days = 30) {
         try {
             const pool = await poolPromise;

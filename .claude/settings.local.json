@@ -14,7 +14,8 @@
       "Bash(curl:*)",
       "Read(//d/**)",
       "Bash(taskkill:*)",
-      "Bash(sqlcmd:*)"
+      "Bash(sqlcmd:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
