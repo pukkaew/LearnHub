@@ -22,10 +22,23 @@ class Position {
         try {
             const pool = await poolPromise;
 
+            // Check if department_id exists in Departments table, otherwise use default (1 = IT)
+            let departmentId = 1; // Default to IT department
+            if (positionData.department_id || positionData.unit_id) {
+                const deptId = positionData.department_id || positionData.unit_id;
+                const deptCheck = await pool.request()
+                    .input('dept_id', sql.Int, deptId)
+                    .query('SELECT department_id FROM Departments WHERE department_id = @dept_id');
+
+                if (deptCheck.recordset.length > 0) {
+                    departmentId = deptId;
+                }
+            }
+
             // Map to actual table columns
             const result = await pool.request()
                 .input('position_name', sql.NVarChar(100), positionData.position_name_th || positionData.position_name || positionData.title)
-                .input('department_id', sql.Int, positionData.department_id || positionData.unit_id)
+                .input('department_id', sql.Int, departmentId)
                 .input('description', sql.NVarChar(255), positionData.description || null)
                 .input('level', sql.Int, positionData.level || positionData.position_level || null)
                 .input('position_type', sql.NVarChar(20), positionData.position_type || 'EMPLOYEE')
@@ -50,7 +63,10 @@ class Position {
             if (error.number === 2627) {
                 return { success: false, message: 'รหัสตำแหน่งซ้ำ' };
             }
-            return { success: false, message: 'เกิดข้อผิดพลาดในการสร้างตำแหน่ง' };
+            if (error.number === 547) {
+                return { success: false, message: 'ไม่พบหน่วยงานที่เลือก' };
+            }
+            return { success: false, message: 'เกิดข้อผิดพลาดในการสร้างตำแหน่ง: ' + error.message };
         }
     }
 
@@ -65,12 +81,10 @@ class Position {
                            ou.unit_name_th,
                            ou.unit_code,
                            ol.level_name_th as unit_level_name,
-                           c.first_name + ' ' + c.last_name as created_by_name,
-                           (SELECT COUNT(*) FROM Users WHERE position_id = p.position_id AND is_active = 1) as employee_count
+                           (SELECT COUNT(*) FROM Users WHERE position_id = p.position_id AND is_active = 1 AND role_id NOT IN (12, 13)) as employee_count
                     FROM Positions p
                     LEFT JOIN OrganizationUnits ou ON p.unit_id = ou.unit_id
                     LEFT JOIN OrganizationLevels ol ON ou.level_id = ol.level_id
-                    LEFT JOIN Users c ON p.created_by = c.user_id
                     WHERE p.position_id = @position_id
                 `);
 
@@ -89,7 +103,7 @@ class Position {
                        ou.unit_name_th,
                        ou.unit_code,
                        ol.level_name_th as unit_level_name,
-                       (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1) as employee_count
+                       (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1 AND u.role_id NOT IN (12, 13)) as employee_count
                 FROM Positions p
                 LEFT JOIN OrganizationUnits ou ON p.unit_id = ou.unit_id
                 LEFT JOIN OrganizationLevels ol ON ou.level_id = ol.level_id
@@ -151,39 +165,58 @@ class Position {
             let setClause = [];
             const request = pool.request().input('position_id', sql.Int, positionId);
 
-            const allowedFields = [
-                'title', 'code', 'department_id', 'level', 'grade', 'description',
-                'requirements', 'responsibilities', 'salary_min', 'salary_max',
-                'reports_to', 'is_management', 'is_active'
-            ];
+            // Map of allowed fields with their actual column names in database
+            const fieldMapping = {
+                'position_name': 'position_name',
+                'unit_id': 'unit_id',
+                // 'department_id': 'department_id', // Removed - no longer updating this field (legacy FK)
+                'description': 'description',
+                'level': 'level',
+                'position_type': 'position_type',
+                'position_level': 'position_level',
+                'job_grade': 'job_grade',
+                'min_salary': 'min_salary',
+                'max_salary': 'max_salary',
+                'is_active': 'is_active'
+            };
 
-            allowedFields.forEach(field => {
+            Object.keys(fieldMapping).forEach(field => {
                 if (updateData[field] !== undefined) {
-                    setClause.push(`${field} = @${field}`);
+                    // Allow empty string for description (will be stored as empty, not null)
+                    // Skip null values and empty strings for other fields
+                    const allowEmpty = (field === 'description');
+                    const fieldValue = updateData[field];
+                    const isEmpty = (fieldValue === null || fieldValue === '');
 
-                    if (field === 'title') {
-                        request.input(field, sql.NVarChar(255), updateData[field]);
-                    } else if (field === 'code' || field === 'level') {
-                        request.input(field, sql.VarChar(50), updateData[field]);
-                    } else if (field === 'grade') {
-                        request.input(field, sql.VarChar(20), updateData[field]);
-                    } else if (field === 'description' || field === 'requirements' || field === 'responsibilities') {
-                        request.input(field, sql.NText, updateData[field]);
-                    } else if (field === 'department_id' || field === 'reports_to') {
-                        request.input(field, sql.Int, updateData[field]);
-                    } else if (field === 'salary_min' || field === 'salary_max') {
-                        request.input(field, sql.Decimal(10, 2), updateData[field]);
-                    } else if (field === 'is_management' || field === 'is_active') {
-                        request.input(field, sql.Bit, updateData[field]);
+                    if (!isEmpty || allowEmpty) {
+                        const dbColumn = fieldMapping[field];
+                        setClause.push(`${dbColumn} = @${field}`);
+
+                        // Set appropriate SQL type for each field
+                        if (field === 'position_name') {
+                            request.input(field, sql.NVarChar(255), fieldValue);
+                        } else if (field === 'description') {
+                            // Explicitly handle description - allow empty string
+                            const descValue = (fieldValue === null || fieldValue === undefined) ? '' : fieldValue;
+                            request.input(field, sql.NVarChar(255), descValue);
+                        } else if (field === 'position_type' || field === 'position_level') {
+                            request.input(field, sql.NVarChar(20), fieldValue);
+                        } else if (field === 'job_grade') {
+                            request.input(field, sql.NVarChar(10), fieldValue);
+                        } else if (field === 'level' || field === 'unit_id') {
+                            request.input(field, sql.Int, parseInt(fieldValue));
+                        } else if (field === 'min_salary' || field === 'max_salary') {
+                            request.input(field, sql.Decimal(10, 2), parseFloat(fieldValue));
+                        } else if (field === 'is_active') {
+                            request.input(field, sql.Bit, fieldValue === true || fieldValue === 1 || fieldValue === '1');
+                        }
                     }
                 }
             });
 
             if (setClause.length === 0) {
-                return { success: false, message: 'No valid fields to update' };
+                return { success: false, message: 'ไม่มีข้อมูลที่ต้องการแก้ไข' };
             }
-
-            setClause.push('updated_at = GETDATE()');
 
             const result = await request.query(`
                 UPDATE Positions
@@ -193,16 +226,19 @@ class Position {
             `);
 
             if (result.recordset.length === 0) {
-                return { success: false, message: 'Position not found' };
+                return { success: false, message: 'ไม่พบตำแหน่งงาน' };
             }
 
             return { success: true, data: result.recordset[0] };
         } catch (error) {
             console.error('Error updating position:', error);
             if (error.number === 2627) {
-                return { success: false, message: 'Position code already exists' };
+                return { success: false, message: 'รหัสตำแหน่งซ้ำ' };
             }
-            return { success: false, message: 'Failed to update position' };
+            if (error.number === 547) {
+                return { success: false, message: 'ไม่พบหน่วยงานที่เลือก' };
+            }
+            return { success: false, message: 'เกิดข้อผิดพลาดในการแก้ไขตำแหน่ง: ' + error.message };
         }
     }
 
@@ -210,34 +246,34 @@ class Position {
         try {
             const pool = await poolPromise;
 
+            // Check if there are employees in this position (exclude Admin and Applicant)
             const employeeCheck = await pool.request()
                 .input('position_id', sql.Int, positionId)
-                .query('SELECT COUNT(*) as count FROM Users WHERE position_id = @position_id');
+                .query('SELECT COUNT(*) as count FROM Users WHERE position_id = @position_id AND is_active = 1 AND role_id NOT IN (12, 13)');
 
             if (employeeCheck.recordset[0].count > 0) {
-                return { success: false, message: 'Cannot delete position with existing employees' };
+                return {
+                    success: false,
+                    message: `ไม่สามารถลบตำแหน่งได้ เนื่องจากมีพนักงาน ${employeeCheck.recordset[0].count} คนในตำแหน่งนี้`
+                };
             }
 
-            const reportsCheck = await pool.request()
-                .input('position_id', sql.Int, positionId)
-                .query('SELECT COUNT(*) as count FROM Positions WHERE reports_to = @position_id');
-
-            if (reportsCheck.recordset[0].count > 0) {
-                return { success: false, message: 'Cannot delete position with direct reports' };
-            }
-
+            // Delete the position
             const result = await pool.request()
                 .input('position_id', sql.Int, positionId)
                 .query('DELETE FROM Positions WHERE position_id = @position_id');
 
             if (result.rowsAffected[0] === 0) {
-                return { success: false, message: 'Position not found' };
+                return { success: false, message: 'ไม่พบตำแหน่งงาน' };
             }
 
-            return { success: true, message: 'Position deleted successfully' };
+            return { success: true, message: 'ลบตำแหน่งสำเร็จ' };
         } catch (error) {
             console.error('Error deleting position:', error);
-            return { success: false, message: 'Failed to delete position' };
+            if (error.number === 547) {
+                return { success: false, message: 'ไม่สามารถลบตำแหน่งได้ เนื่องจากมีข้อมูลที่เกี่ยวข้อง' };
+            }
+            return { success: false, message: 'เกิดข้อผิดพลาดในการลบตำแหน่ง: ' + error.message };
         }
     }
 
@@ -308,7 +344,7 @@ class Position {
                 .query(`
                     SELECT p.*,
                            rp.title as reports_to_title,
-                           (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1) as employee_count,
+                           (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1 AND u.role_id NOT IN (12, 13)) as employee_count,
                            (SELECT COUNT(*) FROM Positions sub WHERE sub.reports_to = p.position_id AND sub.is_active = 1) as direct_reports
                     FROM Positions p
                     LEFT JOIN Positions rp ON p.reports_to = rp.position_id
@@ -395,7 +431,7 @@ class Position {
             const result = await pool.request().query(`
                 SELECT p.*,
                        d.name as department_name,
-                       (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1) as employee_count,
+                       (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1 AND u.role_id NOT IN (12, 13)) as employee_count,
                        (SELECT COUNT(*) FROM Positions sub WHERE sub.reports_to = p.position_id AND sub.is_active = 1) as direct_reports
                 FROM Positions p
                 LEFT JOIN Departments d ON p.department_id = d.department_id
@@ -419,7 +455,7 @@ class Position {
                 .query(`
                     SELECT p.*,
                            d.name as department_name,
-                           (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1) as employee_count
+                           (SELECT COUNT(*) FROM Users u WHERE u.position_id = p.position_id AND u.is_active = 1 AND u.role_id NOT IN (12, 13)) as employee_count
                     FROM Positions p
                     LEFT JOIN Departments d ON p.department_id = d.department_id
                     WHERE p.reports_to = @position_id AND p.is_active = 1
@@ -597,7 +633,7 @@ class Position {
                     SUM(CASE WHEN position_type = 'EMPLOYEE' THEN 1 ELSE 0 END) as employee_positions,
                     SUM(CASE WHEN position_type = 'APPLICANT' THEN 1 ELSE 0 END) as applicant_positions,
                     SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_positions,
-                    (SELECT COUNT(*) FROM Users WHERE position_id IS NOT NULL AND is_active = 1) as total_employees
+                    (SELECT COUNT(*) FROM Users WHERE position_id IS NOT NULL AND is_active = 1 AND role_id NOT IN (12, 13)) as total_employees
                 FROM Positions
             `);
 

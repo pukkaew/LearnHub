@@ -3,11 +3,11 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">สร้างตำแหน่งงานใหม่</h1>
-                <p class="text-gray-600">เพิ่มตำแหน่งงานในองค์กร</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= t('createNewPosition') %></h1>
+                <p class="text-gray-600"><%= t('addPositionToOrg') %></p>
             </div>
             <a href="/organization/positions" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
-                <i class="fas fa-times mr-2"></i>ยกเลิก
+                <i class="fas fa-times mr-2"></i><%= t('cancel') %>
             </a>
         </div>
 
@@ -18,46 +18,45 @@
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
                         <i class="fas fa-info-circle text-ruxchai-primary mr-2"></i>
-                        ข้อมูลพื้นฐาน
+                        <%= t('basicInfo') %>
                     </h2>
                     <div class="grid grid-cols-1 gap-6">
                         <!-- Position Name -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                ชื่อตำแหน่ง <span class="text-red-500">*</span>
+                                <%= t('positionName') %> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="position_name" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                   placeholder="เช่น วิศวกรซอฟต์แวร์, นักวิเคราะห์ระบบ, ผู้จัดการฝ่าย">
+                                   placeholder="<%= t('positionNamePlaceholder') %>">
                         </div>
 
                         <!-- Description -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                คำอธิบายตำแหน่ง
+                                <%= t('positionDescription') %>
                             </label>
                             <textarea name="description" rows="2"
                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                      placeholder="คำอธิบายสั้นๆ เกี่ยวกับตำแหน่งนี้"></textarea>
+                                      placeholder="<%= t('positionDescriptionPlaceholder') %>"></textarea>
                         </div>
 
-                        <!-- Units Selection -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                เลือกหน่วยงาน <span class="text-red-500">*</span>
+                                <%= t('selectUnit') %> <span class="text-red-500">*</span>
                             </label>
 
                             <!-- Selected Units Pills -->
                             <div id="selectedUnits" class="mb-3 p-3 border border-gray-300 rounded-lg bg-white min-h-[60px]">
                                 <div id="selectedPills" class="flex flex-wrap gap-2">
-                                    <div class="text-sm text-gray-400 italic">ยังไม่ได้เลือกหน่วยงาน - กรุณาค้นหาและเลือก</div>
+                                    <div class="text-sm text-gray-400 italic"><%= t('noUnitSelected') %></div>
                                 </div>
                             </div>
 
                             <!-- Search Box -->
                             <div class="relative mb-3">
                                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="unitSearch" placeholder="ค้นหาและเลือกหน่วยงาน..."
+                                <input type="text" id="unitSearch" placeholder="<%= t('searchAndSelectUnit') %>"
                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
                                        onfocus="showUnitsList()"
                                        onkeyup="filterUnits()">
@@ -69,18 +68,18 @@
                                 <div class="p-3 border-b border-gray-200 bg-gray-50">
                                     <div class="flex gap-2">
                                         <select id="levelFilter" onchange="filterUnits()" class="flex-1 text-xs px-3 py-1.5 border border-gray-300 rounded focus:ring-2 focus:ring-ruxchai-primary">
-                                            <option value="">ทุกระดับ</option>
-                                            <option value="COMPANY">บริษัท</option>
-                                            <option value="BRANCH">สาขา</option>
-                                            <option value="OFFICE">สำนัก</option>
-                                            <option value="DIVISION">ฝ่าย</option>
-                                            <option value="DEPARTMENT">แผนก</option>
+                                            <option value=""><%= t('allLevels') %></option>
+                                            <option value="COMPANY"><%= t('company') %></option>
+                                            <option value="BRANCH"><%= t('branch') %></option>
+                                            <option value="OFFICE"><%= t('office') %></option>
+                                            <option value="DIVISION"><%= t('division') %></option>
+                                            <option value="DEPARTMENT"><%= t('department') %></option>
                                         </select>
                                         <button type="button" onclick="selectAllVisible()" class="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
-                                            <i class="fas fa-check-double mr-1"></i>ทั้งหมด
+                                            <i class="fas fa-check-double mr-1"></i><%= t('selectAll') %>
                                         </button>
                                         <button type="button" onclick="hideUnitsList()" class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200">
-                                            <i class="fas fa-times mr-1"></i>ปิด
+                                            <i class="fas fa-times mr-1"></i><%= t('close') %>
                                         </button>
                                     </div>
                                 </div>
@@ -108,20 +107,20 @@
                                     </div>
                                     <div id="noResults" class="hidden text-center py-8 text-gray-500 text-sm">
                                         <i class="fas fa-search text-2xl mb-2"></i>
-                                        <p>ไม่พบหน่วยงานที่ค้นหา</p>
+                                        <p><%= t('noUnitsFound') %></p>
                                     </div>
                                 </div>
 
                                 <!-- Footer -->
                                 <div class="p-3 border-t border-gray-200 bg-gray-50 text-xs text-gray-500 flex justify-between">
-                                    <span>เลือกแล้ว <span id="selectedCount" class="font-semibold text-ruxchai-primary">0</span> หน่วยงาน</span>
-                                    <span class="text-gray-400">ทั้งหมด <%= units.length %> หน่วยงาน</span>
+                                    <span><%= t('selected') %> <span id="selectedCount" class="font-semibold text-ruxchai-primary">0</span> <%= t('units') %></span>
+                                    <span class="text-gray-400"><%= t('total') %> <%= units.length %> <%= t('units') %></span>
                                 </div>
                             </div>
 
                             <p class="text-xs text-gray-500 mt-2">
                                 <i class="fas fa-info-circle mr-1"></i>
-                                ค้นหาและคลิกเพื่อเลือกหน่วยงาน - สามารถเลือกได้หลายหน่วยงาน
+                                <%= t('searchAndSelectUnitHelp') %>
                             </p>
                         </div>
                     </div>
@@ -130,9 +129,9 @@
                         <div class="flex">
                             <i class="fas fa-lightbulb text-blue-600 mt-1 mr-3"></i>
                             <div class="text-sm text-blue-800">
-                                <p class="font-semibold mb-1">ตัวอย่างการใช้งาน:</p>
-                                <p>• เลือกตำแหน่ง "วิศวกรซอฟต์แวร์" และเลือกหน่วยงาน: ฝ่าย IT, แผนก Development, ฝ่าย Digital</p>
-                                <p class="mt-1">• ระบบจะสร้างตำแหน่ง "วิศวกรซอฟต์แวร์" ให้ทั้ง 3 หน่วยงานในครั้งเดียว</p>
+                                <p class="font-semibold mb-1"><%= t('usageExample') %>:</p>
+                                <p>• <%= t('usageExample1') %></p>
+                                <p class="mt-1">• <%= t('usageExample2') %></p>
                             </div>
                         </div>
                     </div>
@@ -141,10 +140,10 @@
                 <!-- Action Buttons -->
                 <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                     <a href="/organization/positions" class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
-                        <i class="fas fa-times mr-2"></i>ยกเลิก
+                        <i class="fas fa-times mr-2"></i><%= t('cancel') %>
                     </a>
                     <button type="submit" class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
-                        <i class="fas fa-save mr-2"></i>บันทึก
+                        <i class="fas fa-save mr-2"></i><%= t('save') %>
                     </button>
                 </div>
             </div>
@@ -226,6 +225,14 @@ function removeUnit(unitId) {
     updateSelectedPills();
 }
 
+// Pass translations to JavaScript
+const translations = {
+    noUnitSelected: '<%= t("noUnitSelected") %>',
+    pleaseSelectUnit: '<%= t("pleaseSelectUnit") %>',
+    positionCreatedSuccess: '<%= t("positionCreatedSuccess") %>',
+    error: '<%= t("error") %>'
+};
+
 // Update selected pills display
 function updateSelectedPills() {
     const pillsContainer = document.getElementById('selectedPills');
@@ -234,7 +241,7 @@ function updateSelectedPills() {
     selectedCount.textContent = selectedUnitsMap.size;
 
     if (selectedUnitsMap.size === 0) {
-        pillsContainer.innerHTML = '<div class="text-sm text-gray-400 italic">ยังไม่ได้เลือกหน่วยงาน - กรุณาค้นหาและเลือก</div>';
+        pillsContainer.innerHTML = `<div class="text-sm text-gray-400 italic">${translations.noUnitSelected}</div>`;
     } else {
         let pillsHTML = '';
         selectedUnitsMap.forEach((name, id) => {
@@ -279,7 +286,7 @@ document.getElementById('createPositionForm').addEventListener('submit', async f
 
         // Validate that at least one unit is selected
         if (unitIds.length === 0) {
-            showMessage('กรุณาเลือกหน่วยงานอย่างน้อย 1 หน่วย', 'error');
+            showMessage(translations.pleaseSelectUnit, 'error');
             return;
         }
 
@@ -300,16 +307,16 @@ document.getElementById('createPositionForm').addEventListener('submit', async f
         const data = await response.json();
 
         if (data.success) {
-            showMessage(`สร้างตำแหน่งสำเร็จในทั้ง ${unitIds.length} หน่วยงาน`, 'success');
+            showMessage(translations.positionCreatedSuccess.replace('{count}', unitIds.length), 'success');
             setTimeout(() => {
                 window.location.href = '/organization/positions';
             }, 1500);
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error creating position:', error);
-        showMessage('เกิดข้อผิดพลาดในการสร้างตำแหน่ง', 'error');
+        showMessage(translations.error, 'error');
     }
 });
 

@@ -2,6 +2,13 @@ const User = require('../models/User');
 const Department = require('../models/Department');
 const Position = require('../models/Position');
 const ActivityLog = require('../models/ActivityLog');
+const { getTranslation } = require('../utils/languages');
+
+// Helper function to get translation from request
+const t = (req, key) => {
+    const lang = req.language || req.session?.language || 'th';
+    return getTranslation(lang, key);
+};
 
 const userController = {
     async getProfile(req, res) {
@@ -12,7 +19,7 @@ const userController = {
             if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้ใช้'
+                    message: t(req, 'userNotFound')
                 });
             }
 
@@ -43,7 +50,7 @@ const userController = {
             console.error('Get profile error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลโปรไฟล์'
+                message: t(req, 'errorLoadingProfile')
             });
         }
     },
@@ -63,7 +70,7 @@ const userController = {
             if (!oldUser) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้ใช้'
+                    message: t(req, 'userNotFound')
                 });
             }
 
@@ -104,7 +111,7 @@ const userController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทโปรไฟล์สำเร็จ',
+                message: t(req, 'profileUpdatedSuccess'),
                 data: result.data
             });
 
@@ -112,7 +119,7 @@ const userController = {
             console.error('Update profile error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทโปรไฟล์'
+                message: t(req, 'errorUpdatingProfile')
             });
         }
     },
@@ -124,7 +131,7 @@ const userController = {
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์เข้าถึงข้อมูลนี้'
+                    message: t(req, 'noPermission')
                 });
             }
 
@@ -175,7 +182,7 @@ const userController = {
             console.error('Get all users error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายชื่อผู้ใช้'
+                message: t(req, 'errorLoadingUsers')
             });
         }
     },
@@ -189,7 +196,7 @@ const userController = {
             if (!['Admin', 'HR'].includes(userRole) && user_id !== requestingUserId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์เข้าถึงข้อมูลนี้'
+                    message: t(req, 'noPermission')
                 });
             }
 
@@ -197,7 +204,7 @@ const userController = {
             if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้ใช้'
+                    message: t(req, 'userNotFound')
                 });
             }
 
@@ -231,7 +238,7 @@ const userController = {
             console.error('Get user by id error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้'
+                message: t(req, 'errorLoadingUserData')
             });
         }
     },
@@ -243,7 +250,7 @@ const userController = {
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์สร้างผู้ใช้ใหม่'
+                    message: t(req, 'noPermissionCreateUser')
                 });
             }
 
@@ -306,7 +313,7 @@ const userController = {
 
             res.status(201).json({
                 success: true,
-                message: 'สร้างผู้ใช้ใหม่สำเร็จ',
+                message: t(req, 'userCreatedSuccess'),
                 data: responseData
             });
 
@@ -314,7 +321,7 @@ const userController = {
             console.error('Create user error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างผู้ใช้ใหม่'
+                message: t(req, 'errorCreatingUser')
             });
         }
     },
@@ -327,7 +334,7 @@ const userController = {
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์แก้ไขข้อมูลผู้ใช้'
+                    message: t(req, 'noPermissionEditUser')
                 });
             }
 
@@ -335,7 +342,7 @@ const userController = {
             if (!oldUser) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้ใช้'
+                    message: t(req, 'userNotFound')
                 });
             }
 
@@ -399,7 +406,7 @@ const userController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทข้อมูลผู้ใช้สำเร็จ',
+                message: t(req, 'userUpdatedSuccess'),
                 data: result.data
             });
 
@@ -407,7 +414,7 @@ const userController = {
             console.error('Update user error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทข้อมูลผู้ใช้'
+                message: t(req, 'errorUpdatingUser')
             });
         }
     },
@@ -420,7 +427,7 @@ const userController = {
             if (userRole !== 'Admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ระงับการใช้งานผู้ใช้'
+                    message: t(req, 'noPermissionDeactivateUser')
                 });
             }
 
@@ -428,7 +435,7 @@ const userController = {
             if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้ใช้'
+                    message: t(req, 'userNotFound')
                 });
             }
 
@@ -453,14 +460,14 @@ const userController = {
 
             res.json({
                 success: true,
-                message: 'ระงับการใช้งานผู้ใช้สำเร็จ'
+                message: t(req, 'userDeactivatedSuccess')
             });
 
         } catch (error) {
             console.error('Deactivate user error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการระงับการใช้งานผู้ใช้'
+                message: t(req, 'errorDeactivatingUser')
             });
         }
     },
@@ -472,7 +479,7 @@ const userController = {
             if (!req.file) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณาเลือกไฟล์รูปภาพ'
+                    message: t(req, 'pleaseSelectImage')
                 });
             }
 
@@ -499,7 +506,7 @@ const userController = {
 
             res.json({
                 success: true,
-                message: 'อัพโหลดรูปโปรไฟล์สำเร็จ',
+                message: t(req, 'profileImageUploadedSuccess'),
                 data: {
                     profile_image: imageUrl
                 }
@@ -509,7 +516,7 @@ const userController = {
             console.error('Upload profile image error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ'
+                message: t(req, 'errorUploadingImage')
             });
         }
     },
@@ -529,7 +536,7 @@ const userController = {
             console.error('Get user stats error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดสถิติผู้ใช้'
+                message: t(req, 'errorLoadingUserStats')
             });
         }
     },
@@ -541,9 +548,9 @@ const userController = {
 
             if (!user) {
                 return res.render('error', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    title: t(req, 'pageNotFound') + ' - Rukchai Hongyen LearnHub',
                     user: req.session.user,
-                    message: 'ไม่พบข้อมูลผู้ใช้',
+                    message: t(req, 'userNotFound'),
                     error: {}
                 });
             }
@@ -562,9 +569,9 @@ const userController = {
         } catch (error) {
             console.error('Render profile error:', error);
             res.render('error', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                title: t(req, 'error') + ' - Rukchai Hongyen LearnHub',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้าโปรไฟล์ได้'
+                error: t(req, 'errorLoadingProfilePage')
             });
         }
     },
@@ -575,7 +582,7 @@ const userController = {
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.render('error', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
+                    title: t(req, 'noAccessPermission') + ' - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -584,7 +591,7 @@ const userController = {
             const positions = await Position.findAll({ is_active: true });
 
             res.render('users/index', {
-                title: 'จัดการผู้ใช้ - Rukchai Hongyen LearnHub',
+                title: t(req, 'usersManagement') + ' - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: userRole,
                 departments: departments,
@@ -594,9 +601,9 @@ const userController = {
         } catch (error) {
             console.error('Render user management error:', error);
             res.render('error', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                title: t(req, 'error') + ' - Rukchai Hongyen LearnHub',
                 user: req.session.user,
-                error: 'ไม่สามารถโหลดหน้าจัดการผู้ใช้ได้'
+                error: t(req, 'errorLoadingUserManagementPage')
             });
         }
     }

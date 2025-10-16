@@ -3,15 +3,15 @@
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div class="mb-4 md:mb-0">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">จัดการผู้ใช้งาน</h1>
-                <p class="text-gray-600">ระบบจัดการสมาชิกและผู้ใช้งานในองค์กร</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= t('usersManagement') %></h1>
+                <p class="text-gray-600"><%= t('userManagementSystem') %></p>
             </div>
             <div class="flex space-x-3">
                 <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                    <i class="fas fa-download mr-2"></i>ส่งออกข้อมูล
+                    <i class="fas fa-download mr-2"></i><%= t('exportData') %>
                 </button>
                 <button id="addUserBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
-                    <i class="fas fa-plus mr-2"></i>เพิ่มผู้ใช้ใหม่
+                    <i class="fas fa-plus mr-2"></i><%= t('addNewUser') %>
                 </button>
             </div>
         </div>
@@ -24,7 +24,7 @@
                         <i class="fas fa-users text-blue-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ผู้ใช้ทั้งหมด</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('totalUsers') %></h3>
                         <p id="totalUsers" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                         <i class="fas fa-user-check text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ผู้ใช้ที่ใช้งานอยู่</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('activeUsers') %></h3>
                         <p id="activeUsers" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                         <i class="fas fa-user-clock text-yellow-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">รอการอนุมัติ</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('pendingUsers') %></h3>
                         <p id="pendingUsers" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                         <i class="fas fa-user-graduate text-purple-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ลงทะเบียนใหม่</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('newUsers') %></h3>
                         <p id="newUsers" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -69,34 +69,34 @@
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchUsers" placeholder="ค้นหาผู้ใช้..."
+                    <input type="text" id="searchUsers" placeholder="<%= t('searchUsers') %>"
                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">สถานะทั้งหมด</option>
-                    <option value="active">ใช้งานอยู่</option>
-                    <option value="inactive">ไม่ใช้งาน</option>
-                    <option value="pending">รอการอนุมัติ</option>
-                    <option value="suspended">ถูกระงับ</option>
+                    <option value=""><%= t('allStatuses') %></option>
+                    <option value="active"><%= t('statusActive') %></option>
+                    <option value="inactive"><%= t('statusInactive') %></option>
+                    <option value="pending"><%= t('statusPending') %></option>
+                    <option value="suspended"><%= t('statusSuspended') %></option>
                 </select>
                 <select id="roleFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">บทบาททั้งหมด</option>
-                    <option value="admin">ผู้ดูแลระบบ</option>
-                    <option value="hr">HR</option>
-                    <option value="manager">ผู้จัดการ</option>
-                    <option value="employee">พนักงาน</option>
-                    <option value="learner">ผู้เรียน</option>
+                    <option value=""><%= t('allRoles') %></option>
+                    <option value="admin"><%= t('roleAdmin') %></option>
+                    <option value="hr"><%= t('roleHR') %></option>
+                    <option value="manager"><%= t('roleManager') %></option>
+                    <option value="employee"><%= t('roleEmployee') %></option>
+                    <option value="learner"><%= t('roleLearner') %></option>
                 </select>
                 <select id="departmentFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">แผนกทั้งหมด</option>
+                    <option value=""><%= t('allDepartments') %></option>
                     <!-- Departments will be loaded dynamically -->
                 </select>
                 <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="latest">ล่าสุด</option>
-                    <option value="name_asc">ชื่อ A-Z</option>
-                    <option value="name_desc">ชื่อ Z-A</option>
-                    <option value="oldest">เก่าที่สุด</option>
-                    <option value="last_active">เข้าใช้ล่าสุด</option>
+                    <option value="latest"><%= t('sortLatest') %></option>
+                    <option value="name_asc"><%= t('sortNameAZ') %></option>
+                    <option value="name_desc"><%= t('sortNameZA') %></option>
+                    <option value="oldest"><%= t('sortOldest') %></option>
+                    <option value="last_active"><%= t('sortLastActive') %></option>
                 </select>
             </div>
         </div>
@@ -105,20 +105,20 @@
         <div id="bulkActions" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 hidden">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <span class="text-sm text-gray-700">เลือกแล้ว <span id="selectedCount">0</span> รายการ</span>
+                    <span class="text-sm text-gray-700"><%= t('selected') %> <span id="selectedCount">0</span> <%= t('items') %></span>
                 </div>
                 <div class="flex space-x-2">
                     <button id="bulkApproveBtn" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700">
-                        <i class="fas fa-check mr-2"></i>อนุมัติ
+                        <i class="fas fa-check mr-2"></i><%= t('approve') %>
                     </button>
                     <button id="bulkSuspendBtn" class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700">
-                        <i class="fas fa-ban mr-2"></i>ระงับ
+                        <i class="fas fa-ban mr-2"></i><%= t('suspend') %>
                     </button>
                     <button id="bulkDeleteBtn" class="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700">
-                        <i class="fas fa-trash mr-2"></i>ลบ
+                        <i class="fas fa-trash mr-2"></i><%= t('delete') %>
                     </button>
                     <button id="clearSelectionBtn" class="px-4 py-2 text-gray-600 border border-gray-300 text-sm rounded-lg hover:bg-gray-50">
-                        ยกเลิกการเลือก
+                        <%= t('clearSelection') %>
                     </button>
                 </div>
             </div>
@@ -130,10 +130,10 @@
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                 <div class="flex items-center">
                     <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-3">
-                    <label for="selectAll" class="text-sm font-medium text-gray-700">เลือกทั้งหมด</label>
+                    <label for="selectAll" class="text-sm font-medium text-gray-700"><%= t('selectAll') %></label>
                 </div>
                 <div class="text-sm text-gray-500">
-                    แสดง <span id="displayCount">0</span> ผู้ใช้
+                    <%= t('showing') %> <span id="displayCount">0</span> <%= t('users') %>
                 </div>
             </div>
 
@@ -146,14 +146,14 @@
             <div id="loadingState" class="p-8 text-center">
                 <div class="inline-flex items-center">
                     <i class="fas fa-spinner fa-spin mr-2"></i>
-                    กำลังโหลดข้อมูล...
+                    <%= t('loading') %>
                 </div>
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="p-8 text-center hidden">
                 <i class="fas fa-users text-gray-400 text-4xl mb-4"></i>
-                <p class="text-gray-500">ไม่พบผู้ใช้งาน</p>
+                <p class="text-gray-500"><%= t('noUsers') %></p>
             </div>
         </div>
 
@@ -169,7 +169,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">เพิ่มผู้ใช้ใหม่</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('addNewUser') %></h3>
                 <button id="closeAddModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -185,7 +185,7 @@
                         </label>
                         <input type="file" id="profileImageInput" name="profile_image" accept="image/*" class="hidden">
                     </div>
-                    <p class="text-xs text-gray-500">อัปโหลดรูปโปรไฟล์ (ไม่บังคับ)</p>
+                    <p class="text-xs text-gray-500"><%= t('uploadProfileImage') %></p>
                 </div>
 
                 <!-- Basic Information Section -->
@@ -194,20 +194,20 @@
                         <div class="w-8 h-8 bg-ruxchai-primary/10 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-user-circle text-ruxchai-primary"></i>
                         </div>
-                        ข้อมูลส่วนตัว
+                        <%= t('personalInfo') %>
                     </h4>
 
                     <div class="space-y-4">
                         <!-- User Type -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                ประเภทผู้ใช้ <span class="text-red-500">*</span>
+                                <%= t('userType') %> <span class="text-red-500">*</span>
                             </label>
                             <select name="user_type" id="userTypeSelect" required onchange="handleUserTypeChange()"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value="">-- เลือกประเภทผู้ใช้ --</option>
-                                <option value="employee">👤 พนักงาน (มีสิทธิ์เข้าใช้ระบบ)</option>
-                                <option value="applicant">📋 ผู้สมัครงาน (ยังไม่มีสิทธิ์เข้าระบบ)</option>
+                                <option value=""><%= t('selectUserType') %></option>
+                                <option value="employee"><%= t('employeeWithAccess') %></option>
+                                <option value="applicant"><%= t('applicantNoAccess') %></option>
                             </select>
                         </div>
 
@@ -215,18 +215,18 @@
                         <div id="employeeIdField" class="hidden">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-id-badge text-ruxchai-primary mr-1"></i>
-                                รหัสพนักงาน <span class="text-red-500">*</span>
+                                <%= t('employeeId') %> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="employee_id" id="employeeIdInput"
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                   placeholder="เช่น EMP001">
+                                   placeholder="<%= t('employeeId') %>">
                         </div>
 
                         <!-- ID Card - Only for Applicant -->
                         <div id="idCardField" class="hidden">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-id-card text-gray-400 mr-1"></i>
-                                เลขบัตรประชาชน <span class="text-red-500">*</span>
+                                <%= t('idCardNumber') %> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="id_card_number" id="idCardInput" maxlength="13"
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -237,19 +237,19 @@
                         <div id="nameFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    ชื่อ <span class="text-red-500">*</span>
+                                    <%= t('firstName') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="first_name" id="firstNameInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                       placeholder="ชื่อ">
+                                       placeholder="<%= t('firstName') %>">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    นามสกุล <span class="text-red-500">*</span>
+                                    <%= t('lastName') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="last_name" id="lastNameInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                       placeholder="นามสกุล">
+                                       placeholder="<%= t('lastName') %>">
                             </div>
                         </div>
 
@@ -258,7 +258,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-envelope text-gray-400 mr-1"></i>
-                                    อีเมล <span class="text-red-500">*</span>
+                                    <%= t('email') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="email" name="email" id="emailInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -267,7 +267,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-phone text-gray-400 mr-1"></i>
-                                    เบอร์โทรศัพท์ <span class="text-red-500">*</span>
+                                    <%= t('phone') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="tel" name="phone" id="phoneInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -283,7 +283,7 @@
                         <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-building text-blue-600"></i>
                         </div>
-                        ข้อมูลองค์กร
+                        <%= t('organizationInfo') %>
                     </h4>
 
                     <div class="space-y-4">
@@ -292,21 +292,21 @@
                             <div id="branchField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-code-branch text-gray-400 mr-1"></i>
-                                    สาขา
+                                    <%= t('branch') %>
                                 </label>
                                 <select name="branch_id" id="branchSelect" onchange="loadOfficesByBranch(this.value)"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="">-- เลือกสาขา --</option>
+                                    <option value=""><%= t('selectBranch') %></option>
                                 </select>
                             </div>
                             <div id="officeField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-building text-gray-400 mr-1"></i>
-                                    สำนัก
+                                    <%= t('office') %>
                                 </label>
                                 <select name="office_id" id="officeSelect" onchange="loadDivisionsByOffice(this.value)"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="">-- เลือกสำนัก --</option>
+                                    <option value=""><%= t('selectOffice') %></option>
                                 </select>
                             </div>
                         </div>
@@ -315,21 +315,21 @@
                             <div id="divisionField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-layer-group text-gray-400 mr-1"></i>
-                                    ฝ่าย
+                                    <%= t('division') %>
                                 </label>
                                 <select name="division_id" id="divisionSelect" onchange="loadDepartmentsByDivision(this.value)"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="">-- เลือกฝ่าย --</option>
+                                    <option value=""><%= t('selectDivision') %></option>
                                 </select>
                             </div>
                             <div id="departmentField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-sitemap text-gray-400 mr-1"></i>
-                                    แผนก <span class="text-red-500">*</span>
+                                    <%= t('department') %> <span class="text-red-500">*</span>
                                 </label>
                                 <select name="department_id" id="departmentSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="">-- เลือกแผนก --</option>
+                                    <option value=""><%= t('selectDepartment') %></option>
                                 </select>
                             </div>
                         </div>
@@ -339,18 +339,18 @@
                             <div id="positionField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-briefcase text-gray-400 mr-1"></i>
-                                    ตำแหน่ง <span class="text-red-500">*</span>
+                                    <%= t('positionName') %> <span class="text-red-500">*</span>
                                 </label>
                                 <select name="position_id" id="addPositionSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="">-- เลือกตำแหน่ง --</option>
+                                    <option value=""><%= t('selectPosition') %></option>
                                     <!-- Positions will be loaded dynamically -->
                                 </select>
                             </div>
                             <div id="startDateField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
-                                    วันเริ่มงาน
+                                    <%= t('startDate') %>
                                 </label>
                                 <input type="date" name="start_date"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
@@ -365,18 +365,18 @@
                         <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-briefcase text-green-600"></i>
                         </div>
-                        ข้อมูลการสมัครงาน
+                        <%= t('applicationInfo') %>
                     </h4>
 
                     <div class="space-y-4">
                         <div id="appliedPositionField">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-user-tag text-gray-400 mr-1"></i>
-                                ตำแหน่งที่สมัคร <span class="text-red-500">*</span>
+                                <%= t('appliedPosition') %> <span class="text-red-500">*</span>
                             </label>
                             <select name="applied_position_id" id="appliedPositionSelect"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value="">-- เลือกตำแหน่งที่สมัคร --</option>
+                                <option value=""><%= t('selectAppliedPosition') %></option>
                                 <!-- Positions will be loaded dynamically -->
                             </select>
                         </div>
@@ -389,7 +389,7 @@
                         <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-key text-purple-600"></i>
                         </div>
-                        การเข้าถึงระบบ
+                        <%= t('systemAccess') %>
                     </h4>
 
                     <div class="space-y-4">
@@ -397,27 +397,27 @@
                             <div id="roleField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-user-shield text-gray-400 mr-1"></i>
-                                    บทบาท <span class="text-red-500">*</span>
+                                    <%= t('role') %> <span class="text-red-500">*</span>
                                 </label>
                                 <select name="role" id="roleSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="">-- เลือกบทบาท --</option>
-                                    <option value="employee">👤 พนักงาน</option>
-                                    <option value="manager">👔 ผู้จัดการ</option>
-                                    <option value="hr">💼 HR</option>
-                                    <option value="admin">⚙️ ผู้ดูแลระบบ</option>
+                                    <option value=""><%= t('selectRole') %></option>
+                                    <option value="employee">👤 <%= t('roleEmployee') %></option>
+                                    <option value="manager">👔 <%= t('roleManager') %></option>
+                                    <option value="hr">💼 <%= t('roleHR') %></option>
+                                    <option value="admin">⚙️ <%= t('roleAdmin') %></option>
                                 </select>
                             </div>
                             <div id="statusField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-toggle-on text-gray-400 mr-1"></i>
-                                    สถานะ
+                                    <%= t('status') %>
                                 </label>
                                 <select name="status"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="active">✅ ใช้งานอยู่</option>
-                                    <option value="pending">⏳ รอการอนุมัติ</option>
-                                    <option value="inactive">❌ ไม่ใช้งาน</option>
+                                    <option value="active">✅ <%= t('statusActive') %></option>
+                                    <option value="pending">⏳ <%= t('statusPending') %></option>
+                                    <option value="inactive">❌ <%= t('statusInactive') %></option>
                                 </select>
                             </div>
                         </div>
@@ -426,7 +426,7 @@
                             <div id="passwordField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-lock text-gray-400 mr-1"></i>
-                                    รหัสผ่าน <span class="text-red-500">*</span>
+                                    <%= t('password') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="password" name="password" id="passwordInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -435,7 +435,7 @@
                             <div id="confirmPasswordField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-lock text-gray-400 mr-1"></i>
-                                    ยืนยันรหัสผ่าน <span class="text-red-500">*</span>
+                                    <%= t('confirmPassword') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="password" name="confirm_password" id="confirmPasswordInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -449,11 +449,11 @@
                 <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                     <button type="button" id="cancelAdd"
                             class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
-                        <i class="fas fa-times mr-2"></i>ยกเลิก
+                        <i class="fas fa-times mr-2"></i><%= t('cancel') %>
                     </button>
                     <button type="submit"
                             class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
-                        <i class="fas fa-user-plus mr-2"></i>เพิ่มผู้ใช้
+                        <i class="fas fa-user-plus mr-2"></i><%= t('addUser') %>
                     </button>
                 </div>
             </form>
@@ -466,7 +466,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">แก้ไขข้อมูลผู้ใช้</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('editUser') %></h3>
                 <button id="closeEditModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -480,7 +480,7 @@
                         <div class="w-8 h-8 bg-ruxchai-primary/10 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-user-circle text-ruxchai-primary"></i>
                         </div>
-                        ข้อมูลส่วนตัว
+                        <%= t('personalInfo') %>
                     </h4>
 
                     <div class="space-y-4">
@@ -488,19 +488,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    ชื่อ <span class="text-red-500">*</span>
+                                    <%= t('firstName') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="first_name" id="editFirstName" required
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                       placeholder="ชื่อ">
+                                       placeholder="<%= t('firstName') %>">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    นามสกุล <span class="text-red-500">*</span>
+                                    <%= t('lastName') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="last_name" id="editLastName" required
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                       placeholder="นามสกุล">
+                                       placeholder="<%= t('lastName') %>">
                             </div>
                         </div>
 
@@ -509,7 +509,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-envelope text-gray-400 mr-1"></i>
-                                    อีเมล <span class="text-red-500">*</span>
+                                    <%= t('email') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="email" name="email" id="editEmail" required
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -518,7 +518,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-phone text-gray-400 mr-1"></i>
-                                    เบอร์โทรศัพท์
+                                    <%= t('phone') %>
                                 </label>
                                 <input type="tel" name="phone" id="editPhone"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -534,7 +534,7 @@
                         <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-key text-purple-600"></i>
                         </div>
-                        การเข้าถึงระบบ
+                        <%= t('systemAccess') %>
                     </h4>
 
                     <div class="space-y-4">
@@ -542,27 +542,27 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-user-shield text-gray-400 mr-1"></i>
-                                    บทบาท <span class="text-red-500">*</span>
+                                    <%= t('role') %> <span class="text-red-500">*</span>
                                 </label>
                                 <select name="role" id="editRole" required
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="employee">👤 พนักงาน</option>
-                                    <option value="manager">👔 ผู้จัดการ</option>
-                                    <option value="hr">💼 HR</option>
-                                    <option value="admin">⚙️ ผู้ดูแลระบบ</option>
+                                    <option value="employee">👤 <%= t('roleEmployee') %></option>
+                                    <option value="manager">👔 <%= t('roleManager') %></option>
+                                    <option value="hr">💼 <%= t('roleHR') %></option>
+                                    <option value="admin">⚙️ <%= t('roleAdmin') %></option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-toggle-on text-gray-400 mr-1"></i>
-                                    สถานะ <span class="text-red-500">*</span>
+                                    <%= t('status') %> <span class="text-red-500">*</span>
                                 </label>
                                 <select name="status" id="editStatus" required
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="active">✅ ใช้งานอยู่</option>
-                                    <option value="inactive">❌ ไม่ใช้งาน</option>
-                                    <option value="pending">⏳ รอการอนุมัติ</option>
-                                    <option value="suspended">🚫 ถูกระงับ</option>
+                                    <option value="active">✅ <%= t('statusActive') %></option>
+                                    <option value="inactive">❌ <%= t('statusInactive') %></option>
+                                    <option value="pending">⏳ <%= t('statusPending') %></option>
+                                    <option value="suspended">🚫 <%= t('statusSuspended') %></option>
                                 </select>
                             </div>
                         </div>
@@ -573,11 +573,11 @@
                 <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                     <button type="button" id="cancelEdit"
                             class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
-                        <i class="fas fa-times mr-2"></i>ยกเลิก
+                        <i class="fas fa-times mr-2"></i><%= t('cancel') %>
                     </button>
                     <button type="submit"
                             class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
-                        <i class="fas fa-save mr-2"></i>บันทึกการแก้ไข
+                        <i class="fas fa-save mr-2"></i><%= t('saveChanges') %>
                     </button>
                 </div>
             </form>
@@ -586,6 +586,71 @@
 </div>
 
 <script>
+// Translation strings - Server-rendered from backend
+const translations = {
+    // Status translations
+    statusActive: '<%= t("statusActive") %>',
+    statusInactive: '<%= t("statusInactive") %>',
+    statusPending: '<%= t("statusPending") %>',
+    statusSuspended: '<%= t("statusSuspended") %>',
+
+    // Role translations
+    roleAdmin: '<%= t("roleAdmin") %>',
+    roleHR: '<%= t("roleHR") %>',
+    roleManager: '<%= t("roleManager") %>',
+    roleEmployee: '<%= t("roleEmployee") %>',
+    roleLearner: '<%= t("roleLearner") %>',
+
+    // Action translations
+    view: '<%= t("view") %>',
+    edit: '<%= t("edit") %>',
+    suspend: '<%= t("suspend") %>',
+    activate: '<%= t("activate") %>',
+    delete: '<%= t("delete") %>',
+
+    // Message translations
+    errorLoadingData: '<%= t("errorLoadingData") %>',
+    errorLoadingUser: '<%= t("errorLoadingUser") %>',
+    passwordMismatch: '<%= t("passwordMismatch") %>',
+    userAddedSuccess: '<%= t("userAddedSuccess") %>',
+    error: '<%= t("error") %>',
+    userAddError: '<%= t("userAddError") %>',
+    userEditedSuccess: '<%= t("userEditedSuccess") %>',
+    userEditError: '<%= t("userEditError") %>',
+    confirmSuspendUser: '<%= t("confirmSuspendUser") %>',
+    userSuspendedSuccess: '<%= t("userSuspendedSuccess") %>',
+    userActivatedSuccess: '<%= t("userActivatedSuccess") %>',
+    confirmDeleteUser: '<%= t("confirmDeleteUser") %>',
+    userDeletedSuccess: '<%= t("userDeletedSuccess") %>',
+    exportError: '<%= t("exportError") %>',
+
+    // Bulk action translations
+    approve: '<%= t("approve") %>',
+    approveAction: '<%= t("approve") %>',
+    suspendAction: '<%= t("suspend") %>',
+    deleteAction: '<%= t("delete") %>',
+    confirmBulkAction: '<%= t("confirmBulkAction") %>',
+    bulkActionSuccess: '<%= t("bulkActionSuccess") %>',
+
+    // General translations
+    noDepartment: '<%= t("noDepartment") %>',
+    lastActiveNever: '<%= t("lastActiveNever") %>',
+    lastActive: '<%= t("lastActive") %>',
+    viewDetails: '<%= t("viewDetails") %>',
+    editAction: '<%= t("edit") %>',
+    suspendAction: '<%= t("suspend") %>',
+    activateAction: '<%= t("activate") %>',
+    deleteAction: '<%= t("delete") %>',
+    selectBranch: '<%= t("selectBranch") %>',
+    selectOffice: '<%= t("selectOffice") %>',
+    selectDivision: '<%= t("selectDivision") %>',
+    selectDepartment: '<%= t("selectDepartment") %>',
+    selectPosition: '<%= t("selectPosition") %>',
+    selectAppliedPosition: '<%= t("selectAppliedPosition") %>',
+    allDepartments: '<%= t("allDepartments") %>',
+    unit: '<%= t("unit") %>'
+};
+
 // Global variables
 let currentPage = 1;
 let users = [];
@@ -674,7 +739,7 @@ async function loadUsers() {
         }
     } catch (error) {
         console.error('Error loading users:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+        showMessage(translations.errorLoadingData, 'error');
     } finally {
         document.getElementById('loadingState').classList.add('hidden');
     }

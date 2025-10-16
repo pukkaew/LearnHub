@@ -50,6 +50,19 @@ router.get('/positions/create', authMiddleware.requireAuth, authMiddleware.requi
 // สร้างตำแหน่งใหม่
 router.post('/positions/create', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.createPosition);
 
+// แสดงรายละเอียดตำแหน่ง
+router.get('/positions/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.viewPosition);
+
+// แสดงฟอร์มแก้ไขตำแหน่ง
+router.get('/positions/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.editPositionForm);
+
+// อัพเดทตำแหน่ง
+router.post('/positions/:id/edit', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.updatePosition);
+router.put('/positions/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.updatePosition);
+
+// ลบตำแหน่ง
+router.delete('/positions/:id', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin']), organizationController.deletePosition);
+
 // ============ ORGANIZATION UNITS CRUD ROUTES ============
 // Note: These MUST come after all specific routes (like /positions, /create) to avoid conflicts
 

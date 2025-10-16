@@ -1,0 +1,203 @@
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-6">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li><a href="/organization" class="text-ruxchai-primary hover:underline"><%= t('organization') %></a></li>
+                <li class="text-gray-400">/</li>
+                <li><a href="/organization/positions" class="text-ruxchai-primary hover:underline"><%= t('positions') %></a></li>
+                <li class="text-gray-400">/</li>
+                <li class="text-gray-700 font-medium"><%= position.position_name %></li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div class="mb-4 md:mb-0">
+                <div class="flex items-center mb-2">
+                    <div class="w-12 h-12 rounded-lg <%=
+                        position.position_type === 'EMPLOYEE' ? 'bg-blue-500' : 'bg-green-500'
+                    %> flex items-center justify-center mr-4">
+                        <i class="fas fa-briefcase text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900"><%= position.position_name %></h1>
+                        <p class="text-gray-600">
+                            <%= position.position_type === 'EMPLOYEE' ? t('employee') : t('applicant') %>
+                            <% if (position.unit_name_th) { %>
+                                • <%= position.unit_name_th %>
+                            <% } %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <a href="/organization/positions/<%= position.position_id %>/edit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                    <i class="fas fa-edit mr-2"></i><%= t('edit') %>
+                </a>
+                <a href="/organization/positions" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
+                    <i class="fas fa-arrow-left mr-2"></i><%= t('back') %>
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Main Info -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic Information -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-ruxchai-primary mr-2"></i>
+                        <%= t('basicInfo') %>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('positionName') %></label>
+                            <p class="text-gray-900"><%= position.position_name || '-' %></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('unit') %></label>
+                            <p class="text-gray-900"><%= position.unit_name_th || '-' %></p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('status') %></label>
+                            <span class="px-3 py-1 rounded-full text-sm font-medium <%=
+                                position.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            %>">
+                                <%= position.is_active ? t('active') : t('inactive') %>
+                            </span>
+                        </div>
+                    </div>
+                    <% if (position.description) { %>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('description') %></label>
+                            <p class="text-gray-900"><%= position.description %></p>
+                        </div>
+                    <% } %>
+                </div>
+
+
+                <!-- Employees List -->
+                <% if (employees && employees.length > 0) { %>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-users text-ruxchai-primary mr-2"></i>
+                            <%= t('employeesInPosition') %> (<%= employees.length %>)
+                        </h2>
+                        <div class="space-y-3">
+                            <% employees.forEach(emp => { %>
+                                <a href="/users/<%= emp.user_id %>" class="block border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all hover:border-ruxchai-primary">
+                                    <div class="flex items-center">
+                                        <% if (emp.profile_image) { %>
+                                            <img src="<%= emp.profile_image %>" alt="<%= emp.first_name %>" class="w-12 h-12 rounded-full mr-4 object-cover">
+                                        <% } else { %>
+                                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                                                <i class="fas fa-user text-gray-500"></i>
+                                            </div>
+                                        <% } %>
+                                        <div class="flex-1">
+                                            <h3 class="font-medium text-gray-900"><%= emp.first_name %> <%= emp.last_name %></h3>
+                                            <p class="text-sm text-gray-500">
+                                                <%= emp.employee_id || '' %>
+                                                <% if (emp.unit_name_th) { %>
+                                                    • <%= emp.unit_name_th %>
+                                                <% } %>
+                                            </p>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400"></i>
+                                    </div>
+                                </a>
+                            <% }); %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Right Column - Statistics -->
+            <div class="space-y-6">
+                <!-- Statistics -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-chart-bar text-ruxchai-primary mr-2"></i>
+                        <%= t('statistics') %>
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-users text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500"><%= t('employees') %></p>
+                                    <p class="text-xl font-bold text-gray-900"><%= position.employee_count || 0 %></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4"><%= t('management') %></h2>
+                    <div class="space-y-2">
+                        <a href="/organization/positions/<%= position.position_id %>/edit"
+                           class="block w-full text-center px-4 py-2 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors">
+                            <i class="fas fa-edit mr-2"></i><%= t('editPosition') %>
+                        </a>
+                        <button onclick="deletePosition(<%= position.position_id %>)"
+                                class="block w-full text-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
+                            <i class="fas fa-trash mr-2"></i><%= t('deletePosition') %>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Pass translations to JavaScript
+const translations = {
+    confirmDelete: '<%= t("confirmDeletePosition") %>',
+    deleteSuccess: '<%= t("deletePositionSuccess") %>',
+    error: '<%= t("error") %>'
+};
+
+async function deletePosition(positionId) {
+    if (!confirm(translations.confirmDelete)) return;
+
+    try {
+        const response = await fetch(`/organization/positions/${positionId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage(translations.deleteSuccess, 'success');
+            setTimeout(() => {
+                window.location.href = '/organization/positions';
+            }, 1000);
+        } else {
+            showMessage(data.message || translations.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting position:', error);
+        showMessage(translations.error, 'error');
+    }
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+</script>

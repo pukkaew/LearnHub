@@ -15,7 +15,17 @@
       "Read(//d/**)",
       "Bash(taskkill:*)",
       "Bash(sqlcmd:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(npm start)",
+      "Bash(cmd /c \"taskkill /F /PID 25768\")",
+      "Bash(cmd /c \"taskkill /F /PID 35008\")",
+      "Bash(cmd /c \"netstat -ano | findstr :3000\")",
+      "Bash(cmd /c \"taskkill /F /PID 23252 & taskkill /F /PID 9828\")",
+      "Bash(cmd /c \"taskkill /F /PID 23252 & taskkill /F /PID 9828 & taskkill /F /PID 25692 & taskkill /F /PID 27264\")",
+      "Bash(cmd /c \"taskkill /F /PID 10484\")",
+      "Bash(cmd /c \"tasklist | findstr node\")",
+      "Bash(cmd /c \"for /f \"\"tokens=5\"\" %a in (''netstat -ano ^| findstr :3000'') do @echo %a\")",
+      "Bash(cmd /c \"taskkill /F /PID 37268\")"
     ],
     "deny": [],
     "ask": []
