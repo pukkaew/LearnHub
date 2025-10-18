@@ -22,7 +22,7 @@ const organizationController = {
             const levels = await OrganizationUnit.getLevels();
 
             res.render('organization/index', {
-                title: t(req, 'organizationManagement'),
+                title: t(req, 'organizationManagement') + ' - Rukchai Hongyen LearnHub',
                 units,
                 levels,
                 user: req.session.user
@@ -207,7 +207,7 @@ const organizationController = {
             const managers = mgrResult.recordset;
 
             res.render('organization/create', {
-                title: t(req, 'createUnit'),
+                title: t(req, 'createUnit') + ' - Rukchai Hongyen LearnHub',
                 levels,
                 units,
                 managers,
@@ -316,7 +316,7 @@ const organizationController = {
             const employees = empResult.recordset;
 
             res.render('organization/view', {
-                title: t(req, 'unitDetails') + ': ' + unit.unit_name_th,
+                title: t(req, 'unitDetails') + ': ' + unit.unit_name_th + ' - Rukchai Hongyen LearnHub',
                 unit,
                 hierarchyPath,
                 children,
@@ -358,7 +358,7 @@ const organizationController = {
             const managers = mgrResult.recordset;
 
             res.render('organization/edit', {
-                title: t(req, 'editUnit'),
+                title: t(req, 'editUnit') + ' - Rukchai Hongyen LearnHub',
                 unit,
                 levels,
                 units,
@@ -493,7 +493,7 @@ const organizationController = {
             console.log('📊 Statistics for positions page:', statistics);
 
             res.render('organization/positions', {
-                title: t(req, 'positionManagement'),
+                title: t(req, 'positionManagement') + ' - Rukchai Hongyen LearnHub',
                 positions,
                 units,
                 statistics,
@@ -525,7 +525,7 @@ const organizationController = {
 
             res.json({
                 success: true,
-                data: positions
+                positions: positions
             });
         } catch (error) {
             console.error('Error getting positions:', error);
@@ -585,7 +585,7 @@ const organizationController = {
             const units = await OrganizationUnit.getAll(false);
 
             res.render('organization/create-position', {
-                title: t(req, 'createNewPosition'),
+                title: t(req, 'createNewPosition') + ' - Rukchai Hongyen LearnHub',
                 units,
                 user: req.session.user
             });
@@ -730,7 +730,7 @@ const organizationController = {
             console.log('Employees from query:', employees.length);
 
             res.render('organization/view-position', {
-                title: t(req, 'positionDetails') + ': ' + position.position_name,
+                title: t(req, 'positionDetails') + ': ' + position.position_name + ' - Rukchai Hongyen LearnHub',
                 position,
                 employees,
                 user: req.session.user
@@ -758,7 +758,7 @@ const organizationController = {
             const units = await OrganizationUnit.getAll(false);
 
             res.render('organization/edit-position', {
-                title: t(req, 'editPosition'),
+                title: t(req, 'editPosition') + ' - Rukchai Hongyen LearnHub',
                 position,
                 units,
                 user: req.session.user,

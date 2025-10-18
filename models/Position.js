@@ -370,7 +370,6 @@ class Position {
                         p.title as position_title,
                         COUNT(u.user_id) as total_employees,
                         COUNT(CASE WHEN u.is_active = 1 THEN 1 END) as active_employees,
-                        AVG(CASE WHEN u.hire_date IS NOT NULL THEN DATEDIFF(month, u.hire_date, GETDATE()) END) as avg_tenure_months,
                         (SELECT COUNT(*) FROM Positions sub WHERE sub.reports_to = p.position_id) as direct_reports,
                         p.salary_min,
                         p.salary_max,

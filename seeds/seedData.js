@@ -231,8 +231,7 @@ class SeedData {
                     role_id: employeeRoleId,
                     department_id: dept.department_id,
                     position_id: pos.position_id,
-                    phone_mobile: faker.phone.number(),
-                    hire_date: faker.date.past({ years: 5 })
+                    phone_mobile: faker.phone.number()
                 });
             }
 
@@ -249,16 +248,15 @@ class SeedData {
                     .input('positionId', sql.Int, user.position_id)
                     .input('roleId', sql.Int, user.role_id)
                     .input('phoneMobile', sql.NVarChar(20), user.phone_mobile || null)
-                    .input('hireDate', sql.Date, user.hire_date || null)
                     .query(`
                         INSERT INTO Users (
                             user_id, employee_id, username, password_hash, email,
                             first_name, last_name, department_id, position_id, role_id,
-                            phone_mobile, hire_date, created_date, is_active, must_change_password
+                            phone_mobile, created_date, is_active, must_change_password
                         ) VALUES (
                             @userId, @employeeId, @username, @passwordHash, @email,
                             @firstName, @lastName, @departmentId, @positionId, @roleId,
-                            @phoneMobile, @hireDate, GETDATE(), 1, 0
+                            @phoneMobile, GETDATE(), 1, 0
                         )
                     `);
             }

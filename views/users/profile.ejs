@@ -23,8 +23,8 @@
 
                         <!-- User Info -->
                         <div class="flex-1 pt-4">
-                            <h1 id="userName" class="text-3xl font-bold text-gray-900 mb-2">ชื่อผู้ใช้</h1>
-                            <p id="userTitle" class="text-lg text-gray-600 mb-4">ตำแหน่ง | แผนก</p>
+                            <h1 id="userName" class="text-3xl font-bold text-gray-900 mb-2"><%= t('username') %></h1>
+                            <p id="userTitle" class="text-lg text-gray-600 mb-4"><%= t('positionTitle') %> | <%= t('department') %></p>
 
                             <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                                 <div class="flex items-center">
@@ -37,11 +37,11 @@
                                 </div>
                                 <div class="flex items-center">
                                     <i class="fas fa-calendar mr-2"></i>
-                                    <span>เข้าร่วมเมื่อ <span id="joinDate">-</span></span>
+                                    <span><%= t('createAccount') %> <span id="joinDate">-</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <i class="fas fa-clock mr-2"></i>
-                                    <span>เข้าใช้ล่าสุด <span id="lastActive">-</span></span>
+                                    <span><%= t('lastActive') %> <span id="lastActive">-</span></span>
                                 </div>
                             </div>
                         </div>
@@ -49,10 +49,10 @@
                         <!-- Action Buttons -->
                         <div class="flex space-x-3">
                             <button id="editProfileBtn" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
-                                <i class="fas fa-edit mr-2"></i>แก้ไขโปรไฟล์
+                                <i class="fas fa-edit mr-2"></i><%= t('editProfile') %>
                             </button>
                             <button id="changePasswordBtn" class="px-6 py-2 text-ruxchai-primary border border-ruxchai-primary rounded-lg hover:bg-ruxchai-primary hover:text-white transition-colors">
-                                <i class="fas fa-key mr-2"></i>เปลี่ยนรหัสผ่าน
+                                <i class="fas fa-key mr-2"></i><%= t('password') %>
                             </button>
                         </div>
                     </div>
@@ -65,41 +65,41 @@
             <div class="lg:col-span-2 space-y-8">
                 <!-- About Section -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">เกี่ยวกับฉัน</h2>
+                    <h2 class="text-xl font-bold text-gray-900 mb-4"><%= t('bio') %></h2>
                     <div id="aboutContent" class="text-gray-600">
-                        <p id="userBio">ยังไม่ได้เพิ่มข้อมูลเกี่ยวกับตัวเอง</p>
+                        <p id="userBio"><%= t('bioDescription') %></p>
                     </div>
                     <button id="editAboutBtn" class="mt-4 text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
-                        <i class="fas fa-edit mr-1"></i>แก้ไข
+                        <i class="fas fa-edit mr-1"></i><%= t('edit') %>
                     </button>
                 </div>
 
                 <!-- Learning Progress -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-6">ความคืบหน้าการเรียนรู้</h2>
+                    <h2 class="text-xl font-bold text-gray-900 mb-6"><%= t('learningProgress') %></h2>
 
                     <!-- Progress Stats -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div class="text-center">
                             <div class="text-2xl font-bold text-ruxchai-primary" id="completedCourses">0</div>
-                            <div class="text-sm text-gray-500">คอร์สที่จบแล้ว</div>
+                            <div class="text-sm text-gray-500"><%= t('completedCourses') %></div>
                         </div>
                         <div class="text-center">
                             <div class="text-2xl font-bold text-blue-600" id="inProgressCourses">0</div>
-                            <div class="text-sm text-gray-500">กำลังเรียน</div>
+                            <div class="text-sm text-gray-500"><%= t('learning') %></div>
                         </div>
                         <div class="text-center">
                             <div class="text-2xl font-bold text-green-600" id="totalTestsPassed">0</div>
-                            <div class="text-sm text-gray-500">ผ่านการทดสอบ</div>
+                            <div class="text-sm text-gray-500"><%= t('tests') %></div>
                         </div>
                         <div class="text-center">
                             <div class="text-2xl font-bold text-purple-600" id="totalBadges">0</div>
-                            <div class="text-sm text-gray-500">ได้รับ Badge</div>
+                            <div class="text-sm text-gray-500"><%= t('badges') %></div>
                         </div>
                     </div>
 
                     <!-- Current Courses -->
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">คอร์สที่กำลังเรียน</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('recentCourses') %></h3>
                     <div id="currentCourses" class="space-y-4">
                         <!-- Current courses will be loaded here -->
                     </div>
@@ -107,7 +107,7 @@
 
                 <!-- Recent Activity -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-6">กิจกรรมล่าสุด</h2>
+                    <h2 class="text-xl font-bold text-gray-900 mb-6"><%= t('recentActivity') %></h2>
                     <div id="recentActivity" class="space-y-4">
                         <!-- Recent activities will be loaded here -->
                     </div>
@@ -116,9 +116,9 @@
                 <!-- Articles Written -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">บทความที่เขียน</h2>
+                        <h2 class="text-xl font-bold text-gray-900"><%= t('publishedArticles') %></h2>
                         <a href="/articles?author=me" class="text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
-                            ดูทั้งหมด <i class="fas fa-arrow-right ml-1"></i>
+                            <%= t('viewAll') %> <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </div>
                     <div id="userArticles" class="space-y-4">
@@ -132,7 +132,7 @@
                 <!-- Skills & Expertise -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">ทักษะและความเชี่ยวชาญ</h3>
+                        <h3 class="text-lg font-bold text-gray-900"><%= t('customPermissions') %></h3>
                         <button id="editSkillsBtn" class="text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -144,7 +144,7 @@
 
                 <!-- Achievements -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">ความสำเร็จ</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('myBadges') %></h3>
                     <div id="userAchievements" class="space-y-3">
                         <!-- Achievements will be loaded here -->
                     </div>
@@ -152,7 +152,7 @@
 
                 <!-- Certificates -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">ใบประกาศนียบัตร</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('statistics') %></h3>
                     <div id="userCertificates" class="space-y-3">
                         <!-- Certificates will be loaded here -->
                     </div>
@@ -161,7 +161,7 @@
                 <!-- Learning Goals -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">เป้าหมายการเรียนรู้</h3>
+                        <h3 class="text-lg font-bold text-gray-900"><%= t('settings') %></h3>
                         <button id="editGoalsBtn" class="text-ruxchai-primary hover:text-ruxchai-primary/80 text-sm">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -180,7 +180,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">แก้ไขโปรไฟล์</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('editProfile') %></h3>
                 <button id="closeEditModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -188,52 +188,52 @@
             <form id="editProfileForm" class="p-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('firstName') %></label>
                         <input type="text" name="first_name" id="editFirstName"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('lastName') %></label>
                         <input type="text" name="last_name" id="editLastName"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">อีเมล</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('email') %></label>
                         <input type="email" name="email" id="editEmail"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('phoneNumber') %></label>
                         <input type="tel" name="phone" id="editPhone"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่ง</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('positionTitle') %></label>
                         <input type="text" name="position" id="editPosition"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('department') %></label>
                         <select name="department_id" id="editDepartment"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                            <option value="">เลือกแผนก</option>
+                            <option value=""><%= t('selectDepartment') %></option>
                         </select>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">เกี่ยวกับฉัน</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('bio') %></label>
                     <textarea name="bio" id="editBio" rows="4"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="เขียนข้อมูลเกี่ยวกับตัวคุณ..."></textarea>
+                              placeholder="<%= t('bioDescription') %>"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <button type="button" id="cancelEdit" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        ยกเลิก
+                        <%= t('cancel') %>
                     </button>
                     <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        บันทึกการแก้ไข
+                        <%= t('saveChanges') %>
                     </button>
                 </div>
             </form>
@@ -246,34 +246,34 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">เปลี่ยนรหัสผ่าน</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('password') %></h3>
                 <button id="closePasswordModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             <form id="changePasswordForm" class="p-6 space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่านปัจจุบัน</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('password') %></label>
                     <input type="password" name="current_password" required
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่านใหม่</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('password') %></label>
                     <input type="password" name="new_password" required
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">ยืนยันรหัสผ่านใหม่</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('confirmPassword') %></label>
                     <input type="password" name="confirm_password" required
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <button type="button" id="cancelPasswordChange" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        ยกเลิก
+                        <%= t('cancel') %>
                     </button>
                     <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        เปลี่ยนรหัสผ่าน
+                        <%= t('saveChanges') %>
                     </button>
                 </div>
             </form>
@@ -282,6 +282,69 @@
 </div>
 
 <script>
+// Translations object for client-side JavaScript
+const translations = {
+    profile: '<%= t("profile") %>',
+    editProfile: '<%= t("editProfile") %>',
+    basicInfo: '<%= t("basicInfo") %>',
+    personalInfo: '<%= t("personalInfo") %>',
+    profileDetails: '<%= t("profileDetails") %>',
+    username: '<%= t("username") %>',
+    email: '<%= t("email") %>',
+    emailAddress: '<%= t("emailAddress") %>',
+    firstName: '<%= t("firstName") %>',
+    lastName: '<%= t("lastName") %>',
+    fullName: '<%= t("fullName") %>',
+    phoneNumber: '<%= t("phoneNumber") %>',
+    dateOfBirth: '<%= t("dateOfBirth") %>',
+    gender: '<%= t("gender") %>',
+    male: '<%= t("male") %>',
+    female: '<%= t("female") %>',
+    preferNotToSay: '<%= t("preferNotToSay") %>',
+    positionTitle: '<%= t("positionTitle") %>',
+    employeeID: '<%= t("employeeID") %>',
+    department: '<%= t("department") %>',
+    manager: '<%= t("manager") %>',
+    bio: '<%= t("bio") %>',
+    bioDescription: '<%= t("bioDescription") %>',
+    profilePicture: '<%= t("profilePicture") %>',
+    chooseFile: '<%= t("chooseFile") %>',
+    uploadProfileImage: '<%= t("uploadProfileImage") %>',
+    lastLogin: '<%= t("lastLogin") %>',
+    createAccount: '<%= t("createAccount") %>',
+    statistics: '<%= t("statistics") %>',
+    completedCourses: '<%= t("completedCourses") %>',
+    tests: '<%= t("tests") %>',
+    averageScore: '<%= t("averageScore") %>',
+    badges: '<%= t("badges") %>',
+    saveChanges: '<%= t("saveChanges") %>',
+    cancel: '<%= t("cancel") %>',
+    edit: '<%= t("edit") %>',
+    back: '<%= t("back") %>',
+    status: '<%= t("status") %>',
+    active: '<%= t("active") %>',
+    inactive: '<%= t("inactive") %>',
+    loading: '<%= t("loading") %>',
+    error: '<%= t("error") %>',
+    success: '<%= t("successUpdate") %>',
+    userNotFound: '<%= t("userNotFound") %>',
+    errorLoadingProfile: '<%= t("errorLoadingProfile") %>',
+    profileUpdatedSuccess: '<%= t("profileUpdatedSuccess") %>',
+    password: '<%= t("password") %>',
+    confirmPassword: '<%= t("confirmPassword") %>',
+    passwordMismatch: '<%= t("passwordMismatch") %>',
+    noDepartment: '<%= t("noDepartment") %>',
+    selectDepartment: '<%= t("selectDepartment") %>',
+    neverLoggedIn: '<%= t("neverLoggedIn") %>',
+    lastActive: '<%= t("lastActive") %>',
+    learning: '<%= t("learning") %>',
+    recentCourses: '<%= t("recentCourses") %>',
+    recentActivity: '<%= t("recentActivity") %>',
+    publishedArticles: '<%= t("publishedArticles") %>',
+    viewAll: '<%= t("viewAll") %>',
+    views: '<%= t("views") %>'
+};
+
 // Global variables
 let userId;
 let currentUser;
@@ -347,11 +410,11 @@ async function loadUserProfile() {
             currentUser = data.user;
             displayUserProfile(data.user);
         } else {
-            showMessage('ไม่พบข้อมูลผู้ใช้', 'error');
+            showMessage(translations.userNotFound, 'error');
         }
     } catch (error) {
         console.error('Error loading user profile:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+        showMessage(translations.errorLoadingProfile, 'error');
     }
 }
 
@@ -359,12 +422,12 @@ async function loadUserProfile() {
 function displayUserProfile(user) {
     document.getElementById('userAvatar').src = user.profile_image || '/images/default-avatar.png';
     document.getElementById('userName').textContent = `${user.first_name} ${user.last_name}`;
-    document.getElementById('userTitle').textContent = `${user.position || 'ไม่ระบุตำแหน่ง'} | ${user.department_name || 'ไม่ระบุแผนก'}`;
+    document.getElementById('userTitle').textContent = `${user.position || translations.positionTitle} | ${user.department_name || translations.noDepartment}`;
     document.getElementById('userEmail').textContent = user.email;
     document.getElementById('userPhone').textContent = user.phone || '-';
     document.getElementById('joinDate').textContent = formatDate(user.created_at);
-    document.getElementById('lastActive').textContent = user.last_active ? formatDate(user.last_active) : 'ไม่เคยเข้าใช้';
-    document.getElementById('userBio').textContent = user.bio || 'ยังไม่ได้เพิ่มข้อมูลเกี่ยวกับตัวเอง';
+    document.getElementById('lastActive').textContent = user.last_active ? formatDate(user.last_active) : translations.neverLoggedIn;
+    document.getElementById('userBio').textContent = user.bio || translations.bioDescription;
 
     // Hide edit buttons if not own profile
     if (userId && userId !== getCurrentUserId()) {
@@ -382,7 +445,7 @@ function displayUserProfile(user) {
             `<span class="px-3 py-1 bg-ruxchai-primary/10 text-ruxchai-primary text-sm rounded-full">${skill}</span>`
         ).join('');
     } else {
-        document.getElementById('userSkills').innerHTML = '<p class="text-gray-500 text-sm">ยังไม่ได้เพิ่มทักษะ</p>';
+        document.getElementById('userSkills').innerHTML = `<p class="text-gray-500 text-sm">${translations.customPermissions}</p>`;
     }
 }
 
@@ -423,7 +486,7 @@ function displayUserProgress(progress) {
             </div>
         `).join('');
     } else {
-        coursesContainer.innerHTML = '<p class="text-gray-500">ยังไม่ได้ลงทะเบียนคอร์สใดๆ</p>';
+        coursesContainer.innerHTML = `<p class="text-gray-500">${translations.recentCourses}</p>`;
     }
 }
 
@@ -458,7 +521,7 @@ function displayUserActivity(activities) {
             </div>
         `).join('');
     } else {
-        container.innerHTML = '<p class="text-gray-500">ยังไม่มีกิจกรรม</p>';
+        container.innerHTML = `<p class="text-gray-500">${translations.recentActivity}</p>`;
     }
 }
 
@@ -511,7 +574,7 @@ function displayUserArticles(articles) {
             </div>
         `).join('');
     } else {
-        container.innerHTML = '<p class="text-gray-500">ยังไม่ได้เขียนบทความ</p>';
+        container.innerHTML = `<p class="text-gray-500">${translations.publishedArticles}</p>`;
     }
 }
 
@@ -523,7 +586,7 @@ async function loadDepartments() {
 
         if (data.success) {
             const select = document.getElementById('editDepartment');
-            select.innerHTML = '<option value="">เลือกแผนก</option>' +
+            select.innerHTML = `<option value="">${translations.selectDepartment}</option>` +
                 data.departments.map(dept => `<option value="${dept.department_id}">${dept.name}</option>`).join('');
         }
     } catch (error) {
@@ -559,15 +622,15 @@ async function handleEditProfile(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('แก้ไขโปรไฟล์เรียบร้อยแล้ว', 'success');
+            showMessage(translations.profileUpdatedSuccess, 'success');
             closeEditModal();
             loadUserProfile();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error editing profile:', error);
-        showMessage('เกิดข้อผิดพลาดในการแก้ไข', 'error');
+        showMessage(translations.errorLoadingProfile, 'error');
     }
 }
 
@@ -579,7 +642,7 @@ async function handleChangePassword(e) {
 
     // Check password confirmation
     if (formData.get('new_password') !== formData.get('confirm_password')) {
-        showMessage('รหัสผ่านใหม่ไม่ตรงกัน', 'error');
+        showMessage(translations.passwordMismatch, 'error');
         return;
     }
 
@@ -592,14 +655,14 @@ async function handleChangePassword(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว', 'success');
+            showMessage(translations.success, 'success');
             closePasswordModal();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error changing password:', error);
-        showMessage('เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน', 'error');
+        showMessage(translations.error, 'error');
     }
 }
 
@@ -620,14 +683,14 @@ async function handleAvatarChange(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('อัปโหลดรูปโปรไฟล์เรียบร้อยแล้ว', 'success');
+            showMessage(translations.success, 'success');
             document.getElementById('userAvatar').src = data.avatar_url;
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error uploading avatar:', error);
-        showMessage('เกิดข้อผิดพลาดในการอัปโหลด', 'error');
+        showMessage(translations.error, 'error');
     }
 }
 

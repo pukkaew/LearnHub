@@ -3,15 +3,15 @@
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div class="mb-4 md:mb-0">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">จัดการโครงสร้างองค์กร</h1>
-                <p class="text-gray-600">ระบบจัดการหน่วยงานและโครงสร้างองค์กร</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= t('organizationStructure') %></h1>
+                <p class="text-gray-600"><%= t('manageOrganizationStructure') %></p>
             </div>
             <div class="flex space-x-3">
                 <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                    <i class="fas fa-download mr-2"></i>ส่งออกข้อมูล
+                    <i class="fas fa-download mr-2"></i><%= t('exportData') %>
                 </button>
                 <button id="addUnitBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
-                    <i class="fas fa-plus mr-2"></i>เพิ่มหน่วยงาน
+                    <i class="fas fa-plus mr-2"></i><%= t('addUnit') %>
                 </button>
             </div>
         </div>
@@ -24,7 +24,7 @@
                         <i class="fas fa-building text-blue-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">สาขา</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('branches') %></h3>
                         <p id="branchCount" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                         <i class="fas fa-sitemap text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">สำนัก</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('offices') %></h3>
                         <p id="officeCount" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                         <i class="fas fa-layer-group text-yellow-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ฝ่าย</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('divisions') %></h3>
                         <p id="divisionCount" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                         <i class="fas fa-project-diagram text-purple-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">แผนก</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('departments') %></h3>
                         <p id="departmentCount" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -67,8 +67,8 @@
         <!-- Organization Tree View -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div class="mb-6 pb-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">โครงสร้างองค์กร</h2>
-                <p class="text-sm text-gray-500 mt-1">แสดงโครงสร้างองค์กรแบบลำดับชั้น</p>
+                <h2 class="text-lg font-semibold text-gray-900"><%= t('organizationStructure') %></h2>
+                <p class="text-sm text-gray-500 mt-1"><%= t('hierarchicalStructure') %></p>
             </div>
 
             <!-- Tree Container -->
@@ -80,14 +80,14 @@
             <div id="loadingState" class="p-8 text-center">
                 <div class="inline-flex items-center">
                     <i class="fas fa-spinner fa-spin mr-2"></i>
-                    กำลังโหลดข้อมูล...
+                    <%= t('loadingData') %>
                 </div>
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="p-8 text-center hidden">
                 <i class="fas fa-building text-gray-400 text-4xl mb-4"></i>
-                <p class="text-gray-500">ยังไม่มีหน่วยงาน</p>
+                <p class="text-gray-500"><%= t('noUnitsYet') %></p>
             </div>
         </div>
     </div>
@@ -98,7 +98,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">เพิ่มหน่วยงานใหม่</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('addNewUnit') %></h3>
                 <button id="closeAddModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -108,11 +108,11 @@
                     <!-- Level Selection -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            ระดับหน่วยงาน <span class="text-red-500">*</span>
+                            <%= t('unitLevel') %> <span class="text-red-500">*</span>
                         </label>
                         <select name="level_id" id="levelSelect" required
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                            <option value="">-- เลือกระดับ --</option>
+                            <option value=""><%= t('selectLevel') %></option>
                             <% levels.forEach(level => { %>
                                 <% if (level.level_code !== 'COMPANY') { %>
                                     <option value="<%= level.level_id %>"><%= level.level_name_th %></option>
@@ -124,62 +124,62 @@
                     <!-- Parent Unit -->
                     <div id="parentField">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            หน่วยงานหลัก
+                            <%= t('parentUnitField') %>
                         </label>
                         <select name="parent_id" id="parentSelect"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                            <option value="">-- ไม่มี (เป็นหน่วยงานระดับสูงสุด) --</option>
+                            <option value=""><%= t('noParentTopLevel') %></option>
                         </select>
                     </div>
 
                     <!-- Unit Code -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            รหัสหน่วยงาน <span class="text-red-500">*</span>
+                            <%= t('unitCode') %> <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="unit_code" required
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                               placeholder="เช่น BR001">
+                               placeholder="<%= t('unitCodePlaceholder') %>">
                     </div>
 
                     <!-- Unit Names -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                ชื่อหน่วยงาน (ไทย) <span class="text-red-500">*</span>
+                                <%= t('unitNameThai') %> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="unit_name_th" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                   placeholder="ชื่อภาษาไทย">
+                                   placeholder="<%= t('unitNameThaiPlaceholder') %>">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                ชื่อหน่วยงาน (EN)
+                                <%= t('unitNameEnglish') %>
                             </label>
                             <input type="text" name="unit_name_en"
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                   placeholder="English Name">
+                                   placeholder="<%= t('unitNameEnglishPlaceholder') %>">
                         </div>
                     </div>
 
                     <!-- Abbreviation -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            ชื่อย่อ
+                            <%= t('unitAbbr') %>
                         </label>
                         <input type="text" name="unit_abbr"
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                               placeholder="ชื่อย่อ">
+                               placeholder="<%= t('unitAbbrPlaceholder') %>">
                     </div>
 
                     <!-- Description -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            คำอธิบาย
+                            <%= t('description') %>
                         </label>
                         <textarea name="description" rows="3"
                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                  placeholder="รายละเอียดเพิ่มเติม"></textarea>
+                                  placeholder="<%= t('descriptionPlaceholder') %>"></textarea>
                     </div>
                 </div>
 
@@ -187,11 +187,11 @@
                 <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                     <button type="button" id="cancelAdd"
                             class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
-                        <i class="fas fa-times mr-2"></i>ยกเลิก
+                        <i class="fas fa-times mr-2"></i><%= t('cancel') %>
                     </button>
                     <button type="submit"
                             class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
-                        <i class="fas fa-plus mr-2"></i>เพิ่มหน่วยงาน
+                        <i class="fas fa-plus mr-2"></i><%= t('addUnit') %>
                     </button>
                 </div>
             </form>
@@ -200,6 +200,22 @@
 </div>
 
 <script>
+// Translations object for client-side
+const translations = {
+    loadingData: '<%= t("loadingData") %>',
+    errorLoadingUnits: '<%= t("errorLoadingUnits") %>',
+    noUnitsYet: '<%= t("noUnitsYet") %>',
+    view: '<%= t("view") %>',
+    edit: '<%= t("edit") %>',
+    unitAddedSuccess: '<%= t("unitAddedSuccess") %>',
+    error: '<%= t("error") %>',
+    errorAddingUnit: '<%= t("errorAddingUnit") %>',
+    confirmDeleteUnit: '<%= t("confirmDeleteUnit") %>',
+    unitDeletedSuccess: '<%= t("unitDeletedSuccess") %>',
+    selectParentUnit: '<%= t("selectParentUnit") %>',
+    noParentTopLevel: '<%= t("noParentTopLevel") %>'
+};
+
 // Global variables
 let units = [];
 let levels = [];
@@ -247,7 +263,7 @@ async function loadUnits() {
         }
     } catch (error) {
         console.error('Error loading units:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+        showMessage(translations.errorLoadingUnits, 'error');
     } finally {
         document.getElementById('loadingState').classList.add('hidden');
     }
@@ -285,7 +301,7 @@ function createTreeNode(unit, level) {
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-900">${unit.unit_name_th}</h3>
-                            <p class="text-sm text-gray-500">${unit.level_name_th || 'หน่วยงาน'} ${unit.unit_code ? `(${unit.unit_code})` : ''}</p>
+                            <p class="text-sm text-gray-500">${unit.level_name_th || ''} ${unit.unit_code ? `(${unit.unit_code})` : ''}</p>
                         </div>
                     </div>
                 </div>
@@ -293,12 +309,12 @@ function createTreeNode(unit, level) {
                 <div class="flex items-center space-x-2">
                     <button onclick="viewUnit(${unit.unit_id})"
                             class="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors text-sm">
-                        <i class="fas fa-eye mr-1"></i>ดู
+                        <i class="fas fa-eye mr-1"></i>${translations.view}
                     </button>
                     ${unit.level_code !== 'COMPANY' ? `
                     <button onclick="editUnit(${unit.unit_id})"
                             class="px-3 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors text-sm">
-                        <i class="fas fa-edit mr-1"></i>แก้ไข
+                        <i class="fas fa-edit mr-1"></i>${translations.edit}
                     </button>
                     <button onclick="deleteUnit(${unit.unit_id})"
                             class="px-3 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors text-sm">
@@ -390,7 +406,7 @@ function updateParentOptions() {
     const selectedLevel = levelSelect.value;
 
     if (!selectedLevel) {
-        parentSelect.innerHTML = '<option value="">-- เลือกระดับก่อน --</option>';
+        parentSelect.innerHTML = `<option value="">${translations.selectParentUnit}</option>`;
         return;
     }
 
@@ -429,9 +445,9 @@ function updateParentOptions() {
     parentSelect.style.cursor = '';
 
     if (parentUnits.length === 0) {
-        parentSelect.innerHTML = '<option value="">-- ไม่มี (เป็นหน่วยงานระดับสูงสุด) --</option>';
+        parentSelect.innerHTML = `<option value="">${translations.noParentTopLevel}</option>`;
     } else {
-        let optionsHtml = '<option value="">-- เลือกหน่วยงานหลัก --</option>';
+        let optionsHtml = `<option value="">${translations.selectParentUnit}</option>`;
 
         // Group by level for better UI
         parentUnits.forEach(u => {
@@ -474,15 +490,15 @@ async function handleAddUnit(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('เพิ่มหน่วยงานสำเร็จ', 'success');
+            showMessage(translations.unitAddedSuccess, 'success');
             closeAddModal();
             loadUnits();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error adding unit:', error);
-        showMessage('เกิดข้อผิดพลาดในการเพิ่มหน่วยงาน', 'error');
+        showMessage(translations.errorAddingUnit, 'error');
     }
 }
 
@@ -498,7 +514,7 @@ function editUnit(unitId) {
 
 // Delete unit
 async function deleteUnit(unitId) {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบหน่วยงานนี้?')) return;
+    if (!confirm(translations.confirmDeleteUnit)) return;
 
     try {
         const response = await fetch(`/organization/${unitId}`, {
@@ -508,14 +524,14 @@ async function deleteUnit(unitId) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ลบหน่วยงานสำเร็จ', 'success');
+            showMessage(translations.unitDeletedSuccess, 'success');
             loadUnits();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error deleting unit:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(translations.error, 'error');
     }
 }
 

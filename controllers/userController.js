@@ -36,7 +36,6 @@ const userController = {
                 department_name: user.department_name,
                 position_id: user.position_id,
                 position_title: user.position_title,
-                hire_date: user.hire_date,
                 last_login: user.last_login,
                 created_at: user.created_at
             };
@@ -150,11 +149,7 @@ const userController = {
             if (is_active !== undefined) {filters.is_active = is_active === 'true';}
             if (search) {filters.search = search;}
 
-            const offset = (parseInt(page) - 1) * parseInt(limit);
-            filters.limit = parseInt(limit);
-            filters.offset = offset;
-
-            const users = await User.findAll(filters);
+            const users = await User.findAll(parseInt(page) || 1, parseInt(limit) || 20, filters);
 
             await ActivityLog.create({
                 user_id: req.user.userId,
@@ -170,11 +165,18 @@ const userController = {
 
             res.json({
                 success: true,
-                data: users,
+                users: users.data || [],
+                stats: {
+                    total: users.total || 0,
+                    active: users.active || 0,
+                    pending: users.pending || 0,
+                    new_this_month: users.new_this_month || 0
+                },
                 pagination: {
-                    page: parseInt(page),
-                    limit: parseInt(limit),
-                    total: users.length
+                    current_page: users.page || 1,
+                    per_page: parseInt(limit) || 20,
+                    total: users.total || 0,
+                    total_pages: users.totalPages || 0
                 }
             });
 
@@ -223,7 +225,6 @@ const userController = {
                 position_title: user.position_title,
                 supervisor_id: user.supervisor_id,
                 supervisor_name: user.supervisor_name,
-                hire_date: user.hire_date,
                 is_active: user.is_active,
                 last_login: user.last_login,
                 created_at: user.created_at
@@ -231,7 +232,7 @@ const userController = {
 
             res.json({
                 success: true,
-                data: userData
+                user: userData
             });
 
         } catch (error) {
@@ -264,8 +265,7 @@ const userController = {
                 role,
                 department_id,
                 position_id,
-                supervisor_id,
-                hire_date
+                supervisor_id
             } = req.body;
 
             const userData = {
@@ -279,7 +279,6 @@ const userController = {
                 department_id,
                 position_id,
                 supervisor_id,
-                hire_date,
                 is_active: true
             };
 
@@ -356,7 +355,6 @@ const userController = {
                 department_id,
                 position_id,
                 supervisor_id,
-                hire_date,
                 is_active
             } = req.body;
 
@@ -370,7 +368,6 @@ const userController = {
             if (department_id !== undefined) {updateData.department_id = department_id;}
             if (position_id !== undefined) {updateData.position_id = position_id;}
             if (supervisor_id !== undefined) {updateData.supervisor_id = supervisor_id;}
-            if (hire_date !== undefined) {updateData.hire_date = hire_date;}
             if (is_active !== undefined) {updateData.is_active = is_active;}
 
             const result = await User.update(user_id, updateData);
@@ -394,7 +391,6 @@ const userController = {
                     department_id: oldUser.department_id,
                     position_id: oldUser.position_id,
                     supervisor_id: oldUser.supervisor_id,
-                    hire_date: oldUser.hire_date,
                     is_active: oldUser.is_active
                 },
                 updateData,
@@ -424,7 +420,7 @@ const userController = {
             const { user_id } = req.params;
             const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
 
-            if (userRole !== 'Admin') {
+            if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
                     message: t(req, 'noPermissionDeactivateUser')
@@ -439,7 +435,7 @@ const userController = {
                 });
             }
 
-            const result = await User.deactivate(user_id);
+            const result = await User.update(user_id, { is_active: false });
 
             if (!result.success) {
                 return res.status(400).json(result);
@@ -455,7 +451,7 @@ const userController = {
                 req.ip,
                 req.get('User-Agent'),
                 req.sessionID,
-                `Admin deactivated user: ${user.employee_id}`
+                `${userRole} deactivated user: ${user.employee_id}`
             );
 
             res.json({
@@ -468,6 +464,59 @@ const userController = {
             res.status(500).json({
                 success: false,
                 message: t(req, 'errorDeactivatingUser')
+            });
+        }
+    },
+
+    async activateUser(req, res) {
+        try {
+            const { user_id } = req.params;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
+
+            if (!['Admin', 'HR'].includes(userRole)) {
+                return res.status(403).json({
+                    success: false,
+                    message: t(req, 'noPermissionActivateUser')
+                });
+            }
+
+            const user = await User.findById(user_id);
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: t(req, 'userNotFound')
+                });
+            }
+
+            const result = await User.update(user_id, { is_active: true });
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            await ActivityLog.logDataChange(
+                req.user.userId,
+                'Activate',
+                'users',
+                user_id,
+                { is_active: false },
+                { is_active: true },
+                req.ip,
+                req.get('User-Agent'),
+                req.sessionID,
+                `${userRole} activated user: ${user.employee_id}`
+            );
+
+            res.json({
+                success: true,
+                message: t(req, 'userActivatedSuccess')
+            });
+
+        } catch (error) {
+            console.error('Activate user error:', error);
+            res.status(500).json({
+                success: false,
+                message: t(req, 'errorActivatingUser')
             });
         }
     },
@@ -559,7 +608,7 @@ const userController = {
             const positions = await Position.findAll({ is_active: true });
 
             res.render('users/profile', {
-                title: 'โปรไฟล์ - Rukchai Hongyen LearnHub',
+                title: t(req, 'profile') + ' - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 profileData: user,
                 departments: departments,
@@ -604,6 +653,281 @@ const userController = {
                 title: t(req, 'error') + ' - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 error: t(req, 'errorLoadingUserManagementPage')
+            });
+        }
+    },
+
+    async exportUsers(req, res) {
+        try {
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
+
+            if (!['Admin', 'HR'].includes(userRole)) {
+                return res.status(403).json({
+                    success: false,
+                    message: t(req, 'noPermission')
+                });
+            }
+
+            const {
+                role,
+                department_id,
+                is_active,
+                search,
+                format = 'excel'
+            } = req.query;
+
+            const filters = {};
+            if (role) {filters.role = role;}
+            if (department_id) {filters.department_id = department_id;}
+            if (is_active !== undefined) {filters.is_active = is_active === 'true';}
+            if (search) {filters.search = search;}
+
+            // Get all users without pagination for export
+            const users = await User.findAll(1, 999999, filters);
+
+            await ActivityLog.create({
+                user_id: req.user.userId,
+                action: 'Export_Users',
+                table_name: 'users',
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                session_id: req.sessionID,
+                description: `${userRole} exported users list`,
+                severity: 'Info',
+                module: 'User Management'
+            });
+
+            if (format === 'excel') {
+                // Prepare data for Excel export
+                const ExcelJS = require('exceljs');
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Users');
+
+                // Define columns
+                worksheet.columns = [
+                    { header: t(req, 'employeeId'), key: 'employee_id', width: 15 },
+                    { header: t(req, 'firstName'), key: 'first_name', width: 20 },
+                    { header: t(req, 'lastName'), key: 'last_name', width: 20 },
+                    { header: t(req, 'emailAddress'), key: 'email', width: 30 },
+                    { header: t(req, 'phoneNumber'), key: 'phone', width: 15 },
+                    { header: t(req, 'role'), key: 'role', width: 15 },
+                    { header: t(req, 'departments'), key: 'department_name', width: 25 },
+                    { header: t(req, 'positionName'), key: 'position_title', width: 25 },
+                    { header: t(req, 'status'), key: 'is_active', width: 10 },
+                    { header: t(req, 'lastLogin'), key: 'last_login', width: 20 }
+                ];
+
+                // Add rows
+                users.data.forEach(user => {
+                    worksheet.addRow({
+                        employee_id: user.employee_id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        email: user.email,
+                        phone: user.phone || '-',
+                        role: user.role,
+                        department_name: user.department_name || '-',
+                        position_title: user.position_title || '-',
+                        is_active: user.is_active ? t(req, 'statusActive') : t(req, 'statusInactive'),
+                        last_login: user.last_login ? new Date(user.last_login).toLocaleString('th-TH') : '-'
+                    });
+                });
+
+                // Style header row
+                worksheet.getRow(1).font = { bold: true };
+                worksheet.getRow(1).fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFE0E0E0' }
+                };
+
+                // Set response headers
+                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                res.setHeader('Content-Disposition', `attachment; filename=users_export_${Date.now()}.xlsx`);
+
+                // Write to response
+                await workbook.xlsx.write(res);
+                res.end();
+            } else {
+                // Return JSON format
+                res.json({
+                    success: true,
+                    data: users.data || []
+                });
+            }
+
+        } catch (error) {
+            console.error('Export users error:', error);
+            res.status(500).json({
+                success: false,
+                message: t(req, 'errorExportingUsers')
+            });
+        }
+    },
+
+    async renderViewUser(req, res) {
+        try {
+            const { user_id } = req.params;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
+
+            if (!['Admin', 'HR'].includes(userRole)) {
+                return res.redirect('/dashboard');
+            }
+
+            const user = await User.findById(user_id);
+            if (!user) {
+                req.flash('error_msg', t(req, 'userNotFound'));
+                return res.redirect('/users');
+            }
+
+            res.render('users/view', {
+                user,
+                t: (key) => t(req, key),
+                currentUser: req.user || req.session.user
+            });
+
+        } catch (error) {
+            console.error('Render view user error:', error);
+            req.flash('error_msg', t(req, 'errorLoadingUser'));
+            res.redirect('/users');
+        }
+    },
+
+    async renderEditUser(req, res) {
+        try {
+            const { user_id } = req.params;
+            const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
+
+            if (!['Admin', 'HR'].includes(userRole)) {
+                return res.redirect('/dashboard');
+            }
+
+            const user = await User.findById(user_id);
+            if (!user) {
+                req.flash('error_msg', t(req, 'userNotFound'));
+                return res.redirect('/users');
+            }
+
+            res.render('users/edit', {
+                user,
+                t: (key) => t(req, key),
+                currentUser: req.user || req.session.user
+            });
+
+        } catch (error) {
+            console.error('Render edit user error:', error);
+            req.flash('error_msg', t(req, 'errorLoadingUser'));
+            res.redirect('/users');
+        }
+    },
+
+    async resetPassword(req, res) {
+        try {
+            const { user_id } = req.params;
+            const currentUser = req.user || req.session.user;
+
+            // Check if user has permission
+            const userRole = currentUser.role_name || currentUser.role;
+            if (!['Admin', 'HR'].includes(userRole)) {
+                return res.status(403).json({
+                    success: false,
+                    message: t(req, 'accessDenied')
+                });
+            }
+
+            // Check if user exists
+            const user = await User.findById(user_id);
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: t(req, 'userNotFound')
+                });
+            }
+
+            // Generate temporary password (8 characters: letters and numbers)
+            const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
+
+            // Update password
+            const result = await User.updatePassword(user_id, tempPassword);
+
+            if (result.success) {
+                // Log the activity
+                await ActivityLog.logSecurityEvent(
+                    currentUser.userId || currentUser.user_id,
+                    'Password_Reset',
+                    `Password reset for user: ${user.username}`,
+                    'Info',
+                    req.ip,
+                    req.get('user-agent'),
+                    req.sessionID
+                );
+
+                res.json({
+                    success: true,
+                    message: t(req, 'passwordResetSuccess'),
+                    tempPassword: tempPassword // In production, this should be sent via email
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    message: t(req, 'passwordResetFailed')
+                });
+            }
+
+        } catch (error) {
+            console.error('Reset password error:', error);
+            res.status(500).json({
+                success: false,
+                message: t(req, 'errorResettingPassword')
+            });
+        }
+    },
+
+    async getUserActivity(req, res) {
+        try {
+            const { user_id } = req.params;
+            const currentUser = req.user || req.session.user;
+
+            // Check if user has permission to view activity
+            const userRole = currentUser.role_name || currentUser.role;
+            const currentUserId = currentUser.userId || currentUser.user_id;
+
+            // Users can only view their own activity unless they're Admin or HR
+            if (!['Admin', 'HR'].includes(userRole) && parseInt(user_id) !== currentUserId) {
+                return res.status(403).json({
+                    success: false,
+                    message: t(req, 'accessDenied')
+                });
+            }
+
+            // Get query parameters for filtering
+            const filters = {
+                action: req.query.action,
+                module: req.query.module,
+                limit: parseInt(req.query.limit) || 50,
+                offset: parseInt(req.query.offset) || 0
+            };
+
+            // Get user activity logs
+            const activities = await ActivityLog.findByUser(parseInt(user_id), filters);
+
+            // Get activity summary
+            const summary = await ActivityLog.getActivitySummary(parseInt(user_id), 30);
+
+            res.json({
+                success: true,
+                data: {
+                    activities,
+                    summary,
+                    total: activities.length
+                }
+            });
+
+        } catch (error) {
+            console.error('Get user activity error:', error);
+            res.status(500).json({
+                success: false,
+                message: t(req, 'errorLoadingActivity')
             });
         }
     }

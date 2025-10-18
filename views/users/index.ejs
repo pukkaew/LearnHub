@@ -105,7 +105,7 @@
         <div id="bulkActions" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 hidden">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <span class="text-sm text-gray-700"><%= t('selected') %> <span id="selectedCount">0</span> <%= t('items') %></span>
+                    <span class="text-sm text-gray-700"><%= t('selected') %> <span id="selectedCount">0</span> <%= t('itemsText') %></span>
                 </div>
                 <div class="flex space-x-2">
                     <button id="bulkApproveBtn" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700">
@@ -132,13 +132,30 @@
                     <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-3">
                     <label for="selectAll" class="text-sm font-medium text-gray-700"><%= t('selectAll') %></label>
                 </div>
-                <div class="text-sm text-gray-500">
-                    <%= t('showing') %> <span id="displayCount">0</span> <%= t('users') %>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-500">
+                        <%= t('showing') %> <span id="displayCount">0</span> <%= t('usersText') %>
+                    </div>
+                    <!-- View Toggle Buttons -->
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500 mr-2"><%= t('viewMode') %>:</span>
+                        <button id="listViewBtn" onclick="switchView('list')" class="px-3 py-1 bg-ruxchai-primary text-white rounded-lg transition-colors">
+                            <i class="fas fa-list mr-1"></i><%= t('listView') %>
+                        </button>
+                        <button id="gridViewBtn" onclick="switchView('grid')" class="px-3 py-1 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors">
+                            <i class="fas fa-th-large mr-1"></i><%= t('gridView') %>
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Users Card Grid -->
             <div id="usersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- User cards will be loaded here -->
+            </div>
+
+            <!-- Users List View -->
+            <div id="usersList" class="hidden space-y-3">
                 <!-- User cards will be loaded here -->
             </div>
 
@@ -258,7 +275,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-envelope text-gray-400 mr-1"></i>
-                                    <%= t('email') %> <span class="text-red-500">*</span>
+                                    <%= t('emailAddress') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="email" name="email" id="emailInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -267,7 +284,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-phone text-gray-400 mr-1"></i>
-                                    <%= t('phone') %> <span class="text-red-500">*</span>
+                                    <%= t('phoneNumber') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="tel" name="phone" id="phoneInput"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -292,7 +309,7 @@
                             <div id="branchField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-code-branch text-gray-400 mr-1"></i>
-                                    <%= t('branch') %>
+                                    <%= t('branches') %>
                                 </label>
                                 <select name="branch_id" id="branchSelect" onchange="loadOfficesByBranch(this.value)"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
@@ -302,7 +319,7 @@
                             <div id="officeField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-building text-gray-400 mr-1"></i>
-                                    <%= t('office') %>
+                                    <%= t('offices') %>
                                 </label>
                                 <select name="office_id" id="officeSelect" onchange="loadDivisionsByOffice(this.value)"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
@@ -315,7 +332,7 @@
                             <div id="divisionField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-layer-group text-gray-400 mr-1"></i>
-                                    <%= t('division') %>
+                                    <%= t('divisions') %>
                                 </label>
                                 <select name="division_id" id="divisionSelect" onchange="loadDepartmentsByDivision(this.value)"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
@@ -325,7 +342,7 @@
                             <div id="departmentField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-sitemap text-gray-400 mr-1"></i>
-                                    <%= t('department') %> <span class="text-red-500">*</span>
+                                    <%= t('departments') %> <span class="text-red-500">*</span>
                                 </label>
                                 <select name="department_id" id="departmentSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
@@ -334,27 +351,17 @@
                             </div>
                         </div>
 
-                        <!-- Position and Start Date -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div id="positionField">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="fas fa-briefcase text-gray-400 mr-1"></i>
-                                    <%= t('positionName') %> <span class="text-red-500">*</span>
-                                </label>
-                                <select name="position_id" id="addPositionSelect"
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value=""><%= t('selectPosition') %></option>
-                                    <!-- Positions will be loaded dynamically -->
-                                </select>
-                            </div>
-                            <div id="startDateField">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="fas fa-calendar-alt text-gray-400 mr-1"></i>
-                                    <%= t('startDate') %>
-                                </label>
-                                <input type="date" name="start_date"
-                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                            </div>
+                        <!-- Position -->
+                        <div id="positionField">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-briefcase text-gray-400 mr-1"></i>
+                                <%= t('positionName') %> <span class="text-red-500">*</span>
+                            </label>
+                            <select name="position_id" id="addPositionSelect"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                <option value=""><%= t('selectPosition') %></option>
+                                <!-- Positions will be loaded dynamically -->
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -509,7 +516,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-envelope text-gray-400 mr-1"></i>
-                                    <%= t('email') %> <span class="text-red-500">*</span>
+                                    <%= t('emailAddress') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="email" name="email" id="editEmail" required
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -518,7 +525,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-phone text-gray-400 mr-1"></i>
-                                    <%= t('phone') %>
+                                    <%= t('phoneNumber') %>
                                 </label>
                                 <input type="tel" name="phone" id="editPhone"
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
@@ -655,9 +662,11 @@ const translations = {
 let currentPage = 1;
 let users = [];
 let selectedUsers = [];
+let currentView = localStorage.getItem('usersView') || 'list'; // 'grid' or 'list'
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
+    switchView(currentView, false); // Initialize view from localStorage
     loadUsers();
     loadOrganizationUnits();
     loadPositions();
@@ -747,10 +756,57 @@ async function loadUsers() {
 
 // Display users
 function displayUsers() {
-    const grid = document.getElementById('usersGrid');
     const displayCount = document.getElementById('displayCount');
-    grid.innerHTML = users.map(user => createUserCard(user)).join('');
     displayCount.textContent = users.length;
+
+    if (currentView === 'grid') {
+        const grid = document.getElementById('usersGrid');
+        grid.innerHTML = users.map(user => createUserCard(user)).join('');
+    } else {
+        const listView = document.getElementById('usersList');
+        listView.innerHTML = users.map(user => createUserRow(user)).join('');
+    }
+}
+
+// Switch between grid and list view
+function switchView(view, save = true) {
+    currentView = view;
+
+    const gridView = document.getElementById('usersGrid');
+    const listView = document.getElementById('usersList');
+    const gridBtn = document.getElementById('gridViewBtn');
+    const listBtn = document.getElementById('listViewBtn');
+
+    if (view === 'grid') {
+        gridView.classList.remove('hidden');
+        gridView.classList.add('grid');
+        listView.classList.add('hidden');
+        listView.classList.remove('space-y-3');
+
+        gridBtn.classList.remove('bg-gray-200', 'text-gray-600');
+        gridBtn.classList.add('bg-ruxchai-primary', 'text-white');
+
+        listBtn.classList.remove('bg-ruxchai-primary', 'text-white');
+        listBtn.classList.add('bg-gray-200', 'text-gray-600');
+    } else {
+        gridView.classList.add('hidden');
+        gridView.classList.remove('grid');
+        listView.classList.remove('hidden');
+        listView.classList.add('space-y-3');
+
+        listBtn.classList.remove('bg-gray-200', 'text-gray-600');
+        listBtn.classList.add('bg-ruxchai-primary', 'text-white');
+
+        gridBtn.classList.remove('bg-ruxchai-primary', 'text-white');
+        gridBtn.classList.add('bg-gray-200', 'text-gray-600');
+    }
+
+    // Save preference to localStorage
+    if (save) {
+        localStorage.setItem('usersView', view);
+    }
+
+    displayUsers();
 }
 
 // Create user card
@@ -792,7 +848,7 @@ function createUserCard(user) {
                 <div class="text-sm">
                     <div class="flex items-center justify-center mb-1">
                         <i class="fas fa-building text-gray-400 mr-2 text-xs"></i>
-                        <span class="text-gray-700 font-medium">${user.department_name || 'ไม่ระบุแผนก'}</span>
+                        <span class="text-gray-700 font-medium">${user.department_name || translations.noDepartment}</span>
                     </div>
                     ${user.position ? `
                         <div class="flex items-center justify-center">
@@ -807,7 +863,7 @@ function createUserCard(user) {
             <div class="text-center mb-4 pb-4 border-b border-gray-200">
                 <p class="text-xs text-gray-500">
                     <i class="fas fa-clock mr-1"></i>
-                    ${user.last_active ? 'เข้าใช้: ' + formatDate(user.last_active) : 'ยังไม่เคยเข้าใช้'}
+                    ${user.last_active ? translations.lastActive + ': ' + formatDate(user.last_active) : translations.lastActiveNever}
                 </p>
             </div>
 
@@ -815,32 +871,118 @@ function createUserCard(user) {
             <div class="flex justify-center space-x-2">
                 <button onclick="viewUser(${user.user_id})"
                         class="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
-                        title="ดูรายละเอียด">
-                    <i class="fas fa-eye mr-1"></i>ดู
+                        title="${translations.viewDetails}">
+                    <i class="fas fa-eye mr-1"></i>${translations.view}
                 </button>
                 <button onclick="editUser(${user.user_id})"
                         class="flex-1 bg-green-50 text-green-600 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
-                        title="แก้ไข">
-                    <i class="fas fa-edit mr-1"></i>แก้ไข
+                        title="${translations.editAction}">
+                    <i class="fas fa-edit mr-1"></i>${translations.edit}
                 </button>
                 ${user.status !== 'suspended' ? `
                     <button onclick="suspendUser(${user.user_id})"
                             class="flex-1 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
-                            title="ระงับ">
-                        <i class="fas fa-ban mr-1"></i>ระงับ
+                            title="${translations.suspendAction}">
+                        <i class="fas fa-ban mr-1"></i>${translations.suspend}
                     </button>
                 ` : `
                     <button onclick="activateUser(${user.user_id})"
                             class="flex-1 bg-green-50 text-green-600 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
-                            title="เปิดใช้">
-                        <i class="fas fa-check mr-1"></i>เปิด
+                            title="${translations.activateAction}">
+                        <i class="fas fa-check mr-1"></i>${translations.activate}
                     </button>
                 `}
                 <button onclick="deleteUser(${user.user_id})"
                         class="bg-gray-50 text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors text-sm"
-                        title="ลบ">
+                        title="${translations.deleteAction}">
                     <i class="fas fa-trash"></i>
                 </button>
+            </div>
+        </div>
+    `;
+}
+
+// Create user row for list view (card style)
+function createUserRow(user) {
+    const statusBadge = getStatusBadge(user.status);
+    const roleBadge = getRoleBadge(user.role);
+    const roleColor = user.role === 'admin' ? 'purple' : user.role === 'hr' ? 'blue' : user.role === 'manager' ? 'orange' : 'green';
+
+    return `
+        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <!-- Left: User Info -->
+                <div class="flex items-center flex-1">
+                    <div class="w-12 h-12 rounded-lg bg-${roleColor}-100 flex items-center justify-center mr-4 relative">
+                        <img class="w-12 h-12 rounded-lg object-cover"
+                             src="${user.profile_image || '/images/default-avatar.png'}"
+                             alt="${user.first_name} ${user.last_name}">
+                        ${user.is_active ? '<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>' : ''}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <h3 class="font-semibold text-gray-900 text-lg">${user.first_name} ${user.last_name}</h3>
+                            ${roleBadge}
+                            ${statusBadge}
+                        </div>
+                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope text-gray-400 mr-1"></i>
+                                <span>${user.email}</span>
+                            </div>
+                            ${user.phone ? `
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone text-gray-400 mr-1"></i>
+                                    <span>${user.phone}</span>
+                                </div>
+                            ` : ''}
+                            ${user.department_name ? `
+                                <div class="flex items-center">
+                                    <i class="fas fa-building text-gray-400 mr-1"></i>
+                                    <span>${user.department_name}</span>
+                                </div>
+                            ` : ''}
+                            ${user.position ? `
+                                <div class="flex items-center">
+                                    <i class="fas fa-briefcase text-gray-400 mr-1"></i>
+                                    <span>${user.position}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Action Buttons -->
+                <div class="flex items-center space-x-2 ml-4">
+                    <button onclick="viewUser(${user.user_id})"
+                            class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+                            title="${translations.viewDetails}">
+                        <i class="fas fa-eye mr-1"></i>${translations.viewDetails}
+                    </button>
+                    <button onclick="editUser(${user.user_id})"
+                            class="bg-green-50 text-green-600 hover:bg-green-100 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+                            title="${translations.editAction}">
+                        <i class="fas fa-edit mr-1"></i>${translations.editAction}
+                    </button>
+                    ${user.status !== 'suspended' ? `
+                        <button onclick="suspendUser(${user.user_id})"
+                                class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors text-sm"
+                                title="${translations.suspendAction}">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    ` : `
+                        <button onclick="activateUser(${user.user_id})"
+                                class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors text-sm"
+                                title="${translations.activateAction}">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    `}
+                    <button onclick="deleteUser(${user.user_id})"
+                            class="bg-gray-50 text-gray-600 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors text-sm"
+                            title="${translations.deleteAction}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -849,21 +991,21 @@ function createUserCard(user) {
 // Status and role badges
 function getStatusBadge(status) {
     const badges = {
-        active: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">ใช้งานอยู่</span>',
-        inactive: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">ไม่ใช้งาน</span>',
-        pending: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">รอการอนุมัติ</span>',
-        suspended: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">ถูกระงับ</span>'
+        active: `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${translations.statusActive}</span>`,
+        inactive: `<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">${translations.statusInactive}</span>`,
+        pending: `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">${translations.statusPending}</span>`,
+        suspended: `<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">${translations.statusSuspended}</span>`
     };
     return badges[status] || '';
 }
 
 function getRoleBadge(role) {
     const badges = {
-        admin: '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">ผู้ดูแลระบบ</span>',
-        hr: '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">HR</span>',
-        manager: '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">ผู้จัดการ</span>',
-        employee: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">พนักงาน</span>',
-        learner: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">ผู้เรียน</span>'
+        admin: `<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">${translations.roleAdmin}</span>`,
+        hr: `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${translations.roleHR}</span>`,
+        manager: `<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">${translations.roleManager}</span>`,
+        employee: `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${translations.roleEmployee}</span>`,
+        learner: `<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">${translations.roleLearner}</span>`
     };
     return badges[role] || '';
 }
@@ -885,15 +1027,15 @@ async function loadOrganizationUnits() {
 
             // Load branches for add user form
             if (branchSelect) {
-                branchSelect.innerHTML = '<option value="">-- เลือกสาขา --</option>' +
+                branchSelect.innerHTML = `<option value="">${translations.selectBranch}</option>` +
                     branches.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
             }
 
             // Keep department filter for backward compatibility
             if (departmentFilter) {
-                departmentFilter.innerHTML = '<option value="">หน่วยงานทั้งหมด</option>' +
+                departmentFilter.innerHTML = `<option value="">${translations.allDepartments}</option>` +
                     data.data.map(unit => {
-                        const levelName = unit.level_name_th || 'หน่วยงาน';
+                        const levelName = unit.level_name_th || translations.unit;
                         return `<option value="${unit.unit_id}">${levelName} ${unit.unit_name_th}</option>`;
                     }).join('');
             }
@@ -910,9 +1052,9 @@ async function loadOfficesByBranch(branchId) {
     const departmentSelect = document.getElementById('departmentSelect');
 
     // Reset child dropdowns
-    officeSelect.innerHTML = '<option value="">-- เลือกสำนัก --</option>';
-    divisionSelect.innerHTML = '<option value="">-- เลือกฝ่าย --</option>';
-    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+    officeSelect.innerHTML = `<option value="">${translations.selectOffice}</option>`;
+    divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>`;
+    departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
 
     if (!branchId) return;
 
@@ -921,7 +1063,7 @@ async function loadOfficesByBranch(branchId) {
         const data = await response.json();
 
         if (data.success && data.data) {
-            officeSelect.innerHTML = '<option value="">-- เลือกสำนัก --</option>' +
+            officeSelect.innerHTML = `<option value="">${translations.selectOffice}</option>` +
                 data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
         }
     } catch (error) {
@@ -935,8 +1077,8 @@ async function loadDivisionsByOffice(officeId) {
     const departmentSelect = document.getElementById('departmentSelect');
 
     // Reset child dropdowns
-    divisionSelect.innerHTML = '<option value="">-- เลือกฝ่าย --</option>';
-    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+    divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>`;
+    departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
 
     if (!officeId) return;
 
@@ -945,7 +1087,7 @@ async function loadDivisionsByOffice(officeId) {
         const data = await response.json();
 
         if (data.success && data.data) {
-            divisionSelect.innerHTML = '<option value="">-- เลือกฝ่าย --</option>' +
+            divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>` +
                 data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
         }
     } catch (error) {
@@ -958,7 +1100,7 @@ async function loadDepartmentsByDivision(divisionId) {
     const departmentSelect = document.getElementById('departmentSelect');
 
     // Reset dropdown
-    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+    departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
 
     if (!divisionId) return;
 
@@ -967,7 +1109,7 @@ async function loadDepartmentsByDivision(divisionId) {
         const data = await response.json();
 
         if (data.success && data.data) {
-            departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>' +
+            departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>` +
                 data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
         }
     } catch (error) {
@@ -990,12 +1132,12 @@ async function loadPositions() {
             ).join('');
 
             if (positionSelect) {
-                positionSelect.innerHTML = '<option value="">เลือกตำแหน่ง</option>' + positionsHTML;
+                positionSelect.innerHTML = `<option value="">${translations.selectPosition}</option>` + positionsHTML;
             }
 
             // Load positions for applicants too
             if (appliedPositionSelect) {
-                appliedPositionSelect.innerHTML = '<option value="">เลือกตำแหน่งที่สมัคร</option>' + positionsHTML;
+                appliedPositionSelect.innerHTML = `<option value="">${translations.selectAppliedPosition}</option>` + positionsHTML;
             }
         }
     } catch (error) {
@@ -1170,7 +1312,7 @@ async function handleAddUser(e) {
 
         // Check password confirmation
         if (formData.get('password') !== formData.get('confirm_password')) {
-            showMessage('รหัสผ่านไม่ตรงกัน', 'error');
+            showMessage(translations.passwordMismatch, 'error');
             return;
         }
 
@@ -1182,15 +1324,15 @@ async function handleAddUser(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('เพิ่มผู้ใช้เรียบร้อยแล้ว', 'success');
+            showMessage(translations.userAddedSuccess, 'success');
             closeAddModal();
             loadUsers();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error adding user:', error);
-        showMessage('เกิดข้อผิดพลาดในการเพิ่มผู้ใช้', 'error');
+        showMessage(translations.userAddError, 'error');
     }
 }
 
@@ -1204,18 +1346,26 @@ async function editUser(userId) {
             const user = data.user;
 
             document.getElementById('editUserId').value = user.user_id;
-            document.getElementById('editFirstName').value = user.first_name;
-            document.getElementById('editLastName').value = user.last_name;
-            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editFirstName').value = user.first_name || '';
+            document.getElementById('editLastName').value = user.last_name || '';
+            document.getElementById('editEmail').value = user.email || '';
             document.getElementById('editPhone').value = user.phone || '';
-            document.getElementById('editRole').value = user.role;
-            document.getElementById('editStatus').value = user.status;
+            document.getElementById('editRole').value = user.role || '';
+
+            // Convert is_active to status format
+            let status = 'inactive';
+            if (user.is_active) {
+                status = 'active';
+            }
+            document.getElementById('editStatus').value = status;
 
             document.getElementById('editUserModal').classList.remove('hidden');
+        } else {
+            showMessage(data.message || translations.errorLoadingUser, 'error');
         }
     } catch (error) {
         console.error('Error loading user:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+        showMessage(translations.errorLoadingUser, 'error');
     }
 }
 
@@ -1227,7 +1377,12 @@ async function handleEditUser(e) {
         const formData = new FormData(e.target);
         const userId = formData.get('user_id');
 
-        const response = await fetch(`/users/${userId}`, {
+        // Convert status back to is_active
+        const status = formData.get('status');
+        formData.delete('status');
+        formData.append('is_active', status === 'active' ? true : false);
+
+        const response = await fetch(`/users/api/${userId}`, {
             method: 'PUT',
             body: formData
         });
@@ -1235,87 +1390,87 @@ async function handleEditUser(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('แก้ไขข้อมูลเรียบร้อยแล้ว', 'success');
+            showMessage(translations.userEditedSuccess, 'success');
             closeEditModal();
             loadUsers();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error editing user:', error);
-        showMessage('เกิดข้อผิดพลาดในการแก้ไข', 'error');
+        showMessage(translations.userEditError, 'error');
     }
 }
 
 // View user details
 function viewUser(userId) {
-    window.location.href = `/users/${userId}`;
+    window.location.href = `/users/${userId}/view`;
 }
 
 // Suspend user
 async function suspendUser(userId) {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะระงับการใช้งานของผู้ใช้นี้?')) return;
+    if (!confirm(translations.confirmSuspendUser)) return;
 
     try {
-        const response = await fetch(`/users/${userId}/suspend`, {
+        const response = await fetch(`/users/api/${userId}/suspend`, {
             method: 'POST'
         });
 
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ระงับการใช้งานเรียบร้อยแล้ว', 'success');
+            showMessage(translations.userSuspendedSuccess, 'success');
             loadUsers();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error suspending user:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(translations.error, 'error');
     }
 }
 
 // Activate user
 async function activateUser(userId) {
     try {
-        const response = await fetch(`/users/${userId}/activate`, {
+        const response = await fetch(`/users/api/${userId}/activate`, {
             method: 'POST'
         });
 
         const data = await response.json();
 
         if (data.success) {
-            showMessage('เปิดใช้งานเรียบร้อยแล้ว', 'success');
+            showMessage(translations.userActivatedSuccess, 'success');
             loadUsers();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error activating user:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(translations.error, 'error');
     }
 }
 
 // Delete user
 async function deleteUser(userId) {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้? การกระทำนี้ไม่สามารถยกเลิกได้')) return;
+    if (!confirm(translations.confirmDeleteUser)) return;
 
     try {
-        const response = await fetch(`/users/${userId}`, {
+        const response = await fetch(`/users/api/${userId}`, {
             method: 'DELETE'
         });
 
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ลบผู้ใช้เรียบร้อยแล้ว', 'success');
+            showMessage(translations.userDeletedSuccess, 'success');
             loadUsers();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error deleting user:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(translations.error, 'error');
     }
 }
 
@@ -1324,12 +1479,12 @@ async function handleBulkAction(action) {
     if (selectedUsers.length === 0) return;
 
     const actionText = {
-        approve: 'อนุมัติ',
-        suspend: 'ระงับ',
-        delete: 'ลบ'
+        approve: translations.approveAction,
+        suspend: translations.suspendAction,
+        delete: translations.deleteAction
     };
 
-    if (!confirm(`คุณแน่ใจหรือไม่ที่จะ${actionText[action]}ผู้ใช้ที่เลือก ${selectedUsers.length} คน?`)) return;
+    if (!confirm(translations.confirmBulkAction.replace('{action}', actionText[action]).replace('{count}', selectedUsers.length))) return;
 
     try {
         const response = await fetch(`/users/bulk/${action}`, {
@@ -1343,15 +1498,15 @@ async function handleBulkAction(action) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage(`${actionText[action]}ผู้ใช้เรียบร้อยแล้ว`, 'success');
+            showMessage(translations.bulkActionSuccess.replace('{action}', actionText[action]), 'success');
             clearSelection();
             loadUsers();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || translations.error, 'error');
         }
     } catch (error) {
         console.error('Error performing bulk action:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(translations.error, 'error');
     }
 }
 
@@ -1374,7 +1529,7 @@ async function exportUsers() {
         window.open(`/users/export?${params}`, '_blank');
     } catch (error) {
         console.error('Error exporting users:', error);
-        showMessage('เกิดข้อผิดพลาดในการส่งออกข้อมูล', 'error');
+        showMessage(translations.exportError, 'error');
     }
 }
 

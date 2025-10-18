@@ -241,18 +241,23 @@ app.use((err, req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
 
+    // Get translation function
+    const { getTranslation } = require('./utils/languages');
+    const lang = req.language || req.session?.language || 'th';
+    const t = (key) => getTranslation(lang, key);
+
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
         res.status(500).json({
             success: false,
             message: process.env.NODE_ENV === 'production'
-                ? 'Internal server error'
+                ? t('error')
                 : err.message
         });
     } else {
         res.status(500).render('error', {
-            title: 'เกิดข้อผิดพลาด',
+            title: t('error'),
             message: process.env.NODE_ENV === 'production'
-                ? 'เกิดข้อผิดพลาดภายในระบบ'
+                ? t('errorLoadingData')
                 : err.message,
             error: process.env.NODE_ENV === 'production' ? {} : err
         });
@@ -261,15 +266,20 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use((req, res) => {
+    // Get translation function
+    const { getTranslation } = require('./utils/languages');
+    const lang = req.language || req.session?.language || 'th';
+    const t = (key) => getTranslation(lang, key);
+
     if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
         res.status(404).json({
             success: false,
-            message: 'ไม่พบหน้าที่ต้องการ'
+            message: t('pageNotFound')
         });
     } else {
         res.status(404).render('error', {
-            title: 'ไม่พบหน้าที่ต้องการ',
-            message: 'หน้าที่คุณกำลังมองหาไม่มีอยู่ในระบบ',
+            title: t('pageNotFound'),
+            message: t('pageNotFound'),
             error: {}
         });
     }

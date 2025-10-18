@@ -4,15 +4,15 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Create New User</h1>
-            <p class="text-gray-600 mt-2">Add a new user to the <%= typeof getSetting === 'function' ? getSetting('site_name', 'LearnHub').replace('Rukchai Hongyen ', '') : 'LearnHub' %> system</p>
+            <h1 class="text-3xl font-bold text-gray-900"><%= t('createNewUser') %></h1>
+            <p class="text-gray-600 mt-2"><%= t('addNewUserToSystem') %></p>
         </div>
         <div class="flex space-x-3">
             <button onclick="previewUser()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                <i class="fas fa-eye mr-2"></i>Preview
+                <i class="fas fa-eye mr-2"></i><%= t('preview') %>
             </button>
             <a href="/admin/users" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Users
+                <i class="fas fa-arrow-left mr-2"></i><%= t('backToUsers') %>
             </a>
         </div>
     </div>
@@ -22,22 +22,22 @@
         <div class="flex items-center space-x-4">
             <div class="step-indicator active" data-step="1">
                 <div class="step-circle">1</div>
-                <span class="step-label">Basic Information</span>
+                <span class="step-label"><%= t('basicInformation') %></span>
             </div>
             <div class="step-line"></div>
             <div class="step-indicator" data-step="2">
                 <div class="step-circle">2</div>
-                <span class="step-label">Role & Permissions</span>
+                <span class="step-label"><%= t('rolePermissions') %></span>
             </div>
             <div class="step-line"></div>
             <div class="step-indicator" data-step="3">
                 <div class="step-circle">3</div>
-                <span class="step-label">Profile Details</span>
+                <span class="step-label"><%= t('profileDetails') %></span>
             </div>
             <div class="step-line"></div>
             <div class="step-indicator" data-step="4">
                 <div class="step-circle">4</div>
-                <span class="step-label">Review & Create</span>
+                <span class="step-label"><%= t('reviewCreate') %></span>
             </div>
         </div>
     </div>
@@ -46,25 +46,25 @@
         <!-- Step 1: Basic Information -->
         <div id="step-1" class="step-content active">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('basicInformation') %></h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Username -->
                     <div>
                         <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                            Username <span class="text-red-500">*</span>
+                            <%= t('username') %> <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="username" name="username" required
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Enter unique username">
-                        <div class="mt-1 text-sm text-gray-500">This will be used for login</div>
+                               placeholder="<%= t('enterUniqueUsername') %>">
+                        <div class="mt-1 text-sm text-gray-500"><%= t('usernameWillBeUsedForLogin') %></div>
                         <div id="username-availability" class="mt-1 text-sm"></div>
                     </div>
 
                     <!-- Email -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                            Email Address <span class="text-red-500">*</span>
+                            <%= t('emailAddress') %> <span class="text-red-500">*</span>
                         </label>
                         <input type="email" id="email" name="email" required
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -75,58 +75,58 @@
                     <!-- First Name -->
                     <div>
                         <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
-                            First Name <span class="text-red-500">*</span>
+                            <%= t('firstName') %> <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="first_name" name="first_name" required
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Enter first name">
+                               placeholder="<%= t('enterFirstName') %>">
                     </div>
 
                     <!-- Last Name -->
                     <div>
                         <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
-                            Last Name <span class="text-red-500">*</span>
+                            <%= t('lastName') %> <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="last_name" name="last_name" required
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Enter last name">
+                               placeholder="<%= t('enterLastName') %>">
                     </div>
 
                     <!-- Password -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            Password <span class="text-red-500">*</span>
+                            <%= t('password') %> <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input type="password" id="password" name="password" required
                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                   placeholder="Enter password">
+                                   placeholder="<%= t('enterPassword') %>">
                             <button type="button" onclick="togglePassword('password')"
                                     class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                 <i class="fas fa-eye text-gray-400"></i>
                             </button>
                         </div>
                         <div class="mt-1">
-                            <div class="text-sm text-gray-500">Password strength:</div>
+                            <div class="text-sm text-gray-500"><%= t('passwordStrength') %>:</div>
                             <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
                                 <div id="password-strength-bar" class="h-2 rounded-full transition-all duration-300"></div>
                             </div>
                             <div id="password-requirements" class="mt-2 text-sm">
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-times text-red-500" id="length-check"></i>
-                                    <span>At least 8 characters</span>
+                                    <span><%= t('atLeast8Characters') %></span>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-times text-red-500" id="uppercase-check"></i>
-                                    <span>At least one uppercase letter</span>
+                                    <span><%= t('atLeastOneUppercase') %></span>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-times text-red-500" id="lowercase-check"></i>
-                                    <span>At least one lowercase letter</span>
+                                    <span><%= t('atLeastOneLowercase') %></span>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <i class="fas fa-times text-red-500" id="number-check"></i>
-                                    <span>At least one number</span>
+                                    <span><%= t('atLeastOneNumber') %></span>
                                 </div>
                             </div>
                         </div>
@@ -135,12 +135,12 @@
                     <!-- Confirm Password -->
                     <div>
                         <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
-                            Confirm Password <span class="text-red-500">*</span>
+                            <%= t('confirmPassword') %> <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input type="password" id="confirm_password" name="confirm_password" required
                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                   placeholder="Confirm password">
+                                   placeholder="<%= t('confirmPassword') %>">
                             <button type="button" onclick="togglePassword('confirm_password')"
                                     class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                 <i class="fas fa-eye text-gray-400"></i>
@@ -154,12 +154,12 @@
                 <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h4 class="text-sm font-medium text-gray-900">Auto-generate secure password</h4>
-                            <p class="text-sm text-gray-600">Generate a random secure password and send it via email</p>
+                            <h4 class="text-sm font-medium text-gray-900"><%= t('autoGeneratePassword') %></h4>
+                            <p class="text-sm text-gray-600"><%= t('autoGeneratePasswordDescription') %></p>
                         </div>
                         <button type="button" onclick="generatePassword()"
                                 class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                            Generate
+                            <%= t('generate') %>
                         </button>
                     </div>
                 </div>
@@ -167,7 +167,7 @@
                 <div class="flex justify-between mt-6">
                     <div></div>
                     <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                        Next <i class="fas fa-arrow-right ml-2"></i>
+                        <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -176,12 +176,12 @@
         <!-- Step 2: Role & Permissions -->
         <div id="step-2" class="step-content">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Role & Permissions</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('rolePermissions') %></h3>
 
                 <!-- User Role -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        User Role <span class="text-red-500">*</span>
+                        <%= t('userRole') %> <span class="text-red-500">*</span>
                     </label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="role-card" data-role="student">
@@ -190,9 +190,9 @@
                                 <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
                                     <div class="flex items-center mb-2">
                                         <i class="fas fa-user-graduate text-2xl text-blue-600 mr-3"></i>
-                                        <h4 class="font-semibold">Student</h4>
+                                        <h4 class="font-semibold"><%= t('student') %></h4>
                                     </div>
-                                    <p class="text-sm text-gray-600">Can enroll in courses and take tests</p>
+                                    <p class="text-sm text-gray-600"><%= t('canEnrollInCourses') %></p>
                                 </div>
                             </label>
                         </div>
@@ -203,9 +203,9 @@
                                 <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
                                     <div class="flex items-center mb-2">
                                         <i class="fas fa-chalkboard-teacher text-2xl text-green-600 mr-3"></i>
-                                        <h4 class="font-semibold">Instructor</h4>
+                                        <h4 class="font-semibold"><%= t('instructor') %></h4>
                                     </div>
-                                    <p class="text-sm text-gray-600">Can create and manage courses</p>
+                                    <p class="text-sm text-gray-600"><%= t('canCreateManageCourses') %></p>
                                 </div>
                             </label>
                         </div>
@@ -216,9 +216,9 @@
                                 <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
                                     <div class="flex items-center mb-2">
                                         <i class="fas fa-user-shield text-2xl text-red-600 mr-3"></i>
-                                        <h4 class="font-semibold">Administrator</h4>
+                                        <h4 class="font-semibold"><%= t('admin') %></h4>
                                     </div>
-                                    <p class="text-sm text-gray-600">Full system access and management</p>
+                                    <p class="text-sm text-gray-600"><%= t('fullSystemAccess') %></p>
                                 </div>
                             </label>
                         </div>
@@ -228,41 +228,41 @@
                 <!-- Department -->
                 <div class="mb-6">
                     <label for="department" class="block text-sm font-medium text-gray-700 mb-2">
-                        Department
+                        <%= t('department') %>
                     </label>
                     <select id="department" name="department"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select Department</option>
-                        <option value="IT">Information Technology</option>
-                        <option value="HR">Human Resources</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Operations">Operations</option>
-                        <option value="Sales">Sales</option>
-                        <option value="Other">Other</option>
+                        <option value=""><%= t('selectDepartment') %></option>
+                        <option value="IT"><%= t('informationTechnology') %></option>
+                        <option value="HR"><%= t('humanResources') %></option>
+                        <option value="Finance"><%= t('finance') %></option>
+                        <option value="Marketing"><%= t('marketing') %></option>
+                        <option value="Operations"><%= t('operations') %></option>
+                        <option value="Sales"><%= t('sales') %></option>
+                        <option value="Other"><%= t('other') %></option>
                     </select>
                 </div>
 
                 <!-- Custom Permissions (for non-admin users) -->
                 <div id="custom-permissions" class="mb-6 hidden">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Custom Permissions</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('customPermissions') %></label>
                     <div class="border border-gray-200 rounded-lg p-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <label class="flex items-center">
                                 <input type="checkbox" name="permissions[]" value="manage_courses" class="mr-2">
-                                <span class="text-sm">Manage Courses</span>
+                                <span class="text-sm"><%= t('manageCourses') %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="permissions[]" value="manage_tests" class="mr-2">
-                                <span class="text-sm">Manage Tests</span>
+                                <span class="text-sm"><%= t('manageTests') %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="permissions[]" value="view_reports" class="mr-2">
-                                <span class="text-sm">View Reports</span>
+                                <span class="text-sm"><%= t('viewReports') %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="permissions[]" value="manage_users" class="mr-2">
-                                <span class="text-sm">Manage Users</span>
+                                <span class="text-sm"><%= t('manageUsers') %></span>
                             </label>
                         </div>
                     </div>
@@ -270,33 +270,33 @@
 
                 <!-- Account Settings -->
                 <div class="mb-6">
-                    <h4 class="text-sm font-medium text-gray-700 mb-3">Account Settings</h4>
+                    <h4 class="text-sm font-medium text-gray-700 mb-3"><%= t('accountSettings') %></h4>
                     <div class="space-y-3">
                         <label class="flex items-center">
                             <input type="checkbox" name="is_active" checked class="mr-2">
-                            <span class="text-sm">Account is active</span>
+                            <span class="text-sm"><%= t('accountIsActive') %></span>
                         </label>
                         <label class="flex items-center">
                             <input type="checkbox" name="email_verified" class="mr-2">
-                            <span class="text-sm">Email is verified</span>
+                            <span class="text-sm"><%= t('emailIsVerified') %></span>
                         </label>
                         <label class="flex items-center">
                             <input type="checkbox" name="require_password_change" checked class="mr-2">
-                            <span class="text-sm">Require password change on first login</span>
+                            <span class="text-sm"><%= t('requirePasswordChangeOnFirstLogin') %></span>
                         </label>
                         <label class="flex items-center">
                             <input type="checkbox" name="send_welcome_email" checked class="mr-2">
-                            <span class="text-sm">Send welcome email</span>
+                            <span class="text-sm"><%= t('sendWelcomeEmail') %></span>
                         </label>
                     </div>
                 </div>
 
                 <div class="flex justify-between mt-6">
                     <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
-                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
                     </button>
                     <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                        Next <i class="fas fa-arrow-right ml-2"></i>
+                        <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -305,12 +305,12 @@
         <!-- Step 3: Profile Details -->
         <div id="step-3" class="step-content">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Profile Details</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('profileDetails') %></h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Profile Picture -->
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('profilePicture') %></label>
                         <div class="flex items-center space-x-6">
                             <div class="shrink-0">
                                 <img id="profile-preview" class="h-20 w-20 object-cover rounded-full border-2 border-gray-300"
@@ -318,17 +318,17 @@
                             </div>
                             <div class="flex-1">
                                 <label for="profile_picture" class="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50">
-                                    Choose file
+                                    <%= t('chooseFile') %>
                                 </label>
                                 <input id="profile_picture" name="profile_picture" type="file" class="hidden" accept="image/*">
-                                <p class="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</p>
+                                <p class="mt-1 text-xs text-gray-500"><%= t('pngJpgUpTo2MB') %></p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Phone -->
                     <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2"><%= t('phoneNumber') %></label>
                         <input type="tel" id="phone" name="phone"
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                placeholder="+66 XX-XXX-XXXX">
@@ -336,68 +336,68 @@
 
                     <!-- Date of Birth -->
                     <div>
-                        <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                        <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-2"><%= t('dateOfBirth') %></label>
                         <input type="date" id="date_of_birth" name="date_of_birth"
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
 
                     <!-- Gender -->
                     <div>
-                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-2"><%= t('gender') %></label>
                         <select id="gender" name="gender"
                                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                            <option value="prefer_not_to_say">Prefer not to say</option>
+                            <option value=""><%= t('selectGender') %></option>
+                            <option value="male"><%= t('male') %></option>
+                            <option value="female"><%= t('female') %></option>
+                            <option value="other"><%= t('other') %></option>
+                            <option value="prefer_not_to_say"><%= t('preferNotToSay') %></option>
                         </select>
                     </div>
 
                     <!-- Position/Title -->
                     <div>
-                        <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Position/Title</label>
+                        <label for="position" class="block text-sm font-medium text-gray-700 mb-2"><%= t('positionTitle') %></label>
                         <input type="text" id="position" name="position"
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Job title or position">
+                               placeholder="<%= t('jobTitleOrPosition') %>">
                     </div>
 
                     <!-- Employee ID -->
                     <div>
-                        <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
+                        <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('employeeID') %></label>
                         <input type="text" id="employee_id" name="employee_id"
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Employee ID (if applicable)">
+                               placeholder="<%= t('employeeIDIfApplicable') %>">
                     </div>
 
                     <!-- Manager -->
                     <div>
-                        <label for="manager_id" class="block text-sm font-medium text-gray-700 mb-2">Manager</label>
+                        <label for="manager_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('manager') %></label>
                         <select id="manager_id" name="manager_id"
                                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select Manager</option>
+                            <option value=""><%= t('selectManager') %></option>
                             <!-- Will be populated dynamically -->
                         </select>
                     </div>
 
                     <!-- Bio -->
                     <div class="md:col-span-2">
-                        <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Bio/Description</label>
+                        <label for="bio" class="block text-sm font-medium text-gray-700 mb-2"><%= t('bioDescription') %></label>
                         <textarea id="bio" name="bio" rows="4"
                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  placeholder="Brief description about the user"></textarea>
+                                  placeholder="<%= t('briefDescriptionAboutUser') %>"></textarea>
                         <div class="mt-1 text-sm text-gray-500">
-                            <span id="bio-count">0</span>/500 characters
+                            <span id="bio-count">0</span>/500 <%= t('characters') %>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex justify-between mt-6">
                     <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
-                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
                     </button>
                     <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                        Next <i class="fas fa-arrow-right ml-2"></i>
+                        <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -406,7 +406,7 @@
         <!-- Step 4: Review & Create -->
         <div id="step-4" class="step-content">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Review & Create User</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('reviewCreateUser') %></h3>
 
                 <div id="user-preview" class="space-y-6">
                     <!-- User preview will be populated here -->
@@ -414,14 +414,14 @@
 
                 <div class="flex justify-between mt-6">
                     <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
-                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
                     </button>
                     <div class="flex space-x-3">
                         <button type="button" onclick="saveDraft()" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700">
-                            <i class="fas fa-save mr-2"></i>Save Draft
+                            <i class="fas fa-save mr-2"></i><%= t('saveDraft') %>
                         </button>
                         <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
-                            <i class="fas fa-user-plus mr-2"></i>Create User
+                            <i class="fas fa-user-plus mr-2"></i><%= t('createUser') %>
                         </button>
                     </div>
                 </div>
@@ -436,7 +436,7 @@
         <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">User Preview</h3>
+                    <h3 class="text-lg font-semibold text-gray-900"><%= t('userPreview') %></h3>
                     <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
                     </button>
@@ -456,7 +456,7 @@
     <div class="bg-white rounded-lg p-6">
         <div class="flex items-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3">Creating user...</span>
+            <span class="ml-3"><%= t('creatingUser') %></span>
         </div>
     </div>
 </div>
@@ -528,6 +528,36 @@ let currentStep = 1;
 let formData = new FormData();
 const totalSteps = 4;
 
+// Translation object for JavaScript strings
+const translations = {
+    usernameAvailable: '<%= t("usernameAvailable") %>',
+    usernameAlreadyTaken: '<%= t("usernameAlreadyTaken") %>',
+    emailAvailable: '<%= t("emailAvailable") %>',
+    emailAlreadyRegistered: '<%= t("emailAlreadyRegistered") %>',
+    passwordsMatch: '<%= t("passwordsMatch") %>',
+    passwordMismatch: '<%= t("passwordMismatch") %>',
+    selectManager: '<%= t("selectManager") %>',
+    userCreatedSuccessfully: '<%= t("userCreatedSuccessfully") %>',
+    failedToCreateUser: '<%= t("failedToCreateUser") %>',
+    errorCreatingUser: '<%= t("errorCreatingUser") %>',
+    draftSavedSuccessfully: '<%= t("draftSavedSuccessfully") %>',
+    failedToSaveDraft: '<%= t("failedToSaveDraft") %>',
+    errorSavingDraft: '<%= t("errorSavingDraft") %>',
+    pleaseFillInAllRequiredFieldsCorrectly: '<%= t("pleaseFillInAllRequiredFieldsCorrectly") %>',
+    passwordDoesNotMeetSecurityRequirements: '<%= t("passwordDoesNotMeetSecurityRequirements") %>',
+    emailVerified: '<%= t("emailVerified") %>',
+    emailNotVerified: '<%= t("emailNotVerified") %>',
+    requiresPasswordChangeOnFirstLogin: '<%= t("requiresPasswordChangeOnFirstLogin") %>',
+    welcomeEmailWillBeSent: '<%= t("welcomeEmailWillBeSent") %>',
+    accountSettings: '<%= t("accountSettings") %>',
+    phoneNumber: '<%= t("phoneNumber") %>',
+    positionTitle: '<%= t("positionTitle") %>',
+    employeeID: '<%= t("employeeID") %>',
+    status: '<%= t("status") %>',
+    active: '<%= t("active") %>',
+    inactive: '<%= t("inactive") %>'
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize form
     initializeForm();
@@ -562,7 +592,7 @@ async function loadManagers() {
 
         if (data.success) {
             const managerSelect = document.getElementById('manager_id');
-            managerSelect.innerHTML = '<option value="">Select Manager</option>';
+            managerSelect.innerHTML = `<option value="">${translations.selectManager}</option>`;
 
             data.managers.forEach(manager => {
                 const option = document.createElement('option');
@@ -639,18 +669,18 @@ function validateCurrentStep() {
         const confirmPassword = document.getElementById('confirm_password').value;
 
         if (password !== confirmPassword) {
-            showError('Passwords do not match');
+            showError(translations.passwordsMatch);
             isValid = false;
         }
 
         if (!isPasswordStrong(password)) {
-            showError('Password does not meet security requirements');
+            showError(translations.passwordDoesNotMeetSecurityRequirements);
             isValid = false;
         }
     }
 
     if (!isValid) {
-        showError('Please fill in all required fields correctly');
+        showError(translations.pleaseFillInAllRequiredFieldsCorrectly);
     }
 
     return isValid;
@@ -670,9 +700,9 @@ async function checkUsernameAvailability() {
         const data = await response.json();
 
         if (data.available) {
-            indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Username available</span>';
+            indicator.innerHTML = `<i class="fas fa-check text-green-500"></i> <span class="text-green-500">${translations.usernameAvailable}</span>`;
         } else {
-            indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Username already taken</span>';
+            indicator.innerHTML = `<i class="fas fa-times text-red-500"></i> <span class="text-red-500">${translations.usernameAlreadyTaken}</span>`;
         }
     } catch (error) {
         console.error('Error checking username:', error);
@@ -693,9 +723,9 @@ async function checkEmailAvailability() {
         const data = await response.json();
 
         if (data.available) {
-            indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Email available</span>';
+            indicator.innerHTML = `<i class="fas fa-check text-green-500"></i> <span class="text-green-500">${translations.emailAvailable}</span>`;
         } else {
-            indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Email already registered</span>';
+            indicator.innerHTML = `<i class="fas fa-times text-red-500"></i> <span class="text-red-500">${translations.emailAlreadyRegistered}</span>`;
         }
     } catch (error) {
         console.error('Error checking email:', error);
@@ -750,9 +780,9 @@ function checkPasswordMatch() {
     }
 
     if (password === confirmPassword) {
-        indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Passwords match</span>';
+        indicator.innerHTML = `<i class="fas fa-check text-green-500"></i> <span class="text-green-500">${translations.passwordsMatch}</span>`;
     } else {
-        indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Passwords do not match</span>';
+        indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">' + translations.passwordMismatch + '</span>';
     }
 }
 
@@ -871,34 +901,34 @@ function generatePreview() {
             <div class="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 text-sm">
                 ${formData.get('phone') ? `
                     <div>
-                        <span class="font-medium text-gray-700">Phone:</span>
+                        <span class="font-medium text-gray-700">${translations.phoneNumber}:</span>
                         <span class="text-gray-600 ml-2">${formData.get('phone')}</span>
                     </div>
                 ` : ''}
                 ${formData.get('position') ? `
                     <div>
-                        <span class="font-medium text-gray-700">Position:</span>
+                        <span class="font-medium text-gray-700">${translations.positionTitle}:</span>
                         <span class="text-gray-600 ml-2">${formData.get('position')}</span>
                     </div>
                 ` : ''}
                 ${formData.get('employee_id') ? `
                     <div>
-                        <span class="font-medium text-gray-700">Employee ID:</span>
+                        <span class="font-medium text-gray-700">${translations.employeeID}:</span>
                         <span class="text-gray-600 ml-2">${formData.get('employee_id')}</span>
                     </div>
                 ` : ''}
                 <div>
-                    <span class="font-medium text-gray-700">Status:</span>
-                    <span class="text-gray-600 ml-2">${formData.get('is_active') ? 'Active' : 'Inactive'}</span>
+                    <span class="font-medium text-gray-700">${translations.status}:</span>
+                    <span class="text-gray-600 ml-2">${formData.get('is_active') ? translations.active : translations.inactive}</span>
                 </div>
             </div>
 
             <div class="mt-4 pt-4 border-t border-gray-200">
-                <h5 class="font-medium text-gray-700 mb-2">Account Settings:</h5>
+                <h5 class="font-medium text-gray-700 mb-2">${translations.accountSettings}:</h5>
                 <div class="text-sm text-gray-600 space-y-1">
-                    ${formData.get('email_verified') ? '<div>✓ Email verified</div>' : '<div>✗ Email not verified</div>'}
-                    ${formData.get('require_password_change') ? '<div>✓ Requires password change on first login</div>' : ''}
-                    ${formData.get('send_welcome_email') ? '<div>✓ Welcome email will be sent</div>' : ''}
+                    ${formData.get('email_verified') ? '<div>✓ ' + translations.emailVerified + '</div>' : '<div>✗ ' + translations.emailNotVerified + '</div>'}
+                    ${formData.get('require_password_change') ? '<div>✓ ' + translations.requiresPasswordChangeOnFirstLogin + '</div>' : ''}
+                    ${formData.get('send_welcome_email') ? '<div>✓ ' + translations.welcomeEmailWillBeSent + '</div>' : ''}
                 </div>
             </div>
         </div>
@@ -936,16 +966,16 @@ async function submitUser(event) {
         const data = await response.json();
 
         if (data.success) {
-            showSuccess('User created successfully!');
+            showSuccess(translations.userCreatedSuccessfully);
             setTimeout(() => {
                 window.location.href = '/admin/users';
             }, 2000);
         } else {
-            showError(data.message || 'Failed to create user');
+            showError(data.message || translations.failedToCreateUser);
         }
     } catch (error) {
         console.error('Error creating user:', error);
-        showError('Error creating user');
+        showError(translations.errorCreatingUser);
     } finally {
         showLoading(false);
     }
@@ -966,13 +996,13 @@ async function saveDraft() {
         const data = await response.json();
 
         if (data.success) {
-            showSuccess('Draft saved successfully!');
+            showSuccess(translations.draftSavedSuccessfully);
         } else {
-            showError(data.message || 'Failed to save draft');
+            showError(data.message || translations.failedToSaveDraft);
         }
     } catch (error) {
         console.error('Error saving draft:', error);
-        showError('Error saving draft');
+        showError(translations.errorSavingDraft);
     } finally {
         showLoading(false);
     }

@@ -4,18 +4,18 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Edit User</h1>
-            <p class="text-gray-600 mt-2">Modify user information and settings</p>
+            <h1 class="text-3xl font-bold text-gray-900"><%= t('editUser') %></h1>
+            <p class="text-gray-600 mt-2"><%= t('editUserData') %></p>
         </div>
         <div class="flex space-x-3">
             <button onclick="resetPassword()" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
-                <i class="fas fa-key mr-2"></i>Reset Password
+                <i class="fas fa-key mr-2"></i><%= t('password') %>
             </button>
             <button onclick="previewUser()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                <i class="fas fa-eye mr-2"></i>Preview
+                <i class="fas fa-eye mr-2"></i><%= t('preview') %>
             </button>
             <a href="/admin/users" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Users
+                <i class="fas fa-arrow-left mr-2"></i><%= t('backToUsers') %>
             </a>
         </div>
     </div>
@@ -48,15 +48,15 @@
 
                 <div class="mt-6 space-y-4">
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Last Login:</span>
+                        <span class="text-sm text-gray-600"><%= t('lastLogin') %>:</span>
                         <span id="last-login" class="text-sm font-medium"></span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Member Since:</span>
+                        <span class="text-sm text-gray-600"><%= t('createAccount') %>:</span>
                         <span id="created-date" class="text-sm font-medium"></span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Total Logins:</span>
+                        <span class="text-sm text-gray-600"><%= t('login') %>:</span>
                         <span id="login-count" class="text-sm font-medium"></span>
                     </div>
                 </div>
@@ -64,32 +64,32 @@
 
             <!-- Recent Activity -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h4>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4"><%= t('recentArticles') %></h4>
                 <div id="recent-activity" class="space-y-3">
                     <!-- Activity items will be populated here -->
                 </div>
-                <a href="#" class="text-sm text-blue-600 hover:text-blue-800 mt-4 inline-block">View all activity</a>
+                <a href="#" class="text-sm text-blue-600 hover:text-blue-800 mt-4 inline-block"><%= t('viewAll') %></a>
             </div>
 
             <!-- User Statistics -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4">Statistics</h4>
+                <h4 class="text-lg font-semibold text-gray-900 mb-4"><%= t('statistics') %></h4>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="text-center">
                         <div id="courses-completed" class="text-2xl font-bold text-green-600">0</div>
-                        <div class="text-sm text-gray-600">Courses Completed</div>
+                        <div class="text-sm text-gray-600"><%= t('completedCourses') %></div>
                     </div>
                     <div class="text-center">
                         <div id="tests-taken" class="text-2xl font-bold text-blue-600">0</div>
-                        <div class="text-sm text-gray-600">Tests Taken</div>
+                        <div class="text-sm text-gray-600"><%= t('tests') %></div>
                     </div>
                     <div class="text-center">
                         <div id="avg-score" class="text-2xl font-bold text-purple-600">0%</div>
-                        <div class="text-sm text-gray-600">Average Score</div>
+                        <div class="text-sm text-gray-600"><%= t('averageScore') %></div>
                     </div>
                     <div class="text-center">
                         <div id="certificates-earned" class="text-2xl font-bold text-yellow-600">0</div>
-                        <div class="text-sm text-gray-600">Certificates</div>
+                        <div class="text-sm text-gray-600"><%= t('badges') %></div>
                     </div>
                 </div>
             </div>
@@ -102,16 +102,16 @@
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
                         <button onclick="showTab('basic')" class="tab-button active py-4 px-1 border-b-2 border-blue-500 text-blue-600 text-sm font-medium">
-                            Basic Information
+                            <%= t('basicInformation') %>
                         </button>
                         <button onclick="showTab('role')" class="tab-button py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 text-sm font-medium">
-                            Role & Permissions
+                            <%= t('rolePermissions') %>
                         </button>
                         <button onclick="showTab('profile')" class="tab-button py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 text-sm font-medium">
-                            Profile Details
+                            <%= t('profileDetails') %>
                         </button>
                         <button onclick="showTab('settings')" class="tab-button py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 text-sm font-medium">
-                            Account Settings
+                            <%= t('accountSettings') %>
                         </button>
                     </nav>
                 </div>
@@ -121,24 +121,24 @@
 
                     <!-- Basic Information Tab -->
                     <div id="tab-basic" class="tab-content active p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('basicInformation') %></h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Username -->
                             <div>
                                 <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Username <span class="text-red-500">*</span>
+                                    <%= t('username') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="username" name="username" required
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="Enter unique username">
+                                       placeholder="<%= t('enterUniqueUsername') %>">
                                 <div id="username-availability" class="mt-1 text-sm"></div>
                             </div>
 
                             <!-- Email -->
                             <div>
                                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Email Address <span class="text-red-500">*</span>
+                                    <%= t('emailAddress') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="email" id="email" name="email" required
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -149,26 +149,26 @@
                             <!-- First Name -->
                             <div>
                                 <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                    First Name <span class="text-red-500">*</span>
+                                    <%= t('firstName') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="first_name" name="first_name" required
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="Enter first name">
+                                       placeholder="<%= t('enterFirstName') %>">
                             </div>
 
                             <!-- Last Name -->
                             <div>
                                 <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Last Name <span class="text-red-500">*</span>
+                                    <%= t('lastName') %> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="last_name" name="last_name" required
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="Enter last name">
+                                       placeholder="<%= t('enterLastName') %>">
                             </div>
 
                             <!-- Phone -->
                             <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2"><%= t('phoneNumber') %></label>
                                 <input type="tel" id="phone" name="phone"
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="+66 XX-XXX-XXXX">
@@ -176,7 +176,7 @@
 
                             <!-- Date of Birth -->
                             <div>
-                                <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                                <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-2"><%= t('dateOfBirth') %></label>
                                 <input type="date" id="date_of_birth" name="date_of_birth"
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
@@ -184,25 +184,25 @@
 
                         <!-- Bio -->
                         <div class="mt-6">
-                            <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Bio/Description</label>
+                            <label for="bio" class="block text-sm font-medium text-gray-700 mb-2"><%= t('bioDescription') %></label>
                             <textarea id="bio" name="bio" rows="4"
                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                      placeholder="Brief description about the user"></textarea>
+                                      placeholder="<%= t('briefDescriptionAboutUser') %>"></textarea>
                             <div class="mt-1 text-sm text-gray-500">
-                                <span id="bio-count">0</span>/500 characters
+                                <span id="bio-count">0</span>/500 <%= t('characters') %>
                             </div>
                         </div>
                     </div>
 
                     <!-- Role & Permissions Tab -->
                     <div id="tab-role" class="tab-content p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Role & Permissions</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('rolePermissions') %></h3>
 
                         <!-- Current Role Display -->
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <h4 class="font-medium text-gray-900">Current Role</h4>
+                                    <h4 class="font-medium text-gray-900"><%= t('role') %></h4>
                                     <p id="current-role-desc" class="text-sm text-gray-600"></p>
                                 </div>
                                 <span id="current-role-badge" class="px-3 py-1 rounded-full text-sm font-medium"></span>
@@ -212,7 +212,7 @@
                         <!-- Role Selection -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Change Role <span class="text-red-500">*</span>
+                                <%= t('userRole') %> <span class="text-red-500">*</span>
                             </label>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div class="role-card" data-role="student">
@@ -221,9 +221,9 @@
                                         <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
                                             <div class="flex items-center mb-2">
                                                 <i class="fas fa-user-graduate text-2xl text-blue-600 mr-3"></i>
-                                                <h4 class="font-semibold">Student</h4>
+                                                <h4 class="font-semibold"><%= t('student') %></h4>
                                             </div>
-                                            <p class="text-sm text-gray-600">Can enroll in courses and take tests</p>
+                                            <p class="text-sm text-gray-600"><%= t('canEnrollInCourses') %></p>
                                         </div>
                                     </label>
                                 </div>
@@ -234,9 +234,9 @@
                                         <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
                                             <div class="flex items-center mb-2">
                                                 <i class="fas fa-chalkboard-teacher text-2xl text-green-600 mr-3"></i>
-                                                <h4 class="font-semibold">Instructor</h4>
+                                                <h4 class="font-semibold"><%= t('instructor') %></h4>
                                             </div>
-                                            <p class="text-sm text-gray-600">Can create and manage courses</p>
+                                            <p class="text-sm text-gray-600"><%= t('canCreateManageCourses') %></p>
                                         </div>
                                     </label>
                                 </div>
@@ -247,9 +247,9 @@
                                         <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
                                             <div class="flex items-center mb-2">
                                                 <i class="fas fa-user-shield text-2xl text-red-600 mr-3"></i>
-                                                <h4 class="font-semibold">Administrator</h4>
+                                                <h4 class="font-semibold"><%= t('admin') %></h4>
                                             </div>
-                                            <p class="text-sm text-gray-600">Full system access and management</p>
+                                            <p class="text-sm text-gray-600"><%= t('fullSystemAccess') %></p>
                                         </div>
                                     </label>
                                 </div>
@@ -258,26 +258,26 @@
 
                         <!-- Department -->
                         <div class="mb-6">
-                            <label for="department" class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                            <label for="department" class="block text-sm font-medium text-gray-700 mb-2"><%= t('department') %></label>
                             <select id="department" name="department"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <option value="">Select Department</option>
-                                <option value="IT">Information Technology</option>
-                                <option value="HR">Human Resources</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Operations">Operations</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Other">Other</option>
+                                <option value=""><%= t('selectDepartment') %></option>
+                                <option value="IT"><%= t('informationTechnology') %></option>
+                                <option value="HR"><%= t('humanResources') %></option>
+                                <option value="Finance"><%= t('finance') %></option>
+                                <option value="Marketing"><%= t('marketing') %></option>
+                                <option value="Operations"><%= t('operations') %></option>
+                                <option value="Sales"><%= t('sales') %></option>
+                                <option value="Other"><%= t('other') %></option>
                             </select>
                         </div>
 
                         <!-- Manager -->
                         <div class="mb-6">
-                            <label for="manager_id" class="block text-sm font-medium text-gray-700 mb-2">Manager</label>
+                            <label for="manager_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('manager') %></label>
                             <select id="manager_id" name="manager_id"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <option value="">Select Manager</option>
+                                <option value=""><%= t('selectManager') %></option>
                                 <!-- Will be populated dynamically -->
                             </select>
                         </div>
@@ -287,10 +287,8 @@
                             <div class="flex">
                                 <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
                                 <div class="ml-3">
-                                    <h4 class="text-sm font-medium text-yellow-800">Role Change Warning</h4>
-                                    <p class="text-sm text-yellow-700 mt-1">
-                                        Changing the user's role will affect their permissions and access to system features.
-                                        This action cannot be undone automatically.
+                                    <h4 class="text-sm font-medium text-yellow-800"><%= t('role') %></h4>
+                                    <p class="text-sm text-yellow-700 mt-1" id="role-warning-text">
                                     </p>
                                 </div>
                             </div>
@@ -299,11 +297,11 @@
 
                     <!-- Profile Details Tab -->
                     <div id="tab-profile" class="tab-content p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Profile Details</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('profileDetails') %></h3>
 
                         <!-- Profile Picture -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('profilePicture') %></label>
                             <div class="flex items-center space-x-6">
                                 <div class="shrink-0">
                                     <img id="profile-preview" class="h-20 w-20 object-cover rounded-full border-2 border-gray-300"
@@ -311,12 +309,11 @@
                                 </div>
                                 <div class="flex-1">
                                     <label for="profile_picture" class="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50">
-                                        Change Picture
+                                        <%= t('chooseFile') %>
                                     </label>
                                     <input id="profile_picture" name="profile_picture" type="file" class="hidden" accept="image/*">
-                                    <p class="mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</p>
-                                    <button type="button" onclick="removeProfilePicture()" class="text-sm text-red-600 hover:text-red-800 mt-2">
-                                        Remove current picture
+                                    <p class="mt-1 text-xs text-gray-500"><%= t('pngJpgUpTo2MB') %></p>
+                                    <button type="button" onclick="removeProfilePicture()" class="text-sm text-red-600 hover:text-red-800 mt-2" id="remove-picture-btn">
                                     </button>
                                 </div>
                             </div>
@@ -325,36 +322,36 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Gender -->
                             <div>
-                                <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                <label for="gender" class="block text-sm font-medium text-gray-700 mb-2"><%= t('gender') %></label>
                                 <select id="gender" name="gender"
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Select Gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                    <option value="prefer_not_to_say">Prefer not to say</option>
+                                    <option value=""><%= t('selectGender') %></option>
+                                    <option value="male"><%= t('male') %></option>
+                                    <option value="female"><%= t('female') %></option>
+                                    <option value="other"><%= t('other') %></option>
+                                    <option value="prefer_not_to_say"><%= t('preferNotToSay') %></option>
                                 </select>
                             </div>
 
                             <!-- Position/Title -->
                             <div>
-                                <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Position/Title</label>
+                                <label for="position" class="block text-sm font-medium text-gray-700 mb-2"><%= t('positionTitle') %></label>
                                 <input type="text" id="position" name="position"
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="Job title or position">
+                                       placeholder="<%= t('jobTitleOrPosition') %>">
                             </div>
 
                             <!-- Employee ID -->
                             <div>
-                                <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
+                                <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('employeeID') %></label>
                                 <input type="text" id="employee_id" name="employee_id"
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="Employee ID (if applicable)">
+                                       placeholder="<%= t('employeeIDIfApplicable') %>">
                             </div>
 
                             <!-- Timezone -->
                             <div>
-                                <label for="timezone" class="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                                <label for="timezone" class="block text-sm font-medium text-gray-700 mb-2"><%= t('settings') %></label>
                                 <select id="timezone" name="timezone"
                                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                                     <option value="Asia/Bangkok">Bangkok (GMT+7)</option>
@@ -368,40 +365,39 @@
 
                     <!-- Account Settings Tab -->
                     <div id="tab-settings" class="tab-content p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('accountSettings') %></h3>
 
                         <!-- Account Status -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Account Status</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('status') %></label>
                             <div class="space-y-3">
                                 <label class="flex items-center">
                                     <input type="checkbox" id="is_active" name="is_active" class="mr-2">
-                                    <span class="text-sm">Account is active</span>
+                                    <span class="text-sm"><%= t('accountIsActive') %></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="email_verified" name="email_verified" class="mr-2">
-                                    <span class="text-sm">Email is verified</span>
+                                    <span class="text-sm"><%= t('emailIsVerified') %></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="is_locked" name="is_locked" class="mr-2">
-                                    <span class="text-sm">Account is locked</span>
+                                    <span class="text-sm" id="account-locked-label"></span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Password Settings -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Password Settings</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('password') %></label>
                             <div class="space-y-3">
                                 <label class="flex items-center">
                                     <input type="checkbox" id="require_password_change" name="require_password_change" class="mr-2">
-                                    <span class="text-sm">Require password change on next login</span>
+                                    <span class="text-sm"><%= t('requirePasswordChangeOnFirstLogin') %></span>
                                 </label>
                                 <div class="flex items-center space-x-3">
-                                    <span class="text-sm text-gray-600">Last password change:</span>
+                                    <span class="text-sm text-gray-600" id="last-password-label"></span>
                                     <span id="last-password-change" class="text-sm font-medium">Never</span>
-                                    <button type="button" onclick="resetPassword()" class="text-sm text-blue-600 hover:text-blue-800">
-                                        Reset now
+                                    <button type="button" onclick="resetPassword()" class="text-sm text-blue-600 hover:text-blue-800" id="reset-now-btn">
                                     </button>
                                 </div>
                             </div>
@@ -409,53 +405,50 @@
 
                         <!-- Login Attempts -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Login Security</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('login') %></label>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <span class="text-gray-600">Failed login attempts:</span>
+                                    <span class="text-gray-600" id="failed-attempts-label"></span>
                                     <span id="failed-attempts" class="font-medium ml-2">0</span>
                                 </div>
                                 <div>
-                                    <span class="text-gray-600">Last failed attempt:</span>
+                                    <span class="text-gray-600" id="last-failed-label"></span>
                                     <span id="last-failed-attempt" class="font-medium ml-2">Never</span>
                                 </div>
                             </div>
                             <button type="button" onclick="clearLoginAttempts()"
-                                    class="mt-2 text-sm text-blue-600 hover:text-blue-800">
-                                Clear failed attempts
+                                    class="mt-2 text-sm text-blue-600 hover:text-blue-800" id="clear-attempts-btn">
                             </button>
                         </div>
 
                         <!-- Notification Preferences -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Email Notifications</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('notifications') %></label>
                             <div class="space-y-3">
                                 <label class="flex items-center">
                                     <input type="checkbox" id="email_notifications" name="email_notifications" class="mr-2" checked>
-                                    <span class="text-sm">Receive email notifications</span>
+                                    <span class="text-sm" id="email-notif-label"></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="course_notifications" name="course_notifications" class="mr-2" checked>
-                                    <span class="text-sm">Course enrollment notifications</span>
+                                    <span class="text-sm" id="course-notif-label"></span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="test_notifications" name="test_notifications" class="mr-2" checked>
-                                    <span class="text-sm">Test and assessment notifications</span>
+                                    <span class="text-sm" id="test-notif-label"></span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Danger Zone -->
                         <div class="border border-red-200 rounded-lg p-4 bg-red-50">
-                            <h4 class="text-sm font-medium text-red-800 mb-2">Danger Zone</h4>
+                            <h4 class="text-sm font-medium text-red-800 mb-2" id="danger-zone-title"></h4>
                             <div class="space-y-3">
                                 <button type="button" onclick="suspendUser()"
-                                        class="text-sm text-red-600 hover:text-red-800 block">
-                                    Suspend this user account
+                                        class="text-sm text-red-600 hover:text-red-800 block" id="suspend-user-btn">
                                 </button>
                                 <button type="button" onclick="deleteUser()"
-                                        class="text-sm text-red-600 hover:text-red-800 block">
-                                    Permanently delete this user
+                                        class="text-sm text-red-600 hover:text-red-800 block" id="delete-user-btn">
                                 </button>
                             </div>
                         </div>
@@ -465,14 +458,13 @@
                     <div class="border-t border-gray-200 px-6 py-4">
                         <div class="flex justify-between items-center">
                             <div class="text-sm text-gray-500">
-                                Last updated: <span id="last-updated">Never</span>
+                                <span id="last-updated-label"></span> <span id="last-updated">Never</span>
                             </div>
                             <div class="flex space-x-3">
-                                <button type="button" onclick="discardChanges()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
-                                    Discard Changes
+                                <button type="button" onclick="discardChanges()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600" id="discard-btn">
                                 </button>
                                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                                    <i class="fas fa-save mr-2"></i>Save Changes
+                                    <i class="fas fa-save mr-2"></i><%= t('saveChanges') %>
                                 </button>
                             </div>
                         </div>
@@ -489,7 +481,7 @@
         <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">User Preview</h3>
+                    <h3 class="text-lg font-semibold text-gray-900"><%= t('userPreview') %></h3>
                     <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
                     </button>
@@ -514,16 +506,14 @@
                         <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
                     </div>
                     <div>
-                        <h3 id="confirm-title" class="text-lg font-semibold text-gray-900">Confirm Action</h3>
+                        <h3 id="confirm-title" class="text-lg font-semibold text-gray-900"></h3>
                     </div>
                 </div>
                 <p id="confirm-message" class="text-gray-600 mb-6"></p>
                 <div class="flex justify-end space-x-3">
-                    <button onclick="closeConfirmDialog()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
-                        Cancel
+                    <button onclick="closeConfirmDialog()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600" id="cancel-btn">
                     </button>
                     <button id="confirm-action-btn" onclick="confirmAction()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                        Confirm
                     </button>
                 </div>
             </div>
@@ -536,7 +526,7 @@
     <div class="bg-white rounded-lg p-6">
         <div class="flex items-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3">Updating user...</span>
+            <span class="ml-3" id="loading-text"></span>
         </div>
     </div>
 </div>
@@ -578,7 +568,116 @@ let originalData = {};
 let currentUserId = null;
 let confirmCallback = null;
 
+// Translations object for JavaScript
+const translations = {
+    editUser: '<%= t("editUser") %>',
+    editUserData: '<%= t("editUserData") %>',
+    preview: '<%= t("preview") %>',
+    backToUsers: '<%= t("backToUsers") %>',
+    basicInformation: '<%= t("basicInformation") %>',
+    rolePermissions: '<%= t("rolePermissions") %>',
+    profileDetails: '<%= t("profileDetails") %>',
+    accountSettings: '<%= t("accountSettings") %>',
+    username: '<%= t("username") %>',
+    emailAddress: '<%= t("emailAddress") %>',
+    firstName: '<%= t("firstName") %>',
+    lastName: '<%= t("lastName") %>',
+    phoneNumber: '<%= t("phoneNumber") %>',
+    dateOfBirth: '<%= t("dateOfBirth") %>',
+    bioDescription: '<%= t("bioDescription") %>',
+    characters: '<%= t("characters") %>',
+    usernameAvailable: '<%= t("usernameAvailable") %>',
+    usernameAlreadyTaken: '<%= t("usernameAlreadyTaken") %>',
+    emailAvailable: '<%= t("emailAvailable") %>',
+    emailAlreadyRegistered: '<%= t("emailAlreadyRegistered") %>',
+    userRole: '<%= t("userRole") %>',
+    student: '<%= t("student") %>',
+    instructor: '<%= t("instructor") %>',
+    admin: '<%= t("admin") %>',
+    canEnrollInCourses: '<%= t("canEnrollInCourses") %>',
+    canCreateManageCourses: '<%= t("canCreateManageCourses") %>',
+    fullSystemAccess: '<%= t("fullSystemAccess") %>',
+    department: '<%= t("department") %>',
+    selectDepartment: '<%= t("selectDepartment") %>',
+    selectManager: '<%= t("selectManager") %>',
+    manager: '<%= t("manager") %>',
+    profilePicture: '<%= t("profilePicture") %>',
+    chooseFile: '<%= t("chooseFile") %>',
+    gender: '<%= t("gender") %>',
+    selectGender: '<%= t("selectGender") %>',
+    male: '<%= t("male") %>',
+    female: '<%= t("female") %>',
+    other: '<%= t("other") %>',
+    preferNotToSay: '<%= t("preferNotToSay") %>',
+    positionTitle: '<%= t("positionTitle") %>',
+    employeeID: '<%= t("employeeID") %>',
+    accountIsActive: '<%= t("accountIsActive") %>',
+    emailIsVerified: '<%= t("emailIsVerified") %>',
+    requirePasswordChangeOnFirstLogin: '<%= t("requirePasswordChangeOnFirstLogin") %>',
+    userPreview: '<%= t("userPreview") %>',
+    saveChanges: '<%= t("saveChanges") %>',
+    cancel: '<%= t("cancel") %>',
+    confirm: '<%= t("confirm") %>',
+    userEditedSuccess: '<%= t("userEditedSuccess") %>',
+    failedToCreateUser: '<%= t("failedToCreateUser") %>',
+    errorCreatingUser: '<%= t("errorCreatingUser") %>',
+    errorUpdatingUser: '<%= t("errorUpdatingUser") %>',
+    errorLoadingUserData: '<%= t("errorLoadingUserData") %>',
+    loading: '<%= t("loading") %>',
+    loadingShort: '<%= t("loadingShort") %>',
+    never: '<%= t("never") || "Never" %>',
+    verified: '<%= t("emailVerified") || "Verified" %>',
+    locked: '<%= t("statusSuspended") || "Locked" %>',
+    inactive: '<%= t("inactive") %>',
+    active: '<%= t("active") %>',
+    accountLocked: '<%= t("statusSuspended") || "Account is locked" %>',
+    lastPasswordChange: '<%= t("password") %>:',
+    resetNow: '<%= t("password") %>',
+    failedAttempts: '<%= t("login") %>:',
+    lastFailedAttempt: '<%= t("lastLogin") %>:',
+    clearAttempts: '<%= t("cancel") %>',
+    emailNotifications: '<%= t("notifications") %>',
+    courseNotifications: '<%= t("courses") %>',
+    testNotifications: '<%= t("tests") %>',
+    dangerZone: '<%= t("management") %>',
+    suspendUserAccount: '<%= t("suspendUser") %>',
+    deleteUserPermanently: '<%= t("deleteUser") %>',
+    lastUpdated: '<%= t("lastLogin") %>:',
+    discardChanges: '<%= t("cancel") %>',
+    removePicture: '<%= t("delete") %>',
+    roleChangeWarning: '<%= t("role") %>',
+    accountInactive: '<%= t("statusInactive") %>',
+    accountActive: '<%= t("statusActive") %>',
+    emailNotVerified: '<%= t("emailNotVerified") %>',
+    noRecentActivity: '<%= t("noNotifications") %>',
+    viewAllActivity: '<%= t("viewAll") %>',
+    confirmDiscardChanges: '<%= t("confirmDeleteUser") || "Are you sure you want to discard all changes?" %>',
+    changesDiscarded: '<%= t("cancel") %>',
+    passwordReset: '<%= t("password") %>',
+    passwordResetConfirm: '<%= t("password") %>',
+    passwordResetSuccess: '<%= t("userEditedSuccess") %>',
+    failedToResetPassword: '<%= t("error") %>',
+    clearAttemptsTitle: '<%= t("cancel") %>',
+    clearAttemptsConfirm: '<%= t("confirm") %>',
+    clearAttemptsSuccess: '<%= t("userEditedSuccess") %>',
+    failedToClearAttempts: '<%= t("error") %>',
+    suspendUserTitle: '<%= t("suspendUser") %>',
+    suspendUserConfirm: '<%= t("confirmSuspendUser") %>',
+    suspendUserSuccess: '<%= t("userSuspendedSuccess") %>',
+    failedToSuspendUser: '<%= t("error") %>',
+    deleteUserTitle: '<%= t("deleteUser") %>',
+    deleteUserConfirm: '<%= t("confirmDeleteUser") %>',
+    deleteUserSuccess: '<%= t("userDeletedSuccess") %>',
+    failedToDeleteUser: '<%= t("error") %>',
+    error: '<%= t("error") %>',
+    statistics: '<%= t("statistics") %>',
+    employees: '<%= t("employees") %>',
+    management: '<%= t("management") %>'
+};
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize translated labels
+    initializeTranslatedLabels();
     // Get user ID from URL or form
     currentUserId = document.getElementById('user_id').value || getUrlParameter('id');
 
@@ -602,6 +701,27 @@ document.addEventListener('DOMContentLoaded', function() {
     loadManagers();
 });
 
+function initializeTranslatedLabels() {
+    // Update all dynamic text labels with translations
+    document.getElementById('remove-picture-btn').textContent = translations.removePicture;
+    document.getElementById('account-locked-label').textContent = translations.accountLocked;
+    document.getElementById('last-password-label').textContent = translations.lastPasswordChange;
+    document.getElementById('reset-now-btn').textContent = translations.resetNow;
+    document.getElementById('failed-attempts-label').textContent = translations.failedAttempts;
+    document.getElementById('last-failed-label').textContent = translations.lastFailedAttempt;
+    document.getElementById('clear-attempts-btn').textContent = translations.clearAttempts;
+    document.getElementById('email-notif-label').textContent = translations.emailNotifications;
+    document.getElementById('course-notif-label').textContent = translations.courseNotifications;
+    document.getElementById('test-notif-label').textContent = translations.testNotifications;
+    document.getElementById('danger-zone-title').textContent = translations.dangerZone;
+    document.getElementById('suspend-user-btn').textContent = translations.suspendUserAccount;
+    document.getElementById('delete-user-btn').textContent = translations.deleteUserPermanently;
+    document.getElementById('last-updated-label').textContent = translations.lastUpdated;
+    document.getElementById('discard-btn').textContent = translations.discardChanges;
+    document.getElementById('cancel-btn').textContent = translations.cancel;
+    document.getElementById('loading-text').textContent = translations.loading;
+}
+
 function getUrlParameter(name) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
@@ -622,11 +742,11 @@ async function loadUserData() {
             loadUserActivity(currentUserId);
             loadUserStats(currentUserId);
         } else {
-            showError('Failed to load user data');
+            showError(translations.failedToCreateUser);
         }
     } catch (error) {
         console.error('Error loading user:', error);
-        showError('Error loading user data');
+        showError(translations.errorLoadingUserData);
     } finally {
         showLoading(false);
     }
@@ -694,22 +814,22 @@ function populateUserInfo(user) {
     badgesContainer.innerHTML = '';
 
     if (user.email_verified) {
-        badgesContainer.innerHTML += '<span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Verified</span>';
+        badgesContainer.innerHTML += `<span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">${translations.verified}</span>`;
     }
 
     if (user.is_locked) {
-        badgesContainer.innerHTML += '<span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Locked</span>';
+        badgesContainer.innerHTML += `<span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">${translations.locked}</span>`;
     }
 
     if (!user.is_active) {
-        badgesContainer.innerHTML += '<span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Inactive</span>';
+        badgesContainer.innerHTML += `<span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">${translations.inactive}</span>`;
     }
 
     // Dates
     if (user.last_login) {
         document.getElementById('last-login').textContent = new Date(user.last_login).toLocaleDateString();
     } else {
-        document.getElementById('last-login').textContent = 'Never';
+        document.getElementById('last-login').textContent = translations.never;
     }
 
     document.getElementById('created-date').textContent = new Date(user.created_at).toLocaleDateString();
@@ -721,11 +841,13 @@ function populateUserInfo(user) {
     if (user.last_failed_login) {
         document.getElementById('last-failed-attempt').textContent = new Date(user.last_failed_login).toLocaleString();
     } else {
-        document.getElementById('last-failed-attempt').textContent = 'Never';
+        document.getElementById('last-failed-attempt').textContent = translations.never;
     }
 
     if (user.password_changed_at) {
         document.getElementById('last-password-change').textContent = new Date(user.password_changed_at).toLocaleDateString();
+    } else {
+        document.getElementById('last-password-change').textContent = translations.never;
     }
 
     // Update status banner
@@ -744,8 +866,8 @@ function updateStatusBanner(user) {
             <div class="flex items-center">
                 <i class="fas fa-exclamation-triangle text-red-600 mr-3"></i>
                 <div>
-                    <h4 class="text-red-800 font-medium">Account Inactive</h4>
-                    <p class="text-red-700 text-sm">This user account is currently inactive and cannot access the system.</p>
+                    <h4 class="text-red-800 font-medium">${translations.accountInactive}</h4>
+                    <p class="text-red-700 text-sm">${translations.accountInactive}</p>
                 </div>
             </div>
         `;
@@ -755,8 +877,8 @@ function updateStatusBanner(user) {
             <div class="flex items-center">
                 <i class="fas fa-lock text-orange-600 mr-3"></i>
                 <div>
-                    <h4 class="text-orange-800 font-medium">Account Locked</h4>
-                    <p class="text-orange-700 text-sm">This account is locked due to failed login attempts or security reasons.</p>
+                    <h4 class="text-orange-800 font-medium">${translations.locked}</h4>
+                    <p class="text-orange-700 text-sm">${translations.accountLocked}</p>
                 </div>
             </div>
         `;
@@ -766,8 +888,8 @@ function updateStatusBanner(user) {
             <div class="flex items-center">
                 <i class="fas fa-envelope text-yellow-600 mr-3"></i>
                 <div>
-                    <h4 class="text-yellow-800 font-medium">Email Not Verified</h4>
-                    <p class="text-yellow-700 text-sm">This user hasn't verified their email address yet.</p>
+                    <h4 class="text-yellow-800 font-medium">${translations.emailNotVerified}</h4>
+                    <p class="text-yellow-700 text-sm">${translations.emailNotVerified}</p>
                 </div>
             </div>
         `;
@@ -777,8 +899,8 @@ function updateStatusBanner(user) {
             <div class="flex items-center">
                 <i class="fas fa-check-circle text-green-600 mr-3"></i>
                 <div>
-                    <h4 class="text-green-800 font-medium">Account Active</h4>
-                    <p class="text-green-700 text-sm">This user account is active and functioning normally.</p>
+                    <h4 class="text-green-800 font-medium">${translations.accountActive}</h4>
+                    <p class="text-green-700 text-sm">${translations.active}</p>
                 </div>
             </div>
         `;
@@ -787,15 +909,15 @@ function updateStatusBanner(user) {
 
 function updateCurrentRoleDisplay(role) {
     const roleNames = {
-        student: 'Student',
-        instructor: 'Instructor',
-        admin: 'Administrator'
+        student: translations.student,
+        instructor: translations.instructor,
+        admin: translations.admin
     };
 
     const roleDescriptions = {
-        student: 'Can enroll in courses, take tests, and view progress',
-        instructor: 'Can create and manage courses, tests, and view student progress',
-        admin: 'Has full system access including user management and system settings'
+        student: translations.canEnrollInCourses,
+        instructor: translations.canCreateManageCourses,
+        admin: translations.fullSystemAccess
     };
 
     const roleColors = {
@@ -832,7 +954,7 @@ async function loadUserActivity(userId) {
             });
 
             if (data.activities.length === 0) {
-                activityContainer.innerHTML = '<p class="text-sm text-gray-500">No recent activity</p>';
+                activityContainer.innerHTML = `<p class="text-sm text-gray-500">${translations.noRecentActivity}</p>`;
             }
         }
     } catch (error) {
@@ -865,7 +987,7 @@ async function loadManagers() {
             const managerSelect = document.getElementById('manager_id');
             const currentValue = managerSelect.value;
 
-            managerSelect.innerHTML = '<option value="">Select Manager</option>';
+            managerSelect.innerHTML = `<option value="">${translations.selectManager}</option>`;
 
             data.managers.forEach(manager => {
                 if (manager.user_id !== currentUserId) { // Don't allow user to be their own manager
@@ -948,9 +1070,9 @@ async function checkUsernameAvailability() {
         const data = await response.json();
 
         if (data.available) {
-            indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Username available</span>';
+            indicator.innerHTML = `<i class="fas fa-check text-green-500"></i> <span class="text-green-500">${translations.usernameAvailable}</span>`;
         } else {
-            indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Username already taken</span>';
+            indicator.innerHTML = `<i class="fas fa-times text-red-500"></i> <span class="text-red-500">${translations.usernameAlreadyTaken}</span>`;
         }
     } catch (error) {
         console.error('Error checking username:', error);
@@ -971,9 +1093,9 @@ async function checkEmailAvailability() {
         const data = await response.json();
 
         if (data.available) {
-            indicator.innerHTML = '<i class="fas fa-check text-green-500"></i> <span class="text-green-500">Email available</span>';
+            indicator.innerHTML = `<i class="fas fa-check text-green-500"></i> <span class="text-green-500">${translations.emailAvailable}</span>`;
         } else {
-            indicator.innerHTML = '<i class="fas fa-times text-red-500"></i> <span class="text-red-500">Email already registered</span>';
+            indicator.innerHTML = `<i class="fas fa-times text-red-500"></i> <span class="text-red-500">${translations.emailAlreadyRegistered}</span>`;
         }
     } catch (error) {
         console.error('Error checking email:', error);
@@ -1024,24 +1146,24 @@ async function submitForm(event) {
         const data = await response.json();
 
         if (data.success) {
-            showSuccess('User updated successfully!');
+            showSuccess(translations.userEditedSuccess);
             // Reload user data to show updated information
             await loadUserData();
         } else {
-            showError(data.message || 'Failed to update user');
+            showError(data.message || translations.failedToCreateUser);
         }
     } catch (error) {
         console.error('Error updating user:', error);
-        showError('Error updating user');
+        showError(translations.errorUpdatingUser);
     } finally {
         showLoading(false);
     }
 }
 
 function discardChanges() {
-    if (confirm('Are you sure you want to discard all changes?')) {
+    if (confirm(translations.confirmDiscardChanges)) {
         populateForm(originalData);
-        showSuccess('Changes discarded');
+        showSuccess(translations.changesDiscarded);
     }
 }
 
@@ -1096,9 +1218,9 @@ function closePreview() {
 
 function resetPassword() {
     showConfirmDialog(
-        'Reset Password',
-        'Are you sure you want to reset this user\'s password? A new temporary password will be generated and sent to their email.',
-        'Reset Password',
+        translations.passwordReset,
+        translations.passwordResetConfirm,
+        translations.passwordReset,
         async () => {
             try {
                 const response = await fetch(`/users/api/${currentUserId}/reset-password`, {
@@ -1108,13 +1230,13 @@ function resetPassword() {
                 const data = await response.json();
 
                 if (data.success) {
-                    showSuccess('Password reset successfully. New password sent to user\'s email.');
+                    showSuccess(translations.passwordResetSuccess);
                 } else {
-                    showError(data.message || 'Failed to reset password');
+                    showError(data.message || translations.failedToResetPassword);
                 }
             } catch (error) {
                 console.error('Error resetting password:', error);
-                showError('Error resetting password');
+                showError(translations.failedToResetPassword);
             }
         }
     );
@@ -1122,9 +1244,9 @@ function resetPassword() {
 
 function clearLoginAttempts() {
     showConfirmDialog(
-        'Clear Failed Attempts',
-        'This will reset the failed login attempt counter to zero.',
-        'Clear Attempts',
+        translations.clearAttemptsTitle,
+        translations.clearAttemptsConfirm,
+        translations.clearAttempts,
         async () => {
             try {
                 const response = await fetch(`/users/api/${currentUserId}/clear-attempts`, {
@@ -1134,14 +1256,14 @@ function clearLoginAttempts() {
                 const data = await response.json();
 
                 if (data.success) {
-                    showSuccess('Failed login attempts cleared');
+                    showSuccess(translations.clearAttemptsSuccess);
                     document.getElementById('failed-attempts').textContent = '0';
                 } else {
-                    showError(data.message || 'Failed to clear attempts');
+                    showError(data.message || translations.failedToClearAttempts);
                 }
             } catch (error) {
                 console.error('Error clearing attempts:', error);
-                showError('Error clearing attempts');
+                showError(translations.failedToClearAttempts);
             }
         }
     );
@@ -1149,9 +1271,9 @@ function clearLoginAttempts() {
 
 function suspendUser() {
     showConfirmDialog(
-        'Suspend User Account',
-        'This will temporarily suspend the user account. The user will not be able to log in until the account is reactivated.',
-        'Suspend Account',
+        translations.suspendUserTitle,
+        translations.suspendUserConfirm,
+        translations.suspendUser,
         async () => {
             try {
                 const response = await fetch(`/users/api/${currentUserId}/suspend`, {
@@ -1161,14 +1283,14 @@ function suspendUser() {
                 const data = await response.json();
 
                 if (data.success) {
-                    showSuccess('User account suspended');
+                    showSuccess(translations.suspendUserSuccess);
                     await loadUserData();
                 } else {
-                    showError(data.message || 'Failed to suspend account');
+                    showError(data.message || translations.failedToSuspendUser);
                 }
             } catch (error) {
                 console.error('Error suspending user:', error);
-                showError('Error suspending user');
+                showError(translations.failedToSuspendUser);
             }
         }
     );
@@ -1176,9 +1298,9 @@ function suspendUser() {
 
 function deleteUser() {
     showConfirmDialog(
-        'Delete User Account',
-        'This action cannot be undone. All user data, progress, and associated records will be permanently deleted.',
-        'Delete User',
+        translations.deleteUserTitle,
+        translations.deleteUserConfirm,
+        translations.deleteUser,
         async () => {
             try {
                 const response = await fetch(`/users/api/${currentUserId}`, {
@@ -1188,16 +1310,16 @@ function deleteUser() {
                 const data = await response.json();
 
                 if (data.success) {
-                    showSuccess('User deleted successfully');
+                    showSuccess(translations.deleteUserSuccess);
                     setTimeout(() => {
                         window.location.href = '/admin/users';
                     }, 2000);
                 } else {
-                    showError(data.message || 'Failed to delete user');
+                    showError(data.message || translations.failedToDeleteUser);
                 }
             } catch (error) {
                 console.error('Error deleting user:', error);
-                showError('Error deleting user');
+                showError(translations.failedToDeleteUser);
             }
         },
         'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700'

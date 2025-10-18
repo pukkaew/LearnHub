@@ -3,7 +3,7 @@
         <!-- Breadcrumb -->
         <nav class="mb-6">
             <ol class="flex items-center space-x-2 text-sm">
-                <li><a href="/organization" class="text-ruxchai-primary hover:underline">โครงสร้างองค์กร</a></li>
+                <li><a href="/organization" class="text-ruxchai-primary hover:underline"><%= t('organizationStructure') %></a></li>
                 <li class="text-gray-400">/</li>
                 <% if (hierarchyPath && hierarchyPath.length > 0) { %>
                     <% hierarchyPath.reverse().forEach((item, index) => { %>
@@ -52,11 +52,11 @@
             <div class="flex space-x-3">
                 <% if (unit.level_code !== 'COMPANY') { %>
                     <a href="/organization/<%= unit.unit_id %>/edit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                        <i class="fas fa-edit mr-2"></i>แก้ไข
+                        <i class="fas fa-edit mr-2"></i><%= t('edit') %>
                     </a>
                 <% } %>
                 <a href="/organization" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
-                    <i class="fas fa-arrow-left mr-2"></i>กลับ
+                    <i class="fas fa-arrow-left mr-2"></i><%= t('back') %>
                 </a>
             </div>
         </div>
@@ -68,50 +68,50 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <i class="fas fa-info-circle text-ruxchai-primary mr-2"></i>
-                        ข้อมูลพื้นฐาน
+                        <%= t('basicInformation') %>
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">รหัสหน่วยงาน</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('unitCode') %></label>
                             <p class="text-gray-900"><%= unit.unit_code || '-' %></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">ชื่อย่อ</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('unitAbbr') %></label>
                             <p class="text-gray-900"><%= unit.unit_abbr || '-' %></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">ชื่อภาษาอังกฤษ</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('englishName') %></label>
                             <p class="text-gray-900"><%= unit.unit_name_en || '-' %></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">ระดับ</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('unitLevel') %></label>
                             <p class="text-gray-900"><%= unit.level_name_th %></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">หน่วยงานหลัก</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('parentUnitField') %></label>
                             <p class="text-gray-900"><%= unit.parent_name || '-' %></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">ผู้จัดการ</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('manager') %></label>
                             <p class="text-gray-900"><%= unit.manager_name || '-' %></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Cost Center</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('costCenter') %></label>
                             <p class="text-gray-900"><%= unit.cost_center || '-' %></p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">สถานะ</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('status') %></label>
                             <span class="px-3 py-1 rounded-full text-sm font-medium <%=
                                 unit.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
                                 unit.status === 'INACTIVE' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
                             %>">
-                                <%= unit.status === 'ACTIVE' ? 'ใช้งาน' : 'ไม่ใช้งาน' %>
+                                <%= unit.status === 'ACTIVE' ? t('statusActive') : t('statusInactive') %>
                             </span>
                         </div>
                     </div>
                     <% if (unit.description) { %>
                         <div class="mt-4 pt-4 border-t border-gray-200">
-                            <label class="block text-sm font-medium text-gray-500 mb-1">คำอธิบาย</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('description') %></label>
                             <p class="text-gray-900"><%= unit.description %></p>
                         </div>
                     <% } %>
@@ -122,7 +122,7 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                             <i class="fas fa-sitemap text-ruxchai-primary mr-2"></i>
-                            หน่วยงานย่อย (<%= children.length %>)
+                            <%= t('subUnits') %> (<%= children.length %>)
                         </h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <% children.forEach(child => { %>
@@ -160,7 +160,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <i class="fas fa-chart-bar text-ruxchai-primary mr-2"></i>
-                        สถิติ
+                        <%= t('statistics') %>
                     </h2>
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
@@ -169,7 +169,7 @@
                                     <i class="fas fa-users text-blue-600"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">พนักงาน</p>
+                                    <p class="text-sm text-gray-500"><%= t('employees') %></p>
                                     <p class="text-xl font-bold text-gray-900"><%= unit.employee_count || 0 %></p>
                                 </div>
                             </div>
@@ -180,7 +180,7 @@
                                     <i class="fas fa-sitemap text-green-600"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">หน่วยงานย่อย</p>
+                                    <p class="text-sm text-gray-500"><%= t('subUnits') %></p>
                                     <p class="text-xl font-bold text-gray-900"><%= children ? children.length : 0 %></p>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@
                                         <i class="fas fa-briefcase text-purple-600"></i>
                                     </div>
                                     <div>
-                                        <p class="text-sm text-gray-500">ตำแหน่งงาน</p>
+                                        <p class="text-sm text-gray-500"><%= t('positions') %></p>
                                         <p class="text-xl font-bold text-gray-900"><%= unit.position_count %></p>
                                     </div>
                                 </div>
@@ -206,7 +206,7 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                             <i class="fas fa-users text-ruxchai-primary mr-2"></i>
-                            พนักงาน (<%= employees.length %>)
+                            <%= t('employees') %> (<%= employees.length %>)
                         </h2>
                         <div class="space-y-3 max-h-96 overflow-y-auto">
                             <% employees.forEach(emp => { %>
@@ -221,7 +221,7 @@
                                         <% } %>
                                         <div class="flex-1">
                                             <h3 class="font-medium text-gray-900"><%= emp.first_name %> <%= emp.last_name %></h3>
-                                            <p class="text-sm text-gray-500"><%= emp.position_name || 'ไม่ระบุตำแหน่ง' %></p>
+                                            <p class="text-sm text-gray-500"><%= emp.position_name || t('noPosition') %></p>
                                         </div>
                                     </div>
                                 </a>
@@ -235,7 +235,7 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                             <i class="fas fa-user-tie text-ruxchai-primary mr-2"></i>
-                            ผู้จัดการ
+                            <%= t('manager') %>
                         </h2>
                         <div class="flex items-center">
                             <div class="w-12 h-12 rounded-full bg-ruxchai-primary/10 flex items-center justify-center mr-3">
@@ -244,7 +244,7 @@
                             <div>
                                 <h3 class="font-medium text-gray-900"><%= unit.manager_name %></h3>
                                 <% if (unit.manager_employee_id) { %>
-                                    <p class="text-sm text-gray-500">รหัส: <%= unit.manager_employee_id %></p>
+                                    <p class="text-sm text-gray-500"><%= t('employeeId') %>: <%= unit.manager_employee_id %></p>
                                 <% } %>
                             </div>
                         </div>

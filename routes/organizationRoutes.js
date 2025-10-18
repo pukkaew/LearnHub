@@ -38,6 +38,9 @@ router.get('/positions', authMiddleware.requireAuth, authMiddleware.requireRole(
 // API: ดึงตำแหน่งงานทั้งหมด
 router.get('/api/positions', authMiddleware.requireAuth, organizationController.getPositions);
 
+// API: รายการตำแหน่งงาน (สำหรับ dropdown/select)
+router.get('/positions/api/list', authMiddleware.requireAuth, organizationController.getPositions);
+
 // API: ดึงตำแหน่งสำหรับพนักงาน (EMPLOYEE)
 router.get('/api/positions/employee', authMiddleware.requireAuth, organizationController.getEmployeePositions);
 
