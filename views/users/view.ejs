@@ -1,5 +1,3 @@
-<%- include('../partials/header') %>
-
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
@@ -8,325 +6,174 @@
             <p class="text-gray-600 mt-2"><%= t('viewUserInformation') %></p>
         </div>
         <div class="flex space-x-3">
-            <a href="/users/<%= user.user_id %>/edit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+            <a href="/users/<%= userData.user_id %>/edit" class="bg-ruxchai-primary text-white px-4 py-2.5 rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
                 <i class="fas fa-edit mr-2"></i><%= t('edit') %>
             </a>
-            <a href="/users" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+            <a href="/users" class="bg-gray-500 text-white px-4 py-2.5 rounded-lg hover:bg-gray-600 transition-all shadow-sm hover:shadow-md">
                 <i class="fas fa-arrow-left mr-2"></i><%= t('backToUsers') %>
             </a>
         </div>
     </div>
 
-    <!-- User Status Banner -->
-    <% if (!user.is_active) { %>
-        <div class="mb-6 p-4 rounded-lg border border-red-200 bg-red-50">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-triangle text-red-600 mr-3"></i>
-                <div>
-                    <h4 class="text-red-800 font-medium"><%= t('accountInactive') %></h4>
-                    <p class="text-red-700 text-sm"><%= t('thisAccountIsInactive') %></p>
-                </div>
-            </div>
-        </div>
-    <% } else if (user.is_locked) { %>
-        <div class="mb-6 p-4 rounded-lg border border-orange-200 bg-orange-50">
-            <div class="flex items-center">
-                <i class="fas fa-lock text-orange-600 mr-3"></i>
-                <div>
-                    <h4 class="text-orange-800 font-medium"><%= t('accountLocked') %></h4>
-                    <p class="text-orange-700 text-sm"><%= t('thisAccountIsLocked') %></p>
-                </div>
-            </div>
-        </div>
-    <% } else if (!user.email_verified) { %>
-        <div class="mb-6 p-4 rounded-lg border border-yellow-200 bg-yellow-50">
-            <div class="flex items-center">
-                <i class="fas fa-envelope text-yellow-600 mr-3"></i>
-                <div>
-                    <h4 class="text-yellow-800 font-medium"><%= t('emailNotVerified') %></h4>
-                    <p class="text-yellow-700 text-sm"><%= t('thisEmailIsNotVerified') %></p>
-                </div>
-            </div>
-        </div>
-    <% } %>
-
     <!-- Main Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Left Column: User Card & Activity -->
-        <div class="lg:col-span-1 space-y-6">
-            <!-- User Card -->
-            <div class="bg-white rounded-lg shadow-sm p-6">
-                <div class="text-center">
-                    <div class="relative inline-block">
-                        <img src="<%= user.profile_image || '/images/default-avatar.png' %>"
-                             alt="<%= user.first_name %> <%= user.last_name %>"
-                             class="h-32 w-32 rounded-full object-cover mx-auto border-4 border-gray-200">
-                        <div class="absolute bottom-2 right-2">
-                            <span class="block h-6 w-6 rounded-full border-2 border-white <%= user.is_active ? 'bg-green-500' : 'bg-gray-500' %>"></span>
-                        </div>
-                    </div>
-                    <h3 class="mt-4 text-xl font-semibold text-gray-900"><%= user.first_name %> <%= user.last_name %></h3>
-                    <p class="text-sm text-gray-600">@<%= user.username %></p>
-                    <div class="mt-3 flex justify-center flex-wrap gap-2">
-                        <% if (user.email_verified) { %>
-                            <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                                <i class="fas fa-check-circle mr-1"></i><%= t('emailVerified') %>
-                            </span>
-                        <% } %>
-                        <% if (user.is_locked) { %>
-                            <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
-                                <i class="fas fa-lock mr-1"></i><%= t('locked') %>
-                            </span>
-                        <% } %>
-                        <% if (!user.is_active) { %>
-                            <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
-                                <i class="fas fa-ban mr-1"></i><%= t('inactive') %>
-                            </span>
-                        <% } %>
-                    </div>
-                </div>
-
-                <div class="mt-6 space-y-3 border-t pt-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600"><%= t('role') %>:</span>
-                        <span class="text-sm font-medium text-gray-900 capitalize"><%= user.role %></span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600"><%= t('employeeID') %>:</span>
-                        <span class="text-sm font-medium text-gray-900"><%= user.employee_id || '-' %></span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600"><%= t('lastLogin') %>:</span>
-                        <span class="text-sm font-medium text-gray-900">
-                            <%= user.last_login ? new Date(user.last_login).toLocaleDateString() : t('never') %>
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600"><%= t('createAccount') %>:</span>
-                        <span class="text-sm font-medium text-gray-900">
-                            <%= new Date(user.created_at).toLocaleDateString() %>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-lg shadow-sm p-6">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4"><%= t('quickActions') %></h4>
-                <div class="space-y-2">
-                    <a href="/users/<%= user.user_id %>/edit"
-                       class="block w-full bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors text-center">
-                        <i class="fas fa-edit mr-2"></i><%= t('editUser') %>
-                    </a>
-                    <button onclick="resetPassword(<%= user.user_id %>)"
-                            class="block w-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-key mr-2"></i><%= t('resetPassword') %>
-                    </button>
-                    <% if (user.is_active) { %>
-                        <button onclick="suspendUser(<%= user.user_id %>)"
-                                class="block w-full bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors">
-                            <i class="fas fa-ban mr-2"></i><%= t('suspendUser') %>
-                        </button>
-                    <% } else { %>
-                        <button onclick="activateUser(<%= user.user_id %>)"
-                                class="block w-full bg-green-50 text-green-600 hover:bg-green-100 px-4 py-2 rounded-lg transition-colors">
-                            <i class="fas fa-check mr-2"></i><%= t('activateUser') %>
-                        </button>
-                    <% } %>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column: Details -->
-        <div class="lg:col-span-2">
-            <!-- Basic Information -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
-                    <i class="fas fa-user mr-2 text-blue-600"></i><%= t('basicInformation') %>
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('firstName') %></label>
-                        <p class="text-gray-900"><%= user.first_name %></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('lastName') %></label>
-                        <p class="text-gray-900"><%= user.last_name %></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('emailAddress') %></label>
-                        <p class="text-gray-900"><%= user.email %></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('phoneNumber') %></label>
-                        <p class="text-gray-900"><%= user.phone || '-' %></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('dateOfBirth') %></label>
-                        <p class="text-gray-900">
-                            <%= user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : '-' %>
-                        </p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('gender') %></label>
-                        <p class="text-gray-900 capitalize"><%= user.gender || '-' %></p>
-                    </div>
-                </div>
-                <% if (user.bio) { %>
-                    <div class="mt-4 pt-4 border-t">
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('bio') %></label>
-                        <p class="text-gray-900"><%= user.bio %></p>
-                    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <!-- Profile Section -->
+        <div class="flex flex-col items-center mb-6 pb-6 border-b border-gray-200">
+            <img src="<%= userData.profile_image || '/images/default-avatar.png' %>" alt="<%= userData.first_name %> <%= userData.last_name %>" class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 mb-4">
+            <h3 class="text-2xl font-bold text-gray-900"><%= userData.first_name %> <%= userData.last_name %></h3>
+            <p class="text-gray-600">@<%= userData.employee_id || '-' %></p>
+            <div class="mt-3 flex flex-wrap gap-2 justify-center">
+                <% if (userData.is_active) { %>
+                    <span class="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                        ✅ <%= t('statusActive') %>
+                    </span>
+                <% } else { %>
+                    <span class="px-3 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                        ❌ <%= t('statusInactive') %>
+                    </span>
                 <% } %>
             </div>
+        </div>
 
-            <!-- Work Information -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
-                    <i class="fas fa-briefcase mr-2 text-green-600"></i><%= t('workInformation') %>
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('department') %></label>
-                        <p class="text-gray-900"><%= user.department_name || '-' %></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('position') %></label>
-                        <p class="text-gray-900"><%= user.position || '-' %></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('manager') %></label>
-                        <p class="text-gray-900">-</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('employeeID') %></label>
-                        <p class="text-gray-900"><%= user.employee_id || '-' %></p>
-                    </div>
+        <!-- Basic Information Section -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+            <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                <div class="w-8 h-8 bg-ruxchai-primary/10 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-user-circle text-ruxchai-primary"></i>
+                </div>
+                <%= t('personalInfo') %>
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-id-badge text-ruxchai-primary mr-1"></i>
+                        <%= t('employeeId') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.employee_id || '-' %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-user mr-1"></i>
+                        <%= t('firstName') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.first_name %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-user mr-1"></i>
+                        <%= t('lastName') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.last_name %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-envelope text-gray-400 mr-1"></i>
+                        <%= t('emailAddress') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.email %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-phone text-gray-400 mr-1"></i>
+                        <%= t('phoneNumber') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.phone || '-' %></p>
                 </div>
             </div>
+        </div>
 
-            <!-- Account Settings -->
-            <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
-                    <i class="fas fa-cog mr-2 text-purple-600"></i><%= t('accountSettings') %>
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('status') %></label>
-                        <p class="text-gray-900">
-                            <% if (user.is_active) { %>
-                                <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                                    <%= t('active') %>
-                                </span>
-                            <% } else { %>
-                                <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
-                                    <%= t('inactive') %>
-                                </span>
-                            <% } %>
-                        </p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('emailVerification') %></label>
-                        <p class="text-gray-900">
-                            <% if (user.email_verified) { %>
-                                <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                                    <%= t('verified') %>
-                                </span>
-                            <% } else { %>
-                                <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                                    <%= t('notVerified') %>
-                                </span>
-                            <% } %>
-                        </p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('loginAttempts') %></label>
-                        <p class="text-gray-900"><%= user.failed_login_attempts || 0 %></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1"><%= t('lastPasswordChange') %></label>
-                        <p class="text-gray-900">
-                            <%= user.password_changed_at ? new Date(user.password_changed_at).toLocaleDateString() : t('never') %>
-                        </p>
-                    </div>
+        <!-- Organization Information Section -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+            <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-building text-blue-600"></i>
+                </div>
+                <%= t('organizationInfo') %>
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-code-branch text-gray-400 mr-1"></i>
+                        <%= t('branches') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.branch_name || '-' %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-building text-gray-400 mr-1"></i>
+                        <%= t('offices') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.office_name || '-' %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-layer-group text-gray-400 mr-1"></i>
+                        <%= t('divisions') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.division_name || '-' %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-sitemap text-gray-400 mr-1"></i>
+                        <%= t('departments') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.department_name || '-' %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-briefcase text-gray-400 mr-1"></i>
+                        <%= t('positionName') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.position_name || '-' %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Access Section -->
+        <div class="mb-6">
+            <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-key text-purple-600"></i>
+                </div>
+                <%= t('systemAccess') %>
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-user-shield text-gray-400 mr-1"></i>
+                        <%= t('role') %>
+                    </label>
+                    <p class="text-gray-900 font-medium capitalize"><%= userData.role_name || '-' %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-toggle-on text-gray-400 mr-1"></i>
+                        <%= t('status') %>
+                    </label>
+                    <% if (userData.is_active) { %>
+                        <p class="text-green-600 font-semibold">✅ <%= t('statusActive') %></p>
+                    <% } else { %>
+                        <p class="text-gray-600 font-semibold">❌ <%= t('statusInactive') %></p>
+                    <% } %>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-calendar text-gray-400 mr-1"></i>
+                        <%= t('createAccount') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= new Date(userData.created_at).toLocaleDateString() %></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">
+                        <i class="fas fa-clock text-gray-400 mr-1"></i>
+                        <%= t('lastLogin') %>
+                    </label>
+                    <p class="text-gray-900 font-medium"><%= userData.last_login ? new Date(userData.last_login).toLocaleDateString() : t('never') %></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-const translations = {
-    confirmResetPassword: '<%= t("confirmResetPassword") %>',
-    passwordResetSuccess: '<%= t("passwordResetSuccess") %>',
-    confirmSuspendUser: '<%= t("confirmSuspendUser") %>',
-    userSuspendedSuccess: '<%= t("userSuspendedSuccess") %>',
-    confirmActivateUser: '<%= t("confirmActivateUser") %>',
-    userActivatedSuccess: '<%= t("userActivatedSuccess") %>',
-    error: '<%= t("error") %>'
-};
-
-function resetPassword(userId) {
-    if (!confirm(translations.confirmResetPassword)) return;
-
-    fetch(`/users/api/${userId}/reset-password`, {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(translations.passwordResetSuccess);
-        } else {
-            alert(data.message || translations.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert(translations.error);
-    });
-}
-
-function suspendUser(userId) {
-    if (!confirm(translations.confirmSuspendUser)) return;
-
-    fetch(`/users/api/${userId}/suspend`, {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(translations.userSuspendedSuccess);
-            window.location.reload();
-        } else {
-            alert(data.message || translations.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert(translations.error);
-    });
-}
-
-function activateUser(userId) {
-    if (!confirm(translations.confirmActivateUser)) return;
-
-    fetch(`/users/api/${userId}/activate`, {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(translations.userActivatedSuccess);
-            window.location.reload();
-        } else {
-            alert(data.message || translations.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert(translations.error);
-    });
-}
-</script>
-
-<%- include('../partials/footer') %>

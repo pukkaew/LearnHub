@@ -120,6 +120,9 @@ app.use(session({
 // Flash messages
 app.use(flash());
 
+// Language middleware - must be after session and before any rendering
+app.use(languageMiddleware);
+
 // Session timeout middleware (must be after session and flash)
 app.use(sessionConfigService.checkSessionTimeout());
 
@@ -134,14 +137,18 @@ app.use(authMiddleware.setUserData);
 
 // Global variables for templates
 app.use((req, res, next) => {
-    res.locals.success_msg = req.flash('success_msg');
-    res.locals.error_msg = req.flash('error_msg');
-    res.locals.error = req.flash('error');
+    // Only access flash if session exists
+    if (req.session) {
+        res.locals.success_msg = req.flash('success_msg');
+        res.locals.error_msg = req.flash('error_msg');
+        res.locals.error = req.flash('error');
+    } else {
+        res.locals.success_msg = [];
+        res.locals.error_msg = [];
+        res.locals.error = [];
+    }
     next();
 });
-
-// Language middleware - must be after session and before routes
-app.use(languageMiddleware);
 
 // Settings middleware - load system and user settings
 app.use(settingsMiddleware.loadSystemSettings);

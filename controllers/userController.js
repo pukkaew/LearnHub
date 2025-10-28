@@ -345,6 +345,9 @@ const userController = {
                 });
             }
 
+            console.log('Received body:', req.body);
+            console.log('Received files:', req.files);
+
             const {
                 employee_id,
                 email,
@@ -354,21 +357,23 @@ const userController = {
                 role,
                 department_id,
                 position_id,
-                supervisor_id,
-                is_active
+                status
             } = req.body;
 
             const updateData = {};
-            if (employee_id !== undefined) {updateData.employee_id = employee_id;}
-            if (email !== undefined) {updateData.email = email;}
-            if (first_name !== undefined) {updateData.first_name = first_name;}
-            if (last_name !== undefined) {updateData.last_name = last_name;}
-            if (phone !== undefined) {updateData.phone = phone;}
-            if (role !== undefined) {updateData.role = role;}
-            if (department_id !== undefined) {updateData.department_id = department_id;}
-            if (position_id !== undefined) {updateData.position_id = position_id;}
-            if (supervisor_id !== undefined) {updateData.supervisor_id = supervisor_id;}
-            if (is_active !== undefined) {updateData.is_active = is_active;}
+            if (employee_id !== undefined && employee_id !== '') {updateData.employee_id = employee_id;}
+            if (email !== undefined && email !== '') {updateData.email = email;}
+            if (first_name !== undefined && first_name !== '') {updateData.first_name = first_name;}
+            if (last_name !== undefined && last_name !== '') {updateData.last_name = last_name;}
+            if (phone !== undefined && phone !== '') {updateData.phone = phone;}
+            if (role !== undefined && role !== '') {updateData.role = role;}
+            if (department_id !== undefined && department_id !== '') {updateData.department_id = department_id || null;}
+            if (position_id !== undefined && position_id !== '') {updateData.position_id = position_id || null;}
+            if (status !== undefined && status !== '') {
+                updateData.is_active = status === 'active';
+            }
+
+            console.log('Update data:', updateData);
 
             const result = await User.update(user_id, updateData);
 
@@ -388,9 +393,11 @@ const userController = {
                     last_name: oldUser.last_name,
                     phone: oldUser.phone,
                     role: oldUser.role,
+                    branch_id: oldUser.branch_id,
+                    office_id: oldUser.office_id,
+                    division_id: oldUser.division_id,
                     department_id: oldUser.department_id,
                     position_id: oldUser.position_id,
-                    supervisor_id: oldUser.supervisor_id,
                     is_active: oldUser.is_active
                 },
                 updateData,
@@ -781,9 +788,10 @@ const userController = {
             }
 
             res.render('users/view', {
-                user,
-                t: (key) => t(req, key),
-                currentUser: req.user || req.session.user
+                title: t(req, 'userDetails') + ' - Rukchai Hongyen LearnHub',
+                user: req.session.user,
+                userData: user,
+                t: (key) => t(req, key)
             });
 
         } catch (error) {
@@ -808,10 +816,18 @@ const userController = {
                 return res.redirect('/users');
             }
 
+            // Debug: Check user data
+            console.log('=== EDIT USER DEBUG ===');
+            console.log('User ID:', user_id);
+            console.log('User role_name:', user.role_name);
+            console.log('User role_id:', user.role_id);
+            console.log('Full user object keys:', Object.keys(user));
+
             res.render('users/edit', {
-                user,
-                t: (key) => t(req, key),
-                currentUser: req.user || req.session.user
+                title: t(req, 'editUser') + ' - Rukchai Hongyen LearnHub',
+                user: req.session.user,
+                userData: user,
+                t: (key) => t(req, key)
             });
 
         } catch (error) {

@@ -31,12 +31,15 @@ class User {
                     SELECT u.*,
                            r.role_name,
                            d.department_name,
-                           p.position_name
+                           p.position_name,
+                           p.level as position_level,
+                           CONCAT(m.first_name, ' ', m.last_name) as manager_name
                     FROM Users u
                     LEFT JOIN Roles r ON u.role_id = r.role_id
                     LEFT JOIN Departments d ON u.department_id = d.department_id
                     LEFT JOIN Positions p ON u.position_id = p.position_id
-                    WHERE u.user_id = @userId AND u.is_active = 1
+                    LEFT JOIN Users m ON u.supervisor_id = m.user_id
+                    WHERE u.user_id = @userId
                 `);
 
             return result.recordset[0] || null;
@@ -195,6 +198,43 @@ class User {
             if (updateData.profile_image !== undefined) {
                 updateFields.push('profile_image = @profileImage');
                 request.input('profileImage', sql.NVarChar(255), updateData.profile_image);
+            }
+            if (updateData.date_of_birth !== undefined) {
+                updateFields.push('date_of_birth = @dateOfBirth');
+                request.input('dateOfBirth', sql.Date, updateData.date_of_birth);
+            }
+            if (updateData.gender !== undefined) {
+                updateFields.push('gender = @gender');
+                request.input('gender', sql.NVarChar(10), updateData.gender);
+            }
+            if (updateData.bio !== undefined) {
+                updateFields.push('bio = @bio');
+                request.input('bio', sql.NVarChar(500), updateData.bio);
+            }
+            if (updateData.employee_id !== undefined) {
+                updateFields.push('employee_id = @employeeId');
+                request.input('employeeId', sql.NVarChar(50), updateData.employee_id);
+            }
+            if (updateData.role !== undefined) {
+                // Convert role_name to role_id
+                const roleResult = await pool.request()
+                    .input('roleName', sql.NVarChar(50), updateData.role)
+                    .query('SELECT role_id FROM roles WHERE role_name = @roleName');
+
+                if (roleResult.recordset.length > 0) {
+                    updateFields.push('role_id = @roleId');
+                    request.input('roleId', sql.Int, roleResult.recordset[0].role_id);
+                } else {
+                    throw new Error(`Invalid role: ${updateData.role}`);
+                }
+            }
+            if (updateData.supervisor_id !== undefined) {
+                updateFields.push('supervisor_id = @supervisorId');
+                request.input('supervisorId', sql.Int, updateData.supervisor_id);
+            }
+            if (updateData.is_active !== undefined) {
+                updateFields.push('is_active = @isActive');
+                request.input('isActive', sql.Bit, updateData.is_active);
             }
 
             if (updateFields.length === 0) {

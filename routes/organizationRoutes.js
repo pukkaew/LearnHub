@@ -11,6 +11,12 @@ router.get('/', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin',
 // API: ดึงข้อมูล Organization Levels (ระดับองค์กร)
 router.get('/api/levels', authMiddleware.requireAuth, organizationController.getLevels);
 
+// API: Shortcuts สำหรับ dropdown (ไม่ต้อง auth เข้มงวด)
+router.get('/api/branches', authMiddleware.requireAuth, organizationController.getBranches);
+router.get('/api/offices', authMiddleware.requireAuth, organizationController.getOffices);
+router.get('/api/divisions', authMiddleware.requireAuth, organizationController.getDivisions);
+router.get('/api/departments', authMiddleware.requireAuth, organizationController.getDepartments);
+
 // API: ดึงข้อมูลหน่วยงานทั้งหมด
 router.get('/api/units', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']), organizationController.getUnits);
 

@@ -34,7 +34,10 @@ const authMiddleware = {
             });
         }
 
-        req.flash('error_msg', 'กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        // Only use flash if session exists
+        if (req.session && req.flash) {
+            req.flash('error_msg', 'กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        }
         res.redirect('/login');
     },
 

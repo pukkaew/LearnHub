@@ -39,7 +39,20 @@
       "Bash(cmd /c \"wmic process where ProcessId=22352 delete\")",
       "Bash(cmd /c \"taskkill /F /PID 40376\")",
       "Bash(cmd /c \"for /f \"tokens=5\" %a in (''netstat -ano ^| findstr :3000 ^| findstr LISTENING'') do @taskkill /F /PID %a && timeout /t 2 /nobreak > nul && npm start\")",
-      "Bash(cmd /c \"taskkill /F /PID 23852\")"
+      "Bash(cmd /c \"taskkill /F /PID 23852\")",
+      "Bash(cmd /c \"dir /s /b D:\\App\\LearnHub\\views | findstr partials\")",
+      "Bash(cmd /c \"for /f \"tokens=5\" %a in (''''netstat -ano ^| findstr :3000 ^| findstr LISTENING'''') do @taskkill /F /PID %a\")",
+      "Bash(cmd /c \"timeout /t 3 /nobreak > nul\")",
+      "Bash(cmd /c \"for /f \"tokens=5\" %a in (''''netstat -ano ^| findstr :3000 ^| findstr LISTENING'''') do @taskkill /F /PID %a && timeout /t 2 /nobreak > nul && npm start\")",
+      "Bash(cmd /c \"timeout /t 5 /nobreak > nul\")",
+      "Bash(cmd /c \"wmic process where \"name=''node.exe''\" get ProcessId,CommandLine\")",
+      "Bash(cmd /c \"taskkill /F /PID 8900 && npm start\")",
+      "Bash(cmd /c \"wmic process where ProcessId=8900 delete\")",
+      "Bash(cmd /c \"powershell -Command \"\"Stop-Process -Id 8900 -Force\"\" && npm start\")",
+      "Bash(cmd /c \"taskkill /F /IM node.exe /T\")",
+      "Bash(cmd /c \"sqlcmd -S localhost -d LearnHub -E -i D:\\App\\LearnHub\\database\\migrations\\add_organization_to_users.sql\")",
+      "Bash(cmd /c \"sqlcmd -S localhost -d LearnHub -i D:\\App\\LearnHub\\database\\migrations\\add_organization_to_users.sql\")",
+      "Bash(cd /d \"D:\\App\\LearnHub\")"
     ],
     "deny": [],
     "ask": []

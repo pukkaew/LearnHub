@@ -342,7 +342,7 @@
                             <div id="departmentField">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-sitemap text-gray-400 mr-1"></i>
-                                    <%= t('departments') %> <span class="text-red-500">*</span>
+                                    <%= t('departments') %>
                                 </label>
                                 <select name="department_id" id="departmentSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
@@ -553,10 +553,12 @@
                                 </label>
                                 <select name="role" id="editRole" required
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="employee">👤 <%= t('roleEmployee') %></option>
-                                    <option value="manager">👔 <%= t('roleManager') %></option>
-                                    <option value="hr">💼 <%= t('roleHR') %></option>
-                                    <option value="admin">⚙️ <%= t('roleAdmin') %></option>
+                                    <option value="Student">👤 <%= t('roleEmployee') %></option>
+                                    <option value="Instructor">👨‍🏫 Instructor</option>
+                                    <option value="HR">💼 <%= t('roleHR') %></option>
+                                    <option value="Admin">⚙️ <%= t('roleAdmin') %></option>
+                                    <option value="SuperAdmin">🔐 Super Admin</option>
+                                    <option value="Viewer">👁️ Viewer</option>
                                 </select>
                             </div>
                             <div>
@@ -679,6 +681,9 @@ function setupEventListeners() {
     // Add user modal
     document.getElementById('addUserBtn').addEventListener('click', () => {
         document.getElementById('addUserModal').classList.remove('hidden');
+        // Load organization dropdowns
+        loadBranchesForAdd();
+        loadPositions();
     });
 
     document.getElementById('closeAddModal').addEventListener('click', closeAddModal);
@@ -1020,9 +1025,9 @@ async function loadOrganizationUnits() {
             const branchSelect = document.getElementById('branchSelect');
             const departmentFilter = document.getElementById('departmentFilter');
 
-            // Get branches (level_code = 'BRANCH' or parent_id is null)
+            // Get branches only (level_code = 'BRANCH' and has parent - exclude company)
             const branches = data.data.filter(unit =>
-                unit.level_code === 'BRANCH' || unit.parent_id === null
+                unit.level_code === 'BRANCH' && unit.parent_id !== null
             );
 
             // Load branches for add user form
@@ -1045,8 +1050,39 @@ async function loadOrganizationUnits() {
     }
 }
 
+// Load branches for Add User modal
+async function loadBranchesForAdd() {
+    const branchSelect = document.getElementById('branchSelect');
+
+    try {
+        console.log('Loading branches...');
+        const response = await fetch('/organization/api/branches');
+        console.log('Branches API response status:', response.status);
+
+        const data = await response.json();
+        console.log('Branches API data:', data);
+
+        branchSelect.innerHTML = `<option value="">${translations.selectBranch}</option>`;
+        if (data && Array.isArray(data)) {
+            console.log('Found', data.length, 'branches');
+            branchSelect.innerHTML += data.map(branch => {
+                console.log('Adding branch:', branch.branch_name, 'ID:', branch.branch_id);
+                return `<option value="${branch.branch_id}">${branch.branch_name}</option>`;
+            }).join('');
+        } else {
+            console.warn('Data is not an array:', data);
+        }
+        console.log('Branch select HTML:', branchSelect.innerHTML);
+    } catch (error) {
+        console.error('Error loading branches:', error);
+    }
+}
+
 // Load offices by branch (cascade)
 async function loadOfficesByBranch(branchId) {
+    console.log('=== loadOfficesByBranch called ===');
+    console.log('Branch ID:', branchId);
+
     const officeSelect = document.getElementById('officeSelect');
     const divisionSelect = document.getElementById('divisionSelect');
     const departmentSelect = document.getElementById('departmentSelect');
@@ -1056,15 +1092,29 @@ async function loadOfficesByBranch(branchId) {
     divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>`;
     departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
 
-    if (!branchId) return;
+    if (!branchId) {
+        console.log('No branch ID provided, returning');
+        return;
+    }
 
     try {
-        const response = await fetch(`/organization/api/units/${branchId}/children`);
+        const url = `/organization/api/offices?branch_id=${branchId}`;
+        console.log('Fetching offices from:', url);
+        const response = await fetch(url);
+        console.log('Offices API response status:', response.status);
         const data = await response.json();
+        console.log('Offices API data:', data);
 
-        if (data.success && data.data) {
+        if (data && Array.isArray(data)) {
+            console.log('Found', data.length, 'offices');
             officeSelect.innerHTML = `<option value="">${translations.selectOffice}</option>` +
-                data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
+                data.map(office => {
+                    console.log('Adding office:', office.office_name, 'ID:', office.office_id);
+                    return `<option value="${office.office_id}">${office.office_name}</option>`;
+                }).join('');
+            console.log('Office select HTML:', officeSelect.innerHTML);
+        } else {
+            console.log('No offices data or not an array');
         }
     } catch (error) {
         console.error('Error loading offices:', error);
@@ -1073,6 +1123,9 @@ async function loadOfficesByBranch(branchId) {
 
 // Load divisions by office (cascade)
 async function loadDivisionsByOffice(officeId) {
+    console.log('=== loadDivisionsByOffice called ===');
+    console.log('Office ID:', officeId);
+
     const divisionSelect = document.getElementById('divisionSelect');
     const departmentSelect = document.getElementById('departmentSelect');
 
@@ -1080,15 +1133,29 @@ async function loadDivisionsByOffice(officeId) {
     divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>`;
     departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
 
-    if (!officeId) return;
+    if (!officeId) {
+        console.log('No office ID provided, returning');
+        return;
+    }
 
     try {
-        const response = await fetch(`/organization/api/units/${officeId}/children`);
+        const url = `/organization/api/divisions?office_id=${officeId}`;
+        console.log('Fetching divisions from:', url);
+        const response = await fetch(url);
+        console.log('Divisions API response status:', response.status);
         const data = await response.json();
+        console.log('Divisions API data:', data);
 
-        if (data.success && data.data) {
+        if (data && Array.isArray(data)) {
+            console.log('Found', data.length, 'divisions');
             divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>` +
-                data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
+                data.map(division => {
+                    console.log('Adding division:', division.division_name, 'ID:', division.division_id);
+                    return `<option value="${division.division_id}">${division.division_name}</option>`;
+                }).join('');
+            console.log('Division select HTML:', divisionSelect.innerHTML);
+        } else {
+            console.log('No divisions data or not an array');
         }
     } catch (error) {
         console.error('Error loading divisions:', error);
@@ -1097,20 +1164,37 @@ async function loadDivisionsByOffice(officeId) {
 
 // Load departments by division (cascade)
 async function loadDepartmentsByDivision(divisionId) {
+    console.log('=== loadDepartmentsByDivision called ===');
+    console.log('Division ID:', divisionId);
+
     const departmentSelect = document.getElementById('departmentSelect');
 
     // Reset dropdown
     departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
 
-    if (!divisionId) return;
+    if (!divisionId) {
+        console.log('No division ID provided, returning');
+        return;
+    }
 
     try {
-        const response = await fetch(`/organization/api/units/${divisionId}/children`);
+        const url = `/organization/api/departments?division_id=${divisionId}`;
+        console.log('Fetching departments from:', url);
+        const response = await fetch(url);
+        console.log('Departments API response status:', response.status);
         const data = await response.json();
+        console.log('Departments API data:', data);
 
-        if (data.success && data.data) {
+        if (data && Array.isArray(data)) {
+            console.log('Found', data.length, 'departments');
             departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>` +
-                data.data.map(unit => `<option value="${unit.unit_id}">${unit.unit_name_th}</option>`).join('');
+                data.map(department => {
+                    console.log('Adding department:', department.department_name, 'ID:', department.department_id);
+                    return `<option value="${department.department_id}">${department.department_name}</option>`;
+                }).join('');
+            console.log('Department select HTML:', departmentSelect.innerHTML);
+        } else {
+            console.log('No departments data or not an array');
         }
     } catch (error) {
         console.error('Error loading departments:', error);
@@ -1119,26 +1203,44 @@ async function loadDepartmentsByDivision(divisionId) {
 
 // Load positions
 async function loadPositions() {
+    console.log('=== loadPositions called ===');
+
     try {
-        const response = await fetch('/organization/positions/api/list');
+        const url = '/organization/api/positions';
+        console.log('Fetching positions from:', url);
+        const response = await fetch(url);
+        console.log('Positions API response status:', response.status);
         const data = await response.json();
+        console.log('Positions API data:', data);
 
-        if (data.success) {
-            const positionSelect = document.getElementById('addPositionSelect');
-            const appliedPositionSelect = document.getElementById('appliedPositionSelect');
+        const positionSelect = document.getElementById('addPositionSelect');
+        const appliedPositionSelect = document.getElementById('appliedPositionSelect');
+        console.log('Position select element:', positionSelect);
+        console.log('Applied position select element:', appliedPositionSelect);
 
-            const positionsHTML = data.positions.map(pos =>
-                `<option value="${pos.position_id}">${pos.position_name_th || pos.position_name}</option>`
-            ).join('');
+        if (data.success && data.positions) {
+            console.log('Found', data.positions.length, 'positions');
+            const positionsHTML = data.positions.map(pos => {
+                console.log('Adding position:', pos.position_name_th || pos.position_name, 'ID:', pos.position_id);
+                return `<option value="${pos.position_id}">${pos.position_name_th || pos.position_name}</option>`;
+            }).join('');
 
             if (positionSelect) {
                 positionSelect.innerHTML = `<option value="">${translations.selectPosition}</option>` + positionsHTML;
+                console.log('Position select HTML:', positionSelect.innerHTML);
+            } else {
+                console.log('Position select element not found!');
             }
 
             // Load positions for applicants too
             if (appliedPositionSelect) {
                 appliedPositionSelect.innerHTML = `<option value="">${translations.selectAppliedPosition}</option>` + positionsHTML;
+                console.log('Applied position select HTML:', appliedPositionSelect.innerHTML);
             }
+        } else {
+            console.log('No positions data or data.success is false');
+            console.log('data.success:', data.success);
+            console.log('data.positions:', data.positions);
         }
     } catch (error) {
         console.error('Error loading positions:', error);

@@ -881,6 +881,98 @@ const organizationController = {
                 message: error.message || t(req, 'errorDeletingPosition')
             });
         }
+    },
+
+    // API shortcuts สำหรับ dropdown
+    async getBranches(req, res) {
+        try {
+            const pool = await require('../config/database');
+
+            // Get branches only (must have a parent - exclude root company)
+            const result = await pool.request().query(`
+                SELECT ou.unit_id, ou.unit_name_th
+                FROM OrganizationUnits ou
+                INNER JOIN OrganizationLevels ol ON ou.level_id = ol.level_id
+                WHERE ol.level_code = 'BRANCH'
+                  AND ou.is_active = 1
+                  AND ou.parent_id IS NOT NULL
+                ORDER BY ou.unit_name_th
+            `);
+
+            return res.json(result.recordset.map(u => ({
+                branch_id: u.unit_id,
+                branch_name: u.unit_name_th
+            })));
+        } catch (error) {
+            console.error('Error getting branches:', error);
+            return res.status(500).json([]);
+        }
+    },
+
+    async getOffices(req, res) {
+        try {
+            const { branch_id } = req.query;
+            const OrganizationUnit = require('../models/OrganizationUnit');
+
+            let units;
+            if (branch_id) {
+                units = await OrganizationUnit.getChildren(branch_id);
+            } else {
+                units = await OrganizationUnit.getByLevel('OFFICE');
+            }
+
+            return res.json(units.map(u => ({
+                office_id: u.unit_id,
+                office_name: u.unit_name_th
+            })));
+        } catch (error) {
+            console.error('Error getting offices:', error);
+            return res.status(500).json([]);
+        }
+    },
+
+    async getDivisions(req, res) {
+        try {
+            const { office_id } = req.query;
+            const OrganizationUnit = require('../models/OrganizationUnit');
+
+            let units;
+            if (office_id) {
+                units = await OrganizationUnit.getChildren(office_id);
+            } else {
+                units = await OrganizationUnit.getByLevel('DIVISION');
+            }
+
+            return res.json(units.map(u => ({
+                division_id: u.unit_id,
+                division_name: u.unit_name_th
+            })));
+        } catch (error) {
+            console.error('Error getting divisions:', error);
+            return res.status(500).json([]);
+        }
+    },
+
+    async getDepartments(req, res) {
+        try {
+            const { division_id } = req.query;
+            const OrganizationUnit = require('../models/OrganizationUnit');
+
+            let units;
+            if (division_id) {
+                units = await OrganizationUnit.getChildren(division_id);
+            } else {
+                units = await OrganizationUnit.getByLevel('DEPARTMENT');
+            }
+
+            return res.json(units.map(u => ({
+                department_id: u.unit_id,
+                department_name: u.unit_name_th
+            })));
+        } catch (error) {
+            console.error('Error getting departments:', error);
+            return res.status(500).json([]);
+        }
     }
 };
 
