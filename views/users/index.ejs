@@ -311,7 +311,7 @@
                                     <i class="fas fa-code-branch text-gray-400 mr-1"></i>
                                     <%= t('branches') %>
                                 </label>
-                                <select name="branch_id" id="branchSelect" onchange="loadOfficesByBranch(this.value)"
+                                <select name="branch_id" id="branchSelect" onchange="loadOrgAfterBranch(this.value)"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
                                     <option value=""><%= t('selectBranch') %></option>
                                 </select>
@@ -1078,9 +1078,9 @@ async function loadBranchesForAdd() {
     }
 }
 
-// Load offices by branch (cascade)
-async function loadOfficesByBranch(branchId) {
-    console.log('=== loadOfficesByBranch called ===');
+// Smart loading after branch selection - handles both Office and direct Division
+async function loadOrgAfterBranch(branchId) {
+    console.log('=== loadOrgAfterBranch called ===');
     console.log('Branch ID:', branchId);
 
     const officeSelect = document.getElementById('officeSelect');
@@ -1098,26 +1098,42 @@ async function loadOfficesByBranch(branchId) {
     }
 
     try {
-        const url = `/organization/api/offices?branch_id=${branchId}`;
-        console.log('Fetching offices from:', url);
-        const response = await fetch(url);
-        console.log('Offices API response status:', response.status);
-        const data = await response.json();
-        console.log('Offices API data:', data);
+        // Try to load offices first
+        console.log('Step 1: Trying to load offices...');
+        const officesUrl = `/organization/api/offices?branch_id=${branchId}`;
+        const officesResponse = await fetch(officesUrl);
+        const officesData = await officesResponse.json();
+        console.log('Offices data:', officesData);
 
-        if (data && Array.isArray(data)) {
-            console.log('Found', data.length, 'offices');
+        if (officesData && Array.isArray(officesData) && officesData.length > 0) {
+            // Has offices - show office dropdown
+            console.log('Found', officesData.length, 'offices - using office cascade');
             officeSelect.innerHTML = `<option value="">${translations.selectOffice}</option>` +
-                data.map(office => {
+                officesData.map(office => {
                     console.log('Adding office:', office.office_name, 'ID:', office.office_id);
                     return `<option value="${office.office_id}">${office.office_name}</option>`;
                 }).join('');
-            console.log('Office select HTML:', officeSelect.innerHTML);
         } else {
-            console.log('No offices data or not an array');
+            // No offices - load divisions directly from branch
+            console.log('No offices found - loading divisions directly from branch');
+            const divisionsUrl = `/organization/api/divisions?branch_id=${branchId}`;
+            const divisionsResponse = await fetch(divisionsUrl);
+            const divisionsData = await divisionsResponse.json();
+            console.log('Divisions data:', divisionsData);
+
+            if (divisionsData && Array.isArray(divisionsData) && divisionsData.length > 0) {
+                console.log('Found', divisionsData.length, 'divisions directly under branch');
+                divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>` +
+                    divisionsData.map(division => {
+                        console.log('Adding division:', division.division_name, 'ID:', division.division_id);
+                        return `<option value="${division.division_id}">${division.division_name}</option>`;
+                    }).join('');
+            } else {
+                console.log('No divisions found under this branch');
+            }
         }
     } catch (error) {
-        console.error('Error loading offices:', error);
+        console.error('Error loading organization after branch:', error);
     }
 }
 
@@ -1146,7 +1162,7 @@ async function loadDivisionsByOffice(officeId) {
         const data = await response.json();
         console.log('Divisions API data:', data);
 
-        if (data && Array.isArray(data)) {
+        if (data && Array.isArray(data) && data.length > 0) {
             console.log('Found', data.length, 'divisions');
             divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>` +
                 data.map(division => {
@@ -1155,7 +1171,22 @@ async function loadDivisionsByOffice(officeId) {
                 }).join('');
             console.log('Division select HTML:', divisionSelect.innerHTML);
         } else {
-            console.log('No divisions data or not an array');
+            console.log('No divisions found - loading departments directly from office');
+            // No divisions found, load departments directly from office
+            const deptUrl = `/organization/api/departments?office_id=${officeId}`;
+            console.log('Fetching departments from:', deptUrl);
+            const deptResponse = await fetch(deptUrl);
+            const deptData = await deptResponse.json();
+            console.log('Departments API data:', deptData);
+
+            if (deptData && Array.isArray(deptData)) {
+                console.log('Found', deptData.length, 'departments under office');
+                departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>` +
+                    deptData.map(dept => {
+                        console.log('Adding department:', dept.department_name, 'ID:', dept.department_id);
+                        return `<option value="${dept.department_id}">${dept.department_name}</option>`;
+                    }).join('');
+            }
         }
     } catch (error) {
         console.error('Error loading divisions:', error);
@@ -1332,8 +1363,7 @@ function handleUserTypeChange() {
 
         // Show organization section for employees
         if (organizationSection) organizationSection.classList.remove('hidden');
-        if (departmentSelect) departmentSelect.setAttribute('required', 'required');
-        if (positionSelect) positionSelect.setAttribute('required', 'required');
+        // Department and position are optional - no required attribute
 
         // Show system access section for employees
         if (systemAccessSection) systemAccessSection.classList.remove('hidden');
@@ -1418,7 +1448,7 @@ async function handleAddUser(e) {
             return;
         }
 
-        const response = await fetch('/users/create', {
+        const response = await fetch('/users/', {
             method: 'POST',
             body: formData
         });

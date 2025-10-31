@@ -886,7 +886,8 @@ const organizationController = {
     // API shortcuts สำหรับ dropdown
     async getBranches(req, res) {
         try {
-            const pool = await require('../config/database');
+            const { poolPromise } = require('../config/database');
+            const pool = await poolPromise;
 
             // Get branches only (must have a parent - exclude root company)
             const result = await pool.request().query(`
@@ -933,12 +934,15 @@ const organizationController = {
 
     async getDivisions(req, res) {
         try {
-            const { office_id } = req.query;
+            const { office_id, branch_id } = req.query;
             const OrganizationUnit = require('../models/OrganizationUnit');
 
             let units;
+            // Support both office_id (if offices exist) and branch_id (direct branch->division)
             if (office_id) {
                 units = await OrganizationUnit.getChildren(office_id);
+            } else if (branch_id) {
+                units = await OrganizationUnit.getChildren(branch_id);
             } else {
                 units = await OrganizationUnit.getByLevel('DIVISION');
             }
@@ -955,12 +959,16 @@ const organizationController = {
 
     async getDepartments(req, res) {
         try {
-            const { division_id } = req.query;
+            const { division_id, office_id } = req.query;
             const OrganizationUnit = require('../models/OrganizationUnit');
 
             let units;
+            // Priority: division_id > office_id > all departments
             if (division_id) {
                 units = await OrganizationUnit.getChildren(division_id);
+            } else if (office_id) {
+                // If no division, get departments directly under office
+                units = await OrganizationUnit.getChildren(office_id);
             } else {
                 units = await OrganizationUnit.getByLevel('DEPARTMENT');
             }

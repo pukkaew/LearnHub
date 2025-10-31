@@ -263,10 +263,53 @@ const userController = {
                 last_name,
                 phone,
                 role,
+                user_type,
+                branch_id,
+                office_id,
+                division_id,
                 department_id,
                 position_id,
                 supervisor_id
             } = req.body;
+
+            // Debug: Log received data
+            console.log('=== CREATE USER REQUEST ===');
+            console.log('user_type:', user_type);
+            console.log('role:', role);
+            console.log('employee_id:', employee_id);
+            console.log('email:', email);
+            console.log('first_name:', first_name);
+            console.log('last_name:', last_name);
+
+            // Query role_id from database based on role name or user type
+            const { poolPromise } = require('../config/database');
+            const pool = await poolPromise;
+
+            // Determine the role name to lookup
+            let roleName;
+            if (user_type === 'applicant') {
+                roleName = 'Applicant';
+            } else if (role && role.trim()) {
+                roleName = role.charAt(0).toUpperCase() + role.slice(1);
+            } else {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Role is required for employee users'
+                });
+            }
+
+            const roleResult = await pool.request()
+                .input('roleName', roleName)
+                .query('SELECT role_id FROM Roles WHERE role_name = @roleName');
+
+            if (roleResult.recordset.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Role '${roleName}' not found in database. Please create the role first.`
+                });
+            }
+
+            const role_id = roleResult.recordset[0].role_id;
 
             const userData = {
                 employee_id,
@@ -275,10 +318,13 @@ const userController = {
                 first_name,
                 last_name,
                 phone,
-                role,
-                department_id,
-                position_id,
-                supervisor_id,
+                role_id,
+                branch_id: branch_id || null,
+                office_id: office_id || null,
+                division_id: division_id || null,
+                department_id: department_id || null,
+                position_id: position_id || null,
+                supervisor_id: supervisor_id || null,
                 is_active: true
             };
 
@@ -292,7 +338,7 @@ const userController = {
                 req.user.userId,
                 'Create',
                 'users',
-                result.data.user_id,
+                result.userId,
                 null,
                 userData,
                 req.ip,
@@ -302,12 +348,12 @@ const userController = {
             );
 
             const responseData = {
-                user_id: result.data.user_id,
-                employee_id: result.data.employee_id,
-                email: result.data.email,
-                first_name: result.data.first_name,
-                last_name: result.data.last_name,
-                role: result.data.role
+                user_id: result.userId,
+                employee_id: userData.employee_id,
+                email: userData.email,
+                first_name: userData.first_name,
+                last_name: userData.last_name,
+                role_id: userData.role_id
             };
 
             res.status(201).json({

@@ -32,13 +32,11 @@ class User {
                            r.role_name,
                            d.department_name,
                            p.position_name,
-                           p.level as position_level,
-                           CONCAT(m.first_name, ' ', m.last_name) as manager_name
+                           p.level as position_level
                     FROM Users u
                     LEFT JOIN Roles r ON u.role_id = r.role_id
                     LEFT JOIN Departments d ON u.department_id = d.department_id
                     LEFT JOIN Positions p ON u.position_id = p.position_id
-                    LEFT JOIN Users m ON u.supervisor_id = m.user_id
                     WHERE u.user_id = @userId
                 `);
 
@@ -121,6 +119,9 @@ class User {
                 .input('email', sql.NVarChar(100), userData.email)
                 .input('firstName', sql.NVarChar(50), userData.first_name)
                 .input('lastName', sql.NVarChar(50), userData.last_name)
+                .input('branchId', sql.Int, userData.branch_id || null)
+                .input('officeId', sql.Int, userData.office_id || null)
+                .input('divisionId', sql.Int, userData.division_id || null)
                 .input('departmentId', sql.Int, userData.department_id || null)
                 .input('positionId', sql.Int, userData.position_id || null)
                 .input('roleId', sql.Int, userData.role_id)
@@ -129,14 +130,14 @@ class User {
                     INSERT INTO Users (
                         employee_id, username, password, email,
                         first_name, last_name,
-                        department_id, position_id, role_id,
+                        branch_id, office_id, division_id, department_id, position_id, role_id,
                         phone, is_active, email_verified, created_at, password_changed_at
                     )
                     OUTPUT INSERTED.user_id
                     VALUES (
                         @employeeId, @username, @password, @email,
                         @firstName, @lastName,
-                        @departmentId, @positionId, @roleId,
+                        @branchId, @officeId, @divisionId, @departmentId, @positionId, @roleId,
                         @phone, 1, 0, GETDATE(), GETDATE()
                     )
                 `);

@@ -1,7 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/auth');
+
+// Configure multer for form data handling
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
 
 // Apply authentication to all user routes
 router.use(authMiddleware.requireAuth);
@@ -12,7 +21,7 @@ router.get('/profile', userController.renderProfile);
 router.get('/export', authMiddleware.requireRole(['Admin', 'HR']), userController.exportUsers);
 
 // API endpoints - Static API routes
-router.post('/', authMiddleware.requireRole(['Admin', 'HR']), userController.createUser);
+router.post('/', authMiddleware.requireRole(['Admin', 'HR']), upload.single('profile_image'), userController.createUser);
 router.get('/api/list', authMiddleware.requireRole(['Admin', 'HR']), userController.getAllUsers);
 router.get('/api/profile', userController.getProfile);
 router.put('/api/profile', userController.updateProfile);
