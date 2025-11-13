@@ -33,7 +33,7 @@ router.get('/:user_id/edit', authMiddleware.requireRole(['Admin', 'HR']), userCo
 
 // API endpoints - Dynamic user-specific routes
 router.get('/api/:user_id', userController.getUserById);
-router.put('/api/:user_id', authMiddleware.requireRole(['Admin', 'HR']), userController.updateUser);
+router.put('/api/:user_id', authMiddleware.requireRole(['Admin', 'HR']), upload.single('profile_image'), userController.updateUser);
 router.delete('/api/:user_id', authMiddleware.requireRole(['Admin']), userController.deactivateUser);
 router.post('/api/:user_id/suspend', authMiddleware.requireRole(['Admin', 'HR']), userController.deactivateUser);
 router.post('/api/:user_id/activate', authMiddleware.requireRole(['Admin', 'HR']), userController.activateUser);

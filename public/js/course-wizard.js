@@ -417,6 +417,7 @@ async function saveDraft() {
 async function loadInitialData() {
     await Promise.all([
         loadCategories(),
+        loadPositions(),
         loadDepartments(),
         loadPrerequisites()
     ]);
@@ -433,7 +434,7 @@ async function loadCategories() {
             result.data.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category.category_id;
-                option.textContent = category.category_name;
+                option.textContent = `${category.category_icon ? category.category_icon + ' ' : ''}${category.category_name}`;
                 select.appendChild(option);
             });
         }
@@ -442,17 +443,44 @@ async function loadCategories() {
     }
 }
 
+async function loadPositions() {
+    try {
+        const response = await fetch('/courses/api/target-positions');
+        const result = await response.json();
+
+        if (result.success) {
+            const select = document.getElementById('target_positions');
+            // Clear existing hardcoded options except "ทุกตำแหน่ง"
+            select.innerHTML = '<option value="all">ทุกตำแหน่ง</option>';
+
+            result.data.forEach(position => {
+                const option = document.createElement('option');
+                option.value = position.position_id;
+                option.textContent = position.position_name_th;
+                option.dataset.level = position.level;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading positions:', error);
+    }
+}
+
 async function loadDepartments() {
     try {
-        const response = await fetch('/users/api/departments');
+        const response = await fetch('/courses/api/target-departments');
         const result = await response.json();
 
         if (result.success) {
             const select = document.getElementById('target_departments');
+            // Clear existing options
+            select.innerHTML = '<option value="all">ทุกแผนก</option>';
+
             result.data.forEach(dept => {
                 const option = document.createElement('option');
-                option.value = dept.department_id;
-                option.textContent = dept.department_name;
+                option.value = dept.unit_id;
+                option.textContent = `${dept.unit_code || ''} ${dept.unit_name_th}`.trim();
+                option.dataset.levelCode = dept.level_code;
                 select.appendChild(option);
             });
         }

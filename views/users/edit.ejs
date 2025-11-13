@@ -171,12 +171,11 @@
                             </label>
                             <select name="role" id="roleSelect" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
                                 <option value=""><%= t('selectRole') %></option>
-                                <option value="Student" <%= (userData.role_name === 'Student') ? 'selected' : '' %>>👤 <%= t('roleEmployee') %></option>
-                                <option value="Instructor" <%= (userData.role_name === 'Instructor') ? 'selected' : '' %>>👨‍🏫 Instructor</option>
+                                <option value="Employee" <%= (userData.role_name === 'Employee') ? 'selected' : '' %>>👤 <%= t('roleEmployee') %></option>
+                                <option value="Manager" <%= (userData.role_name === 'Manager') ? 'selected' : '' %>>👔 <%= t('roleManager') %></option>
                                 <option value="HR" <%= (userData.role_name === 'HR') ? 'selected' : '' %>>💼 <%= t('roleHR') %></option>
                                 <option value="Admin" <%= (userData.role_name === 'Admin') ? 'selected' : '' %>>⚙️ <%= t('roleAdmin') %></option>
-                                <option value="SuperAdmin" <%= (userData.role_name === 'SuperAdmin') ? 'selected' : '' %>>🔐 Super Admin</option>
-                                <option value="Viewer" <%= (userData.role_name === 'Viewer') ? 'selected' : '' %>>👁️ Viewer</option>
+                                <option value="Applicant" <%= (userData.role_name === 'Applicant') ? 'selected' : '' %>>📋 Applicant</option>
                             </select>
                         </div>
                         <div>
@@ -320,13 +319,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             const select = document.getElementById('positionSelect');
             select.innerHTML = '<option value=""><%= t("selectPosition") %></option>';
-            data.forEach(position => {
-                const option = document.createElement('option');
-                option.value = position.position_id;
-                option.textContent = position.position_name;
-                option.selected = userData.position_id == position.position_id;
-                select.appendChild(option);
-            });
+            if (data.success && data.positions) {
+                data.positions.forEach(position => {
+                    const option = document.createElement('option');
+                    option.value = position.position_id;
+                    option.textContent = position.position_name_th || position.position_name;
+                    option.selected = userData.position_id == position.position_id;
+                    select.appendChild(option);
+                });
+            }
         } catch (error) {
             console.error('Error loading positions:', error);
         }

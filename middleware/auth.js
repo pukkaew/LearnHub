@@ -79,7 +79,12 @@ const authMiddleware = {
 
                 // Check if user role matches required roles
                 const allowedRoles = Array.isArray(roles) ? roles : [roles];
+                console.log('🔐 Role Check:');
+                console.log('  User Role Name:', user.role_name);
+                console.log('  Allowed Roles:', allowedRoles);
+                console.log('  Match:', allowedRoles.includes(user.role_name));
                 if (!allowedRoles.includes(user.role_name)) {
+                    console.log('  ❌ Access DENIED for', req.originalUrl);
                     await ActivityLog.logUnauthorizedAccess(
                         user.user_id,
                         req.originalUrl,

@@ -146,7 +146,17 @@ const userController = {
             const filters = {};
             if (role) {filters.role = role;}
             if (department_id) {filters.department_id = department_id;}
-            if (is_active !== undefined) {filters.is_active = is_active === 'true';}
+            // Handle is_active filter: 'all', '1', '0', undefined
+            if (is_active !== undefined) {
+                if (is_active === 'all') {
+                    filters.is_active = 'all';
+                } else if (is_active === '1' || is_active === 'true') {
+                    filters.is_active = true;
+                } else if (is_active === '0' || is_active === 'false') {
+                    filters.is_active = false;
+                }
+            }
+            // else: undefined → default to active only (handled in Model)
             if (search) {filters.search = search;}
 
             const users = await User.findAll(parseInt(page) || 1, parseInt(limit) || 20, filters);
@@ -218,7 +228,8 @@ const userController = {
                 last_name: user.last_name,
                 phone: user.phone,
                 profile_image: user.profile_image,
-                role: user.role,
+                role: user.role_name,  // Use role_name from database
+                role_id: user.role_id,
                 department_id: user.department_id,
                 department_name: user.department_name,
                 position_id: user.position_id,

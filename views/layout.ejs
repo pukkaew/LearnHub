@@ -639,10 +639,30 @@
 
                         <!-- ส่วนการเรียนรู้ -->
                         <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
+                        <% if (user.role_name === 'Admin') { %>
+                        <!-- Admin only: Show dropdown with submenu -->
+                        <div class="nav-menu-item-dropdown">
+                            <a href="#" class="nav-menu-item has-submenu" onclick="event.preventDefault()">
+                                <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
+                                <span><%= typeof t === 'function' ? t('courses') : 'หลักสูตร' %></span>
+                            </a>
+                            <div class="nav-submenu">
+                                <a href="/courses" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-book-open"></i></span>
+                                    <span><%= typeof t === 'function' ? t('allCourses') : 'ดูหลักสูตร' %></span>
+                                </a>
+                                <a href="/courses/categories" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-folder-tree"></i></span>
+                                    <span><%= typeof t === 'function' ? t('categories') : 'หมวดหมู่' %></span>
+                                </a>
+                            </div>
+                        </div>
+                        <% } else { %>
                         <a href="/courses" class="nav-menu-item">
                             <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
-                            <span><%= typeof t === 'function' ? t('learning') : 'การเรียนรู้' %></span>
+                            <span><%= typeof t === 'function' ? t('courses') : 'หลักสูตร' %></span>
                         </a>
+                        <% } %>
                         <% } %>
 
                         <a href="/tests" class="nav-menu-item">
@@ -796,8 +816,15 @@
                 <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
                 <a href="/courses" class="nav-mobile-menu-item">
                     <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
-                    <span><%= typeof t === 'function' ? t('learning') : 'หลักสูตรเรียน' %></span>
+                    <span><%= typeof t === 'function' ? t('courses') : 'หลักสูตร' %></span>
                 </a>
+                <!-- Admin only -->
+                <% if (user.role_name === 'Admin') { %>
+                <a href="/courses/categories" class="nav-mobile-menu-item pl-8">
+                    <span class="nav-menu-icon"><i class="fas fa-folder-tree"></i></span>
+                    <span><%= typeof t === 'function' ? t('categories') : 'หมวดหมู่' %></span>
+                </a>
+                <% } %>
                 <% } %>
 
                 <a href="/tests" class="nav-mobile-menu-item">

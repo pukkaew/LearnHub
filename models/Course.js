@@ -560,16 +560,213 @@ class Course {
             const pool = await poolPromise;
             const result = await pool.request()
                 .query(`
-                    SELECT cc.*,
-                           (SELECT COUNT(*) FROM Courses WHERE category_id = cc.category_id AND is_active = 1) as course_count
+                    SELECT
+                        cc.category_id,
+                        cc.category_name,
+                        cc.category_name_en,
+                        cc.description,
+                        cc.category_icon,
+                        cc.category_color,
+                        cc.display_order,
+                        COUNT(c.course_id) as course_count
                     FROM CourseCategories cc
+                    LEFT JOIN Courses c ON cc.category_id = c.category_id
+                                        AND c.status = 'published'
+                                        AND c.is_active = 1
                     WHERE cc.is_active = 1
-                    ORDER BY cc.category_order, cc.category_name
+                    GROUP BY cc.category_id, cc.category_name, cc.category_name_en,
+                             cc.description, cc.category_icon, cc.category_color, cc.display_order
+                    ORDER BY cc.display_order, cc.category_name
                 `);
 
             return result.recordset;
         } catch (error) {
             throw new Error(`Error fetching categories: ${error.message}`);
+        }
+    }
+
+    // Get course progress details for all students
+    static async getCourseProgressDetails(courseId, filters = {}) {
+        try {
+            const pool = await poolPromise;
+            let whereClause = 'WHERE e.course_id = @courseId';
+            const request = pool.request().input('courseId', sql.Int, courseId);
+
+            // Add filters
+            if (filters.status) {
+                whereClause += ' AND e.completion_status = @status';
+                request.input('status', sql.NVarChar(20), filters.status);
+            }
+            if (filters.department_id) {
+                whereClause += ' AND u.department_id = @departmentId';
+                request.input('departmentId', sql.Int, filters.department_id);
+            }
+            if (filters.min_progress !== undefined) {
+                whereClause += ' AND e.progress_percentage >= @minProgress';
+                request.input('minProgress', sql.Decimal(5,2), filters.min_progress);
+            }
+
+            const result = await request.query(`
+                SELECT
+                    e.enrollment_id,
+                    e.user_id,
+                    CONCAT(u.first_name, ' ', u.last_name) as user_name,
+                    u.employee_id,
+                    u.email,
+                    u.profile_image,
+                    ou.unit_name_th as department_name,
+                    p.position_name_th as position_name,
+                    e.enrollment_date,
+                    e.progress_percentage,
+                    e.completion_status,
+                    e.final_score,
+                    e.last_accessed,
+                    e.completed_at,
+                    e.certificate_number,
+                    DATEDIFF(DAY, e.enrollment_date, GETDATE()) as days_enrolled,
+                    (SELECT COUNT(*) FROM CourseProgress cp
+                     JOIN CourseLessons cl ON cp.lesson_id = cl.lesson_id
+                     WHERE cp.enrollment_id = e.enrollment_id AND cp.is_completed = 1) as lessons_completed,
+                    (SELECT COUNT(*) FROM CourseLessons WHERE course_id = @courseId AND is_active = 1) as total_lessons
+                FROM user_courses e
+                JOIN Users u ON e.user_id = u.user_id
+                LEFT JOIN OrganizationUnits ou ON u.department_id = ou.unit_id
+                LEFT JOIN Positions p ON u.position_id = p.position_id
+                ${whereClause}
+                ORDER BY e.enrollment_date DESC
+            `);
+
+            return result.recordset;
+        } catch (error) {
+            throw new Error(`Error fetching course progress details: ${error.message}`);
+        }
+    }
+
+    // Get course statistics
+    static async getCourseStatistics(courseId) {
+        try {
+            const pool = await poolPromise;
+
+            // Get overall stats
+            const overallStats = await pool.request()
+                .input('courseId', sql.Int, courseId)
+                .query(`
+                    SELECT
+                        COUNT(*) as total_enrollments,
+                        SUM(CASE WHEN completion_status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_count,
+                        SUM(CASE WHEN completion_status = 'IN_PROGRESS' THEN 1 ELSE 0 END) as in_progress_count,
+                        SUM(CASE WHEN completion_status = 'NOT_STARTED' THEN 1 ELSE 0 END) as not_started_count,
+                        SUM(CASE WHEN completion_status = 'DROPPED' THEN 1 ELSE 0 END) as dropped_count,
+                        AVG(CAST(final_score as FLOAT)) as avg_score,
+                        AVG(CAST(progress_percentage as FLOAT)) as avg_progress,
+                        CAST(
+                            CASE
+                                WHEN COUNT(*) > 0
+                                THEN (CAST(SUM(CASE WHEN completion_status = 'COMPLETED' THEN 1 ELSE 0 END) as FLOAT) / COUNT(*)) * 100
+                                ELSE 0
+                            END as DECIMAL(5,2)
+                        ) as completion_rate
+                    FROM user_courses
+                    WHERE course_id = @courseId
+                `);
+
+            // Get department-wise stats
+            const departmentStats = await pool.request()
+                .input('courseId', sql.Int, courseId)
+                .query(`
+                    SELECT
+                        ou.unit_name_th as department_name,
+                        ou.unit_id as department_id,
+                        COUNT(*) as enrollment_count,
+                        SUM(CASE WHEN e.completion_status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_count,
+                        AVG(CAST(e.final_score as FLOAT)) as avg_score,
+                        AVG(CAST(e.progress_percentage as FLOAT)) as avg_progress
+                    FROM user_courses e
+                    JOIN Users u ON e.user_id = u.user_id
+                    LEFT JOIN OrganizationUnits ou ON u.department_id = ou.unit_id
+                    WHERE e.course_id = @courseId
+                    GROUP BY ou.unit_id, ou.unit_name_th
+                    ORDER BY enrollment_count DESC
+                `);
+
+            // Get enrollment trend (last 12 months)
+            const enrollmentTrend = await pool.request()
+                .input('courseId', sql.Int, courseId)
+                .query(`
+                    SELECT
+                        FORMAT(enrollment_date, 'yyyy-MM') as month,
+                        COUNT(*) as enrollment_count
+                    FROM user_courses
+                    WHERE course_id = @courseId
+                    AND enrollment_date >= DATEADD(MONTH, -12, GETDATE())
+                    GROUP BY FORMAT(enrollment_date, 'yyyy-MM')
+                    ORDER BY month DESC
+                `);
+
+            // Get completion trend
+            const completionTrend = await pool.request()
+                .input('courseId', sql.Int, courseId)
+                .query(`
+                    SELECT
+                        FORMAT(completed_at, 'yyyy-MM') as month,
+                        COUNT(*) as completion_count,
+                        AVG(CAST(final_score as FLOAT)) as avg_score
+                    FROM user_courses
+                    WHERE course_id = @courseId
+                    AND completion_status = 'COMPLETED'
+                    AND completed_at IS NOT NULL
+                    AND completed_at >= DATEADD(MONTH, -12, GETDATE())
+                    GROUP BY FORMAT(completed_at, 'yyyy-MM')
+                    ORDER BY month DESC
+                `);
+
+            // Get lesson completion stats
+            const lessonStats = await pool.request()
+                .input('courseId', sql.Int, courseId)
+                .query(`
+                    SELECT
+                        l.lesson_id,
+                        l.lesson_title,
+                        l.lesson_order,
+                        COUNT(DISTINCT cp.enrollment_id) as students_completed,
+                        AVG(CAST(cp.time_spent_seconds as FLOAT)) / 60.0 as avg_time_minutes
+                    FROM CourseLessons l
+                    LEFT JOIN CourseProgress cp ON l.lesson_id = cp.lesson_id AND cp.is_completed = 1
+                    WHERE l.course_id = @courseId AND l.is_active = 1
+                    GROUP BY l.lesson_id, l.lesson_title, l.lesson_order
+                    ORDER BY l.lesson_order
+                `);
+
+            // Get top performers
+            const topPerformers = await pool.request()
+                .input('courseId', sql.Int, courseId)
+                .query(`
+                    SELECT TOP 10
+                        u.user_id,
+                        CONCAT(u.first_name, ' ', u.last_name) as user_name,
+                        u.profile_image,
+                        e.final_score,
+                        e.progress_percentage,
+                        e.completed_at,
+                        ou.unit_name_th as department_name
+                    FROM user_courses e
+                    JOIN Users u ON e.user_id = u.user_id
+                    LEFT JOIN OrganizationUnits ou ON u.department_id = ou.unit_id
+                    WHERE e.course_id = @courseId
+                    AND e.final_score IS NOT NULL
+                    ORDER BY e.final_score DESC, e.completed_at ASC
+                `);
+
+            return {
+                overall: overallStats.recordset[0],
+                by_department: departmentStats.recordset,
+                enrollment_trend: enrollmentTrend.recordset,
+                completion_trend: completionTrend.recordset,
+                lesson_stats: lessonStats.recordset,
+                top_performers: topPerformers.recordset
+            };
+        } catch (error) {
+            throw new Error(`Error fetching course statistics: ${error.message}`);
         }
     }
 }

@@ -353,7 +353,21 @@ class User {
             const pool = await poolPromise;
             const offset = (page - 1) * limit;
 
-            let whereClause = 'WHERE u.is_active = 1';
+            // Handle is_active filter
+            // Default: show only active users
+            // 'all' or null: show all users
+            // true/1: show active only
+            // false/0: show inactive only
+            let whereClause = 'WHERE 1=1';
+            if (filters.is_active === undefined || filters.is_active === true || filters.is_active === '1') {
+                // Default or explicitly active
+                whereClause += ' AND u.is_active = 1';
+            } else if (filters.is_active === false || filters.is_active === '0') {
+                // Explicitly inactive
+                whereClause += ' AND u.is_active = 0';
+            }
+            // else: 'all' or null → no is_active filter
+
             const request = pool.request()
                 .input('offset', sql.Int, offset)
                 .input('limit', sql.Int, limit);
@@ -370,6 +384,11 @@ class User {
             if (filters.role_id) {
                 whereClause += ' AND u.role_id = @roleId';
                 request.input('roleId', sql.Int, filters.role_id);
+            }
+            if (filters.role) {
+                // Handle role name filter (case-insensitive)
+                whereClause += ' AND LOWER(r.role_name) = LOWER(@roleName)';
+                request.input('roleName', sql.NVarChar(50), filters.role);
             }
             if (filters.search) {
                 whereClause += ` AND (
@@ -399,7 +418,7 @@ class User {
                 LEFT JOIN Departments d ON u.department_id = d.department_id
                 LEFT JOIN Positions p ON u.position_id = p.position_id
                 ${whereClause}
-                ORDER BY u.created_at DESC
+                ORDER BY u.created_at ASC
                 OFFSET @offset ROWS
                 FETCH NEXT @limit ROWS ONLY
             `);
