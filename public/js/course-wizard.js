@@ -13,6 +13,7 @@ function initializeWizard() {
     setupRichTextEditor();
     setupFileHandlers();
     setupAutoSave();
+    setupDateTimePickers();
 }
 
 function changeStep(direction) {
@@ -240,10 +241,10 @@ function addLesson() {
     const lessonNumber = container.children.length + 1;
 
     const div = document.createElement('div');
-    div.className = 'lesson-item border border-gray-200 rounded-lg p-4';
+    div.className = 'lesson-item border border-gray-200 rounded-lg p-4 bg-gray-50';
     div.setAttribute('data-lesson', lessonNumber);
     div.innerHTML = `
-        <div class="flex items-start justify-between">
+        <div class="flex items-start justify-between mb-3">
             <div class="flex items-center">
                 <i class="fas fa-grip-vertical text-gray-400 mr-3 cursor-move"></i>
                 <span class="font-medium text-gray-700">บทที่ ${lessonNumber}:</span>
@@ -252,17 +253,68 @@ function addLesson() {
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>
-        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input type="text" name="lesson_titles[]" required
+
+        <!-- ชื่อและระยะเวลา -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <input type="text" name="lesson_titles[]"
                    class="rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                    placeholder="ชื่อบทเรียน">
-            <input type="number" name="lesson_durations[]" min="1" required
+            <input type="number" name="lesson_durations[]" min="1"
                    class="rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                    placeholder="ระยะเวลา (นาที)">
         </div>
+
+        <!-- คำอธิบาย -->
         <textarea name="lesson_descriptions[]" rows="2"
-                  class="mt-2 w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                  class="w-full mb-3 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                   placeholder="คำอธิบายบทเรียน"></textarea>
+
+        <!-- วิดีโอบทเรียน -->
+        <div class="bg-white rounded-md border border-gray-200 p-3 mb-3">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-video mr-1 text-blue-600"></i>วิดีโอบทเรียน
+            </label>
+            <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <input type="file" name="lesson_videos[]" accept="video/*"
+                           class="hidden lesson-video-file" onchange="handleLessonVideoUpload(this)">
+                    <button type="button" onclick="this.previousElementSibling.click()"
+                            class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-upload mr-2"></i>อัปโหลดวิดีโอ
+                    </button>
+                    <span class="text-xs text-gray-500 lesson-video-name"></span>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-xs text-gray-500 mr-2">หรือ</span>
+                    <input type="text" name="lesson_video_urls[]"
+                           class="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                           placeholder="ใส่ลิงก์ YouTube/Vimeo (เช่น https://www.youtube.com/watch?v=...)">
+                </div>
+                <p class="text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>MP4, AVI, MOV (ไม่เกิน 500MB) หรือใส่ลิงก์วิดีโอ
+                </p>
+            </div>
+        </div>
+
+        <!-- เอกสารประกอบบทเรียน -->
+        <div class="bg-white rounded-md border border-gray-200 p-3">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-file-pdf mr-1 text-red-600"></i>เอกสารประกอบ
+            </label>
+            <div class="space-y-2">
+                <input type="file" name="lesson_documents[]" multiple
+                       accept=".pdf,.ppt,.pptx,.doc,.docx,.xlsx,.xls"
+                       class="hidden lesson-documents-file" onchange="handleLessonDocumentsUpload(this)">
+                <button type="button" onclick="this.previousElementSibling.click()"
+                        class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-paperclip mr-2"></i>แนบเอกสาร
+                </button>
+                <div class="lesson-documents-list text-xs text-gray-600"></div>
+                <p class="text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>PDF, PPT, DOC, Excel (ไม่เกิน 50MB/ไฟล์)
+                </p>
+            </div>
+        </div>
     `;
     container.appendChild(div);
 }
@@ -284,6 +336,185 @@ function updateLessonNumbers() {
         }
         lesson.setAttribute('data-lesson', index + 1);
     });
+}
+
+// Lesson Video Upload Handler
+function handleLessonVideoUpload(input) {
+    const file = input.files[0];
+    if (file) {
+        // Validate file type
+        if (!file.type.startsWith('video/')) {
+            showError('กรุณาเลือกไฟล์วิดีโอเท่านั้น');
+            input.value = '';
+            return;
+        }
+
+        // Validate file size (500MB max)
+        const maxSize = 500 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showError('ขนาดไฟล์ต้องไม่เกิน 500MB');
+            input.value = '';
+            return;
+        }
+
+        // Display file name
+        const lessonItem = input.closest('.lesson-item');
+        const nameDisplay = lessonItem.querySelector('.lesson-video-name');
+        if (nameDisplay) {
+            nameDisplay.textContent = `📹 ${file.name} (${formatFileSize(file.size)})`;
+            nameDisplay.classList.add('text-green-600');
+        }
+    }
+}
+
+// Lesson Documents Upload Handler
+function handleLessonDocumentsUpload(input) {
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
+
+    const lessonItem = input.closest('.lesson-item');
+    const docsList = lessonItem.querySelector('.lesson-documents-list');
+    if (!docsList) return;
+
+    // Clear previous list
+    docsList.innerHTML = '';
+
+    let hasError = false;
+    const maxSize = 50 * 1024 * 1024; // 50MB per file
+
+    files.forEach((file, index) => {
+        // Validate file type
+        const validTypes = ['.pdf', '.ppt', '.pptx', '.doc', '.docx', '.xlsx', '.xls'];
+        const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+
+        if (!validTypes.includes(fileExt)) {
+            showError(`ไฟล์ ${file.name} ไม่ใช่ประเภทที่รองรับ`);
+            hasError = true;
+            return;
+        }
+
+        // Validate file size
+        if (file.size > maxSize) {
+            showError(`ไฟล์ ${file.name} มีขนาดเกิน 50MB`);
+            hasError = true;
+            return;
+        }
+
+        // Create file item display
+        const fileItem = document.createElement('div');
+        fileItem.className = 'flex items-center justify-between py-1 px-2 bg-gray-50 rounded mt-1';
+        fileItem.innerHTML = `
+            <span class="flex items-center text-gray-700">
+                <i class="fas fa-file-${getFileIcon(fileExt)} mr-2 text-gray-500"></i>
+                <span class="text-xs">${file.name}</span>
+                <span class="text-xs text-gray-500 ml-2">(${formatFileSize(file.size)})</span>
+            </span>
+        `;
+        docsList.appendChild(fileItem);
+    });
+
+    if (hasError) {
+        input.value = '';
+        docsList.innerHTML = '';
+    }
+}
+
+// Helper function to get file icon
+function getFileIcon(extension) {
+    const icons = {
+        '.pdf': 'pdf',
+        '.ppt': 'powerpoint',
+        '.pptx': 'powerpoint',
+        '.doc': 'word',
+        '.docx': 'word',
+        '.xlsx': 'excel',
+        '.xls': 'excel'
+    };
+    return icons[extension] || 'alt';
+}
+
+// Helper function to format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Assessment/Test Management
+function toggleTestOptions() {
+    const assessmentType = document.querySelector('input[name="assessment_type"]:checked').value;
+    const existingSection = document.getElementById('existing-test-section');
+    const createSection = document.getElementById('create-test-section');
+
+    // Hide all sections first
+    if (existingSection) existingSection.style.display = 'none';
+    if (createSection) createSection.style.display = 'none';
+
+    // Show relevant section
+    if (assessmentType === 'existing' && existingSection) {
+        existingSection.style.display = 'block';
+    } else if (assessmentType === 'create_new' && createSection) {
+        createSection.style.display = 'block';
+    }
+}
+
+async function loadAvailableTests() {
+    try {
+        const response = await fetch('/courses/api/tests/available');
+        const result = await response.json();
+
+        if (result.success) {
+            const select = document.getElementById('selected_test_id');
+            if (select) {
+                // Clear existing options except first one
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+
+                // Add tests
+                result.data.forEach(test => {
+                    const option = document.createElement('option');
+                    option.value = test.test_id;
+                    option.textContent = test.test_name;
+                    option.dataset.detail = JSON.stringify(test);
+                    select.appendChild(option);
+                });
+
+                // Add change event listener
+                select.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const infoDiv = document.getElementById('selected-test-info');
+                    const detailP = document.getElementById('test-info-detail');
+
+                    if (selectedOption.dataset.detail && infoDiv && detailP) {
+                        const test = JSON.parse(selectedOption.dataset.detail);
+                        let details = `${test.test_name}`;
+                        if (test.total_questions) {
+                            details += ` - ${test.total_questions} ข้อ`;
+                        }
+                        if (test.passing_score) {
+                            details += `, เกณฑ์ผ่าน ${test.passing_score}%`;
+                        }
+                        if (test.duration_minutes) {
+                            details += `, เวลา ${test.duration_minutes} นาที`;
+                        }
+                        if (test.course_name) {
+                            details += ` (ใช้ในหลักสูตร: ${test.course_name})`;
+                        }
+
+                        detailP.textContent = details;
+                        infoDiv.style.display = 'block';
+                    } else if (infoDiv) {
+                        infoDiv.style.display = 'none';
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading tests:', error);
+    }
 }
 
 // External Links Management
@@ -320,6 +551,10 @@ function setupFileHandlers() {
 }
 
 function previewCourseImage(input) {
+    if (!input || !input.files || input.files.length === 0) {
+        return;
+    }
+
     const file = input.files[0];
     if (file) {
         // Validate file type
@@ -389,28 +624,48 @@ function formatFileSize(bytes) {
 
 // Auto-save functionality
 function setupAutoSave() {
-    setInterval(saveDraft, 60000); // Auto-save every minute
+    // Disabled auto-save for now
+    // setInterval(saveDraft, 60000); // Auto-save every minute
 }
 
 async function saveDraft() {
-    try {
-        const formData = collectFormData();
-        formData.is_draft = true;
+    // Draft functionality temporarily disabled
+    // Will be implemented with proper draft endpoint
+    console.log('Draft save is currently disabled');
+}
 
-        const response = await fetch('/courses/api/draft', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (response.ok) {
-            showSuccess('บันทึกร่างเรียบร้อยแล้ว', false);
+// DateTime Pickers Setup
+function setupDateTimePickers() {
+    // Initialize Flatpickr for enrollment start date
+    flatpickr("#enrollment_start", {
+        enableTime: true,
+        dateFormat: "d/m/Y H:i",
+        time_24hr: true,
+        minDate: "today",
+        locale: {
+            firstDayOfWeek: 1
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            // Update minDate for enrollment_end
+            const endPicker = document.getElementById('enrollment_end')._flatpickr;
+            if (endPicker && selectedDates.length > 0) {
+                endPicker.set('minDate', selectedDates[0]);
+            }
         }
-    } catch (error) {
-        console.error('Auto-save failed:', error);
-    }
+    });
+
+    // Initialize Flatpickr for enrollment end date
+    flatpickr("#enrollment_end", {
+        enableTime: true,
+        dateFormat: "d/m/Y H:i",
+        time_24hr: true,
+        minDate: "today",
+        locale: {
+            firstDayOfWeek: 1
+        }
+    });
+
+    console.log('✅ DateTime pickers initialized');
 }
 
 // Data Loading
@@ -419,7 +674,8 @@ async function loadInitialData() {
         loadCategories(),
         loadPositions(),
         loadDepartments(),
-        loadPrerequisites()
+        loadPrerequisites(),
+        loadAvailableTests()
     ]);
     generateCourseCode();
 }
@@ -434,7 +690,7 @@ async function loadCategories() {
             result.data.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category.category_id;
-                option.textContent = `${category.category_icon ? category.category_icon + ' ' : ''}${category.category_name}`;
+                option.textContent = category.category_name;
                 select.appendChild(option);
             });
         }
@@ -456,7 +712,7 @@ async function loadPositions() {
             result.data.forEach(position => {
                 const option = document.createElement('option');
                 option.value = position.position_id;
-                option.textContent = position.position_name_th;
+                option.textContent = position.position_name;
                 option.dataset.level = position.level;
                 select.appendChild(option);
             });
@@ -524,8 +780,79 @@ async function submitCourse() {
     if (!validateStep(currentStep)) {return;}
 
     try {
+        showLoading('กำลังสร้างหลักสูตร...');
+
+        // Step 1: Upload course image first (if selected)
+        let courseImagePath = null;
+        const courseImageInput = document.getElementById('course_image');
+        if (courseImageInput && courseImageInput.files.length > 0) {
+            courseImagePath = await uploadCourseImage(courseImageInput.files[0]);
+            if (!courseImagePath) {
+                hideLoading();
+                showError('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+                return;
+            }
+        }
+
+        // Step 2: Handle test creation/selection
+        const assessmentType = document.querySelector('input[name="assessment_type"]:checked')?.value;
+        let testId = null;
+
+        if (assessmentType === 'create_new') {
+            // Create new test first
+            const testData = {
+                test_name: document.getElementById('new_test_name')?.value,
+                test_description: document.getElementById('new_test_description')?.value,
+                passing_score: document.getElementById('new_passing_score')?.value || 70,
+                max_attempts: document.getElementById('new_max_attempts')?.value || 3,
+                duration_minutes: document.getElementById('new_test_duration')?.value || 60,
+                randomize_questions: document.querySelector('input[name="new_randomize_questions"]')?.checked !== false,
+                randomize_answers: document.querySelector('input[name="new_randomize_choices"]')?.checked !== false,
+                show_results_immediately: document.getElementById('new_show_answer')?.value === 'immediately'
+            };
+
+            if (!testData.test_name) {
+                hideLoading();
+                showError('กรุณากรอกชื่อข้อสอบ');
+                return;
+            }
+
+            const testResponse = await fetch('/courses/api/tests/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(testData)
+            });
+
+            const testResult = await testResponse.json();
+            if (testResult.success) {
+                testId = testResult.data.test_id;
+            } else {
+                hideLoading();
+                showError(testResult.message || 'เกิดข้อผิดพลาดในการสร้างข้อสอบ');
+                return;
+            }
+        } else if (assessmentType === 'existing') {
+            testId = document.getElementById('selected_test_id')?.value || null;
+            if (!testId) {
+                hideLoading();
+                showError('กรุณาเลือกข้อสอบ');
+                return;
+            }
+        }
+
+        // Step 3: Collect course data
         const formData = collectFormData();
-        const response = await fetch('/courses/api', {
+        formData.test_id = testId;
+        formData.assessment_type = assessmentType;
+
+        // Add course image path if uploaded
+        if (courseImagePath) {
+            formData.thumbnail = courseImagePath;
+            formData.course_image = courseImagePath;
+        }
+
+        // Step 4: Create course
+        const response = await fetch('/courses/api/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -536,18 +863,45 @@ async function submitCourse() {
         const result = await response.json();
 
         if (result.success) {
-            // Upload files if any
-            await uploadFiles(result.data.course_id);
-
+            hideLoading();
             showSuccess('สร้างหลักสูตรเรียบร้อยแล้ว');
             setTimeout(() => {
                 window.location.href = `/courses/${result.data.course_id}`;
             }, 1500);
         } else {
+            hideLoading();
             showError(result.message || 'เกิดข้อผิดพลาดในการสร้างหลักสูตร');
         }
     } catch (error) {
+        console.error('Submit course error:', error);
+        hideLoading();
         showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    }
+}
+
+// Upload course image and return the path
+async function uploadCourseImage(file) {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/courses/api/upload/image', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            console.log('Image uploaded successfully:', result.data.path);
+            return result.data.path;
+        } else {
+            console.error('Image upload failed:', result.message);
+            return null;
+        }
+    } catch (error) {
+        console.error('Upload image error:', error);
+        return null;
     }
 }
 
@@ -580,6 +934,51 @@ async function uploadFiles(courseId) {
                 console.error(`Upload ${file.endpoint} failed:`, error);
             }
         }
+    }
+}
+
+// Convert Thai date format (DD/MM/YYYY HH:MM) to ISO format
+function convertThaiDateToISO(dateString) {
+    if (!dateString || dateString.trim() === '') {
+        return null;
+    }
+
+    try {
+        // Parse DD/MM/YYYY HH:MM format
+        const parts = dateString.trim().split(' ');
+        if (parts.length !== 2) {
+            console.warn('Invalid date format:', dateString);
+            return null;
+        }
+
+        const dateParts = parts[0].split('/');
+        const timeParts = parts[1].split(':');
+
+        if (dateParts.length !== 3 || timeParts.length !== 2) {
+            console.warn('Invalid date/time format:', dateString);
+            return null;
+        }
+
+        const day = parseInt(dateParts[0]);
+        const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+        const year = parseInt(dateParts[2]);
+        const hour = parseInt(timeParts[0]);
+        const minute = parseInt(timeParts[1]);
+
+        // Create Date object
+        const date = new Date(year, month, day, hour, minute);
+
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            console.warn('Invalid date:', dateString);
+            return null;
+        }
+
+        // Return ISO string
+        return date.toISOString();
+    } catch (error) {
+        console.error('Error converting date:', error);
+        return null;
     }
 }
 
@@ -636,6 +1035,14 @@ function collectFormData() {
         .filter(value => value);
     data.external_links = links;
 
+    // Convert Thai date format to ISO
+    if (data.enrollment_start) {
+        data.enrollment_start = convertThaiDateToISO(data.enrollment_start);
+    }
+    if (data.enrollment_end) {
+        data.enrollment_end = convertThaiDateToISO(data.enrollment_end);
+    }
+
     return data;
 }
 
@@ -686,4 +1093,30 @@ function showError(message) {
     setTimeout(() => {
         toast.remove();
     }, 5000);
+}
+
+let loadingOverlay = null;
+
+function showLoading(message = 'กำลังโหลด...') {
+    if (!loadingOverlay) {
+        loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        loadingOverlay.innerHTML = `
+            <div class="bg-white rounded-lg p-6 shadow-xl">
+                <div class="flex items-center space-x-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-ruxchai-primary"></div>
+                    <span class="text-gray-700 font-medium">${message}</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    }
+}
+
+function hideLoading() {
+    if (loadingOverlay) {
+        loadingOverlay.remove();
+        loadingOverlay = null;
+    }
 }

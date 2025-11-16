@@ -171,11 +171,10 @@
                             </label>
                             <select name="role" id="roleSelect" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
                                 <option value=""><%= t('selectRole') %></option>
-                                <option value="Employee" <%= (userData.role_name === 'Employee') ? 'selected' : '' %>>👤 <%= t('roleEmployee') %></option>
-                                <option value="Manager" <%= (userData.role_name === 'Manager') ? 'selected' : '' %>>👔 <%= t('roleManager') %></option>
-                                <option value="HR" <%= (userData.role_name === 'HR') ? 'selected' : '' %>>💼 <%= t('roleHR') %></option>
-                                <option value="Admin" <%= (userData.role_name === 'Admin') ? 'selected' : '' %>>⚙️ <%= t('roleAdmin') %></option>
-                                <option value="Applicant" <%= (userData.role_name === 'Applicant') ? 'selected' : '' %>>📋 Applicant</option>
+                                <option value="Employee" <%= (userData.role_name === 'Employee') ? 'selected' : '' %>>👤 พนักงาน</option>
+                                <option value="Manager" <%= (userData.role_name === 'Manager') ? 'selected' : '' %>>👔 ผู้จัดการ</option>
+                                <option value="HR" <%= (userData.role_name === 'HR') ? 'selected' : '' %>>💼 ฝ่ายบุคคล</option>
+                                <option value="Admin" <%= (userData.role_name === 'Admin') ? 'selected' : '' %>>⚙️ ผู้ดูแลระบบ</option>
                             </select>
                         </div>
                         <div>
@@ -222,13 +221,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Debug role value
-    console.log('userData.role_name:', userData.role_name);
-    console.log('Current role select value:', document.getElementById('roleSelect').value);
-
-    // Role value is already set by EJS template's selected attribute
-    // No need to set it again with JavaScript
-    console.log('Role already set by template:', document.getElementById('roleSelect').value);
+    // Set role value
+    const roleSelect = document.getElementById('roleSelect');
+    if (roleSelect && userData.role_name) {
+        roleSelect.value = userData.role_name;
+    }
 
     // Set status value
     if (userData.is_active) {

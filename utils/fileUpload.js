@@ -82,10 +82,14 @@ class FileUploadService {
     // File filter for different types
     createFileFilter(allowedTypes) {
         return (req, file, cb) => {
-            const fileType = file.mimetype.split('/')[0];
+            const fileMimeType = file.mimetype.toLowerCase();
             const fileExt = path.extname(file.originalname).toLowerCase();
 
-            if (allowedTypes.includes(fileType) || allowedTypes.includes(fileExt)) {
+            // Check if mimetype or extension is allowed
+            const isMimeTypeAllowed = allowedTypes.includes(fileMimeType);
+            const isExtensionAllowed = allowedTypes.includes(fileExt) || allowedTypes.includes(fileExt.substring(1));
+
+            if (isMimeTypeAllowed || isExtensionAllowed) {
                 cb(null, true);
             } else {
                 cb(new Error(`ประเภทไฟล์ไม่ได้รับอนุญาต. อนุญาตเฉพาะ: ${allowedTypes.join(', ')}`), false);

@@ -275,8 +275,11 @@ let currentRating = 0;
 let courseData = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    if (courseId) {
+    if (courseId && courseId !== "") {
         loadCourseDetail();
+    } else {
+        console.error('courseId is missing!');
+        showError('ไม่สามารถโหลดข้อมูลคอร์สได้ เนื่องจากไม่พบรหัสคอร์ส');
     }
     setupEventListeners();
 });

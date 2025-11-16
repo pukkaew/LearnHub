@@ -6,8 +6,9 @@ const authMiddleware = require('../middleware/auth');
 // Apply authentication to all test routes
 router.use(authMiddleware.requireAuth);
 
-// Render pages
+// Render pages - IMPORTANT: Static routes MUST come before dynamic routes
 router.get('/', testController.renderTestsList);
+router.get('/create', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderCreateTest);
 router.get('/:test_id', testController.renderTestDetail);
 router.get('/:test_id/:attempt_id/taking', testController.renderTestTaking);
 

@@ -79,11 +79,10 @@
                 </select>
                 <select id="roleFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value=""><%= t('allRoles') %></option>
-                    <option value="Admin"><%= t('roleAdmin') %></option>
-                    <option value="HR"><%= t('roleHR') %></option>
-                    <option value="Manager"><%= t('roleManager') %></option>
-                    <option value="Employee"><%= t('roleEmployee') %></option>
-                    <option value="Applicant">Applicant</option>
+                    <option value="Admin">ผู้ดูแลระบบ</option>
+                    <option value="HR">ฝ่ายบุคคล</option>
+                    <option value="Manager">ผู้จัดการ</option>
+                    <option value="Employee">พนักงาน</option>
                 </select>
                 <select id="departmentFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value=""><%= t('allDepartments') %></option>
@@ -218,34 +217,18 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <%= t('userType') %> <span class="text-red-500">*</span>
                             </label>
-                            <select name="user_type" id="userTypeSelect" required onchange="handleUserTypeChange()"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value=""><%= t('selectUserType') %></option>
-                                <option value="employee"><%= t('employeeWithAccess') %></option>
-                                <option value="applicant"><%= t('applicantNoAccess') %></option>
-                            </select>
+                            <input type="hidden" name="user_type" value="employee">
                         </div>
 
-                        <!-- Employee ID - Only for Employee -->
-                        <div id="employeeIdField" class="hidden">
+                        <!-- Employee ID -->
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-id-badge text-ruxchai-primary mr-1"></i>
                                 <%= t('employeeId') %> <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="employee_id" id="employeeIdInput"
+                            <input type="text" name="employee_id" id="employeeIdInput" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
                                    placeholder="<%= t('employeeId') %>">
-                        </div>
-
-                        <!-- ID Card - Only for Applicant -->
-                        <div id="idCardField" class="hidden">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-id-card text-gray-400 mr-1"></i>
-                                <%= t('idCardNumber') %> <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="id_card_number" id="idCardInput" maxlength="13"
-                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
-                                   placeholder="1234567890123">
                         </div>
 
                         <!-- Name Fields - Grid Layout -->
@@ -364,31 +347,7 @@
                     </div>
                 </div>
 
-                <!-- Applicant Information Section (Only for Applicants) -->
-                <div id="applicantSection" class="border-b border-gray-200 pb-6 mb-6 hidden">
-                    <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
-                        <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center mr-3">
-                            <i class="fas fa-briefcase text-green-600"></i>
-                        </div>
-                        <%= t('applicationInfo') %>
-                    </h4>
-
-                    <div class="space-y-4">
-                        <div id="appliedPositionField">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-user-tag text-gray-400 mr-1"></i>
-                                <%= t('appliedPosition') %> <span class="text-red-500">*</span>
-                            </label>
-                            <select name="applied_position_id" id="appliedPositionSelect"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value=""><%= t('selectAppliedPosition') %></option>
-                                <!-- Positions will be loaded dynamically -->
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- System Access (Only for Employees) -->
+                <!-- System Access -->
                 <div id="systemAccessSection" class="border-b border-gray-200 pb-6 mb-6 hidden">
                     <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
                         <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3">
@@ -407,11 +366,10 @@
                                 <select name="role" id="roleSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
                                     <option value=""><%= t('selectRole') %></option>
-                                    <option value="Employee">👤 <%= t('roleEmployee') %></option>
-                                    <option value="Manager">👔 <%= t('roleManager') %></option>
-                                    <option value="HR">💼 <%= t('roleHR') %></option>
-                                    <option value="Admin">⚙️ <%= t('roleAdmin') %></option>
-                                    <option value="Applicant">📋 Applicant</option>
+                                    <option value="Employee">👤 พนักงาน</option>
+                                    <option value="Manager">👔 ผู้จัดการ</option>
+                                    <option value="HR">💼 ฝ่ายบุคคล</option>
+                                    <option value="Admin">⚙️ ผู้ดูแลระบบ</option>
                                 </select>
                             </div>
                             <div id="statusField">
@@ -589,11 +547,10 @@
                                 </label>
                                 <select name="role" id="editRole" required
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="Employee">👤 <%= t('roleEmployee') %></option>
-                                    <option value="Manager">👔 <%= t('roleManager') %></option>
-                                    <option value="HR">💼 <%= t('roleHR') %></option>
-                                    <option value="Admin">⚙️ <%= t('roleAdmin') %></option>
-                                    <option value="Applicant">📋 Applicant</option>
+                                    <option value="Employee">👤 พนักงาน</option>
+                                    <option value="Manager">👔 ผู้จัดการ</option>
+                                    <option value="HR">💼 ฝ่ายบุคคล</option>
+                                    <option value="Admin">⚙️ ผู้ดูแลระบบ</option>
                                 </select>
                             </div>
                             <div>
@@ -1298,11 +1255,6 @@ async function loadPositions() {
                 console.log('Position select element not found!');
             }
 
-            // Load positions for applicants too
-            if (appliedPositionSelect) {
-                appliedPositionSelect.innerHTML = `<option value="">${translations.selectAppliedPosition}</option>` + positionsHTML;
-                console.log('Applied position select HTML:', appliedPositionSelect.innerHTML);
-            }
         } else {
             console.log('No positions data or data.success is false');
             console.log('data.success:', data.success);
@@ -1378,98 +1330,19 @@ function setupProfileImagePreview() {
     }
 }
 
-// Handle user type change - Show/hide fields based on user type
-function handleUserTypeChange() {
-    const userType = document.getElementById('userTypeSelect').value;
-
-    // Get all field elements
+// Show all employee fields on page load
+document.addEventListener('DOMContentLoaded', function() {
     const nameFields = document.getElementById('nameFields');
     const contactFields = document.getElementById('contactFields');
-    const employeeIdField = document.getElementById('employeeIdField');
-    const idCardField = document.getElementById('idCardField');
     const organizationSection = document.getElementById('organizationSection');
     const systemAccessSection = document.getElementById('systemAccessSection');
-    const applicantSection = document.getElementById('applicantSection');
 
-    // Get form inputs
-    const firstNameInput = document.getElementById('firstNameInput');
-    const lastNameInput = document.getElementById('lastNameInput');
-    const emailInput = document.getElementById('emailInput');
-    const phoneInput = document.getElementById('phoneInput');
-    const employeeIdInput = document.getElementById('employeeIdInput');
-    const idCardInput = document.getElementById('idCardInput');
-    const departmentSelect = document.getElementById('departmentSelect');
-    const positionSelect = document.getElementById('addPositionSelect');
-    const roleSelect = document.getElementById('roleSelect');
-    const passwordInput = document.getElementById('passwordInput');
-    const confirmPasswordInput = document.getElementById('confirmPasswordInput');
-    const appliedPositionSelect = document.getElementById('appliedPositionSelect');
-
-    // Hide all sections and remove required first
-    if (nameFields) nameFields.classList.add('hidden');
-    if (contactFields) contactFields.classList.add('hidden');
-    if (employeeIdField) employeeIdField.classList.add('hidden');
-    if (idCardField) idCardField.classList.add('hidden');
-    if (organizationSection) organizationSection.classList.add('hidden');
-    if (systemAccessSection) systemAccessSection.classList.add('hidden');
-    if (applicantSection) applicantSection.classList.add('hidden');
-
-    // Remove all required attributes
-    if (firstNameInput) firstNameInput.removeAttribute('required');
-    if (lastNameInput) lastNameInput.removeAttribute('required');
-    if (emailInput) emailInput.removeAttribute('required');
-    if (phoneInput) phoneInput.removeAttribute('required');
-    if (employeeIdInput) employeeIdInput.removeAttribute('required');
-    if (idCardInput) idCardInput.removeAttribute('required');
-    if (departmentSelect) departmentSelect.removeAttribute('required');
-    if (positionSelect) positionSelect.removeAttribute('required');
-    if (roleSelect) roleSelect.removeAttribute('required');
-    if (passwordInput) passwordInput.removeAttribute('required');
-    if (confirmPasswordInput) confirmPasswordInput.removeAttribute('required');
-    if (appliedPositionSelect) appliedPositionSelect.removeAttribute('required');
-
-    // Show relevant fields based on user type
-    if (userType === 'employee') {
-        // Show basic fields
-        if (nameFields) nameFields.classList.remove('hidden');
-        if (contactFields) contactFields.classList.remove('hidden');
-        if (firstNameInput) firstNameInput.setAttribute('required', 'required');
-        if (lastNameInput) lastNameInput.setAttribute('required', 'required');
-        if (emailInput) emailInput.setAttribute('required', 'required');
-        if (phoneInput) phoneInput.setAttribute('required', 'required');
-
-        // Show Employee ID
-        if (employeeIdField) employeeIdField.classList.remove('hidden');
-        if (employeeIdInput) employeeIdInput.setAttribute('required', 'required');
-
-        // Show organization section for employees
-        if (organizationSection) organizationSection.classList.remove('hidden');
-        // Department and position are optional - no required attribute
-
-        // Show system access section for employees
-        if (systemAccessSection) systemAccessSection.classList.remove('hidden');
-        if (roleSelect) roleSelect.setAttribute('required', 'required');
-        if (passwordInput) passwordInput.setAttribute('required', 'required');
-        if (confirmPasswordInput) confirmPasswordInput.setAttribute('required', 'required');
-
-    } else if (userType === 'applicant') {
-        // Show basic fields
-        if (nameFields) nameFields.classList.remove('hidden');
-        if (contactFields) contactFields.classList.remove('hidden');
-        if (firstNameInput) firstNameInput.setAttribute('required', 'required');
-        if (lastNameInput) lastNameInput.setAttribute('required', 'required');
-        if (emailInput) emailInput.setAttribute('required', 'required');
-        if (phoneInput) phoneInput.setAttribute('required', 'required');
-
-        // Show ID Card for applicants
-        if (idCardField) idCardField.classList.remove('hidden');
-        if (idCardInput) idCardInput.setAttribute('required', 'required');
-
-        // Show applicant section
-        if (applicantSection) applicantSection.classList.remove('hidden');
-        if (appliedPositionSelect) appliedPositionSelect.setAttribute('required', 'required');
-    }
-}
+    // Show all sections for employee type
+    if (nameFields) nameFields.classList.remove('hidden');
+    if (contactFields) contactFields.classList.remove('hidden');
+    if (organizationSection) organizationSection.classList.remove('hidden');
+    if (systemAccessSection) systemAccessSection.classList.remove('hidden');
+});
 
 // Handle user selection
 function handleUserSelection(checkbox) {

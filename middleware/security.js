@@ -22,7 +22,7 @@ class SecurityMiddleware {
                     styleSrc: ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://use.fontawesome.com', 'https://fonts.googleapis.com'],
                     scriptSrc: ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://use.fontawesome.com'],
                     scriptSrcAttr: ['\'unsafe-inline\''],
-                    imgSrc: ['\'self\'', 'data:', 'https:'],
+                    imgSrc: ['\'self\'', 'data:', 'blob:', 'https:'],
                     fontSrc: ['\'self\'', 'https://fonts.gstatic.com', 'https://use.fontawesome.com', 'https://cdnjs.cloudflare.com'],
                     connectSrc: ['\'self\''],
                     mediaSrc: ['\'self\''],
@@ -147,8 +147,18 @@ class SecurityMiddleware {
     // Input validation and sanitization
     validateInput() {
         return (req, res, next) => {
-            // Skip validation for settings routes (they have their own validation)
-            if (req.path.startsWith('/settings')) {
+            // Skip validation for routes that have their own validation or use parameterized queries
+            const skipPaths = [
+                '/settings',
+                '/api/create',
+                '/api/update'
+            ];
+
+            const fullPath = req.baseUrl + req.path;
+            const shouldSkip = skipPaths.some(path => req.path.startsWith(path) || fullPath.includes(path));
+
+            if (shouldSkip) {
+                console.log(`✅ Security validation SKIPPED for path: ${req.path} (full: ${fullPath})`);
                 return next();
             }
 

@@ -632,28 +632,30 @@
                     <% if (locals.user) { %>
                     <div class="nav-menu">
                         <!-- หน้าหลัก -->
+                        <% if (['Admin', 'Manager', 'Employee', 'HR'].includes(user.role_name)) { %>
                         <a href="/dashboard" class="nav-menu-item">
                             <span class="nav-menu-icon"><i class="fas fa-home"></i></span>
                             <span><%= typeof t === 'function' ? t('home') : 'หน้าหลัก' %></span>
                         </a>
+                        <% } %>
 
                         <!-- ส่วนการเรียนรู้ -->
-                        <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
+                        <% if (['Admin', 'Manager', 'Employee'].includes(user.role_name)) { %>
                         <% if (user.role_name === 'Admin') { %>
                         <!-- Admin only: Show dropdown with submenu -->
                         <div class="nav-menu-item-dropdown">
                             <a href="#" class="nav-menu-item has-submenu" onclick="event.preventDefault()">
                                 <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
-                                <span><%= typeof t === 'function' ? t('courses') : 'หลักสูตร' %></span>
+                                <span>หลักสูตร</span>
                             </a>
                             <div class="nav-submenu">
                                 <a href="/courses" class="nav-submenu-item">
                                     <span class="nav-submenu-icon"><i class="fas fa-book-open"></i></span>
-                                    <span><%= typeof t === 'function' ? t('allCourses') : 'ดูหลักสูตร' %></span>
+                                    <span>รายการคอร์ส</span>
                                 </a>
                                 <a href="/courses/categories" class="nav-submenu-item">
                                     <span class="nav-submenu-icon"><i class="fas fa-folder-tree"></i></span>
-                                    <span><%= typeof t === 'function' ? t('categories') : 'หมวดหมู่' %></span>
+                                    <span>จัดการหมวดหมู่</span>
                                 </a>
                             </div>
                         </div>
@@ -665,6 +667,7 @@
                         <% } %>
                         <% } %>
 
+                        <% if (['Admin', 'Manager', 'Employee', 'HR'].includes(user.role_name)) { %>
                         <a href="/tests" class="nav-menu-item">
                             <span class="nav-menu-icon"><i class="fas fa-clipboard-list"></i></span>
                             <span><%= typeof t === 'function' ? t('tests') : 'แบบทดสอบ' %></span>
@@ -675,6 +678,7 @@
                             <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
                             <span><%= typeof t === 'function' ? t('articles') : 'บทความ' %></span>
                         </a>
+                        <% } %>
 
                         <!-- ส่วน HR & Admin -->
                         <% if (['Admin', 'HR'].includes(user.role_name)) { %>
@@ -807,26 +811,40 @@
         <div id="mobile-menu" class="nav-mobile-menu">
             <% if (locals.user) { %>
                 <!-- หน้าหลัก -->
+                <% if (['Admin', 'Manager', 'Employee', 'HR'].includes(user.role_name)) { %>
                 <a href="/dashboard" class="nav-mobile-menu-item">
                     <span class="nav-menu-icon"><i class="fas fa-home"></i></span>
                     <span><%= typeof t === 'function' ? t('home') : 'หน้าหลัก' %></span>
                 </a>
+                <% } %>
 
                 <!-- ส่วนการเรียนรู้ -->
-                <% if (['Admin', 'Instructor', 'Learner'].includes(user.role_name)) { %>
+                <% if (['Admin', 'Manager', 'Employee'].includes(user.role_name)) { %>
+                <% if (user.role_name === 'Admin') { %>
+                <!-- Admin only: Show dropdown with submenu -->
+                <button class="nav-mobile-menu-item has-submenu" id="mobile-courses-menu-toggle">
+                    <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
+                    <span>หลักสูตร</span>
+                </button>
+                <div class="nav-mobile-submenu" id="mobile-courses-submenu">
+                    <a href="/courses" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-book-open"></i></span>
+                        <span>รายการคอร์ส</span>
+                    </a>
+                    <a href="/courses/categories" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-folder-tree"></i></span>
+                        <span>จัดการหมวดหมู่</span>
+                    </a>
+                </div>
+                <% } else { %>
                 <a href="/courses" class="nav-mobile-menu-item">
                     <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
                     <span><%= typeof t === 'function' ? t('courses') : 'หลักสูตร' %></span>
                 </a>
-                <!-- Admin only -->
-                <% if (user.role_name === 'Admin') { %>
-                <a href="/courses/categories" class="nav-mobile-menu-item pl-8">
-                    <span class="nav-menu-icon"><i class="fas fa-folder-tree"></i></span>
-                    <span><%= typeof t === 'function' ? t('categories') : 'หมวดหมู่' %></span>
-                </a>
                 <% } %>
                 <% } %>
 
+                <% if (['Admin', 'Manager', 'Employee', 'HR'].includes(user.role_name)) { %>
                 <a href="/tests" class="nav-mobile-menu-item">
                     <span class="nav-menu-icon"><i class="fas fa-clipboard-list"></i></span>
                     <span><%= typeof t === 'function' ? t('tests') : 'แบบทดสอบ' %></span>
@@ -837,6 +855,7 @@
                     <span class="nav-menu-icon"><i class="fas fa-newspaper"></i></span>
                     <span><%= typeof t === 'function' ? t('articles') : 'บทความ' %></span>
                 </a>
+                <% } %>
 
                 <!-- ส่วน HR & Admin -->
                 <% if (['Admin', 'HR'].includes(user.role_name)) { %>
@@ -1584,6 +1603,26 @@
                         if (mobileMenuIcon) {
                             mobileMenuIcon.className = 'fas fa-times text-xl';
                         }
+                    }
+                });
+            }
+
+            // Mobile Courses Submenu Toggle
+            const mobileCoursesToggle = document.getElementById('mobile-courses-menu-toggle');
+            const mobileCoursesSubmenu = document.getElementById('mobile-courses-submenu');
+
+            if (mobileCoursesToggle && mobileCoursesSubmenu) {
+                mobileCoursesToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const isOpen = mobileCoursesSubmenu.classList.contains('open');
+
+                    if (isOpen) {
+                        mobileCoursesSubmenu.classList.remove('open');
+                        mobileCoursesToggle.classList.remove('open');
+                    } else {
+                        mobileCoursesSubmenu.classList.add('open');
+                        mobileCoursesToggle.classList.add('open');
                     }
                 });
             }

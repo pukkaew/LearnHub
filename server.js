@@ -565,3 +565,4 @@ const securityInstance = require('./middleware/security');
 securityInstance.cleanupLoginAttempts();
 
 module.exports = app;
+

@@ -358,12 +358,16 @@ function createCourseCard(course, showProgress = false) {
     const enrollmentStatus = getEnrollmentStatus(course);
     const progressPercentage = course.progress_percentage || 0;
 
+    // Use thumbnail or generate a placeholder with category color
+    const thumbnailUrl = course.thumbnail || 'https://via.placeholder.com/400x300/3b82f6/ffffff?text=' + encodeURIComponent(course.title || 'Course');
+
     return `
         <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ruxchai-card">
             <div class="relative">
-                <img src="${course.thumbnail || '/images/course-default.jpg'}"
-                     alt="${course.title}"
-                     class="w-full h-48 object-cover rounded-t-lg">
+                <img src="${thumbnailUrl}"
+                     alt="${course.title || 'Course'}"
+                     class="w-full h-48 object-cover rounded-t-lg"
+                     onerror="this.src='https://via.placeholder.com/400x300/3b82f6/ffffff?text=Course'">
                 <div class="absolute top-3 left-3">
                     <span class="badge-${getDifficultyColor(course.difficulty_level)}">
                         ${getDifficultyText(course.difficulty_level)}
@@ -431,13 +435,17 @@ function createCourseListItem(course) {
     const enrollmentStatus = getEnrollmentStatus(course);
     const progressPercentage = course.progress_percentage || 0;
 
+    // Use thumbnail or generate a placeholder
+    const thumbnailUrl = course.thumbnail || 'https://via.placeholder.com/200x200/3b82f6/ffffff?text=' + encodeURIComponent(course.title || 'Course');
+
     return `
         <div class="bg-white rounded-lg shadow-sm p-6 ruxchai-card">
             <div class="flex space-x-6">
                 <div class="flex-shrink-0">
-                    <img src="${course.thumbnail || '/images/course-default.jpg'}"
-                         alt="${course.title}"
-                         class="w-24 h-24 object-cover rounded-lg">
+                    <img src="${thumbnailUrl}"
+                         alt="${course.title || 'Course'}"
+                         class="w-24 h-24 object-cover rounded-lg"
+                         onerror="this.src='https://via.placeholder.com/200x200/3b82f6/ffffff?text=Course'">
                 </div>
 
                 <div class="flex-1 min-w-0">
@@ -498,7 +506,7 @@ function getEnrollmentStatus(course) {
     } else if (course.enrollment_status === 'completed') {
         return {
             badge: '<span class="badge-primary">เรียนจบแล้ว</span>',
-            button: `<a href="/courses/${course.course_id}" class="btn-ruxchai-outline text-sm">ทบทวน</a>`
+            button: `<a href="/courses/${course.course_id}" class="btn-ruxchai-outline text-sm">เรียนซ้ำ</a>`
         };
     } else {
         return {
@@ -509,21 +517,23 @@ function getEnrollmentStatus(course) {
 }
 
 function getDifficultyColor(level) {
+    if (!level) return 'primary';
     const colors = {
         'beginner': 'success',
         'intermediate': 'warning',
         'advanced': 'danger'
     };
-    return colors[level] || 'primary';
+    return colors[level.toLowerCase()] || 'primary';
 }
 
 function getDifficultyText(level) {
+    if (!level) return 'ไม่ระบุ';
     const texts = {
         'beginner': 'เริ่มต้น',
         'intermediate': 'ปานกลาง',
         'advanced': 'ขั้นสูง'
     };
-    return texts[level] || 'ไม่ระบุ';
+    return texts[level.toLowerCase()] || 'ไม่ระบุ';
 }
 
 function handleFilterChange() {

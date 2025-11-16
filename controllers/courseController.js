@@ -1,6 +1,7 @@
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const ActivityLog = require('../models/ActivityLog');
+const Test = require('../models/Test');
 
 const courseController = {
     async getAllCourses(req, res) {
@@ -24,19 +25,16 @@ const courseController = {
             if (is_active !== undefined) {filters.is_active = is_active === 'true';}
             if (search) {filters.search = search;}
 
-            const offset = (parseInt(page) - 1) * parseInt(limit);
-            filters.limit = parseInt(limit);
-            filters.offset = offset;
-
-            const courses = await Course.findAll(filters);
+            const result = await Course.findAll(parseInt(page), parseInt(limit), filters);
 
             res.json({
                 success: true,
-                data: courses,
+                data: result.data || [],
                 pagination: {
-                    page: parseInt(page),
+                    page: result.page || parseInt(page),
                     limit: parseInt(limit),
-                    total: courses.length
+                    total: result.total || 0,
+                    totalPages: result.totalPages || 0
                 }
             });
 
@@ -72,18 +70,22 @@ const courseController = {
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
-                description: `User viewed course: ${course.course_name}`,
+                description: `User viewed course: ${course.title || course.course_name}`,
                 severity: 'Info',
                 module: 'Course Management'
             });
 
+            // Flatten the course data and add enrollment info
+            const responseData = {
+                ...course,
+                enrollment_status: enrollment ? enrollment.completion_status || enrollment.status : null,
+                progress_percentage: enrollment ? (enrollment.progress_percentage || enrollment.progress || 0) : 0,
+                is_enrolled: !!enrollment
+            };
+
             res.json({
                 success: true,
-                data: {
-                    course: course,
-                    enrollment: enrollment,
-                    is_enrolled: !!enrollment
-                }
+                data: responseData
             });
 
         } catch (error) {
@@ -98,7 +100,12 @@ const courseController = {
     async createCourse(req, res) {
         try {
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;  // Changed from userId to user_id
+
+            console.log('📝 createCourse called');
+            console.log('User info:', { userId, userRole, fullUser: req.user });
+            console.log('Request body keys:', Object.keys(req.body));
+            console.log('Full request body:', JSON.stringify(req.body, null, 2));
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
@@ -109,13 +116,24 @@ const courseController = {
 
             const courseData = {
                 ...req.body,
-                instructor_id: userRole === 'Instructor' ? userId : req.body.instructor_id,
+                instructor_id: userRole === 'Instructor' ? userId : (req.body.instructor_id || userId),
                 created_by: userId
             };
 
+            console.log('Creating course with data:', {
+                userRole,
+                userId,
+                instructor_id: courseData.instructor_id,
+                course_name: courseData.course_name,
+                category_id: courseData.category_id
+            });
+
             const result = await Course.create(courseData);
 
+            console.log('Course.create result:', result);
+
             if (!result.success) {
+                console.error('❌ Course creation failed:', result.message);
                 return res.status(400).json(result);
             }
 
@@ -139,10 +157,12 @@ const courseController = {
             });
 
         } catch (error) {
-            console.error('Create course error:', error);
+            console.error('❌ Create course error:', error);
+            console.error('Error stack:', error.stack);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างหลักสูตร'
+                message: 'เกิดข้อผิดพลาดในการสร้างหลักสูตร',
+                error: error.message
             });
         }
     },
@@ -340,11 +360,9 @@ const courseController = {
             const userId = req.user.userId;
             const { status, completion_status } = req.query;
 
-            const filters = { user_id: userId };
-            if (status) {filters.status = status;}
-            if (completion_status) {filters.completion_status = completion_status;}
-
-            const enrollments = await Enrollment.findByUser(userId, filters);
+            // findByUser accepts (userId, status) - use completion_status or status
+            const statusFilter = completion_status || status || null;
+            const enrollments = await Enrollment.findByUser(userId, statusFilter);
 
             res.json({
                 success: true,
@@ -507,6 +525,7 @@ const courseController = {
                 user: req.session.user,
                 userRole: req.user.role_name,
                 course: course,
+                courseId: course_id,
                 enrollment: enrollment,
                 is_enrolled: !!enrollment
             });
@@ -688,13 +707,14 @@ const courseController = {
                 .query(`
                     SELECT
                         position_id,
-                        position_name_th,
-                        position_name_en,
+                        position_name,
                         level,
-                        level_code
+                        position_level,
+                        job_grade,
+                        unit_id
                     FROM Positions
                     WHERE is_active = 1
-                    ORDER BY level, position_name_th
+                    ORDER BY level, position_name
                 `);
 
             res.json({
@@ -720,16 +740,18 @@ const courseController = {
             const result = await pool.request()
                 .query(`
                     SELECT
-                        unit_id,
-                        unit_name_th,
-                        unit_name_en,
-                        unit_code,
-                        level_code,
-                        parent_id
-                    FROM OrganizationUnits
-                    WHERE is_active = 1
-                      AND level_code IN ('BRANCH', 'DIVISION', 'DEPARTMENT', 'SECTION')
-                    ORDER BY level_code, unit_name_th
+                        ou.unit_id,
+                        ou.unit_name_th,
+                        ou.unit_name_en,
+                        ou.unit_code,
+                        ol.level_code,
+                        ou.parent_id,
+                        ou.level_id
+                    FROM OrganizationUnits ou
+                    LEFT JOIN OrganizationLevels ol ON ou.level_id = ol.level_id
+                    WHERE ou.is_active = 1
+                      AND ou.level_id IN (2, 4, 5, 6)
+                    ORDER BY ou.level_id, ou.unit_name_th
                 `);
 
             res.json({
@@ -1093,7 +1115,6 @@ const courseController = {
                         cc.category_icon,
                         cc.category_color,
                         cc.display_order,
-                        cc.is_active,
                         cc.created_at,
                         cc.updated_at,
                         u1.first_name + ' ' + u1.last_name AS created_by_name,
@@ -1102,10 +1123,11 @@ const courseController = {
                     FROM CourseCategories cc
                     LEFT JOIN Users u1 ON cc.created_by = u1.user_id
                     LEFT JOIN Users u2 ON cc.updated_by = u2.user_id
-                    LEFT JOIN Courses c ON cc.category_id = c.category_id AND c.is_active = 1
+                    LEFT JOIN Courses c ON cc.category_name = c.category AND c.status = 'published'
                     GROUP BY cc.category_id, cc.category_name, cc.category_name_en,
                              cc.description, cc.category_icon, cc.category_color,
-                             cc.display_order, cc.is_active, cc.created_at, cc.updated_at,
+                             cc.display_order, cc.created_at, cc.updated_at,
+                             cc.created_by, cc.updated_by,
                              u1.first_name, u1.last_name, u2.first_name, u2.last_name
                     ORDER BY cc.display_order, cc.category_name
                 `);
@@ -1135,18 +1157,28 @@ const courseController = {
                 .input('category_id', category_id)
                 .query(`
                     SELECT
-                        cc.*,
+                        cc.category_id,
+                        cc.category_name,
+                        cc.category_name_en,
+                        cc.description,
+                        cc.category_icon,
+                        cc.category_color,
+                        cc.display_order,
+                        cc.created_at,
+                        cc.updated_at,
+                        cc.created_by,
+                        cc.updated_by,
                         u1.first_name + ' ' + u1.last_name AS created_by_name,
                         u2.first_name + ' ' + u2.last_name AS updated_by_name,
                         COUNT(c.course_id) as course_count
                     FROM CourseCategories cc
                     LEFT JOIN Users u1 ON cc.created_by = u1.user_id
                     LEFT JOIN Users u2 ON cc.updated_by = u2.user_id
-                    LEFT JOIN Courses c ON cc.category_id = c.category_id AND c.is_active = 1
+                    LEFT JOIN Courses c ON cc.category_name = c.category AND c.status = 'published'
                     WHERE cc.category_id = @category_id
                     GROUP BY cc.category_id, cc.category_name, cc.category_name_en,
                              cc.description, cc.category_icon, cc.category_color,
-                             cc.display_order, cc.is_active, cc.created_at, cc.updated_at,
+                             cc.display_order, cc.created_at, cc.updated_at,
                              cc.created_by, cc.updated_by,
                              u1.first_name, u1.last_name, u2.first_name, u2.last_name
                 `);
@@ -1397,6 +1429,309 @@ const courseController = {
                 success: false,
                 message: 'เกิดข้อผิดพลาดในการลบหมวดหมู่'
             });
+        }
+    },
+
+    // Get all available tests for course creation
+    async getAvailableTests(req, res) {
+        try {
+            const { poolPromise } = require('../config/database');
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT
+                    t.test_id,
+                    t.title as test_name,
+                    t.description as test_description,
+                    (SELECT COUNT(*) FROM test_questions WHERE test_id = t.test_id) as total_questions,
+                    t.passing_marks as passing_score,
+                    t.time_limit as duration_minutes,
+                    t.attempts_allowed as max_attempts,
+                    c.title as course_name,
+                    CONCAT(u.first_name, ' ', u.last_name) as creator_name
+                FROM Tests t
+                LEFT JOIN Courses c ON t.course_id = c.course_id
+                LEFT JOIN Users u ON t.instructor_id = u.user_id
+                WHERE t.status IN ('Active', 'Published')
+                ORDER BY t.created_at DESC
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+
+        } catch (error) {
+            console.error('Get available tests error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดรายการข้อสอบ'
+            });
+        }
+    },
+
+    // Create test for course
+    async createTestForCourse(req, res) {
+        try {
+            const userId = req.user.userId;
+            const {
+                test_name,
+                test_description,
+                course_id,
+                passing_score,
+                max_attempts,
+                duration_minutes,
+                randomize_questions,
+                randomize_answers,
+                show_results_immediately
+            } = req.body;
+
+            if (!test_name) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณากรอกชื่อข้อสอบ'
+                });
+            }
+
+            const { poolPromise } = require('../config/database');
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('title', test_name)
+                .input('description', test_description || null)
+                .input('course_id', course_id || null)
+                .input('instructor_id', userId)
+                .input('passing_score', passing_score || 70)
+                .input('max_attempts', max_attempts || 3)
+                .input('duration_minutes', duration_minutes || 60)
+                .input('randomize_questions', randomize_questions !== false)
+                .input('randomize_answers', randomize_answers !== false)
+                .input('show_results_immediately', show_results_immediately !== false)
+                .query(`
+                    INSERT INTO Tests (
+                        title, description, course_id, instructor_id,
+                        passing_score, max_attempts, duration_minutes,
+                        randomize_questions, randomize_answers, show_results_immediately,
+                        is_active, created_at
+                    )
+                    OUTPUT INSERTED.test_id
+                    VALUES (
+                        @title, @description, @course_id, @instructor_id,
+                        @passing_score, @max_attempts, @duration_minutes,
+                        @randomize_questions, @randomize_answers, @show_results_immediately,
+                        1, GETDATE()
+                    )
+                `);
+
+            const testId = result.recordset[0].test_id;
+
+            await ActivityLog.create({
+                user_id: userId,
+                action: 'Create',
+                table_name: 'Tests',
+                record_id: testId,
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                session_id: req.sessionID,
+                description: `Created test: ${test_name}`,
+                severity: 'Info',
+                module: 'Assessment'
+            });
+
+            res.status(201).json({
+                success: true,
+                message: 'สร้างข้อสอบสำเร็จ',
+                data: {
+                    test_id: testId
+                }
+            });
+
+        } catch (error) {
+            console.error('Create test for course error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ'
+            });
+        }
+    },
+
+    // Upload course image
+    async uploadCourseImage(req, res) {
+        try {
+            const fileUploadService = require('../utils/fileUpload');
+
+            // Use image upload middleware
+            await fileUploadService.createImageUpload()(req, res, async (err) => {
+                if (err) {
+                    console.error('Upload error:', err);
+                    return res.status(400).json({
+                        success: false,
+                        message: err.message || 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ'
+                    });
+                }
+
+                if (!req.file) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'กรุณาเลือกไฟล์รูปภาพ'
+                    });
+                }
+
+                // Return the uploaded file path
+                const filePath = `/uploads/images/${req.file.filename}`;
+
+                res.json({
+                    success: true,
+                    message: 'อัปโหลดรูปภาพสำเร็จ',
+                    data: {
+                        filename: req.file.filename,
+                        path: filePath,
+                        url: filePath,
+                        size: req.file.size
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error('Upload course image error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ',
+                error: error.message
+            });
+        }
+    },
+
+    // Get course curriculum
+    async getCourseCurriculum(req, res) {
+        try {
+            const { course_id } = req.params;
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT material_id, title, type, content,
+                           order_index, duration_minutes, is_required
+                    FROM course_materials
+                    WHERE course_id = @courseId
+                    ORDER BY order_index
+                `);
+
+            // Group by sections if needed
+            const curriculum = [{
+                title: 'เนื้อหาหลักสูตร',
+                description: '',
+                lessons: result.recordset.map(m => ({
+                    id: m.material_id,
+                    title: m.title,
+                    type: m.type || 'document',
+                    duration: m.duration_minutes || 0,
+                    completed: false
+                }))
+            }];
+
+            res.json({ success: true, data: curriculum });
+        } catch (error) {
+            console.error('Get curriculum error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Get course materials
+    async getCourseMaterials(req, res) {
+        try {
+            const { course_id } = req.params;
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT material_id, title, type, content, file_url, file_size,
+                           order_index, duration_minutes, description
+                    FROM course_materials
+                    WHERE course_id = @courseId
+                    AND type IN ('document', 'pdf', 'file')
+                    ORDER BY order_index
+                `);
+
+            const materials = result.recordset.map(m => ({
+                material_id: m.material_id,
+                title: m.title,
+                description: m.description || '',
+                file_type: m.type,
+                file_url: m.file_url || m.content,
+                file_size: m.file_size || 0
+            }));
+
+            res.json({ success: true, data: materials });
+        } catch (error) {
+            console.error('Get materials error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Get course discussions
+    async getCourseDiscussions(req, res) {
+        try {
+            const { course_id } = req.params;
+            // TODO: Implement when discussions table is ready
+            res.json({ success: true, data: [] });
+        } catch (error) {
+            console.error('Get discussions error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Get course reviews
+    async getCourseReviews(req, res) {
+        try {
+            const { course_id } = req.params;
+            // TODO: Implement when reviews table is ready
+            res.json({ success: true, data: [] });
+        } catch (error) {
+            console.error('Get reviews error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Get related courses
+    async getRelatedCourses(req, res) {
+        try {
+            const { course_id } = req.params;
+            const pool = await poolPromise;
+
+            // Get current course category
+            const currentCourse = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`SELECT category FROM courses WHERE course_id = @courseId`);
+
+            if (currentCourse.recordset.length === 0) {
+                return res.json({ success: true, data: [] });
+            }
+
+            const category = currentCourse.recordset[0].category;
+
+            // Get related courses
+            const result = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .input('category', sql.NVarChar(100), category)
+                .query(`
+                    SELECT TOP 5 c.course_id, c.title, c.thumbnail,
+                           c.duration_hours, c.category,
+                           CONCAT(u.first_name, ' ', u.last_name) as instructor_name
+                    FROM courses c
+                    LEFT JOIN users u ON c.instructor_id = u.user_id
+                    WHERE c.category = @category
+                    AND c.course_id != @courseId
+                    AND c.status IN ('Active', 'Published')
+                    ORDER BY c.created_at DESC
+                `);
+
+            res.json({ success: true, data: result.recordset });
+        } catch (error) {
+            console.error('Get related courses error:', error);
+            res.status(500).json({ success: false, message: error.message });
         }
     }
 };

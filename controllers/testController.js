@@ -526,6 +526,37 @@ const testController = {
         }
     },
 
+    async renderCreateTest(req, res) {
+        try {
+            const { poolPromise, sql } = require('../config/database');
+
+            // Fetch all published courses for the dropdown
+            const pool = await poolPromise;
+            const coursesResult = await pool.request().query(`
+                SELECT course_id, title, category, status
+                FROM courses
+                WHERE status IN ('Published', 'Active')
+                ORDER BY title
+            `);
+
+            res.render('tests/create', {
+                title: 'สร้างข้อสอบใหม่ - Rukchai Hongyen LearnHub',
+                user: req.session.user,
+                userRole: req.user.role,
+                courses: coursesResult.recordset || []
+            });
+
+        } catch (error) {
+            console.error('Render create test error:', error);
+            res.render('error/500', {
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้าสร้างข้อสอบได้',
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
     async renderTestDetail(req, res) {
         try {
             const { test_id } = req.params;
