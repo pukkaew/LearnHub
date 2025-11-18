@@ -522,7 +522,7 @@ const authController = {
     async changePassword(req, res) {
         try {
             const { current_password, new_password, confirm_password } = req.body;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (!current_password || !new_password || !confirm_password) {
                 return res.status(400).json({
@@ -599,7 +599,7 @@ const authController = {
 
     async verifyToken(req, res) {
         try {
-            const user = await User.findById(req.user.userId);
+            const user = await User.findById(req.user.user_id);
             if (!user || !user.is_active) {
                 return res.status(401).json({
                     success: false,
@@ -781,7 +781,7 @@ const authController = {
 
     async generateApiKey(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { name, permissions, expiresIn } = req.body;
 
             if (!name) {

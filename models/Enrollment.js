@@ -207,7 +207,7 @@ class Enrollment {
                 .input('userId', sql.Int, userId);
 
             if (status) {
-                whereClause += ' AND e.completion_status = @status';
+                whereClause += ' AND e.status = @status';
                 request.input('status', sql.NVarChar(20), status);
             }
 
@@ -224,7 +224,7 @@ class Enrollment {
                        CONCAT(i.first_name, ' ', i.last_name) as instructor_name,
                        (SELECT COUNT(*) FROM course_materials WHERE course_id = c.course_id) as total_lessons,
                        0 as completed_lessons,
-                       e.completion_status as enrollment_status,
+                       e.status as enrollment_status,
                        0 as progress_percentage
                 FROM user_courses e
                 JOIN courses c ON e.course_id = c.course_id

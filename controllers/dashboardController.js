@@ -5,7 +5,7 @@ const { poolPromise } = require('../config/database');
 const dashboardController = {
     async getDashboard(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             // Simple dashboard data without Dashboard model
@@ -48,7 +48,7 @@ const dashboardController = {
 
     async renderDashboard(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
             const user = req.session.user;
 
@@ -130,7 +130,7 @@ const dashboardController = {
 
     async getQuickStats(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             let stats = {};
@@ -179,7 +179,7 @@ const dashboardController = {
 
     async getNotifications(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { limit = 10, unread_only = false } = req.query;
 
             const filters = {
@@ -208,7 +208,7 @@ const dashboardController = {
 
     async markNotificationAsRead(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { notification_id } = req.params;
 
             const result = await Notification.markAsRead(notification_id, userId);
@@ -233,7 +233,7 @@ const dashboardController = {
 
     async markAllNotificationsAsRead(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const result = await Notification.markAllAsRead(userId);
 
@@ -258,7 +258,7 @@ const dashboardController = {
 
     async getActivityLogs(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
             const { limit = 20, offset = 0 } = req.query;
 
@@ -291,7 +291,7 @@ const dashboardController = {
 
     async getUserStats(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const stats = await ActivityLog.getActivitySummary(userId, 30);
             const notifications = await Notification.getUnreadCount(userId);
@@ -336,7 +336,7 @@ const dashboardController = {
             `);
 
             await ActivityLog.create({
-                user_id: req.user.userId,
+                user_id: req.user.user_id,
                 action: 'View_System_Health',
                 table_name: 'system',
                 ip_address: req.ip,
@@ -363,7 +363,7 @@ const dashboardController = {
 
     async getRealTimeData(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const pool = await poolPromise;
 
             const result = await pool.request()
@@ -396,7 +396,7 @@ const dashboardController = {
 
     async trackUserActivity(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { activity, metadata } = req.body;
             const io = req.app.get('io');
             const broadcastDepartmentUpdate = req.app.get('broadcastDepartmentUpdate');
@@ -497,7 +497,7 @@ const dashboardController = {
 
     async getUpcomingEvents(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const pool = await poolPromise;
 
             const result = await pool.request()
@@ -560,7 +560,7 @@ const dashboardController = {
 
     async getRecentCourses(req, res) {
         try {
-            const userId = req.user?.userId || req.session.user?.user_id;
+            const userId = req.user?.user_id || req.session.user?.user_id;
             const pool = await poolPromise;
 
             // Demo data for now
@@ -597,7 +597,7 @@ const dashboardController = {
 
     async getProgress(req, res) {
         try {
-            const userId = req.user?.userId || req.session.user?.user_id;
+            const userId = req.user?.user_id || req.session.user?.user_id;
 
             // Demo data for now
             const progress = [

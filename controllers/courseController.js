@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const ActivityLog = require('../models/ActivityLog');
 const Test = require('../models/Test');
+const { poolPromise, sql } = require('../config/database');
 
 const courseController = {
     async getAllCourses(req, res) {
@@ -50,7 +51,7 @@ const courseController = {
     async getCourseById(req, res) {
         try {
             const { course_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -107,6 +108,20 @@ const courseController = {
             console.log('Request body keys:', Object.keys(req.body));
             console.log('Full request body:', JSON.stringify(req.body, null, 2));
 
+            // Detailed field check for critical NULL fields
+            console.log('\n🔍 CRITICAL FIELD CHECK:');
+            console.log('  course_code:', req.body.course_code);
+            console.log('  course_type:', req.body.course_type);
+            console.log('  language:', req.body.language);
+            console.log('  learning_objectives:', req.body.learning_objectives);
+            console.log('  target_positions:', req.body.target_positions);
+            console.log('  target_departments:', req.body.target_departments);
+            console.log('  lessons:', req.body.lessons);
+            console.log('  passing_score:', req.body.passing_score);
+            console.log('  max_attempts:', req.body.max_attempts);
+            console.log('  max_students:', req.body.max_students);
+            console.log('  certificate_validity:', req.body.certificate_validity);
+
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
@@ -116,7 +131,10 @@ const courseController = {
 
             const courseData = {
                 ...req.body,
-                instructor_id: userRole === 'Instructor' ? userId : (req.body.instructor_id || userId),
+                // ถ้าไม่มี instructor_id ให้ใช้ null (ใช้ instructor_name แทน)
+                instructor_id: req.body.instructor_id || null,
+                // ถ้าไม่มี instructor_name ก็ไม่เป็นไร (optional)
+                instructor_name: req.body.instructor_name || null,
                 created_by: userId
             };
 
@@ -171,7 +189,7 @@ const courseController = {
         try {
             const { course_id } = req.params;
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -188,7 +206,7 @@ const courseController = {
                 });
             }
 
-            if (!['Admin', 'Instructor'].includes(userRole)) {
+            if (!['Admin', 'Instructor', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
                     message: 'ไม่มีสิทธิ์แก้ไขหลักสูตร'
@@ -236,7 +254,7 @@ const courseController = {
         try {
             const { course_id } = req.params;
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (userRole !== 'Admin') {
                 return res.status(403).json({
@@ -289,7 +307,7 @@ const courseController = {
     async enrollInCourse(req, res) {
         try {
             const { course_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -357,7 +375,7 @@ const courseController = {
 
     async getMyEnrollments(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { status, completion_status } = req.query;
 
             // findByUser accepts (userId, status) - use completion_status or status
@@ -382,7 +400,7 @@ const courseController = {
         try {
             const { course_id } = req.params;
             const { progress_percentage } = req.body;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (progress_percentage < 0 || progress_percentage > 100) {
                 return res.status(400).json({
@@ -446,7 +464,7 @@ const courseController = {
         try {
             const { course_id } = req.params;
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -508,7 +526,7 @@ const courseController = {
     async renderCourseDetail(req, res) {
         try {
             const { course_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -521,7 +539,7 @@ const courseController = {
             const enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
 
             res.render('courses/detail', {
-                title: `${course.course_name} - Rukchai Hongyen LearnHub`,
+                title: `${course.title || course.course_name || 'หลักสูตร'} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role_name,
                 course: course,
@@ -612,7 +630,7 @@ const courseController = {
                 });
             }
 
-            if (!['Admin', 'Instructor'].includes(userRole)) {
+            if (!['Admin', 'Instructor', 'HR'].includes(userRole)) {
                 return res.status(403).render('error/403', {
                     title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
                     message: 'คุณไม่มีสิทธิ์แก้ไขหลักสูตร',
@@ -658,7 +676,7 @@ const courseController = {
 
     async getRecommendedCourses(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { limit = 5 } = req.query;
 
             const courses = await Course.getRecommended(userId, parseInt(limit));
@@ -772,7 +790,7 @@ const courseController = {
         try {
             const { course_id } = req.params;
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -825,7 +843,7 @@ const courseController = {
             const { course_id } = req.params;
             const { status, department_id, min_progress } = req.query;
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -884,7 +902,7 @@ const courseController = {
             const { course_id } = req.params;
             const { format = 'csv', status, department_id, min_progress } = req.query;
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -979,7 +997,7 @@ const courseController = {
             const { course_id } = req.params;
             const { format = 'csv' } = req.query;
             const userRole = req.user.role_name;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -1207,7 +1225,7 @@ const courseController = {
     // Create new category
     async createCategoryAdmin(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const {
                 category_name,
                 category_name_en,
@@ -1283,7 +1301,7 @@ const courseController = {
     async updateCategoryAdmin(req, res) {
         try {
             const { category_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const {
                 category_name,
                 category_name_en,
@@ -1367,7 +1385,7 @@ const courseController = {
     async deleteCategoryAdmin(req, res) {
         try {
             const { category_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { poolPromise } = require('../config/database');
             const pool = await poolPromise;
 
@@ -1473,7 +1491,7 @@ const courseController = {
     // Create test for course
     async createTestForCourse(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const {
                 test_name,
                 test_description,
@@ -1647,8 +1665,8 @@ const courseController = {
             const result = await pool.request()
                 .input('courseId', sql.Int, parseInt(course_id))
                 .query(`
-                    SELECT material_id, title, type, content, file_url, file_size,
-                           order_index, duration_minutes, description
+                    SELECT material_id, title, type, content, file_path, file_size,
+                           order_index, duration_minutes, mime_type, is_downloadable
                     FROM course_materials
                     WHERE course_id = @courseId
                     AND type IN ('document', 'pdf', 'file')
@@ -1658,10 +1676,12 @@ const courseController = {
             const materials = result.recordset.map(m => ({
                 material_id: m.material_id,
                 title: m.title,
-                description: m.description || '',
+                description: m.content || '',
                 file_type: m.type,
-                file_url: m.file_url || m.content,
-                file_size: m.file_size || 0
+                file_url: m.file_path || m.content,
+                file_size: m.file_size || 0,
+                mime_type: m.mime_type,
+                is_downloadable: m.is_downloadable !== false
             }));
 
             res.json({ success: true, data: materials });
@@ -1732,6 +1752,82 @@ const courseController = {
         } catch (error) {
             console.error('Get related courses error:', error);
             res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Rate course - Submit rating and review
+    async rateCourse(req, res) {
+        try {
+            const { course_id } = req.params;
+            const { rating, review } = req.body;
+            const userId = req.user.user_id;
+
+            // Validate rating
+            if (!rating || rating < 1 || rating > 5) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณาให้คะแนนระหว่าง 1-5 ดาว'
+                });
+            }
+
+            const pool = await poolPromise;
+
+            // Check if user is enrolled in this course
+            const enrollment = await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT enrollment_id, completion_status
+                    FROM user_courses
+                    WHERE user_id = @userId AND course_id = @courseId
+                `);
+
+            if (enrollment.recordset.length === 0) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'คุณต้องลงทะเบียนเรียนก่อนจึงจะให้คะแนนได้'
+                });
+            }
+
+            // For now, update enrollment with rating (temporary solution)
+            // TODO: Create course_ratings table for proper rating system
+            await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('courseId', sql.Int, parseInt(course_id))
+                .input('rating', sql.Int, rating)
+                .input('review', sql.NVarChar(sql.MAX), review || null)
+                .query(`
+                    UPDATE user_courses
+                    SET grade = @rating * 20,  -- Convert 5-star to 100 scale temporarily
+                        updated_at = GETDATE()
+                    WHERE user_id = @userId AND course_id = @courseId
+                `);
+
+            // Log activity
+            await ActivityLog.create({
+                user_id: userId,
+                action: 'Rate_Course',
+                table_name: 'user_courses',
+                record_id: enrollment.recordset[0].enrollment_id,
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                session_id: req.sessionID,
+                description: `User rated course ${course_id} with ${rating} stars`,
+                severity: 'Info',
+                module: 'Course Management'
+            });
+
+            res.json({
+                success: true,
+                message: 'ส่งคะแนนสำเร็จ ขอบคุณสำหรับความคิดเห็น!'
+            });
+
+        } catch (error) {
+            console.error('Rate course error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการส่งคะแนน'
+            });
         }
     }
 };

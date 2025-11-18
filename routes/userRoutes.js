@@ -23,6 +23,7 @@ router.get('/export', authMiddleware.requireRole(['Admin', 'HR']), userControlle
 // API endpoints - Static API routes
 router.post('/', authMiddleware.requireRole(['Admin', 'HR']), upload.single('profile_image'), userController.createUser);
 router.get('/api/list', authMiddleware.requireRole(['Admin', 'HR']), userController.getAllUsers);
+router.get('/api/instructors', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), userController.getInstructors);
 router.get('/api/profile', userController.getProfile);
 router.put('/api/profile', userController.updateProfile);
 router.post('/api/profile/image', userController.uploadProfileImage);

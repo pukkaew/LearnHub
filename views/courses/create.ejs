@@ -128,6 +128,14 @@
                         </select>
                     </div>
 
+                    <div class="md:col-span-2">
+                        <label for="instructor_name" class="block text-sm font-medium text-gray-700 mb-2">ผู้สอน</label>
+                        <input type="text" id="instructor_name" name="instructor_name"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               placeholder="ระบุชื่อผู้สอน (ไม่บังคับ)">
+                        <p class="text-xs text-gray-500 mt-1">พิมพ์ชื่อผู้ที่จะเป็นผู้สอนหลักสูตรนี้ (ถ้ามี)</p>
+                    </div>
+
                 </div>
             </div>
 
@@ -215,8 +223,8 @@
                     <!-- Target Audience -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่งเป้าหมาย <span class="text-red-500">*</span></label>
-                            <select id="target_positions" name="target_positions[]" multiple required
+                            <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่งเป้าหมาย <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
+                            <select id="target_positions" name="target_positions[]" multiple
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary h-32">
                                 <option value="all">ทุกตำแหน่ง</option>
                                 <option value="manager">ผู้จัดการ</option>
@@ -225,17 +233,17 @@
                                 <option value="executive">ผู้บริหาร</option>
                                 <option value="specialist">ผู้เชี่ยวชาญ</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">กด Ctrl เพื่อเลือกหลายตำแหน่ง</p>
+                            <p class="text-xs text-gray-500 mt-1">กด Ctrl เพื่อเลือกหลายตำแหน่ง (หรือไม่เลือกก็ได้)</p>
                         </div>
 
                         <div>
-                            <label for="target_departments" class="block text-sm font-medium text-gray-700 mb-2">แผนกเป้าหมาย <span class="text-red-500">*</span></label>
-                            <select id="target_departments" name="target_departments[]" multiple required
+                            <label for="target_departments" class="block text-sm font-medium text-gray-700 mb-2">แผนกเป้าหมาย <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
+                            <select id="target_departments" name="target_departments[]" multiple
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary h-32">
                                 <option value="all">ทุกแผนก</option>
                                 <!-- Departments will be loaded dynamically -->
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">กด Ctrl เพื่อเลือกหลายแผนก</p>
+                            <p class="text-xs text-gray-500 mt-1">กด Ctrl เพื่อเลือกหลายแผนก (หรือไม่เลือกก็ได้)</p>
                         </div>
                     </div>
 
@@ -519,13 +527,15 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="new_passing_score" class="block text-sm font-medium text-gray-700 mb-2">เกณฑ์การผ่าน (%)</label>
-                                    <input type="number" id="new_passing_score" name="new_passing_score" min="0" max="100" value="70"
+                                    <input type="number" id="new_passing_score" name="new_passing_score" min="0" max="100" placeholder="เช่น 70"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                    <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ</p>
                                 </div>
                                 <div>
                                     <label for="new_max_attempts" class="block text-sm font-medium text-gray-700 mb-2">จำนวนครั้งที่ทำได้</label>
-                                    <input type="number" id="new_max_attempts" name="new_max_attempts" min="1" value="3"
+                                    <input type="number" id="new_max_attempts" name="new_max_attempts" min="1" placeholder="เช่น 3"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                    <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ</p>
                                 </div>
                                 <div>
                                     <label for="new_test_duration" class="block text-sm font-medium text-gray-700 mb-2">เวลาในการทำข้อสอบ (นาที)</label>

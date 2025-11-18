@@ -13,7 +13,7 @@ const t = (req, key) => {
 const userController = {
     async getProfile(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const user = await User.findById(userId);
             if (!user) {
@@ -56,7 +56,7 @@ const userController = {
 
     async updateProfile(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const {
                 first_name,
                 last_name,
@@ -162,7 +162,7 @@ const userController = {
             const users = await User.findAll(parseInt(page) || 1, parseInt(limit) || 20, filters);
 
             await ActivityLog.create({
-                user_id: req.user.userId,
+                user_id: req.user.user_id,
                 action: 'View_Users',
                 table_name: 'users',
                 ip_address: req.ip,
@@ -203,7 +203,7 @@ const userController = {
         try {
             const { user_id } = req.params;
             const userRole = req.user.role_name || req.user.role || req.session.user.role_name || req.session.user.role;
-            const requestingUserId = req.user.user_id || req.user.userId || req.session.user.user_id;
+            const requestingUserId = req.user.user_id || req.session.user.user_id;
 
             if (!['Admin', 'HR'].includes(userRole) && user_id !== requestingUserId) {
                 return res.status(403).json({
@@ -346,7 +346,7 @@ const userController = {
             }
 
             await ActivityLog.logDataChange(
-                req.user.userId,
+                req.user.user_id,
                 'Create',
                 'users',
                 result.userId,
@@ -439,7 +439,7 @@ const userController = {
             }
 
             await ActivityLog.logDataChange(
-                req.user.userId,
+                req.user.user_id,
                 'Update',
                 'users',
                 user_id,
@@ -506,7 +506,7 @@ const userController = {
             }
 
             await ActivityLog.logDataChange(
-                req.user.userId,
+                req.user.user_id,
                 'Deactivate',
                 'users',
                 user_id,
@@ -559,7 +559,7 @@ const userController = {
             }
 
             await ActivityLog.logDataChange(
-                req.user.userId,
+                req.user.user_id,
                 'Activate',
                 'users',
                 user_id,
@@ -587,7 +587,7 @@ const userController = {
 
     async uploadProfileImage(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (!req.file) {
                 return res.status(400).json({
@@ -636,7 +636,7 @@ const userController = {
 
     async getUserStats(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const stats = await User.getUserStatistics(userId);
 
@@ -656,7 +656,7 @@ const userController = {
 
     async renderProfile(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const user = await User.findById(userId);
 
             if (!user) {
@@ -750,7 +750,7 @@ const userController = {
             const users = await User.findAll(1, 999999, filters);
 
             await ActivityLog.create({
-                user_id: req.user.userId,
+                user_id: req.user.user_id,
                 action: 'Export_Users',
                 table_name: 'users',
                 ip_address: req.ip,
@@ -926,7 +926,7 @@ const userController = {
             if (result.success) {
                 // Log the activity
                 await ActivityLog.logSecurityEvent(
-                    currentUser.userId || currentUser.user_id,
+                    currentUser.user_id,
                     'Password_Reset',
                     `Password reset for user: ${user.username}`,
                     'Info',
@@ -963,7 +963,7 @@ const userController = {
 
             // Check if user has permission to view activity
             const userRole = currentUser.role_name || currentUser.role;
-            const currentUserId = currentUser.userId || currentUser.user_id;
+            const currentUserId = currentUser.user_id;
 
             // Users can only view their own activity unless they're Admin or HR
             if (!['Admin', 'HR'].includes(userRole) && parseInt(user_id) !== currentUserId) {
@@ -1001,6 +1001,44 @@ const userController = {
             res.status(500).json({
                 success: false,
                 message: t(req, 'errorLoadingActivity')
+            });
+        }
+    },
+
+    async getInstructors(req, res) {
+        try {
+            const { poolPromise, sql } = require('../config/database');
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT DISTINCT
+                    u.user_id,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.profile_image,
+                    p.position_name,
+                    ou.unit_name_th as department_name,
+                    r.role_name
+                FROM users u
+                LEFT JOIN user_roles r ON u.role_id = r.role_id
+                LEFT JOIN Positions p ON u.position_id = p.position_id
+                LEFT JOIN OrganizationUnits ou ON u.unit_id = ou.unit_id
+                WHERE r.role_name IN ('Admin', 'Instructor')
+                    AND u.is_active = 1
+                ORDER BY u.first_name, u.last_name
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+
+        } catch (error) {
+            console.error('Get instructors error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดรายชื่อผู้สอน'
             });
         }
     }

@@ -99,6 +99,7 @@ function validateStep1() {
             return false;
         }
     }
+    // instructor_name is optional, so we don't validate it
     return true;
 }
 
@@ -120,6 +121,28 @@ function validateStep2() {
     if (validObjectives < 3) {
         showError('กรุณากรอกวัตถุประสงค์การเรียนรู้อย่างน้อย 3 ข้อ');
         return false;
+    }
+
+    // Validate target positions
+    const targetPositions = document.getElementById('target_positions');
+    if (targetPositions) {
+        const selectedPositions = Array.from(targetPositions.selectedOptions);
+        if (selectedPositions.length === 0) {
+            showError('กรุณาเลือกตำแหน่งเป้าหมายอย่างน้อย 1 ตำแหน่ง');
+            targetPositions.focus();
+            return false;
+        }
+    }
+
+    // Validate target departments
+    const targetDepartments = document.getElementById('target_departments');
+    if (targetDepartments) {
+        const selectedDepartments = Array.from(targetDepartments.selectedOptions);
+        if (selectedDepartments.length === 0) {
+            showError('กรุณาเลือกแผนกเป้าหมายอย่างน้อย 1 แผนก');
+            targetDepartments.focus();
+            return false;
+        }
     }
 
     return true;
@@ -158,7 +181,8 @@ function getFieldLabel(fieldName) {
         'category_id': 'หมวดหมู่',
         'difficulty_level': 'ระดับความยาก',
         'course_type': 'ประเภทหลักสูตร',
-        'language': 'ภาษาที่ใช้สอน'
+        'language': 'ภาษาที่ใช้สอน',
+        'instructor_name': 'ผู้สอน'
     };
     return labels[fieldName] || fieldName;
 }
@@ -798,6 +822,9 @@ async function submitCourse() {
         const assessmentType = document.querySelector('input[name="assessment_type"]:checked')?.value;
         let testId = null;
 
+        let coursePassingScore = null;
+        let courseMaxAttempts = null;
+
         if (assessmentType === 'create_new') {
             // Create new test first
             const testData = {
@@ -816,6 +843,10 @@ async function submitCourse() {
                 showError('กรุณากรอกชื่อข้อสอบ');
                 return;
             }
+
+            // Store test scores to copy to course
+            coursePassingScore = testData.passing_score;
+            courseMaxAttempts = testData.max_attempts;
 
             const testResponse = await fetch('/courses/api/tests/create', {
                 method: 'POST',
@@ -844,6 +875,15 @@ async function submitCourse() {
         const formData = collectFormData();
         formData.test_id = testId;
         formData.assessment_type = assessmentType;
+
+        // Set passing_score and max_attempts from test settings only if provided
+        // Don't use default values - if not provided, will be null
+        formData.passing_score = coursePassingScore ||
+                                 parseInt(document.getElementById('new_passing_score')?.value) ||
+                                 null;
+        formData.max_attempts = courseMaxAttempts ||
+                                parseInt(document.getElementById('new_max_attempts')?.value) ||
+                                null;
 
         // Add course image path if uploaded
         if (courseImagePath) {
@@ -1017,13 +1057,15 @@ function collectFormData() {
     const lessonTitles = document.querySelectorAll('input[name="lesson_titles[]"]');
     const lessonDurations = document.querySelectorAll('input[name="lesson_durations[]"]');
     const lessonDescriptions = document.querySelectorAll('textarea[name="lesson_descriptions[]"]');
+    const lessonVideoUrls = document.querySelectorAll('input[name="lesson_video_urls[]"]');
 
     for (let i = 0; i < lessonTitles.length; i++) {
         if (lessonTitles[i].value.trim()) {
             lessons.push({
                 title: lessonTitles[i].value.trim(),
                 duration: parseInt(lessonDurations[i].value) || 0,
-                description: lessonDescriptions[i].value.trim()
+                description: lessonDescriptions[i].value.trim(),
+                video_url: lessonVideoUrls[i] ? lessonVideoUrls[i].value.trim() : null
             });
         }
     }
@@ -1042,6 +1084,36 @@ function collectFormData() {
     if (data.enrollment_end) {
         data.enrollment_end = convertThaiDateToISO(data.enrollment_end);
     }
+
+    // Map field names to match backend expectations
+    data.max_students = data.max_enrollments || data.max_students;
+    delete data.max_enrollments;
+
+    // Map certificate validity from dropdown values to days
+    const certValidityMap = {
+        'unlimited': null,  // ไม่มีกำหนด
+        '1year': '365',
+        '2years': '730',
+        '3years': '1095'
+    };
+    if (data.certificate_validity && certValidityMap[data.certificate_validity] !== undefined) {
+        data.certificate_validity = certValidityMap[data.certificate_validity];
+    }
+
+    // Detailed logging before sending to server
+    console.log('🔍 CLIENT-SIDE DATA COLLECTED:');
+    console.log('  course_code:', data.course_code);
+    console.log('  course_type:', data.course_type);
+    console.log('  language:', data.language);
+    console.log('  learning_objectives:', data.learning_objectives);
+    console.log('  target_positions:', data.target_positions);
+    console.log('  target_departments:', data.target_departments);
+    console.log('  lessons:', data.lessons);
+    console.log('  passing_score:', data.passing_score);
+    console.log('  max_attempts:', data.max_attempts);
+    console.log('  max_students:', data.max_students);
+    console.log('  certificate_validity:', data.certificate_validity);
+    console.log('Full data object:', data);
 
     return data;
 }

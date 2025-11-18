@@ -48,7 +48,7 @@ const articleController = {
     async getArticleById(req, res) {
         try {
             const { article_id } = req.params;
-            const userId = req.user?.userId;
+            const userId = req.user?.user_id;
 
             const article = await Article.findById(article_id);
             if (!article) {
@@ -106,7 +106,7 @@ const articleController = {
 
     async createArticle(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             if (!['Admin', 'Instructor', 'Learner'].includes(userRole)) {
@@ -159,7 +159,7 @@ const articleController = {
     async updateArticle(req, res) {
         try {
             const { article_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             const article = await Article.findById(article_id);
@@ -216,7 +216,7 @@ const articleController = {
     async deleteArticle(req, res) {
         try {
             const { article_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             const article = await Article.findById(article_id);
@@ -270,7 +270,7 @@ const articleController = {
     async publishArticle(req, res) {
         try {
             const { article_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
@@ -333,7 +333,7 @@ const articleController = {
         try {
             const { article_id } = req.params;
             const { rating } = req.body;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (!rating || rating < 1 || rating > 5) {
                 return res.status(400).json({
@@ -395,7 +395,7 @@ const articleController = {
         try {
             const { article_id } = req.params;
             const { comment_text, parent_comment_id } = req.body;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (!comment_text || comment_text.trim().length === 0) {
                 return res.status(400).json({
@@ -455,7 +455,7 @@ const articleController = {
 
     async getMyArticles(req, res) {
         try {
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const { status, page = 1, limit = 10 } = req.query;
 
             const filters = { author_id: userId };

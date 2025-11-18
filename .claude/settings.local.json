@@ -44,7 +44,10 @@
       "Bash(node test_course_findall.js:*)",
       "Bash(node clear_courses_data.js:*)",
       "Bash(node:*)",
-      "Bash(D:AppLearnHubserver.js)"
+      "Bash(D:AppLearnHubserver.js)",
+      "Bash(cmd.exe /c taskkill /F /PID 34492)",
+      "Bash(cmd.exe /c taskkill /F /PID 38324)",
+      "Bash(cmd.exe /c \"findstr /n /i \"file_url.*description\" \"D:AppLearnHubcontrollerscourseController.js\"\")"
     ],
     "deny": [],
     "ask": []

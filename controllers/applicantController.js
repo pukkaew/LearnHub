@@ -342,7 +342,7 @@ const applicantController = {
             const applicants = await Applicant.findAll(filters);
 
             await ActivityLog.create({
-                user_id: req.user.userId,
+                user_id: req.user.user_id,
                 action: 'View_Applicants',
                 table_name: 'Applicants',
                 ip_address: req.ip,
@@ -416,7 +416,7 @@ const applicantController = {
             const { applicant_id } = req.params;
             const { status, notes } = req.body;
             const userRole = req.user.role;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({

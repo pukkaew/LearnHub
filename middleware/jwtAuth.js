@@ -160,7 +160,7 @@ class JWTAuthMiddleware {
             if (!allowedRoles.includes(req.user.role)) {
                 // Log unauthorized access attempt
                 ActivityLog.create({
-                    user_id: req.user.userId,
+                    user_id: req.user.user_id,
                     action: 'Unauthorized_Access_Attempt',
                     table_name: 'security',
                     ip_address: req.ip,

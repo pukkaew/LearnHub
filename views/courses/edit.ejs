@@ -75,15 +75,93 @@
                     </div>
 
                     <div>
-                        <label for="duration_hours" class="block text-sm font-medium text-gray-700 mb-2">ระยะเวลา (ชั่วโมง)</label>
-                        <input type="number" id="duration_hours" name="duration_hours" min="1" max="500"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <label for="course_type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทหลักสูตร</label>
+                        <select id="course_type" name="course_type"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                            <option value="Required">บังคับ</option>
+                            <option value="Elective">เลือกเรียน</option>
+                            <option value="Recommended">แนะนำ</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="language" class="block text-sm font-medium text-gray-700 mb-2">ภาษา</label>
+                        <select id="language" name="language"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                            <option value="Thai">ภาษาไทย</option>
+                            <option value="English">ภาษาอังกฤษ</option>
+                            <option value="Both">ทั้งสองภาษา</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ระยะเวลา</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <input type="number" id="duration_hours" name="duration_hours" min="0" max="500" placeholder="ชั่วโมง"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <p class="text-xs text-gray-500 mt-1">ชั่วโมง</p>
+                            </div>
+                            <div>
+                                <input type="number" id="duration_minutes" name="duration_minutes" min="0" max="59" placeholder="นาที"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <p class="text-xs text-gray-500 mt-1">นาที</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="md:col-span-2">
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายหลักสูตร</label>
                         <textarea id="description" name="description" rows="4"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Details -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-list-ul mr-2 text-ruxchai-primary"></i>รายละเอียดหลักสูตร
+                </h3>
+                <div class="space-y-6">
+                    <!-- Learning Objectives -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">วัตถุประสงค์การเรียนรู้</label>
+                        <div id="objectives-container" class="space-y-2">
+                            <!-- Objectives will be loaded here -->
+                        </div>
+                        <button type="button" onclick="addObjective()" class="mt-2 inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-plus mr-2"></i>เพิ่มวัตถุประสงค์
+                        </button>
+                        <input type="hidden" id="learning_objectives" name="learning_objectives">
+                    </div>
+
+                    <!-- Prerequisite Knowledge -->
+                    <div>
+                        <label for="prerequisite_knowledge" class="block text-sm font-medium text-gray-700 mb-2">ความรู้พื้นฐานที่ต้องมี</label>
+                        <textarea id="prerequisite_knowledge" name="prerequisite_knowledge" rows="3" placeholder="ระบุความรู้พื้นฐานที่ผู้เรียนควรมีก่อนเข้าเรียน"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"></textarea>
+                    </div>
+
+                    <!-- Target Audience -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่งเป้าหมาย <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
+                            <select id="target_positions" name="target_positions[]" multiple size="5"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <option value="">โหลดข้อมูล...</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">กด Ctrl (Cmd) เพื่อเลือกหลายตำแหน่ง (หรือไม่เลือกก็ได้)</p>
+                        </div>
+
+                        <div>
+                            <label for="target_departments" class="block text-sm font-medium text-gray-700 mb-2">แผนกเป้าหมาย <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
+                            <select id="target_departments" name="target_departments[]" multiple size="5"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <option value="">โหลดข้อมูล...</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">กด Ctrl (Cmd) เพื่อเลือกหลายแผนก (หรือไม่เลือกก็ได้)</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -96,7 +174,7 @@
                 <div class="flex items-center space-x-6">
                     <div class="flex-shrink-0">
                         <img id="course-image-preview" class="h-32 w-48 object-cover rounded-lg border-2 border-dashed border-gray-300"
-                             src="/images/course-placeholder.png" alt="Course Image Preview">
+                             src="/images/default-avatar.png" alt="Course Image Preview">
                     </div>
                     <div class="flex-1">
                         <label for="course_image" class="block text-sm font-medium text-gray-700 mb-2">อัปโหลดรูปภาพใหม่</label>
@@ -169,8 +247,23 @@
 
                     <div>
                         <label for="passing_score" class="block text-sm font-medium text-gray-700 mb-2">คะแนนผ่าน (%)</label>
-                        <input type="number" id="passing_score" name="passing_score" min="0" max="100"
+                        <input type="number" id="passing_score" name="passing_score" min="0" max="100" placeholder="เช่น 70"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ</p>
+                    </div>
+
+                    <div>
+                        <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2">ทำได้สูงสุด (ครั้ง)</label>
+                        <input type="number" id="max_attempts" name="max_attempts" min="1" placeholder="เช่น 3"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ</p>
+                    </div>
+
+                    <div>
+                        <label for="certificate_validity" class="block text-sm font-medium text-gray-700 mb-2">อายุใบประกาศนียบัตร (เดือน)</label>
+                        <input type="number" id="certificate_validity" name="certificate_validity" min="1" placeholder="เช่น 12"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่จำกัดอายุ</p>
                     </div>
 
                     <div>
@@ -225,11 +318,11 @@
                     </div>
 
                     <div>
-                        <label for="instructor_id" class="block text-sm font-medium text-gray-700 mb-2">ผู้สอน</label>
-                        <select id="instructor_id" name="instructor_id"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                            <option value="">เลือกผู้สอน</option>
-                        </select>
+                        <label for="instructor_name_display" class="block text-sm font-medium text-gray-700 mb-2">ผู้สอน</label>
+                        <input type="text" id="instructor_name_display" readonly
+                               class="w-full rounded-md border-gray-300 bg-gray-50 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary cursor-not-allowed">
+                        <input type="hidden" id="instructor_id" name="instructor_id">
+                        <p class="text-xs text-gray-500 mt-1">ผู้สอนไม่สามารถเปลี่ยนแปลงได้</p>
                     </div>
                 </div>
             </div>
@@ -283,11 +376,19 @@
 <script>
 let courseId;
 
-document.addEventListener('DOMContentLoaded', function() {
-    courseId = window.location.pathname.split('/')[3]; // Extract course ID from URL
-    loadCourseData();
-    loadCategories();
-    loadInstructors();
+document.addEventListener('DOMContentLoaded', async function() {
+    // Extract course ID from URL: /courses/:course_id/edit
+    // Example: /courses/1/edit → split('/') → ['', 'courses', '1', 'edit']
+    courseId = window.location.pathname.split('/')[2]; // Get course_id (index 2)
+
+    // Load dropdown data first, then load course data
+    await Promise.all([
+        loadCategories(),
+        loadTargetPositions(),
+        loadTargetDepartments()
+    ]);
+    await loadCourseData();
+
     setupImagePreview();
     setupFormSubmit();
 });
@@ -312,21 +413,96 @@ async function loadCourseData() {
 
 function populateForm(course) {
     document.getElementById('course_id').value = course.course_id;
-    document.getElementById('course_name').value = course.course_name || '';
+    document.getElementById('course_name').value = course.course_name || course.title || '';
     document.getElementById('course_code').value = course.course_code || '';
     document.getElementById('description').value = course.description || '';
     document.getElementById('difficulty_level').value = course.difficulty_level || 'Beginner';
+
+    // Map course_type values
+    let courseType = course.course_type || 'Required';
+    if (courseType === 'mandatory') courseType = 'Required';
+    else if (courseType === 'elective') courseType = 'Elective';
+    else if (courseType === 'recommended') courseType = 'Recommended';
+    document.getElementById('course_type').value = courseType;
+
+    // Map language values
+    let language = course.language || 'Thai';
+    if (language === 'th') language = 'Thai';
+    else if (language === 'en') language = 'English';
+    else if (language === 'both') language = 'Both';
+    document.getElementById('language').value = language;
+
     document.getElementById('duration_hours').value = course.duration_hours || '';
-    document.getElementById('max_enrollments').value = course.max_enrollments || '';
-    document.getElementById('passing_score').value = course.passing_score || 70;
+    document.getElementById('duration_minutes').value = course.duration_minutes || '0';
+
+    // Use max_students instead of max_enrollments
+    document.getElementById('max_enrollments').value = course.max_enrollments || course.max_students || course.enrollment_limit || '';
+
+    document.getElementById('passing_score').value = course.passing_score || '';
+    document.getElementById('max_attempts').value = course.max_attempts || '';
+    document.getElementById('certificate_validity').value = course.certificate_validity || '';
+    document.getElementById('prerequisite_knowledge').value = course.prerequisite_knowledge || course.prerequisites_text || course.prerequisites || '';
     document.getElementById('status').value = course.status || 'Draft';
 
-    // Set datetime fields
-    if (course.enrollment_start) {
-        document.getElementById('enrollment_start').value = new Date(course.enrollment_start).toISOString().slice(0, 16);
+    // Set category - ไม่มี category_id ใน response จึงต้อง find จาก category_name
+    if (course.category_name || course.category) {
+        const categoryName = course.category_name || course.category;
+        // Try to find matching option by text
+        const categorySelect = document.getElementById('category_id');
+        const options = categorySelect.options;
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].textContent === categoryName) {
+                options[i].selected = true;
+                break;
+            }
+        }
     }
-    if (course.enrollment_end) {
-        document.getElementById('enrollment_end').value = new Date(course.enrollment_end).toISOString().slice(0, 16);
+
+    // Set instructor (readonly field - show name, store ID)
+    document.getElementById('instructor_id').value = course.instructor_id || '';
+    document.getElementById('instructor_name_display').value =
+        course.instructor_name || course.instructor_display_name || 'ไม่ระบุ';
+
+    // Set learning objectives
+    if (course.learning_objectives || course.objectives) {
+        const objectives = course.learning_objectives || course.objectives;
+        const objectivesArray = typeof objectives === 'string' ? JSON.parse(objectives) : objectives;
+        if (Array.isArray(objectivesArray) && objectivesArray.length > 0) {
+            objectivesArray.forEach(obj => addObjective(obj));
+        }
+    }
+
+    // Set target audience (optional - may be empty)
+    if (course.target_audience && typeof course.target_audience === 'object') {
+        const targetAudience = typeof course.target_audience === 'string'
+            ? JSON.parse(course.target_audience)
+            : course.target_audience;
+
+        // Check if target_audience has data (not empty object)
+        if (targetAudience.positions && Array.isArray(targetAudience.positions) && targetAudience.positions.length > 0) {
+            targetAudience.positions.forEach(pos => {
+                const option = document.querySelector(`#target_positions option[value="${pos}"]`);
+                if (option) option.selected = true;
+            });
+        }
+
+        if (targetAudience.departments && Array.isArray(targetAudience.departments) && targetAudience.departments.length > 0) {
+            targetAudience.departments.forEach(dept => {
+                const option = document.querySelector(`#target_departments option[value="${dept}"]`);
+                if (option) option.selected = true;
+            });
+        }
+    }
+    // If no target_audience data, leave selects empty (which is fine - optional field)
+
+    // Set datetime fields - handle multiple field names
+    if (course.enrollment_start || course.start_date) {
+        const startDate = course.enrollment_start || course.start_date;
+        document.getElementById('enrollment_start').value = new Date(startDate).toISOString().slice(0, 16);
+    }
+    if (course.enrollment_end || course.end_date) {
+        const endDate = course.enrollment_end || course.end_date;
+        document.getElementById('enrollment_end').value = new Date(endDate).toISOString().slice(0, 16);
     }
 
     // Set checkboxes
@@ -334,10 +510,15 @@ function populateForm(course) {
     document.getElementById('allow_certificate').checked = course.allow_certificate || false;
     document.getElementById('is_public').checked = course.is_public || false;
 
-    // Set course image
+    // Set course image - use existing image or default (handle multiple field names)
     if (course.course_image) {
         document.getElementById('course-image-preview').src = course.course_image;
         document.getElementById('remove-image').classList.remove('hidden');
+    } else if (course.thumbnail_image || course.thumbnail) {
+        document.getElementById('course-image-preview').src = course.thumbnail_image || course.thumbnail;
+        document.getElementById('remove-image').classList.remove('hidden');
+    } else {
+        document.getElementById('course-image-preview').src = '/images/default-avatar.png';
     }
 
     // Update page elements
@@ -419,24 +600,86 @@ async function loadCategories() {
     }
 }
 
-async function loadInstructors() {
+// Removed loadInstructors() - instructor is now a readonly field
+
+async function loadTargetPositions() {
     try {
-        const response = await fetch('/users/api/list?role=Instructor');
+        const response = await fetch('/courses/api/target-positions');
         const result = await response.json();
 
-        if (result.success) {
-            const select = document.getElementById('instructor_id');
-            result.data.forEach(instructor => {
+        if (result.success && result.data) {
+            const select = document.getElementById('target_positions');
+            select.innerHTML = ''; // Clear loading message
+            result.data.forEach(position => {
                 const option = document.createElement('option');
-                option.value = instructor.user_id;
-                option.textContent = `${instructor.first_name} ${instructor.last_name}`;
+                option.value = position.position_id || position.id;
+                option.textContent = position.position_name || position.name;
                 select.appendChild(option);
             });
         }
     } catch (error) {
-        console.error('Error loading instructors:', error);
+        console.error('Error loading target positions:', error);
     }
 }
+
+async function loadTargetDepartments() {
+    try {
+        const response = await fetch('/courses/api/target-departments');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            const select = document.getElementById('target_departments');
+            select.innerHTML = ''; // Clear loading message
+            result.data.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department.department_id || department.id;
+                option.textContent = department.department_name || department.name;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading target departments:', error);
+    }
+}
+
+// Learning objectives management
+let objectiveCount = 0;
+
+function addObjective(value = '') {
+    objectiveCount++;
+    const container = document.getElementById('objectives-container');
+    const div = document.createElement('div');
+    div.className = 'flex gap-2';
+    div.innerHTML = `
+        <input type="text" class="objective-input flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+               placeholder="วัตถุประสงค์ข้อที่ ${objectiveCount}" value="${value}">
+        <button type="button" onclick="removeObjective(this)" class="px-3 py-2 border border-red-300 rounded-md text-red-600 hover:bg-red-50">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    container.appendChild(div);
+    updateObjectivesJSON();
+}
+
+function removeObjective(button) {
+    button.parentElement.remove();
+    updateObjectivesJSON();
+}
+
+function updateObjectivesJSON() {
+    const inputs = document.querySelectorAll('.objective-input');
+    const objectives = Array.from(inputs)
+        .map(input => input.value.trim())
+        .filter(val => val !== '');
+    document.getElementById('learning_objectives').value = JSON.stringify(objectives);
+}
+
+// Update objectives on input change
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('objective-input')) {
+        updateObjectivesJSON();
+    }
+});
 
 function setupImagePreview() {
     document.getElementById('course_image').addEventListener('change', function(e) {
@@ -452,7 +695,7 @@ function setupImagePreview() {
     });
 
     document.getElementById('remove-image').addEventListener('click', function() {
-        document.getElementById('course-image-preview').src = '/images/course-placeholder.png';
+        document.getElementById('course-image-preview').src = '/images/default-avatar.png';
         document.getElementById('course_image').value = '';
         this.classList.add('hidden');
     });
@@ -463,15 +706,33 @@ function setupFormSubmit() {
         e.preventDefault();
 
         const formData = new FormData(this);
+
+        // Collect target positions (multiple select)
+        const targetPositions = Array.from(document.getElementById('target_positions').selectedOptions)
+            .map(option => option.value);
+
+        // Collect target departments (multiple select)
+        const targetDepartments = Array.from(document.getElementById('target_departments').selectedOptions)
+            .map(option => option.value);
+
         const courseData = {
             course_name: formData.get('course_name'),
             course_code: formData.get('course_code'),
             description: formData.get('description'),
             category_id: formData.get('category_id'),
             difficulty_level: formData.get('difficulty_level'),
+            course_type: formData.get('course_type'),
+            language: formData.get('language'),
             duration_hours: formData.get('duration_hours'),
+            duration_minutes: formData.get('duration_minutes'),
+            prerequisite_knowledge: formData.get('prerequisite_knowledge'),
+            learning_objectives: formData.get('learning_objectives'), // Already JSON from updateObjectivesJSON()
+            target_positions: targetPositions,
+            target_departments: targetDepartments,
             max_enrollments: formData.get('max_enrollments'),
             passing_score: formData.get('passing_score'),
+            max_attempts: formData.get('max_attempts'),
+            certificate_validity: formData.get('certificate_validity'),
             enrollment_start: formData.get('enrollment_start'),
             enrollment_end: formData.get('enrollment_end'),
             is_mandatory: formData.get('is_mandatory') ? true : false,

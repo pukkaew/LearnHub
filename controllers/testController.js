@@ -51,7 +51,7 @@ const testController = {
     async getTestById(req, res) {
         try {
             const { test_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             const test = await Test.findById(test_id);
@@ -104,7 +104,7 @@ const testController = {
     async createTest(req, res) {
         try {
             const userRole = req.user.role;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
@@ -157,7 +157,7 @@ const testController = {
         try {
             const { test_id } = req.params;
             const userRole = req.user.role;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
             if (!test) {
@@ -222,7 +222,7 @@ const testController = {
         try {
             const { test_id } = req.params;
             const userRole = req.user.role;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             if (userRole !== 'Admin') {
                 return res.status(403).json({
@@ -275,7 +275,7 @@ const testController = {
     async startTest(req, res) {
         try {
             const { test_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
             if (!test) {
@@ -359,7 +359,7 @@ const testController = {
         try {
             const { test_id, attempt_id } = req.params;
             const { answers } = req.body;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
             if (!test) {
@@ -421,7 +421,7 @@ const testController = {
     async getTestResults(req, res) {
         try {
             const { test_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
             const userRole = req.user.role;
 
             const test = await Test.findById(test_id);
@@ -467,7 +467,7 @@ const testController = {
         try {
             const { test_id } = req.params;
             const userRole = req.user.role;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
             if (!test) {
@@ -590,7 +590,7 @@ const testController = {
     async renderTestTaking(req, res) {
         try {
             const { test_id, attempt_id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
             if (!test) {

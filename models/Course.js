@@ -20,6 +20,7 @@ class Course {
         this.thumbnail_image = data.thumbnail_image;
         this.intro_video_url = data.intro_video_url;
         this.instructor_id = data.instructor_id;
+        this.instructor_name = data.instructor_name;
         this.passing_score = data.passing_score;
         this.max_attempts = data.max_attempts;
         this.show_correct_answers = data.show_correct_answers;
@@ -42,11 +43,17 @@ class Course {
                 .query(`
                     SELECT c.*,
                            c.category as category_name,
-                           CONCAT(u.first_name, ' ', u.last_name) as instructor_name,
+                           COALESCE(c.instructor_name, CONCAT(u.first_name, ' ', u.last_name)) as instructor_display_name,
+                           c.instructor_name as instructor_name_direct,
                            u.profile_image as instructor_image,
                            u.email as instructor_email,
-                           u.bio as instructor_bio,
-                           CONCAT(p.position_name_th, ' - ', ou.unit_name_th) as instructor_title,
+                           NULL as instructor_bio,
+                           CASE
+                               WHEN p.position_name IS NOT NULL AND ou.unit_name_th IS NOT NULL THEN CONCAT(p.position_name, ' - ', ou.unit_name_th)
+                               WHEN p.position_name IS NOT NULL THEN p.position_name
+                               WHEN ou.unit_name_th IS NOT NULL THEN ou.unit_name_th
+                               ELSE 'ผู้สอน'
+                           END as instructor_title,
                            (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id) as enrolled_count,
                            (SELECT AVG(CAST(grade as FLOAT)) FROM user_courses
                             WHERE course_id = c.course_id AND grade IS NOT NULL) as avg_score,
@@ -67,6 +74,9 @@ class Course {
 
             const course = result.recordset[0];
 
+            // Use instructor_display_name as the main instructor_name
+            course.instructor_name = course.instructor_display_name;
+
             // Get prerequisites (if table exists, otherwise empty array)
             course.prerequisites_list = [];
 
@@ -80,17 +90,43 @@ class Course {
                     ORDER BY order_index
                 `);
 
-            course.lessons = lessonsResult.recordset;
+            // Map file_path to video_url for frontend
+            course.lessons = lessonsResult.recordset.map(lesson => ({
+                ...lesson,
+                video_url: lesson.file_path || null
+            }));
+
+            // Parse learning_objectives if it's a JSON string
+            try {
+                if (course.learning_objectives && typeof course.learning_objectives === 'string') {
+                    course.learning_objectives = JSON.parse(course.learning_objectives);
+                } else if (!course.learning_objectives) {
+                    course.learning_objectives = [];
+                }
+            } catch (e) {
+                course.learning_objectives = [];
+            }
+
+            // Parse target_audience if it's a JSON string
+            try {
+                if (course.target_audience && typeof course.target_audience === 'string') {
+                    course.target_audience = JSON.parse(course.target_audience);
+                } else if (!course.target_audience) {
+                    course.target_audience = {};
+                }
+            } catch (e) {
+                course.target_audience = {};
+            }
 
             // Add field aliases and defaults for view compatibility
             course.instructor_avatar = course.instructor_image;
             course.instructor_title = course.instructor_title || 'ผู้สอน';
             course.instructor_bio = course.instructor_bio || '';
-            course.learning_objectives = course.learning_objectives || '[]';
-            course.prerequisites_text = course.prerequisites || 'ไม่มีความต้องการพื้นฐานพิเศษ';
+            course.prerequisites_text = course.prerequisite_knowledge || 'ไม่มีความต้องการพื้นฐานพิเศษ';
             course.full_description = course.description;
             course.rating = course.avg_rating || 0;
             course.rating_count = course.rating_count || 0;
+            course.course_name = course.title; // Alias for compatibility
 
             return course;
         } catch (error) {
@@ -117,16 +153,11 @@ class Course {
             // Debug logging
             console.log('Course.create received data:', {
                 instructor_id: courseData.instructor_id,
+                instructor_name: courseData.instructor_name,
                 course_name: courseData.course_name,
                 category_id: courseData.category_id,
                 allKeys: Object.keys(courseData)
             });
-
-            // Validate required fields
-            if (!courseData.instructor_id) {
-                console.error('instructor_id is missing! courseData:', courseData);
-                throw new Error('instructor_id is required');
-            }
 
             // Get category name from category_id or use provided category
             let categoryName = courseData.category || 'General';
@@ -155,36 +186,92 @@ class Course {
                                    this.normalizeValue(courseData.thumbnail_image) ||
                                    this.normalizeValue(courseData.thumbnail);
 
-            // Insert course with columns that exist in the database
+            // Prepare JSON data for complex fields
+            const learningObjectivesJson = courseData.learning_objectives ?
+                JSON.stringify(courseData.learning_objectives) : null;
+
+            const targetAudienceJson = courseData.target_positions || courseData.target_departments ?
+                JSON.stringify({
+                    positions: courseData.target_positions || [],
+                    departments: courseData.target_departments || []
+                }) : null;
+
+            // Insert course with all columns
             const result = await pool.request()
+                .input('courseCode', sql.NVarChar(50), courseData.course_code || null)
                 .input('title', sql.NVarChar(255), courseData.course_name || courseData.title || 'Untitled Course')
                 .input('description', sql.NVarChar(sql.MAX), courseData.description || '')
                 .input('category', sql.NVarChar(100), categoryName)
                 .input('difficultyLevel', sql.NVarChar(50), courseData.difficulty_level || 'Beginner')
-                .input('instructorId', sql.Int, parseInt(courseData.instructor_id))
+                .input('courseType', sql.NVarChar(50), courseData.course_type || null)
+                .input('language', sql.NVarChar(20), courseData.language || null)
+                .input('instructorId', sql.Int, courseData.instructor_id ? parseInt(courseData.instructor_id) : null)
+                .input('instructorName', sql.NVarChar(255), courseData.instructor_name || null)
                 .input('thumbnail', sql.NVarChar(500), thumbnailValue)
                 .input('durationHours', sql.Int, Math.ceil(durationHours))
                 .input('price', sql.Decimal(10, 2), courseData.price || 0)
                 .input('isFree', sql.Bit, courseData.is_free !== false)
                 .input('status', sql.NVarChar(50), courseData.status || 'Published')
                 .input('enrollmentLimit', sql.Int, courseData.max_enrollments || courseData.enrollment_limit || courseData.max_students || null)
+                .input('maxStudents', sql.Int, courseData.max_students || courseData.max_enrollments || courseData.enrollment_limit || null)
                 .input('startDate', sql.DateTime2, courseData.enrollment_start || courseData.start_date || null)
                 .input('endDate', sql.DateTime2, courseData.enrollment_end || courseData.end_date || null)
                 .input('testId', sql.Int, courseData.test_id || null)
+                .input('learningObjectives', sql.NVarChar(sql.MAX), learningObjectivesJson)
+                .input('targetAudience', sql.NVarChar(sql.MAX), targetAudienceJson)
+                .input('prerequisiteKnowledge', sql.NVarChar(sql.MAX), courseData.prerequisite_knowledge || null)
+                .input('introVideoUrl', sql.NVarChar(500), courseData.intro_video_url || null)
+                .input('passingScore', sql.Int, courseData.passing_score || null)
+                .input('maxAttempts', sql.Int, courseData.max_attempts || null)
+                .input('showCorrectAnswers', sql.Bit, courseData.show_correct_answers || false)
+                .input('isPublished', sql.Bit, courseData.is_published !== false)
+                .input('certificateValidity', sql.NVarChar(50), courseData.certificate_validity ? String(courseData.certificate_validity) : null)
                 .query(`
                     INSERT INTO courses (
-                        title, description, category, difficulty_level, instructor_id,
-                        thumbnail, duration_hours, price, is_free, status, enrollment_limit,
-                        start_date, end_date, test_id, created_at, updated_at
+                        course_code, title, description, category, difficulty_level, course_type, language,
+                        instructor_id, instructor_name, thumbnail, duration_hours, price, is_free, status,
+                        enrollment_limit, max_students, start_date, end_date, test_id,
+                        learning_objectives, target_audience, prerequisite_knowledge, intro_video_url,
+                        passing_score, max_attempts, show_correct_answers, is_published, certificate_validity,
+                        created_at, updated_at
                     ) VALUES (
-                        @title, @description, @category, @difficultyLevel, @instructorId,
-                        @thumbnail, @durationHours, @price, @isFree, @status, @enrollmentLimit,
-                        @startDate, @endDate, @testId, GETDATE(), GETDATE()
+                        @courseCode, @title, @description, @category, @difficultyLevel, @courseType, @language,
+                        @instructorId, @instructorName, @thumbnail, @durationHours, @price, @isFree, @status,
+                        @enrollmentLimit, @maxStudents, @startDate, @endDate, @testId,
+                        @learningObjectives, @targetAudience, @prerequisiteKnowledge, @introVideoUrl,
+                        @passingScore, @maxAttempts, @showCorrectAnswers, @isPublished, @certificateValidity,
+                        GETDATE(), GETDATE()
                     );
                     SELECT SCOPE_IDENTITY() AS course_id;
                 `);
 
             const newCourseId = result.recordset[0].course_id;
+
+            // Insert lessons if provided
+            if (courseData.lessons && Array.isArray(courseData.lessons) && courseData.lessons.length > 0) {
+                for (let i = 0; i < courseData.lessons.length; i++) {
+                    const lesson = courseData.lessons[i];
+                    try {
+                        await pool.request()
+                            .input('courseId', sql.Int, newCourseId)
+                            .input('title', sql.NVarChar(255), lesson.title || `บทที่ ${i + 1}`)
+                            .input('content', sql.NVarChar(sql.MAX), lesson.description || '')
+                            .input('type', sql.NVarChar(50), 'lesson')
+                            .input('filePath', sql.NVarChar(500), lesson.video_url || null)
+                            .input('orderIndex', sql.Int, i + 1)
+                            .input('duration', sql.Int, lesson.duration || 0)
+                            .query(`
+                                INSERT INTO course_materials (
+                                    course_id, title, content, type, file_path, order_index, duration_minutes, created_at
+                                ) VALUES (
+                                    @courseId, @title, @content, @type, @filePath, @orderIndex, @duration, GETDATE()
+                                )
+                            `);
+                    } catch (lessonError) {
+                        console.error(`Error inserting lesson ${i + 1}:`, lessonError);
+                    }
+                }
+            }
 
             // Return data in format expected by controller
             return {
@@ -250,14 +337,83 @@ class Course {
                 updateFields.push('thumbnail_image = @thumbnailImage');
                 request.input('thumbnailImage', sql.NVarChar(500), updateData.thumbnail_image);
             }
+            if (updateData.course_image !== undefined) {
+                updateFields.push('thumbnail = @thumbnail');
+                request.input('thumbnail', sql.NVarChar(500), updateData.course_image);
+            }
+            if (updateData.language !== undefined) {
+                updateFields.push('language = @language');
+                request.input('language', sql.NVarChar(20), updateData.language);
+            }
+            if (updateData.prerequisite_knowledge !== undefined) {
+                updateFields.push('prerequisite_knowledge = @prerequisiteKnowledge');
+                request.input('prerequisiteKnowledge', sql.NVarChar(sql.MAX), updateData.prerequisite_knowledge);
+            }
+            if (updateData.learning_objectives !== undefined) {
+                const objectivesJson = typeof updateData.learning_objectives === 'string'
+                    ? updateData.learning_objectives
+                    : JSON.stringify(updateData.learning_objectives);
+                updateFields.push('learning_objectives = @learningObjectives');
+                request.input('learningObjectives', sql.NVarChar(sql.MAX), objectivesJson);
+            }
+            if (updateData.target_positions !== undefined || updateData.target_departments !== undefined) {
+                const positions = Array.isArray(updateData.target_positions) && updateData.target_positions.length > 0
+                    ? updateData.target_positions
+                    : [];
+                const departments = Array.isArray(updateData.target_departments) && updateData.target_departments.length > 0
+                    ? updateData.target_departments
+                    : [];
+
+                // If both are empty, store null instead of empty object
+                const targetAudienceJson = (positions.length > 0 || departments.length > 0)
+                    ? JSON.stringify({ positions, departments })
+                    : null;
+
+                updateFields.push('target_audience = @targetAudience');
+                request.input('targetAudience', sql.NVarChar(sql.MAX), targetAudienceJson);
+            }
+            if (updateData.max_enrollments !== undefined || updateData.max_students !== undefined) {
+                const maxStudents = updateData.max_enrollments || updateData.max_students;
+                updateFields.push('max_students = @maxStudents');
+                request.input('maxStudents', sql.Int, maxStudents);
+                updateFields.push('enrollment_limit = @enrollmentLimit');
+                request.input('enrollmentLimit', sql.Int, maxStudents);
+            }
+            if (updateData.enrollment_start !== undefined || updateData.start_date !== undefined) {
+                const startDate = updateData.enrollment_start || updateData.start_date;
+                updateFields.push('start_date = @startDate');
+                request.input('startDate', sql.DateTime2, startDate || null);
+            }
+            if (updateData.enrollment_end !== undefined || updateData.end_date !== undefined) {
+                const endDate = updateData.enrollment_end || updateData.end_date;
+                updateFields.push('end_date = @endDate');
+                request.input('endDate', sql.DateTime2, endDate || null);
+            }
+            if (updateData.max_attempts !== undefined) {
+                updateFields.push('max_attempts = @maxAttempts');
+                request.input('maxAttempts', sql.Int, updateData.max_attempts || null);
+            }
+            if (updateData.certificate_validity !== undefined) {
+                updateFields.push('certificate_validity = @certificateValidity');
+                request.input('certificateValidity', sql.NVarChar(50), updateData.certificate_validity ? String(updateData.certificate_validity) : null);
+            }
+            if (updateData.status !== undefined) {
+                updateFields.push('status = @status');
+                request.input('status', sql.NVarChar(50), updateData.status);
+            }
+            if (updateData.duration_minutes !== undefined) {
+                // Combine with duration_hours if available
+                let totalHours = parseFloat(updateData.duration_hours) || 0;
+                totalHours += (parseFloat(updateData.duration_minutes) || 0) / 60;
+                updateFields.push('duration_hours = @durationHours');
+                request.input('durationHours', sql.Decimal(5, 2), totalHours);
+            }
 
             if (updateFields.length === 0) {
                 return { success: false, message: 'No fields to update' };
             }
 
-            updateFields.push('modified_date = GETDATE()');
-            updateFields.push('modified_by = @modifiedBy');
-            updateFields.push('version = version + 1');
+            updateFields.push('updated_at = GETDATE()');
 
             const updateQuery = `
                 UPDATE courses
