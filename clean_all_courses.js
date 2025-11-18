@@ -1,82 +1,128 @@
-const { poolPromise, sql } = require('./config/database');
+const {poolPromise} = require('./config/database');
 
-async function cleanAllCourses() {
+(async () => {
     try {
-        console.log('🗑️  CLEANING ALL COURSES DATA\n');
-        console.log('='.repeat(80));
-
         const pool = await poolPromise;
 
-        // Step 1: Count existing data
-        console.log('📊 Counting existing data...\n');
+        console.log('\n🧹 CLEAN ALL COURSES DATA');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-        const courseCount = await pool.request().query('SELECT COUNT(*) as count FROM courses');
-        const materialsCount = await pool.request().query('SELECT COUNT(*) as count FROM course_materials');
+        // Count before deletion
+        const beforeCount = await pool.request().query('SELECT COUNT(*) as count FROM courses');
+        console.log(`📊 Current courses count: ${beforeCount.recordset[0].count}`);
 
-        console.log(`Courses:          ${courseCount.recordset[0].count} records`);
-        console.log(`Course Materials: ${materialsCount.recordset[0].count} records`);
-        console.log('');
+        if (beforeCount.recordset[0].count === 0) {
+            console.log('\n✅ Database is already clean - no courses to delete');
+            process.exit(0);
+        }
 
-        // Step 2: Delete data
-        console.log('─'.repeat(80));
-        console.log('🗑️  Deleting data...\n');
+        console.log('\n⚠️  WARNING: This will delete ALL course-related data:');
+        console.log('  - All courses');
+        console.log('  - All enrollments');
+        console.log('  - All lessons');
+        console.log('  - All materials');
+        console.log('  - All course reviews');
+        console.log('  - All course progress');
+        console.log('  - All related data');
+        console.log('\n🔥 This action CANNOT be undone!');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-        // Delete in order to respect foreign key constraints
-        console.log('1. Deleting course materials...');
-        await pool.request().query('DELETE FROM course_materials');
-        console.log('   ✅ Course materials deleted');
+        // Delete in correct order (child tables first)
+        console.log('🗑️  Deleting course-related data...\n');
 
-        console.log('2. Deleting courses...');
-        await pool.request().query('DELETE FROM courses');
-        console.log('   ✅ Courses deleted');
+        // 1. Delete course reviews
+        try {
+            const result = await pool.request().query('DELETE FROM CourseReviews');
+            console.log(`  ✅ Deleted ${result.rowsAffected[0]} course reviews`);
+        } catch (e) {
+            console.log(`  ⚠️  CourseReviews: ${e.message}`);
+        }
 
-        // Step 3: Reset identity seeds
-        console.log('\n3. Resetting ID counters...');
+        // 2. Delete course materials
+        try {
+            const result = await pool.request().query('DELETE FROM course_materials');
+            console.log(`  ✅ Deleted ${result.rowsAffected[0]} materials`);
+        } catch (e) {
+            console.log(`  ⚠️  Materials: ${e.message}`);
+        }
+
+        // 3. Delete lessons
+        try {
+            const result = await pool.request().query('DELETE FROM Lessons');
+            console.log(`  ✅ Deleted ${result.rowsAffected[0]} lessons`);
+        } catch (e) {
+            console.log(`  ⚠️  Lessons: ${e.message}`);
+        }
+
+        // 4. Delete enrollments
+        try {
+            const result = await pool.request().query('DELETE FROM Enrollments');
+            console.log(`  ✅ Deleted ${result.rowsAffected[0]} enrollments`);
+        } catch (e) {
+            console.log(`  ⚠️  Enrollments: ${e.message}`);
+        }
+
+        // 5. Delete course progress
+        try {
+            const result = await pool.request().query('DELETE FROM CourseProgress');
+            console.log(`  ✅ Deleted ${result.rowsAffected[0]} progress records`);
+        } catch (e) {
+            console.log(`  ⚠️  CourseProgress: ${e.message}`);
+        }
+
+        // 6. Delete course discussions
+        try {
+            const result = await pool.request().query('DELETE FROM CourseDiscussions');
+            console.log(`  ✅ Deleted ${result.rowsAffected[0]} discussions`);
+        } catch (e) {
+            console.log(`  ⚠️  CourseDiscussions: ${e.message}`);
+        }
+
+        // 7. Finally, delete courses
+        const coursesResult = await pool.request().query('DELETE FROM courses');
+        console.log(`  ✅ Deleted ${coursesResult.rowsAffected[0]} courses`);
+
+        console.log('\n🔄 Resetting identity counters...\n');
+
+        // Reset identity counters
+        try {
+            await pool.request().query(`DBCC CHECKIDENT ('courses', RESEED, 0)`);
+            console.log(`  ✅ Reset courses identity to 0`);
+        } catch (e) {
+            console.log(`  ⚠️  Could not reset courses identity: ${e.message}`);
+        }
 
         try {
-            await pool.request().query('DBCC CHECKIDENT (courses, RESEED, 0)');
-            console.log('   ✅ Courses ID reset to start from 1');
-        } catch (err) {
-            console.log('   ⚠️  Could not reset courses ID:', err.message);
+            await pool.request().query(`DBCC CHECKIDENT ('Lessons', RESEED, 0)`);
+            console.log(`  ✅ Reset lessons identity to 0`);
+        } catch (e) {
+            console.log(`  ⚠️  Could not reset lessons identity`);
         }
 
         try {
-            await pool.request().query('DBCC CHECKIDENT (course_materials, RESEED, 0)');
-            console.log('   ✅ Course materials ID reset to start from 1');
-        } catch (err) {
-            console.log('   ⚠️  Could not reset course_materials ID:', err.message);
+            await pool.request().query(`DBCC CHECKIDENT ('course_materials', RESEED, 0)`);
+            console.log(`  ✅ Reset materials identity to 0`);
+        } catch (e) {
+            console.log(`  ⚠️  Could not reset materials identity`);
         }
 
-        // Step 4: Verify
-        console.log('');
-        console.log('─'.repeat(80));
-        console.log('✅ Verification...\n');
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('✅ ALL COURSE DATA CLEANED SUCCESSFULLY!');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-        const finalCourseCount = await pool.request().query('SELECT COUNT(*) as count FROM courses');
-        const finalMaterialsCount = await pool.request().query('SELECT COUNT(*) as count FROM course_materials');
+        // Verify
+        const afterCount = await pool.request().query('SELECT COUNT(*) as count FROM courses');
+        console.log(`📊 Verification: ${afterCount.recordset[0].count} courses remaining`);
 
-        console.log(`Courses remaining:          ${finalCourseCount.recordset[0].count}`);
-        console.log(`Course Materials remaining: ${finalMaterialsCount.recordset[0].count}`);
-        console.log('');
+        console.log('\n📝 Next steps:');
+        console.log('  1. สร้างคอร์สใหม่ที่: http://localhost:3000/courses/create');
+        console.log('  2. ตรวจสอบรายการคอร์สที่: http://localhost:3000/courses\n');
 
-        console.log('='.repeat(80));
-        if (finalCourseCount.recordset[0].count === 0 &&
-            finalMaterialsCount.recordset[0].count === 0) {
-            console.log('🎉 SUCCESS! All course data cleaned successfully!');
-            console.log('');
-            console.log('📝 Next step: สร้าง Course ใหม่ผ่านฟอร์มบนเว็บ');
-            console.log('   http://localhost:3000/courses/create');
-        } else {
-            console.log('⚠️  Warning: Some data may still remain');
-        }
-        console.log('='.repeat(80));
+        process.exit(0);
 
     } catch (error) {
-        console.error('\n❌ Error:', error.message);
+        console.error('\n❌ Error cleaning data:', error);
         console.error('Stack:', error.stack);
-    } finally {
-        process.exit(0);
+        process.exit(1);
     }
-}
-
-cleanAllCourses();
+})();

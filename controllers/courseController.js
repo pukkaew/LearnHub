@@ -131,6 +131,9 @@ const courseController = {
 
             const courseData = {
                 ...req.body,
+                // Map array field names (from form with []) to model field names
+                target_positions: req.body['target_positions[]'] || req.body.target_positions,
+                target_departments: req.body['target_departments[]'] || req.body.target_departments,
                 // ถ้าไม่มี instructor_id ให้ใช้ null (ใช้ instructor_name แทน)
                 instructor_id: req.body.instructor_id || null,
                 // ถ้าไม่มี instructor_name ก็ไม่เป็นไร (optional)
@@ -143,7 +146,9 @@ const courseController = {
                 userId,
                 instructor_id: courseData.instructor_id,
                 course_name: courseData.course_name,
-                category_id: courseData.category_id
+                category_id: courseData.category_id,
+                target_positions: courseData.target_positions,
+                target_departments: courseData.target_departments
             });
 
             const result = await Course.create(courseData);
@@ -213,7 +218,12 @@ const courseController = {
                 });
             }
 
-            const updateData = { ...req.body };
+            const updateData = {
+                ...req.body,
+                // Map array field names (from form with []) to model field names
+                target_positions: req.body['target_positions[]'] || req.body.target_positions,
+                target_departments: req.body['target_departments[]'] || req.body.target_departments
+            };
             delete updateData.instructor_id; // ป้องกันการเปลี่ยนผู้สอน
 
             const result = await Course.update(course_id, updateData);
@@ -768,7 +778,7 @@ const courseController = {
                     FROM OrganizationUnits ou
                     LEFT JOIN OrganizationLevels ol ON ou.level_id = ol.level_id
                     WHERE ou.is_active = 1
-                      AND ou.level_id IN (2, 4, 5, 6)
+                      AND ou.level_id IN (1, 2, 4, 5, 6)
                     ORDER BY ou.level_id, ou.unit_name_th
                 `);
 

@@ -27,7 +27,7 @@ const authMiddleware = {
             }
         }
 
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
             return res.status(401).json({
                 success: false,
                 message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน'

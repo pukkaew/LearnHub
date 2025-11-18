@@ -47,7 +47,9 @@
       "Bash(D:AppLearnHubserver.js)",
       "Bash(cmd.exe /c taskkill /F /PID 34492)",
       "Bash(cmd.exe /c taskkill /F /PID 38324)",
-      "Bash(cmd.exe /c \"findstr /n /i \"file_url.*description\" \"D:AppLearnHubcontrollerscourseController.js\"\")"
+      "Bash(cmd.exe /c \"findstr /n /i \"file_url.*description\" \"D:AppLearnHubcontrollerscourseController.js\"\")",
+      "Bash(curl:*)",
+      "Bash(cmd.exe /c taskkill /F /PID 22468)"
     ],
     "deny": [],
     "ask": []

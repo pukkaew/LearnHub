@@ -123,27 +123,11 @@ function validateStep2() {
         return false;
     }
 
-    // Validate target positions
-    const targetPositions = document.getElementById('target_positions');
-    if (targetPositions) {
-        const selectedPositions = Array.from(targetPositions.selectedOptions);
-        if (selectedPositions.length === 0) {
-            showError('กรุณาเลือกตำแหน่งเป้าหมายอย่างน้อย 1 ตำแหน่ง');
-            targetPositions.focus();
-            return false;
-        }
-    }
-
-    // Validate target departments
-    const targetDepartments = document.getElementById('target_departments');
-    if (targetDepartments) {
-        const selectedDepartments = Array.from(targetDepartments.selectedOptions);
-        if (selectedDepartments.length === 0) {
-            showError('กรุณาเลือกแผนกเป้าหมายอย่างน้อย 1 แผนก');
-            targetDepartments.focus();
-            return false;
-        }
-    }
+    // Target positions and departments are OPTIONAL
+    // If neither selected = open for everyone
+    // If only positions = all departments for those positions
+    // If only departments = all positions in those departments
+    // If both = positions AND departments (OR logic for enrollment)
 
     return true;
 }
@@ -723,26 +707,35 @@ async function loadCategories() {
     }
 }
 
+// Store all positions for filtering
+let allPositions = [];
+
 async function loadPositions() {
     try {
         const response = await fetch('/courses/api/target-positions');
         const result = await response.json();
 
         if (result.success) {
+            allPositions = result.data; // Store for cascading
             const select = document.getElementById('target_positions');
-            // Clear existing hardcoded options except "ทุกตำแหน่ง"
-            select.innerHTML = '<option value="all">ทุกตำแหน่ง</option>';
+            select.innerHTML = '';
 
+            // Add all positions initially
             result.data.forEach(position => {
                 const option = document.createElement('option');
                 option.value = position.position_id;
                 option.textContent = position.position_name;
-                option.dataset.level = position.level;
+                option.dataset.unitId = position.unit_id || '';
+                option.dataset.level = position.level || '';
                 select.appendChild(option);
             });
+
+            console.log(`✅ Loaded ${result.data.length} positions`);
         }
     } catch (error) {
-        console.error('Error loading positions:', error);
+        console.error('❌ Error loading positions:', error);
+        const select = document.getElementById('target_positions');
+        select.innerHTML = '<option value="" disabled>ไม่สามารถโหลดข้อมูลได้</option>';
     }
 }
 
@@ -753,19 +746,37 @@ async function loadDepartments() {
 
         if (result.success) {
             const select = document.getElementById('target_departments');
-            // Clear existing options
-            select.innerHTML = '<option value="all">ทุกแผนก</option>';
+            // Clear loading message
+            select.innerHTML = '';
 
+            // Group by level_id for better organization
+            const grouped = {};
             result.data.forEach(dept => {
-                const option = document.createElement('option');
-                option.value = dept.unit_id;
-                option.textContent = `${dept.unit_code || ''} ${dept.unit_name_th}`.trim();
-                option.dataset.levelCode = dept.level_code;
-                select.appendChild(option);
+                const levelId = dept.level_id || 0;
+                if (!grouped[levelId]) grouped[levelId] = [];
+                grouped[levelId].push(dept);
             });
+
+            // Add departments sorted by level
+            Object.keys(grouped).sort((a, b) => a - b).forEach(levelId => {
+                grouped[levelId].forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.unit_id;
+                    // Add indentation based on level for visual hierarchy
+                    const indent = dept.level_id > 1 ? '  '.repeat(dept.level_id - 1) : '';
+                    option.textContent = `${indent}${dept.unit_name_th}`;
+                    option.dataset.levelId = dept.level_id;
+                    option.dataset.levelCode = dept.level_code || '';
+                    select.appendChild(option);
+                });
+            });
+
+            console.log(`✅ Loaded ${result.data.length} departments`);
         }
     } catch (error) {
-        console.error('Error loading departments:', error);
+        console.error('❌ Error loading departments:', error);
+        const select = document.getElementById('target_departments');
+        select.innerHTML = '<option value="" disabled>ไม่สามารถโหลดข้อมูลได้</option>';
     }
 }
 
@@ -1126,6 +1137,136 @@ function setupEventListeners() {
             e.preventDefault();
             submitCourse();
         });
+    }
+
+    // Enhanced multi-select behavior
+    setupEnhancedMultiSelect();
+
+    // Cascading dropdown: Department → Position
+    const deptSelect = document.getElementById('target_departments');
+    const posSelect = document.getElementById('target_positions');
+
+    if (deptSelect && posSelect) {
+        deptSelect.addEventListener('change', function() {
+            filterPositionsByDepartment();
+        });
+    }
+}
+
+// Enhanced multi-select: Click to toggle selection
+function setupEnhancedMultiSelect() {
+    const selects = ['target_departments', 'target_positions'];
+
+    selects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        // Click to toggle (without needing Ctrl)
+        select.addEventListener('mousedown', function(e) {
+            if (e.target.tagName === 'OPTION' && !e.target.disabled) {
+                e.preventDefault();
+
+                // Toggle selection
+                e.target.selected = !e.target.selected;
+
+                // Apply blue color to selected options
+                if (e.target.selected) {
+                    e.target.style.backgroundColor = '#3b82f6';
+                    e.target.style.color = 'white';
+                } else {
+                    e.target.style.backgroundColor = '';
+                    e.target.style.color = '';
+                }
+
+                // Trigger change event for cascading
+                select.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Prevent default selection behavior
+        select.addEventListener('click', function(e) {
+            e.preventDefault();
+        });
+    });
+
+    // Clear buttons
+    const clearDeptBtn = document.getElementById('clear-departments-btn');
+    const clearPosBtn = document.getElementById('clear-positions-btn');
+
+    if (clearDeptBtn) {
+        clearDeptBtn.addEventListener('click', function() {
+            const deptSelect = document.getElementById('target_departments');
+            if (deptSelect) {
+                // Deselect all options and clear colors
+                Array.from(deptSelect.options).forEach(opt => {
+                    opt.selected = false;
+                    opt.style.backgroundColor = '';
+                    opt.style.color = '';
+                });
+                // Trigger change for cascading
+                deptSelect.dispatchEvent(new Event('change'));
+                console.log('✅ Cleared all departments');
+            }
+        });
+    }
+
+    if (clearPosBtn) {
+        clearPosBtn.addEventListener('click', function() {
+            const posSelect = document.getElementById('target_positions');
+            if (posSelect) {
+                // Deselect all options and clear colors
+                Array.from(posSelect.options).forEach(opt => {
+                    opt.selected = false;
+                    opt.style.backgroundColor = '';
+                    opt.style.color = '';
+                });
+                console.log('✅ Cleared all positions');
+            }
+        });
+    }
+}
+
+// Filter positions based on selected departments
+function filterPositionsByDepartment() {
+    const deptSelect = document.getElementById('target_departments');
+    const posSelect = document.getElementById('target_positions');
+
+    if (!deptSelect || !posSelect || allPositions.length === 0) return;
+
+    const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => parseInt(opt.value));
+
+    // Clear current positions
+    posSelect.innerHTML = '';
+
+    if (selectedDepts.length === 0) {
+        // No department selected → show all positions
+        allPositions.forEach(position => {
+            const option = document.createElement('option');
+            option.value = position.position_id;
+            option.textContent = position.position_name;
+            option.dataset.unitId = position.unit_id || '';
+            posSelect.appendChild(option);
+        });
+        console.log('✅ Showing all positions (no department filter)');
+    } else {
+        // Filter positions by selected departments
+        const filteredPositions = allPositions.filter(p =>
+            p.unit_id && selectedDepts.includes(parseInt(p.unit_id))
+        );
+
+        if (filteredPositions.length === 0) {
+            posSelect.innerHTML = '<option value="" disabled>ไม่มีตำแหน่งในหน่วยงานที่เลือก</option>';
+            console.log('⚠️ No positions found for selected departments');
+        } else {
+            filteredPositions.forEach(position => {
+                const option = document.createElement('option');
+                option.value = position.position_id;
+                option.textContent = position.position_name;
+                option.dataset.unitId = position.unit_id || '';
+                posSelect.appendChild(option);
+            });
+            console.log(`✅ Filtered to ${filteredPositions.length} positions for selected departments`);
+        }
     }
 }
 

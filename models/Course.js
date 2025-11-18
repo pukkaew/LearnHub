@@ -190,11 +190,34 @@ class Course {
             const learningObjectivesJson = courseData.learning_objectives ?
                 JSON.stringify(courseData.learning_objectives) : null;
 
-            const targetAudienceJson = courseData.target_positions || courseData.target_departments ?
-                JSON.stringify({
-                    positions: courseData.target_positions || [],
-                    departments: courseData.target_departments || []
-                }) : null;
+            // Handle target_audience - convert positions and departments arrays to JSON
+            // Even if both are empty, store as {} to indicate "open for all"
+            let targetAudienceJson = null;
+
+            // DEBUG: Log incoming data
+            console.log('🔍 DEBUG target_audience data:');
+            console.log('  target_positions:', courseData.target_positions);
+            console.log('  target_departments:', courseData.target_departments);
+
+            const positions = Array.isArray(courseData.target_positions) ?
+                courseData.target_positions.filter(p => p && p !== 'all') : [];
+            const departments = Array.isArray(courseData.target_departments) ?
+                courseData.target_departments.filter(d => d && d !== 'all') : [];
+
+            console.log('  Filtered positions:', positions);
+            console.log('  Filtered departments:', departments);
+
+            // Only create targetAudience if at least one is selected
+            // If neither selected = null = open for everyone
+            if (positions.length > 0 || departments.length > 0) {
+                targetAudienceJson = JSON.stringify({
+                    positions: positions.map(p => typeof p === 'string' && !isNaN(p) ? parseInt(p) : p),
+                    departments: departments.map(d => typeof d === 'string' && !isNaN(d) ? parseInt(d) : d)
+                });
+                console.log('  ✅ Created targetAudienceJson:', targetAudienceJson);
+            } else {
+                console.log('  ⚠️  No positions or departments selected → target_audience = NULL');
+            }
 
             // Insert course with all columns
             const result = await pool.request()
@@ -301,9 +324,10 @@ class Course {
                 .input('modifiedBy', sql.Int, updateData.modified_by || null);
 
             // Add fields to update dynamically
-            if (updateData.course_name !== undefined) {
-                updateFields.push('course_name = @courseName');
-                request.input('courseName', sql.NVarChar(200), updateData.course_name);
+            if (updateData.course_name !== undefined || updateData.title !== undefined) {
+                const titleValue = updateData.course_name || updateData.title;
+                updateFields.push('title = @title');
+                request.input('title', sql.NVarChar(255), titleValue);
             }
             if (updateData.category !== undefined) {
                 updateFields.push('category = @category');
@@ -325,21 +349,24 @@ class Course {
                 updateFields.push('objectives = @objectives');
                 request.input('objectives', sql.NVarChar(sql.MAX), updateData.objectives);
             }
-            if (updateData.duration_hours !== undefined) {
+            if (updateData.duration_hours !== undefined || updateData.duration_minutes !== undefined) {
+                // Combine hours and minutes into total hours
+                let totalHours = parseFloat(updateData.duration_hours) || 0;
+                totalHours += (parseFloat(updateData.duration_minutes) || 0) / 60;
                 updateFields.push('duration_hours = @durationHours');
-                request.input('durationHours', sql.Decimal(5, 2), updateData.duration_hours);
+                request.input('durationHours', sql.Decimal(5, 2), totalHours);
             }
             if (updateData.passing_score !== undefined) {
                 updateFields.push('passing_score = @passingScore');
-                request.input('passingScore', sql.Decimal(5, 2), updateData.passing_score);
+                const passingScore = updateData.passing_score === '' || updateData.passing_score === null
+                    ? null
+                    : parseFloat(updateData.passing_score);
+                request.input('passingScore', sql.Decimal(5, 2), passingScore);
             }
-            if (updateData.thumbnail_image !== undefined) {
-                updateFields.push('thumbnail_image = @thumbnailImage');
-                request.input('thumbnailImage', sql.NVarChar(500), updateData.thumbnail_image);
-            }
-            if (updateData.course_image !== undefined) {
+            if (updateData.thumbnail_image !== undefined || updateData.course_image !== undefined || updateData.thumbnail !== undefined) {
+                const thumbnailValue = updateData.course_image || updateData.thumbnail_image || updateData.thumbnail;
                 updateFields.push('thumbnail = @thumbnail');
-                request.input('thumbnail', sql.NVarChar(500), updateData.course_image);
+                request.input('thumbnail', sql.NVarChar(500), thumbnailValue);
             }
             if (updateData.language !== undefined) {
                 updateFields.push('language = @language');
@@ -374,10 +401,13 @@ class Course {
             }
             if (updateData.max_enrollments !== undefined || updateData.max_students !== undefined) {
                 const maxStudents = updateData.max_enrollments || updateData.max_students;
+                const maxStudentsValue = maxStudents === '' || maxStudents === null
+                    ? null
+                    : parseInt(maxStudents);
                 updateFields.push('max_students = @maxStudents');
-                request.input('maxStudents', sql.Int, maxStudents);
+                request.input('maxStudents', sql.Int, maxStudentsValue);
                 updateFields.push('enrollment_limit = @enrollmentLimit');
-                request.input('enrollmentLimit', sql.Int, maxStudents);
+                request.input('enrollmentLimit', sql.Int, maxStudentsValue);
             }
             if (updateData.enrollment_start !== undefined || updateData.start_date !== undefined) {
                 const startDate = updateData.enrollment_start || updateData.start_date;
@@ -391,7 +421,10 @@ class Course {
             }
             if (updateData.max_attempts !== undefined) {
                 updateFields.push('max_attempts = @maxAttempts');
-                request.input('maxAttempts', sql.Int, updateData.max_attempts || null);
+                const maxAttempts = updateData.max_attempts === '' || updateData.max_attempts === null
+                    ? null
+                    : parseInt(updateData.max_attempts);
+                request.input('maxAttempts', sql.Int, maxAttempts);
             }
             if (updateData.certificate_validity !== undefined) {
                 updateFields.push('certificate_validity = @certificateValidity');
@@ -400,13 +433,6 @@ class Course {
             if (updateData.status !== undefined) {
                 updateFields.push('status = @status');
                 request.input('status', sql.NVarChar(50), updateData.status);
-            }
-            if (updateData.duration_minutes !== undefined) {
-                // Combine with duration_hours if available
-                let totalHours = parseFloat(updateData.duration_hours) || 0;
-                totalHours += (parseFloat(updateData.duration_minutes) || 0) / 60;
-                updateFields.push('duration_hours = @durationHours');
-                request.input('durationHours', sql.Decimal(5, 2), totalHours);
             }
 
             if (updateFields.length === 0) {

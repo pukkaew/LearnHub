@@ -22,12 +22,12 @@ class SecurityMiddleware {
                     styleSrc: ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://use.fontawesome.com', 'https://fonts.googleapis.com'],
                     scriptSrc: ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://use.fontawesome.com'],
                     scriptSrcAttr: ['\'unsafe-inline\''],
-                    imgSrc: ['\'self\'', 'data:', 'blob:', 'https:'],
+                    imgSrc: ['\'self\'', 'data:', 'blob:', 'https:', 'https://img.youtube.com', 'https://i.ytimg.com'],
                     fontSrc: ['\'self\'', 'https://fonts.gstatic.com', 'https://use.fontawesome.com', 'https://cdnjs.cloudflare.com'],
                     connectSrc: ['\'self\''],
                     mediaSrc: ['\'self\''],
                     objectSrc: ['\'none\''],
-                    frameSrc: ['\'none\'']
+                    frameSrc: ['\'self\'', 'https://www.youtube.com', 'https://www.youtube-nocookie.com', 'https://player.vimeo.com']
                 }
             },
             crossOriginEmbedderPolicy: false,

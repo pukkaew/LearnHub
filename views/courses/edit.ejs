@@ -146,21 +146,51 @@
                     <!-- Target Audience -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่งเป้าหมาย <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
-                            <select id="target_positions" name="target_positions[]" multiple size="5"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value="">โหลดข้อมูล...</option>
+                            <label for="target_departments" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span class="inline-flex items-center">
+                                    <span class="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">1</span>
+                                    หน่วยงานเป้าหมาย
+                                </span>
+                                <span class="text-gray-400 text-xs ml-7">(เลือกก่อน เพื่อกรองตำแหน่ง)</span>
+                            </label>
+                            <select id="target_departments" name="target_departments[]" multiple size="10"
+                                    class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2"
+                                    style="height: auto;">
+                                <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">กด Ctrl (Cmd) เพื่อเลือกหลายตำแหน่ง (หรือไม่เลือกก็ได้)</p>
+                            <div class="mt-2 flex items-center justify-between">
+                                <p class="text-xs text-gray-600">
+                                    <i class="fas fa-mouse-pointer text-blue-500"></i> <strong>คลิก</strong> เพื่อเลือก/ยกเลิก
+                                </p>
+                                <button type="button" id="clear-departments-btn"
+                                        class="text-xs text-red-600 hover:text-red-800 hover:underline">
+                                    <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                </button>
+                            </div>
                         </div>
 
                         <div>
-                            <label for="target_departments" class="block text-sm font-medium text-gray-700 mb-2">แผนกเป้าหมาย <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
-                            <select id="target_departments" name="target_departments[]" multiple size="5"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value="">โหลดข้อมูล...</option>
+                            <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span class="inline-flex items-center">
+                                    <span class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">2</span>
+                                    ตำแหน่งเป้าหมาย
+                                </span>
+                                <span class="text-gray-400 text-xs ml-7">(ไม่เลือก = ทุกตำแหน่ง)</span>
+                            </label>
+                            <select id="target_positions" name="target_positions[]" multiple size="10"
+                                    class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-200 p-2"
+                                    style="height: auto;">
+                                <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">กด Ctrl (Cmd) เพื่อเลือกหลายแผนก (หรือไม่เลือกก็ได้)</p>
+                            <div class="mt-2 flex items-center justify-between">
+                                <p class="text-xs text-gray-600">
+                                    <i class="fas fa-filter text-green-500"></i> กรองตามหน่วยงานที่เลือก
+                                </p>
+                                <button type="button" id="clear-positions-btn"
+                                        class="text-xs text-red-600 hover:text-red-800 hover:underline">
+                                    <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -267,15 +297,25 @@
                     </div>
 
                     <div>
-                        <label for="enrollment_start" class="block text-sm font-medium text-gray-700 mb-2">วันเริ่มลงทะเบียน</label>
-                        <input type="datetime-local" id="enrollment_start" name="enrollment_start"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <label for="enrollment_start" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="far fa-calendar-alt mr-1"></i>วันเริ่มลงทะเบียน
+                        </label>
+                        <input type="text" id="enrollment_start" name="enrollment_start"
+                               placeholder="เลือกวันที่และเวลา"
+                               class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               readonly>
+                        <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
                     </div>
 
                     <div>
-                        <label for="enrollment_end" class="block text-sm font-medium text-gray-700 mb-2">วันสิ้นสุดการลงทะเบียน</label>
-                        <input type="datetime-local" id="enrollment_end" name="enrollment_end"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        <label for="enrollment_end" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="far fa-calendar-alt mr-1"></i>วันสิ้นสุดการลงทะเบียน
+                        </label>
+                        <input type="text" id="enrollment_end" name="enrollment_end"
+                               placeholder="เลือกวันที่และเวลา"
+                               class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                               readonly>
+                        <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
                     </div>
                 </div>
 
@@ -381,6 +421,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Example: /courses/1/edit → split('/') → ['', 'courses', '1', 'edit']
     courseId = window.location.pathname.split('/')[2]; // Get course_id (index 2)
 
+    // Initialize flatpickr FIRST before loading data
+    initializeFlatpickr();
+
     // Load dropdown data first, then load course data
     await Promise.all([
         loadCategories(),
@@ -409,6 +452,75 @@ async function loadCourseData() {
     } catch (error) {
         showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
     }
+}
+
+// Learning objectives management - MUST be declared before populateForm()
+let objectiveCount = 0;
+
+function addObjective(value = '') {
+    objectiveCount++;
+    const container = document.getElementById('objectives-container');
+    console.log('🎯 addObjective called:', { value, objectiveCount, containerExists: !!container });
+
+    if (!container) {
+        console.error('❌ objectives-container not found!');
+        return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'flex gap-2';
+    div.innerHTML = `
+        <input type="text" class="objective-input flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+               placeholder="วัตถุประสงค์ข้อที่ ${objectiveCount}" value="${value}">
+        <button type="button" onclick="removeObjective(this)" class="px-3 py-2 border border-red-300 rounded-md text-red-600 hover:bg-red-50">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    container.appendChild(div);
+    console.log('✅ Objective added, container now has', container.children.length, 'objectives');
+    updateObjectivesJSON();
+}
+
+function removeObjective(button) {
+    button.parentElement.remove();
+    updateObjectivesJSON();
+}
+
+function updateObjectivesJSON() {
+    const inputs = document.querySelectorAll('.objective-input');
+    const objectives = Array.from(inputs)
+        .map(input => input.value.trim())
+        .filter(val => val !== '');
+    document.getElementById('learning_objectives').value = JSON.stringify(objectives);
+}
+
+// Helper function to format date for flatpickr (d/m/Y H:i) - kept for reference
+function formatDateForFlatpickr(date) {
+    if (!date) return '';
+
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+// Helper function to format date for flatpickr ISO format (Y-m-d H:i:S)
+function formatDateForISO(date) {
+    if (!date) return '';
+
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 function populateForm(course) {
@@ -464,12 +576,25 @@ function populateForm(course) {
         course.instructor_name || course.instructor_display_name || 'ไม่ระบุ';
 
     // Set learning objectives
+    // Clear existing objectives first
+    document.getElementById('objectives-container').innerHTML = '';
+    objectiveCount = 0;
+
     if (course.learning_objectives || course.objectives) {
         const objectives = course.learning_objectives || course.objectives;
+        console.log('📚 Learning objectives raw:', objectives);
         const objectivesArray = typeof objectives === 'string' ? JSON.parse(objectives) : objectives;
+        console.log('📚 Learning objectives array:', objectivesArray);
         if (Array.isArray(objectivesArray) && objectivesArray.length > 0) {
             objectivesArray.forEach(obj => addObjective(obj));
+            console.log(`✅ Added ${objectivesArray.length} learning objectives`);
+        } else {
+            console.log('⚠️ Learning objectives is empty array, adding default objective');
+            addObjective(''); // Add one empty objective for user to fill
         }
+    } else {
+        console.log('⚠️ No learning objectives found, adding default objective');
+        addObjective(''); // Add one empty objective for user to fill
     }
 
     // Set target audience (optional - may be empty)
@@ -478,31 +603,58 @@ function populateForm(course) {
             ? JSON.parse(course.target_audience)
             : course.target_audience;
 
-        // Check if target_audience has data (not empty object)
-        if (targetAudience.positions && Array.isArray(targetAudience.positions) && targetAudience.positions.length > 0) {
-            targetAudience.positions.forEach(pos => {
-                const option = document.querySelector(`#target_positions option[value="${pos}"]`);
-                if (option) option.selected = true;
-            });
-        }
-
+        // Select departments first (will trigger cascading)
         if (targetAudience.departments && Array.isArray(targetAudience.departments) && targetAudience.departments.length > 0) {
             targetAudience.departments.forEach(dept => {
                 const option = document.querySelector(`#target_departments option[value="${dept}"]`);
-                if (option) option.selected = true;
+                if (option) {
+                    option.selected = true;
+                    option.style.backgroundColor = '#3b82f6';
+                    option.style.color = 'white';
+                }
             });
+
+            // Trigger cascading to filter positions
+            document.getElementById('target_departments').dispatchEvent(new Event('change'));
         }
+
+        // Then select positions (after cascading has filtered the list)
+        setTimeout(() => {
+            if (targetAudience.positions && Array.isArray(targetAudience.positions) && targetAudience.positions.length > 0) {
+                targetAudience.positions.forEach(pos => {
+                    const option = document.querySelector(`#target_positions option[value="${pos}"]`);
+                    if (option) {
+                        option.selected = true;
+                        option.style.backgroundColor = '#3b82f6';
+                        option.style.color = 'white';
+                    }
+                });
+            }
+        }, 100); // Small delay to ensure cascading completes
     }
     // If no target_audience data, leave selects empty (which is fine - optional field)
 
     // Set datetime fields - handle multiple field names
+    // Use flatpickr's setDate() method instead of setting value directly
     if (course.enrollment_start || course.start_date) {
-        const startDate = course.enrollment_start || course.start_date;
-        document.getElementById('enrollment_start').value = new Date(startDate).toISOString().slice(0, 16);
+        const startDate = new Date(course.enrollment_start || course.start_date);
+        const startElement = document.getElementById('enrollment_start');
+        if (startElement._flatpickr) {
+            startElement._flatpickr.setDate(startDate, false);
+        } else {
+            // Fallback if flatpickr not initialized yet
+            startElement.value = formatDateForISO(startDate);
+        }
     }
     if (course.enrollment_end || course.end_date) {
-        const endDate = course.enrollment_end || course.end_date;
-        document.getElementById('enrollment_end').value = new Date(endDate).toISOString().slice(0, 16);
+        const endDate = new Date(course.enrollment_end || course.end_date);
+        const endElement = document.getElementById('enrollment_end');
+        if (endElement._flatpickr) {
+            endElement._flatpickr.setDate(endDate, false);
+        } else {
+            // Fallback if flatpickr not initialized yet
+            endElement.value = formatDateForISO(endDate);
+        }
     }
 
     // Set checkboxes
@@ -602,20 +754,30 @@ async function loadCategories() {
 
 // Removed loadInstructors() - instructor is now a readonly field
 
+// Store all positions for filtering
+let allPositions = [];
+
 async function loadTargetPositions() {
     try {
         const response = await fetch('/courses/api/target-positions');
         const result = await response.json();
 
         if (result.success && result.data) {
+            allPositions = result.data; // Store for cascading
             const select = document.getElementById('target_positions');
             select.innerHTML = ''; // Clear loading message
+
+            // Add all positions initially
             result.data.forEach(position => {
                 const option = document.createElement('option');
-                option.value = position.position_id || position.id;
-                option.textContent = position.position_name || position.name;
+                option.value = position.position_id;
+                option.textContent = position.position_name;
+                option.dataset.unitId = position.unit_id || '';
+                option.dataset.level = position.level || '';
                 select.appendChild(option);
             });
+
+            console.log(`✅ Loaded ${result.data.length} positions`);
         }
     } catch (error) {
         console.error('Error loading target positions:', error);
@@ -632,49 +794,24 @@ async function loadTargetDepartments() {
             select.innerHTML = ''; // Clear loading message
             result.data.forEach(department => {
                 const option = document.createElement('option');
-                option.value = department.department_id || department.id;
-                option.textContent = department.department_name || department.name;
+                option.value = department.unit_id;
+                option.textContent = department.unit_name_th || department.name;
+                option.dataset.level = department.level_id || '';
                 select.appendChild(option);
             });
+
+            console.log(`✅ Loaded ${result.data.length} departments`);
+
+            // Setup cascading and enhanced multi-select after loading
+            setupEnhancedMultiSelect();
+            setupCascadingDropdown();
         }
     } catch (error) {
         console.error('Error loading target departments:', error);
     }
 }
 
-// Learning objectives management
-let objectiveCount = 0;
-
-function addObjective(value = '') {
-    objectiveCount++;
-    const container = document.getElementById('objectives-container');
-    const div = document.createElement('div');
-    div.className = 'flex gap-2';
-    div.innerHTML = `
-        <input type="text" class="objective-input flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-               placeholder="วัตถุประสงค์ข้อที่ ${objectiveCount}" value="${value}">
-        <button type="button" onclick="removeObjective(this)" class="px-3 py-2 border border-red-300 rounded-md text-red-600 hover:bg-red-50">
-            <i class="fas fa-trash"></i>
-        </button>
-    `;
-    container.appendChild(div);
-    updateObjectivesJSON();
-}
-
-function removeObjective(button) {
-    button.parentElement.remove();
-    updateObjectivesJSON();
-}
-
-function updateObjectivesJSON() {
-    const inputs = document.querySelectorAll('.objective-input');
-    const objectives = Array.from(inputs)
-        .map(input => input.value.trim())
-        .filter(val => val !== '');
-    document.getElementById('learning_objectives').value = JSON.stringify(objectives);
-}
-
-// Update objectives on input change
+// Update objectives on input change (moved from duplicate section)
 document.addEventListener('input', function(e) {
     if (e.target.classList.contains('objective-input')) {
         updateObjectivesJSON();
@@ -767,7 +904,10 @@ function setupFormSubmit() {
                 }
 
                 showSuccess('บันทึกการแก้ไขเรียบร้อยแล้ว');
-                loadCourseData(); // Reload to show updated data
+                // Redirect to course detail page after 500ms
+                setTimeout(() => {
+                    window.location.href = `/courses/${courseId}`;
+                }, 500);
             } else {
                 showError(result.message || 'เกิดข้อผิดพลาดในการบันทึก');
             }
@@ -827,5 +967,196 @@ async function confirmDeleteCourse() {
             showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
         }
     }
+}
+
+// Enhanced multi-select: Click to toggle selection
+function setupEnhancedMultiSelect() {
+    const selects = ['target_departments', 'target_positions'];
+
+    selects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        // Click to toggle (without needing Ctrl)
+        select.addEventListener('mousedown', function(e) {
+            if (e.target.tagName === 'OPTION' && !e.target.disabled) {
+                e.preventDefault();
+
+                // Toggle selection
+                e.target.selected = !e.target.selected;
+
+                // Apply blue color to selected options
+                if (e.target.selected) {
+                    e.target.style.backgroundColor = '#3b82f6';
+                    e.target.style.color = 'white';
+                } else {
+                    e.target.style.backgroundColor = '';
+                    e.target.style.color = '';
+                }
+
+                // Trigger change event for cascading
+                select.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Prevent default selection behavior
+        select.addEventListener('click', function(e) {
+            e.preventDefault();
+        });
+    });
+
+    // Clear buttons
+    const clearDeptBtn = document.getElementById('clear-departments-btn');
+    const clearPosBtn = document.getElementById('clear-positions-btn');
+
+    if (clearDeptBtn) {
+        clearDeptBtn.addEventListener('click', function() {
+            const deptSelect = document.getElementById('target_departments');
+            if (deptSelect) {
+                // Deselect all options and clear colors
+                Array.from(deptSelect.options).forEach(opt => {
+                    opt.selected = false;
+                    opt.style.backgroundColor = '';
+                    opt.style.color = '';
+                });
+                // Trigger change for cascading
+                deptSelect.dispatchEvent(new Event('change'));
+                console.log('✅ Cleared all departments');
+            }
+        });
+    }
+
+    if (clearPosBtn) {
+        clearPosBtn.addEventListener('click', function() {
+            const posSelect = document.getElementById('target_positions');
+            if (posSelect) {
+                // Deselect all options and clear colors
+                Array.from(posSelect.options).forEach(opt => {
+                    opt.selected = false;
+                    opt.style.backgroundColor = '';
+                    opt.style.color = '';
+                });
+                console.log('✅ Cleared all positions');
+            }
+        });
+    }
+}
+
+// Setup cascading dropdown
+function setupCascadingDropdown() {
+    const deptSelect = document.getElementById('target_departments');
+    if (!deptSelect) return;
+
+    // Listen to department changes
+    deptSelect.addEventListener('change', filterPositionsByDepartment);
+}
+
+// Filter positions based on selected departments
+function filterPositionsByDepartment() {
+    const deptSelect = document.getElementById('target_departments');
+    const posSelect = document.getElementById('target_positions');
+
+    if (!deptSelect || !posSelect || allPositions.length === 0) return;
+
+    const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => parseInt(opt.value));
+
+    // Store currently selected positions before filtering
+    const currentlySelectedPositions = Array.from(posSelect.selectedOptions).map(opt => parseInt(opt.value));
+
+    // Clear current positions
+    posSelect.innerHTML = '';
+
+    if (selectedDepts.length === 0) {
+        // No department selected → show all positions
+        allPositions.forEach(position => {
+            const option = document.createElement('option');
+            option.value = position.position_id;
+            option.textContent = position.position_name;
+            option.dataset.unitId = position.unit_id || '';
+
+            // Re-select if it was selected before
+            if (currentlySelectedPositions.includes(position.position_id)) {
+                option.selected = true;
+                option.style.backgroundColor = '#3b82f6';
+                option.style.color = 'white';
+            }
+
+            posSelect.appendChild(option);
+        });
+        console.log('✅ Showing all positions (no department filter)');
+    } else {
+        // Filter positions by selected departments
+        const filteredPositions = allPositions.filter(p =>
+            p.unit_id && selectedDepts.includes(parseInt(p.unit_id))
+        );
+
+        if (filteredPositions.length === 0) {
+            posSelect.innerHTML = '<option value="" disabled>ไม่มีตำแหน่งในหน่วยงานที่เลือก</option>';
+            console.log('⚠️ No positions found for selected departments');
+        } else {
+            filteredPositions.forEach(position => {
+                const option = document.createElement('option');
+                option.value = position.position_id;
+                option.textContent = position.position_name;
+                option.dataset.unitId = position.unit_id || '';
+
+                // Re-select if it was selected before AND still in filtered list
+                if (currentlySelectedPositions.includes(position.position_id)) {
+                    option.selected = true;
+                    option.style.backgroundColor = '#3b82f6';
+                    option.style.color = 'white';
+                }
+
+                posSelect.appendChild(option);
+            });
+            console.log(`✅ Filtered to ${filteredPositions.length} positions for selected departments`);
+        }
+    }
+}
+</script>
+
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+<script>
+// Initialize Flatpickr for datetime fields (same as create page)
+function initializeFlatpickr() {
+    // Initialize Flatpickr for enrollment start date
+    flatpickr("#enrollment_start", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i:S",  // ISO format for backend
+        altInput: true,              // Show alternative format to user
+        altFormat: "d/m/Y H:i",      // Thai format for display
+        time_24hr: true,
+        minDate: "today",
+        locale: {
+            firstDayOfWeek: 1
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            // Update minDate for enrollment_end
+            const endPicker = document.getElementById('enrollment_end')._flatpickr;
+            if (endPicker && selectedDates.length > 0) {
+                endPicker.set('minDate', selectedDates[0]);
+            }
+        }
+    });
+
+    // Initialize Flatpickr for enrollment end date
+    flatpickr("#enrollment_end", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i:S",  // ISO format for backend
+        altInput: true,              // Show alternative format to user
+        altFormat: "d/m/Y H:i",      // Thai format for display
+        time_24hr: true,
+        minDate: "today",
+        locale: {
+            firstDayOfWeek: 1
+        }
+    });
+
+    console.log('✅ DateTime pickers initialized');
 }
 </script>
