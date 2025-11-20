@@ -123,6 +123,14 @@ function validateStep2() {
         return false;
     }
 
+    // Validate duration_hours
+    const durationHours = document.getElementById('duration_hours');
+    if (!durationHours || !durationHours.value || parseFloat(durationHours.value) <= 0) {
+        showError('กรุณาระบุระยะเวลาเรียนอย่างน้อย 1 ชั่วโมง หรือมากกว่า');
+        durationHours?.focus();
+        return false;
+    }
+
     // Target positions and departments are OPTIONAL
     // If neither selected = open for everyone
     // If only positions = all departments for those positions
@@ -133,11 +141,7 @@ function validateStep2() {
 }
 
 function validateStep3() {
-    const courseImage = document.getElementById('course_image');
-    if (!courseImage || !courseImage.files.length) {
-        showError('กรุณาเลือกรูปหน้าปกหลักสูตร');
-        return false;
-    }
+    // Course image is now optional - will use default if not uploaded
 
     // Validate lessons
     const lessonTitles = document.querySelectorAll('input[name="lesson_titles[]"]');
@@ -590,7 +594,13 @@ function previewCourseImage(input) {
     }
 }
 
-function handleMaterialsUpload(input) {
+function handleMaterialsUpload(event) {
+    const input = event.target;
+    if (!input || !input.files) {
+        console.error('❌ No files selected');
+        return;
+    }
+
     const files = Array.from(input.files);
     const list = document.getElementById('materials-list');
 
@@ -914,10 +924,16 @@ async function submitCourse() {
         const result = await response.json();
 
         if (result.success) {
+            const courseId = result.data.course_id;
+
+            // Step 5: Upload materials if any
+            showLoading('กำลังอัปโหลดเอกสารประกอบการเรียน...');
+            await uploadMaterials(courseId);
+
             hideLoading();
             showSuccess('สร้างหลักสูตรเรียบร้อยแล้ว');
             setTimeout(() => {
-                window.location.href = `/courses/${result.data.course_id}`;
+                window.location.href = `/courses/${courseId}`;
             }, 1500);
         } else {
             hideLoading();
@@ -953,6 +969,44 @@ async function uploadCourseImage(file) {
     } catch (error) {
         console.error('Upload image error:', error);
         return null;
+    }
+}
+
+// Upload course materials after course creation
+async function uploadMaterials(courseId) {
+    const input = document.getElementById('course_materials');
+
+    if (!input || !input.files || input.files.length === 0) {
+        console.log('ℹ️ No materials to upload');
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+
+        // Append all files
+        Array.from(input.files).forEach(file => {
+            formData.append('materials', file);
+        });
+
+        console.log(`📤 Uploading ${input.files.length} material files...`);
+
+        const response = await fetch(`/courses/api/${courseId}/materials`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            console.log(`✅ Uploaded ${input.files.length} materials successfully`);
+        } else {
+            console.error('❌ Materials upload failed:', result.message);
+            showError('อัปโหลดเอกสารประกอบไม่สำเร็จ');
+        }
+    } catch (error) {
+        console.error('❌ Upload materials error:', error);
+        showError('เกิดข้อผิดพลาดในการอัปโหลดเอกสารประกอบ');
     }
 }
 

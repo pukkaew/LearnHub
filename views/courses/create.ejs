@@ -284,7 +284,7 @@
                         <div>
                             <label for="duration_hours" class="block text-sm font-medium text-gray-700 mb-2">ระยะเวลาเรียนโดยประมาณ <span class="text-red-500">*</span></label>
                             <div class="flex space-x-2">
-                                <input type="number" id="duration_hours" name="duration_hours" min="0" required
+                                <input type="number" id="duration_hours" name="duration_hours" min="0"
                                        class="w-20 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                        placeholder="0">
                                 <span class="mt-2">ชั่วโมง</span>
@@ -318,21 +318,22 @@
                 <div class="space-y-6">
                     <!-- Course Cover Image -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">รูปหน้าปกหลักสูตร <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">รูปหน้าปกหลักสูตร <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
                             <div class="flex items-center space-x-6">
                                 <div class="flex-shrink-0">
                                     <img id="course-image-preview" class="h-40 w-64 object-cover rounded-lg bg-gray-100"
-                                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='160' viewBox='0 0 256 160'%3E%3Crect width='256' height='160' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='sans-serif' font-size='16'%3E16:9 (ขนาดแนะนำ)%3C/text%3E%3C/svg%3E"
+                                         src="/images/course-default.svg"
                                          alt="Course Cover">
+                                    <p class="text-xs text-gray-500 mt-2 text-center">รูปที่จะแสดงหากไม่อัปโหลด</p>
                                 </div>
                                 <div class="flex-1">
-                                    <input type="file" id="course_image" name="course_image" accept="image/*" required
+                                    <input type="file" id="course_image" name="course_image" accept="image/*"
                                            class="hidden" onchange="previewCourseImage(this)">
                                     <label for="course_image" class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
                                         <i class="fas fa-cloud-upload-alt mr-2"></i>เลือกรูปภาพ
                                     </label>
-                                    <p class="text-xs text-gray-500 mt-2">JPG, PNG ขนาด 16:9 ไม่เกิน 2MB</p>
+                                    <p class="text-xs text-gray-500 mt-2">JPG, PNG ขนาด 16:9 ไม่เกิน 2MB (ไม่บังคับ - จะใช้รูป default หากไม่อัปโหลด)</p>
                                 </div>
                             </div>
                         </div>

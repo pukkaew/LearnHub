@@ -44,6 +44,7 @@ router.get('/api/:course_id/analytics/export', authMiddleware.requireRole(['Admi
 // Course detail additional endpoints
 router.get('/api/:course_id/curriculum', courseController.getCourseCurriculum);
 router.get('/api/:course_id/materials', courseController.getCourseMaterials);
+router.post('/api/:course_id/materials', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), courseController.uploadCourseMaterials);
 router.get('/api/:course_id/discussions', courseController.getCourseDiscussions);
 router.get('/api/:course_id/reviews', courseController.getCourseReviews);
 router.get('/api/:course_id/related', courseController.getRelatedCourses);

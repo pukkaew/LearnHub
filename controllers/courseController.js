@@ -516,10 +516,17 @@ const courseController = {
 
     async renderCoursesList(req, res) {
         try {
+            // Import language helpers
+            const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
             res.render('courses/index', {
                 title: 'หลักสูตรทั้งหมด - Rukchai Hongyen LearnHub',
                 user: req.session.user,
-                userRole: req.user.role_name
+                userRole: req.user.role_name,
+                t: t,
+                currentLang: currentLang
             });
 
         } catch (error) {
@@ -538,6 +545,11 @@ const courseController = {
             const { course_id } = req.params;
             const userId = req.user.user_id;
 
+            // Import language helpers
+            const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
             const course = await Course.findById(course_id);
             if (!course) {
                 return res.render('error/404', {
@@ -555,7 +567,9 @@ const courseController = {
                 course: course,
                 courseId: course_id,
                 enrollment: enrollment,
-                is_enrolled: !!enrollment
+                is_enrolled: !!enrollment,
+                t: t,
+                currentLang: currentLang
             });
 
         } catch (error) {
@@ -572,10 +586,17 @@ const courseController = {
 
     async renderMyCourses(req, res) {
         try {
+            // Import language helpers
+            const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
             res.render('courses/my-courses', {
                 title: 'หลักสูตรของฉัน - Rukchai Hongyen LearnHub',
                 user: req.session.user,
-                userRole: req.user.role_name
+                userRole: req.user.role_name,
+                t: t,
+                currentLang: currentLang
             });
 
         } catch (error) {
@@ -593,6 +614,11 @@ const courseController = {
         try {
             const userRole = req.user.role_name;
 
+            // Import language helpers
+            const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).render('error/403', {
                     title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
@@ -604,7 +630,9 @@ const courseController = {
             res.render('courses/create', {
                 title: 'สร้างหลักสูตรใหม่ - Rukchai Hongyen LearnHub',
                 user: req.session.user,
-                userRole: req.user.role_name
+                userRole: req.user.role_name,
+                t: t,
+                currentLang: currentLang
             });
 
         } catch (error) {
@@ -623,6 +651,11 @@ const courseController = {
             const { course_id } = req.params;
             const userRole = req.user.role_name;
             const userId = req.user.user_id;
+
+            // Import language helpers
+            const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
             const course = await Course.findById(course_id);
             if (!course) {
@@ -652,7 +685,9 @@ const courseController = {
                 title: `แก้ไขหลักสูตร: ${course.course_name} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role_name,
-                course: course
+                course: course,
+                t: t,
+                currentLang: currentLang
             });
 
         } catch (error) {
@@ -1643,6 +1678,7 @@ const courseController = {
                            order_index, duration_minutes, is_required
                     FROM course_materials
                     WHERE course_id = @courseId
+                    AND type NOT IN ('document', 'pdf', 'file')
                     ORDER BY order_index
                 `);
 
@@ -1697,6 +1733,93 @@ const courseController = {
             res.json({ success: true, data: materials });
         } catch (error) {
             console.error('Get materials error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Upload course materials
+    async uploadCourseMaterials(req, res) {
+        try {
+            const { course_id } = req.params;
+            const pool = await poolPromise;
+            const multer = require('multer');
+            const path = require('path');
+            const fs = require('fs');
+
+            // Setup multer for file upload
+            const storage = multer.diskStorage({
+                destination: function (req, file, cb) {
+                    const uploadDir = path.join(__dirname, '../public/uploads/materials');
+                    if (!fs.existsSync(uploadDir)) {
+                        fs.mkdirSync(uploadDir, { recursive: true });
+                    }
+                    cb(null, uploadDir);
+                },
+                filename: function (req, file, cb) {
+                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                    cb(null, uniqueSuffix + '-' + file.originalname);
+                }
+            });
+
+            const upload = multer({ storage: storage }).array('materials', 10);
+
+            upload(req, res, async function (err) {
+                if (err) {
+                    console.error('Upload error:', err);
+                    return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
+                }
+
+                if (!req.files || req.files.length === 0) {
+                    return res.status(400).json({ success: false, message: 'ไม่พบไฟล์ที่ต้องการอัปโหลด' });
+                }
+
+                try {
+                    // Get next order_index
+                    const maxOrder = await pool.request()
+                        .input('courseId', sql.Int, parseInt(course_id))
+                        .query('SELECT ISNULL(MAX(order_index), 0) as max_order FROM course_materials WHERE course_id = @courseId');
+
+                    let orderIndex = maxOrder.recordset[0].max_order + 1;
+
+                    // Insert each file into database
+                    for (const file of req.files) {
+                        const filePath = `/uploads/materials/${file.filename}`;
+
+                        await pool.request()
+                            .input('courseId', sql.Int, parseInt(course_id))
+                            .input('title', sql.NVarChar(255), file.originalname)
+                            .input('type', sql.NVarChar(50), 'document')
+                            .input('filePath', sql.NVarChar(500), filePath)
+                            .input('fileSize', sql.BigInt, file.size)
+                            .input('mimeType', sql.NVarChar(100), file.mimetype)
+                            .input('orderIndex', sql.Int, orderIndex++)
+                            .input('isDownloadable', sql.Bit, true)
+                            .query(`
+                                INSERT INTO course_materials (
+                                    course_id, title, type, file_path, file_size,
+                                    mime_type, order_index, is_downloadable, created_at, updated_at
+                                )
+                                VALUES (
+                                    @courseId, @title, @type, @filePath, @fileSize,
+                                    @mimeType, @orderIndex, @isDownloadable, GETDATE(), GETDATE()
+                                )
+                            `);
+                    }
+
+                    res.json({
+                        success: true,
+                        message: `อัปโหลดเอกสารประกอบ ${req.files.length} ไฟล์เรียบร้อยแล้ว`,
+                        data: { count: req.files.length }
+                    });
+
+                } catch (dbError) {
+                    console.error('Database error:', dbError);
+                    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+                }
+            });
+
+        } catch (error) {
+            console.error('Upload materials error:', error);
             res.status(500).json({ success: false, message: error.message });
         }
     },

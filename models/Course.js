@@ -99,11 +99,22 @@ class Course {
             // Parse learning_objectives if it's a JSON string
             try {
                 if (course.learning_objectives && typeof course.learning_objectives === 'string') {
-                    course.learning_objectives = JSON.parse(course.learning_objectives);
+                    // Decode HTML entities before parsing
+                    const decoded = course.learning_objectives
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#34;/g, '"')
+                        .replace(/&apos;/g, "'")
+                        .replace(/&#39;/g, "'")
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&');
+
+                    course.learning_objectives = JSON.parse(decoded);
                 } else if (!course.learning_objectives) {
                     course.learning_objectives = [];
                 }
             } catch (e) {
+                console.error('Failed to parse learning_objectives:', e.message, course.learning_objectives);
                 course.learning_objectives = [];
             }
 

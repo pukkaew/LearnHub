@@ -8,34 +8,34 @@
             <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
                 <div class="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
                     <div class="flex-shrink-0">
-                        <img id="course-thumbnail" src="/images/course-default.jpg"
+                        <img id="course-thumbnail" src="/images/course-default.svg"
                              alt="Course Thumbnail"
                              class="w-full md:w-48 h-32 md:h-32 object-cover rounded-lg">
                     </div>
 
                     <div class="flex-1">
                         <div class="flex items-center space-x-2 mb-2">
-                            <span id="category-badge" class="badge-primary">หมวดหมู่</span>
-                            <span id="difficulty-badge" class="badge-warning">ระดับความยาก</span>
+                            <span id="category-badge" class="badge-primary"><%= t('category') %></span>
+                            <span id="difficulty-badge" class="badge-warning"><%= t('difficulty') %></span>
                         </div>
 
-                        <h1 id="course-title" class="text-2xl font-bold text-gray-900 mb-2">ชื่อคอร์ส</h1>
-                        <p id="course-code" class="text-sm text-gray-500 mb-3">รหัสหลักสูตร: -</p>
+                        <h1 id="course-title" class="text-2xl font-bold text-gray-900 mb-2"><%= t('courseName') %></h1>
+                        <p id="course-code" class="text-sm text-gray-500 mb-3"><%= t('courseCode') %>: -</p>
 
-                        <p id="course-description" class="text-gray-600 mb-4">คำอธิบายคอร์ส</p>
+                        <p id="course-description" class="text-gray-600 mb-4"><%= t('courseDescription') %></p>
 
                         <div class="flex items-center space-x-6 text-sm text-gray-500 mb-4">
                             <div class="flex items-center">
                                 <i class="fas fa-user mr-1"></i>
-                                <span id="instructor-name">ผู้สอน</span>
+                                <span id="instructor-name"><%= t('instructor') %></span>
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-clock mr-1"></i>
-                                <span id="course-duration">0 ชั่วโมง</span>
+                                <span id="course-duration">0 <%= t('hours') %></span>
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-users mr-1"></i>
-                                <span id="enrolled-count">0 คน</span>
+                                <span id="enrolled-count">0 <%= t('people') %></span>
                             </div>
                             <div id="rating-display" class="flex items-center">
                                 <div class="flex text-yellow-400">
@@ -52,7 +52,7 @@
                         <!-- Progress Bar (if enrolled) -->
                         <div id="progress-section" class="hidden mb-4">
                             <div class="flex justify-between text-sm text-gray-600 mb-1">
-                                <span>ความคืบหน้าการเรียน</span>
+                                <span><%= t('learningProgress') %></span>
                                 <span id="progress-percentage">0%</span>
                             </div>
                             <div class="progress-bar">
@@ -68,19 +68,19 @@
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex space-x-8 px-6">
                         <button class="tab-btn active" data-tab="overview">
-                            <i class="fas fa-info-circle mr-2"></i>ภาพรวม
+                            <i class="fas fa-info-circle mr-2"></i><%= t('overview') %>
                         </button>
                         <button class="tab-btn" data-tab="curriculum">
-                            <i class="fas fa-list mr-2"></i>หลักสูตร
+                            <i class="fas fa-list mr-2"></i><%= t('curriculum') %>
                         </button>
                         <button class="tab-btn" data-tab="materials">
-                            <i class="fas fa-file-alt mr-2"></i>เอกสาร
+                            <i class="fas fa-file-alt mr-2"></i><%= t('materials') %>
                         </button>
                         <button class="tab-btn" data-tab="discussions">
-                            <i class="fas fa-comments mr-2"></i>การอภิปราย
+                            <i class="fas fa-comments mr-2"></i><%= t('discussions') %>
                         </button>
                         <button class="tab-btn" data-tab="reviews">
-                            <i class="fas fa-star mr-2"></i>รีวิว
+                            <i class="fas fa-star mr-2"></i><%= t('reviewsTab') %>
                         </button>
                     </nav>
                 </div>
@@ -91,28 +91,28 @@
                         <div class="prose max-w-none">
                             <!-- Intro Video -->
                             <div id="intro-video-section" class="mb-8" style="display: none;">
-                                <h3 class="text-xl font-semibold mb-4">วิดีโอแนะนำหลักสูตร</h3>
+                                <h3 class="text-xl font-semibold mb-4"><%= t('introVideo') %></h3>
                                 <div id="intro-video-player" class="w-full aspect-video bg-gray-100 rounded-xl shadow-lg overflow-hidden" style="max-width: 100%; min-height: 400px;">
                                     <!-- Video player will be loaded here -->
                                 </div>
                             </div>
 
-                            <h3>เกี่ยวกับคอร์สนี้</h3>
+                            <h3><%= t('aboutCourse') %></h3>
                             <div id="course-full-description" class="mb-6">
                                 <!-- Full description will be loaded here -->
                             </div>
 
-                            <h3>วัตถุประสงค์การเรียนรู้</h3>
+                            <h3><%= t('learningObjectives') %></h3>
                             <ol id="learning-objectives" class="mb-6 list-decimal list-inside space-y-2">
                                 <!-- Learning objectives will be loaded here -->
                             </ol>
 
-                            <h3>กลุ่มเป้าหมาย</h3>
+                            <h3><%= t('targetAudience') %></h3>
                             <div id="target-audience" class="mb-6">
                                 <!-- Target audience will be loaded here -->
                             </div>
 
-                            <h3>ความต้องการพื้นฐาน</h3>
+                            <h3><%= t('prerequisites') %></h3>
                             <div id="prerequisites" class="mb-6">
                                 <!-- Prerequisites will be loaded here -->
                             </div>
@@ -161,38 +161,38 @@
 
             <!-- Course Info -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">ข้อมูลคอร์ส</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('courseInfo') %></h3>
                 <div class="space-y-3">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ระดับความยาก:</span>
+                        <span class="text-gray-600"><%= t('difficultyLevel') %></span>
                         <span id="sidebar-difficulty" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ระยะเวลา:</span>
+                        <span class="text-gray-600"><%= t('duration') %>:</span>
                         <span id="sidebar-duration" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ภาษา:</span>
+                        <span class="text-gray-600"><%= t('languageLabel') %></span>
                         <span id="sidebar-language" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ประเภท:</span>
+                        <span class="text-gray-600"><%= t('courseType') %></span>
                         <span id="sidebar-course-type" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">จำนวนผู้เรียนสูงสุด:</span>
+                        <span class="text-gray-600"><%= t('maxStudents') %></span>
                         <span id="sidebar-max-students" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">เกณฑ์ผ่าน:</span>
+                        <span class="text-gray-600"><%= t('passingScore') %></span>
                         <span id="sidebar-passing-score" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ทำได้สูงสุด:</span>
+                        <span class="text-gray-600"><%= t('maxAttempts') %></span>
                         <span id="sidebar-max-attempts" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ใบประกาศนียบัตร:</span>
+                        <span class="text-gray-600"><%= t('certificate') %></span>
                         <span id="sidebar-certificate" class="font-medium text-gray-500">-</span>
                     </div>
                     <div class="border-t border-gray-200 my-3"></div>
@@ -200,7 +200,7 @@
                         <div class="flex items-start">
                             <i class="fas fa-calendar-check text-green-600 mt-1 mr-2"></i>
                             <div class="flex-1">
-                                <div class="text-xs text-gray-600 mb-1">เปิดลงทะเบียน</div>
+                                <div class="text-xs text-gray-600 mb-1"><%= t('enrollmentOpen') %></div>
                                 <div id="sidebar-start-date" class="text-sm font-medium text-green-700">-</div>
                             </div>
                         </div>
@@ -209,18 +209,18 @@
                         <div class="flex items-start">
                             <i class="fas fa-calendar-times text-red-600 mt-1 mr-2"></i>
                             <div class="flex-1">
-                                <div class="text-xs text-gray-600 mb-1">ปิดลงทะเบียน</div>
+                                <div class="text-xs text-gray-600 mb-1"><%= t('enrollmentClose') %></div>
                                 <div id="sidebar-end-date" class="text-sm font-medium text-red-700">-</div>
                             </div>
                         </div>
                     </div>
                     <div class="border-t border-gray-200 my-3"></div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">วันที่เผยแพร่:</span>
+                        <span class="text-gray-600"><%= t('publishDate') %></span>
                         <span id="publish-date" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">อัพเดทล่าสุด:</span>
+                        <span class="text-gray-600"><%= t('lastUpdate') %></span>
                         <span id="update-date" class="font-medium">-</span>
                     </div>
                 </div>
@@ -228,7 +228,7 @@
 
             <!-- Instructor Info -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">ผู้สอน</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('instructorInfo') %></h3>
                 <div id="instructor-info">
                     <!-- Instructor info will be loaded here -->
                 </div>
@@ -236,7 +236,7 @@
 
             <!-- Related Courses -->
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">คอร์สที่เกี่ยวข้อง</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('relatedCourses') %></h3>
                 <div id="related-courses" class="space-y-3">
                     <!-- Related courses will be loaded here -->
                 </div>
@@ -254,20 +254,20 @@
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
                     <i class="fas fa-graduation-cap text-blue-600"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">ลงทะเบียนเรียนคอร์ส</h3>
-                <p class="text-sm text-gray-500 mb-6">คุณต้องการลงทะเบียนเรียนคอร์สนี้หรือไม่?</p>
+                <h3 class="text-lg font-medium text-gray-900 mb-2"><%= t('enrollmentTitle') %></h3>
+                <p class="text-sm text-gray-500 mb-6"><%= t('enrollmentConfirm') %></p>
 
                 <!-- Prerequisites Check -->
                 <div id="prerequisites-check" class="hidden mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                    <p class="text-sm text-yellow-800 mb-2">คอร์สนี้ต้องเรียนคอร์สพื้นฐานก่อน:</p>
+                    <p class="text-sm text-yellow-800 mb-2"><%= t('coursePrerequisites') %></p>
                     <ul id="prerequisite-list" class="text-sm text-yellow-700">
                         <!-- Prerequisites will be listed here -->
                     </ul>
                 </div>
 
                 <div class="flex space-x-3">
-                    <button id="confirm-enrollment" class="flex-1 btn-ruxchai-primary">ยืนยันการลงทะเบียน</button>
-                    <button id="cancel-enrollment" class="flex-1 btn-ruxchai-outline">ยกเลิก</button>
+                    <button id="confirm-enrollment" class="flex-1 btn-ruxchai-primary"><%= t('confirmEnrollment') %></button>
+                    <button id="cancel-enrollment" class="flex-1 btn-ruxchai-outline"><%= t('cancelEnrollment') %></button>
                 </div>
             </div>
         </div>
@@ -279,10 +279,10 @@
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="modal-overlay"></div>
         <div class="modal-content max-w-lg w-full p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">ให้คะแนนและรีวิวคอร์ส</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('ratingModalTitle') %></h3>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">คะแนน</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('ratingLabel') %></label>
                 <div class="flex space-x-1">
                     <button class="star-rating text-2xl text-gray-300 hover:text-yellow-400" data-rating="1">
                         <i class="fas fa-star"></i>
@@ -303,15 +303,15 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">รีวิว (ไม่บังคับ)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('reviewLabel') %></label>
                 <textarea id="review-text" rows="4"
                           class="form-input-ruxchai"
-                          placeholder="แบ่งปันประสบการณ์การเรียนในคอร์สนี้..."></textarea>
+                          placeholder="<%= t('reviewPlaceholder') %>"></textarea>
             </div>
 
             <div class="flex space-x-3">
-                <button id="submit-rating" class="flex-1 btn-ruxchai-primary">ส่งคะแนน</button>
-                <button id="cancel-rating" class="flex-1 btn-ruxchai-outline">ยกเลิก</button>
+                <button id="submit-rating" class="flex-1 btn-ruxchai-primary"><%= t('submitRating') %></button>
+                <button id="cancel-rating" class="flex-1 btn-ruxchai-outline"><%= t('cancelRating') %></button>
             </div>
         </div>
     </div>
@@ -324,6 +324,198 @@ let courseData = null;
 let positionsMapping = {};
 let departmentsMapping = {};
 let listenersSetup = false; // Prevent duplicate event listeners
+
+// Get current language from EJS
+const currentLang = '<%= currentLang || "th" %>';
+
+// Translation object for JavaScript
+const translations = {
+    th: {
+        hours: 'ชั่วโมง',
+        people: 'คน',
+        times: 'ครั้ง',
+        minutes: 'นาที',
+        lessons: 'บท',
+        notSpecified: 'ไม่ระบุ',
+        unlimited: 'ไม่จำกัด',
+        yes: 'มี',
+        no: 'ไม่มี',
+        general: 'ทั่วไป',
+        languageThai: 'ภาษาไทย',
+        languageEnglish: 'ภาษาอังกฤษ',
+        languageThaiEnglish: 'ไทย-อังกฤษ',
+        typeMandatory: 'บังคับ',
+        typeElective: 'เลือก',
+        typeRecommended: 'แนะนำ',
+        difficultyBeginner: 'เริ่มต้น',
+        difficultyIntermediate: 'ปานกลาง',
+        difficultyAdvanced: 'ขั้นสูง',
+        // Loading states
+        loadingCourseData: 'กำลังโหลดข้อมูลคอร์ส...',
+        loadingCurriculum: 'กำลังโหลดหลักสูตร...',
+        loadingMaterials: 'กำลังโหลดเอกสาร...',
+        loadingDiscussions: 'กำลังโหลดการอภิปราย...',
+        loadingReviews: 'กำลังโหลดรีวิว...',
+        loadingRelatedCourses: 'กำลังโหลด...',
+        // Error states
+        noCourseId: 'ไม่สามารถโหลดข้อมูลคอร์สได้ เนื่องจากไม่พบรหัสคอร์ส',
+        courseNotFound: 'ไม่พบข้อมูลคอร์ส',
+        errorLoadingCourse: 'เกิดข้อผิดพลาดในการโหลดข้อมูลคอร์ส',
+        errorLoadingCurriculum: 'เกิดข้อผิดพลาดในการโหลดหลักสูตร',
+        errorLoadingMaterials: 'เกิดข้อผิดพลาดในการโหลดเอกสาร',
+        errorLoadingDiscussions: 'เกิดข้อผิดพลาดในการโหลดการอภิปราย',
+        errorLoadingReviews: 'เกิดข้อผิดพลาดในการโหลดรีวิว',
+        errorLoadingRelatedCourses: 'ไม่สามารถโหลดคอร์สที่เกี่ยวข้องได้',
+        cannotLoadCurriculum: 'ไม่สามารถโหลดหลักสูตรได้',
+        cannotLoadMaterials: 'ไม่สามารถโหลดเอกสารได้',
+        cannotLoadDiscussions: 'ไม่สามารถโหลดการอภิปรายได้',
+        cannotLoadReviews: 'ไม่สามารถโหลดรีวิวได้',
+        errorLoadingVideo: 'เกิดข้อผิดพลาดในการโหลดวิดีโอ',
+        cannotLoadVideo: 'ไม่สามารถโหลดวิดีโอได้: URL ไม่ถูกต้อง',
+        // Empty states
+        noDescription: 'ไม่มีคำอธิบาย',
+        noObjectives: 'ไม่ได้ระบุวัตถุประสงค์',
+        noPrerequisites: 'ไม่มีความต้องการพื้นฐานพิเศษ',
+        noLessons: 'ยังไม่มีบทเรียนที่กำหนด',
+        noMaterials: 'ยังไม่มีเอกสารประกอบการเรียน',
+        noDiscussions: 'ยังไม่มีการอภิปราย',
+        noReviewsYet: 'ยังไม่มีรีวิว',
+        noRelatedCourses: 'ไม่มีคอร์สที่เกี่ยวข้อง',
+        noBio: 'ไม่มีข้อมูลประวัติ',
+        // Content
+        courseCode: 'รหัสหลักสูตร',
+        allLessons: 'บทเรียนทั้งหมด',
+        viewVideo: 'ดูวิดีโอ',
+        download: 'ดาวน์โหลด',
+        reply: 'ตอบกลับ',
+        replies: 'ตอบกลับ',
+        instructor: 'ผู้สอน',
+        // Enrollment
+        alreadyEnrolled: 'คุณได้ลงทะเบียนเรียนแล้ว',
+        startLearning: 'เริ่มเรียนคอร์สนี้',
+        enrollInCourse: 'ลงทะเบียนเรียน',
+        confirmEnrollment: 'ยืนยันการลงทะเบียน',
+        enrolling: 'กำลังลงทะเบียน...',
+        enrollSuccess: 'ลงทะเบียนเรียนสำเร็จ',
+        enrollError: 'เกิดข้อผิดพลาดในการลงทะเบียน',
+        completed: 'เรียนจบแล้ว',
+        courseCertificate: 'ดาวน์โหลดใบประกาศนียบัตร',
+        editCourse: 'แก้ไขคอร์ส',
+        startCourse: 'เข้าเรียน',
+        rateThisCourse: 'ให้คะแนนคอร์ส',
+        // Rating
+        pleaseRate: 'กรุณาให้คะแนน',
+        submittingRating: 'กำลังส่ง...',
+        ratingSuccess: 'ส่งคะแนนสำเร็จ',
+        ratingError: 'เกิดข้อผิดพลาดในการส่งคะแนน',
+        // Target audience
+        targetGroup: 'กลุ่มเป้าหมาย:',
+        positions: 'ตำแหน่ง:',
+        unitDepartment: 'หน่วยงาน:',
+        allDepartmentsInOrg: '(ทั้งหมด)',
+        conditionPositionOrDepartment: '<strong>เงื่อนไข:</strong> คุณสามารถเข้าเรียนได้หากอยู่ใน<strong>ตำแหน่ง</strong>ที่ระบุ <strong>หรือ</strong> อยู่ใน<strong>หน่วยงาน</strong>ที่ระบุ',
+        onlyForPositions: 'เฉพาะผู้ที่ดำรงตำแหน่งที่ระบุข้างต้น (ทุกหน่วยงาน)',
+        onlyForDepartments: 'เฉพาะผู้ที่อยู่ในหน่วยงานที่ระบุข้างต้น (ทุกตำแหน่ง)',
+        openForEveryone: 'เปิดกว้างสำหรับทุกคน',
+        noPositionOrDepartmentLimit: 'ไม่จำกัดตำแหน่งหรือหน่วยงาน',
+        startDiscussion: 'เริ่มการอภิปราย'
+    },
+    en: {
+        hours: 'hours',
+        people: 'people',
+        times: 'times',
+        minutes: 'minutes',
+        lessons: 'lessons',
+        notSpecified: 'Not specified',
+        unlimited: 'Unlimited',
+        yes: 'Yes',
+        no: 'No',
+        general: 'General',
+        languageThai: 'Thai',
+        languageEnglish: 'English',
+        languageThaiEnglish: 'Thai-English',
+        typeMandatory: 'Mandatory',
+        typeElective: 'Elective',
+        typeRecommended: 'Recommended',
+        difficultyBeginner: 'Beginner',
+        difficultyIntermediate: 'Intermediate',
+        difficultyAdvanced: 'Advanced',
+        // Loading states
+        loadingCourseData: 'Loading course data...',
+        loadingCurriculum: 'Loading curriculum...',
+        loadingMaterials: 'Loading materials...',
+        loadingDiscussions: 'Loading discussions...',
+        loadingReviews: 'Loading reviews...',
+        loadingRelatedCourses: 'Loading...',
+        // Error states
+        noCourseId: 'Cannot load course data: Course ID not found',
+        courseNotFound: 'Course not found',
+        errorLoadingCourse: 'Error loading course data',
+        errorLoadingCurriculum: 'Error loading curriculum',
+        errorLoadingMaterials: 'Error loading materials',
+        errorLoadingDiscussions: 'Error loading discussions',
+        errorLoadingReviews: 'Error loading reviews',
+        errorLoadingRelatedCourses: 'Cannot load related courses',
+        cannotLoadCurriculum: 'Cannot load curriculum',
+        cannotLoadMaterials: 'Cannot load materials',
+        cannotLoadDiscussions: 'Cannot load discussions',
+        cannotLoadReviews: 'Cannot load reviews',
+        errorLoadingVideo: 'Error loading video',
+        cannotLoadVideo: 'Cannot load video: Invalid URL',
+        // Empty states
+        noDescription: 'No description',
+        noObjectives: 'No objectives specified',
+        noPrerequisites: 'No special prerequisites',
+        noLessons: 'No lessons yet',
+        noMaterials: 'No course materials yet',
+        noDiscussions: 'No discussions yet',
+        noReviewsYet: 'No reviews yet',
+        noRelatedCourses: 'No related courses',
+        noBio: 'No bio available',
+        // Content
+        courseCode: 'Course Code',
+        allLessons: 'All Lessons',
+        viewVideo: 'View Video',
+        download: 'Download',
+        reply: 'Reply',
+        replies: 'Replies',
+        instructor: 'Instructor',
+        // Enrollment
+        alreadyEnrolled: 'You are already enrolled',
+        startLearning: 'Start this course',
+        enrollInCourse: 'Enroll Now',
+        confirmEnrollment: 'Confirm Enrollment',
+        enrolling: 'Enrolling...',
+        enrollSuccess: 'Successfully enrolled',
+        enrollError: 'Error enrolling in course',
+        completed: 'Completed',
+        courseCertificate: 'Download Certificate',
+        editCourse: 'Edit Course',
+        startCourse: 'Start Learning',
+        rateThisCourse: 'Rate Course',
+        // Rating
+        pleaseRate: 'Please provide a rating',
+        submittingRating: 'Submitting...',
+        ratingSuccess: 'Rating submitted successfully',
+        ratingError: 'Error submitting rating',
+        // Target audience
+        targetGroup: 'Target Audience:',
+        positions: 'Position:',
+        unitDepartment: 'Department:',
+        allDepartmentsInOrg: '(All)',
+        conditionPositionOrDepartment: '<strong>Condition:</strong> You can enroll if you are in the specified <strong>position</strong> <strong>or</strong> in the specified <strong>department</strong>',
+        onlyForPositions: 'Only for specified positions (all departments)',
+        onlyForDepartments: 'Only for specified departments (all positions)',
+        openForEveryone: 'Open for Everyone',
+        noPositionOrDepartmentLimit: 'No position or department restrictions',
+        startDiscussion: 'Start Discussion'
+    }
+};
+
+// Helper function to get translation
+function t(key) {
+    return translations[currentLang][key] || key;
+}
 
 document.addEventListener('DOMContentLoaded', async function() {
     // Load positions and departments mapping first
@@ -462,7 +654,13 @@ function updateCourseDisplay(course) {
     }
 
     // Header
-    document.getElementById('course-thumbnail').src = course.thumbnail || '/images/course-default.jpg';
+    document.getElementById('course-thumbnail').src = course.thumbnail || '/images/course-default.svg';
+
+    // Add error handler for broken images
+    document.getElementById('course-thumbnail').onerror = function() {
+        this.src = '/images/course-default.svg';
+        this.onerror = null; // Prevent infinite loop
+    };
     document.getElementById('course-title').textContent = course.title || course.course_name;
     document.getElementById('course-code').textContent = course.course_code ? `รหัสหลักสูตร: ${course.course_code}` : '';
 
@@ -498,46 +696,58 @@ function updateCourseDisplay(course) {
 
     // Sidebar info
     document.getElementById('sidebar-difficulty').textContent = getDifficultyText(course.difficulty_level);
-    document.getElementById('sidebar-duration').textContent = `${course.duration_hours || 0} ชั่วโมง`;
+    document.getElementById('sidebar-duration').textContent = `${course.duration_hours || 0} ${t('hours')}`;
 
-    // Language display
+    // Language display (support both old and new values)
     const languageMap = {
-        'th': 'ภาษาไทย',
-        'en': 'ภาษาอังกฤษ',
-        'th-en': 'ไทย-อังกฤษ'
+        'th': t('languageThai'),
+        'en': t('languageEnglish'),
+        'th-en': t('languageThaiEnglish'),
+        // Support old values for backward compatibility
+        'Thai': t('languageThai'),
+        'ภาษาไทย': t('languageThai'),
+        'English': t('languageEnglish'),
+        'ภาษาอังกฤษ': t('languageEnglish')
     };
-    document.getElementById('sidebar-language').textContent = languageMap[course.language] || course.language || 'ไม่ระบุ';
+    document.getElementById('sidebar-language').textContent = languageMap[course.language] || course.language || t('notSpecified');
 
-    // Course type
+    // Course type (support both old and new values)
     const courseTypeMap = {
-        'mandatory': 'บังคับ',
-        'elective': 'เลือก',
-        'recommended': 'แนะนำ'
+        'mandatory': t('typeMandatory'),
+        'elective': t('typeElective'),
+        'recommended': t('typeRecommended'),
+        // Support old values for backward compatibility
+        'Required': t('typeMandatory'),
+        'บังคับ': t('typeMandatory'),
+        'Optional': t('typeElective'),
+        'เลือก': t('typeElective'),
+        'Recommended': t('typeRecommended'),
+        'แนะนำ': t('typeRecommended')
     };
-    document.getElementById('sidebar-course-type').textContent = courseTypeMap[course.course_type] || course.course_type || 'ไม่ระบุ';
+    document.getElementById('sidebar-course-type').textContent = courseTypeMap[course.course_type] || course.course_type || t('notSpecified');
 
     // Max students
-    document.getElementById('sidebar-max-students').textContent = course.max_students ? `${course.max_students} คน` : 'ไม่จำกัด';
+    document.getElementById('sidebar-max-students').textContent = course.max_students ? `${course.max_students} ${t('people')}` : t('unlimited');
 
     // Passing score
     document.getElementById('sidebar-passing-score').textContent =
         (course.passing_score !== null && course.passing_score !== undefined)
             ? `${course.passing_score}%`
-            : 'ไม่ระบุ';
+            : t('notSpecified');
 
     // Max attempts
     document.getElementById('sidebar-max-attempts').textContent =
         (course.max_attempts !== null && course.max_attempts !== undefined)
-            ? `${course.max_attempts} ครั้ง`
-            : 'ไม่ระบุ';
+            ? `${course.max_attempts} ${t('times')}`
+            : t('notSpecified');
 
     // Certificate
     const certElement = document.getElementById('sidebar-certificate');
     if (course.certificate_validity) {
-        certElement.innerHTML = `<i class="fas fa-check mr-1"></i>มี (${course.certificate_validity})`;
+        certElement.innerHTML = `<i class="fas fa-check mr-1"></i>${t('yes')} (${course.certificate_validity})`;
         certElement.className = 'font-medium text-green-600';
     } else {
-        certElement.innerHTML = '<i class="fas fa-times mr-1"></i>ไม่มี';
+        certElement.innerHTML = `<i class="fas fa-times mr-1"></i>${t('no')}`;
         certElement.className = 'font-medium text-gray-500';
     }
 
@@ -545,8 +755,8 @@ function updateCourseDisplay(course) {
     document.getElementById('update-date').textContent = course.updated_at ? formatDate(course.updated_at) : '-';
 
     // Start and End dates (with time)
-    document.getElementById('sidebar-start-date').textContent = course.start_date ? formatDateTime(course.start_date) : 'ไม่ระบุ';
-    document.getElementById('sidebar-end-date').textContent = course.end_date ? formatDateTime(course.end_date) : 'ไม่ระบุ';
+    document.getElementById('sidebar-start-date').textContent = course.start_date ? formatDateTime(course.start_date) : t('notSpecified');
+    document.getElementById('sidebar-end-date').textContent = course.end_date ? formatDateTime(course.end_date) : t('notSpecified');
 
     // Intro Video
     if (course.intro_video_url) {
@@ -584,7 +794,7 @@ function updateCourseDisplay(course) {
                             referrerpolicy="strict-origin-when-cross-origin"
                         ></iframe>`;
                 } else {
-                    introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500"><p>ไม่สามารถโหลดวิดีโอได้: URL ไม่ถูกต้อง</p></div>`;
+                    introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500"><p>${t('cannotLoadVideo')}</p></div>`;
                 }
             } else if (course.intro_video_url.includes('vimeo.com')) {
                 // Extract Vimeo ID
@@ -604,7 +814,7 @@ function updateCourseDisplay(course) {
                             allowfullscreen
                         ></iframe>`;
                 } else {
-                    introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500"><p>ไม่สามารถโหลดวิดีโอได้: URL ไม่ถูกต้อง</p></div>`;
+                    introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500"><p>${t('cannotLoadVideo')}</p></div>`;
                 }
             } else {
                 // Direct video file or other sources
@@ -1413,11 +1623,11 @@ async function submitRating() {
 
 // Utility functions
 function getDifficultyText(level) {
-    if (!level) return 'ไม่ระบุ';
+    if (!level) return t('notSpecified');
     const texts = {
-        'beginner': 'เริ่มต้น',
-        'intermediate': 'ปานกลาง',
-        'advanced': 'ขั้นสูง'
+        'beginner': t('difficultyBeginner'),
+        'intermediate': t('difficultyIntermediate'),
+        'advanced': t('difficultyAdvanced')
     };
     // Make case-insensitive
     const normalizedLevel = level.toLowerCase();

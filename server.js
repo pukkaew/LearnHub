@@ -66,6 +66,16 @@ if (process.env.NODE_ENV !== 'production') {
     app.set('view cache', false);
 }
 
+// Set UTF-8 charset for all HTML responses
+app.use((req, res, next) => {
+    const originalRender = res.render;
+    res.render = function(view, options, callback) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        originalRender.call(this, view, options, callback);
+    };
+    next();
+});
+
 
 // Apply layout conditionally - skip for auth pages
 app.use((req, res, next) => {
