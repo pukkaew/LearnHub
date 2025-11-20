@@ -1,0 +1,381 @@
+<%- contentFor('body') %>
+
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900"><%= t('questionDetail') || 'Question Detail' %></h1>
+            <p class="text-gray-600 mt-2">ID: <%= question.question_id %></p>
+        </div>
+        <div class="flex gap-3">
+            <a href="/courses/<%= courseId %>/questions/<%= question.question_id %>/edit"
+                class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <i class="fas fa-edit"></i>
+                <span><%= t('edit') || 'Edit' %></span>
+            </a>
+            <a href="/courses/<%= courseId %>/questions"
+                class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i>
+                <span><%= t('back') || 'Back' %></span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Badges -->
+    <div class="flex flex-wrap gap-3 mb-8">
+        <span class="px-4 py-2 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+            <%= question.question_type %>
+        </span>
+        <span class="px-4 py-2 text-sm font-semibold rounded-full
+            <%= question.difficulty_level === 'easy' ? 'bg-green-100 text-green-800' : '' %>
+            <%= question.difficulty_level === 'medium' ? 'bg-yellow-100 text-yellow-800' : '' %>
+            <%= question.difficulty_level === 'hard' ? 'bg-orange-100 text-orange-800' : '' %>
+            <%= question.difficulty_level === 'expert' ? 'bg-red-100 text-red-800' : '' %>">
+            <%= question.difficulty_level %>
+        </span>
+        <% if (question.is_verified) { %>
+            <span class="px-4 py-2 text-sm font-semibold rounded-full bg-green-100 text-green-800 flex items-center gap-2">
+                <i class="fas fa-check-circle"></i>
+                <%= t('verified') || 'Verified' %>
+            </span>
+        <% } %>
+        <% if (question.is_active) { %>
+            <span class="px-4 py-2 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+                <%= t('active') || 'Active' %>
+            </span>
+        <% } %>
+        <% if (question.is_public) { %>
+            <span class="px-4 py-2 text-sm font-semibold rounded-full bg-purple-100 text-purple-800">
+                <%= t('public') || 'Public' %>
+            </span>
+        <% } %>
+        <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">
+            <%= question.default_points %> <%= t('points') || 'pts' %>
+        </span>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600"><%= t('timesUsed') || 'Times Used' %></p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2"><%= question.usage_count || 0 %></p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-eye text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600"><%= t('successRate') || 'Success Rate' %></p>
+                    <p class="text-3xl font-bold text-green-600 mt-2"><%= (question.success_rate || 0).toFixed(1) %>%</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600"><%= t('correct') || 'Correct' %></p>
+                    <p class="text-3xl font-bold text-blue-600 mt-2"><%= question.correct_count || 0 %></p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-thumbs-up text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600"><%= t('avgTime') || 'Avg Time' %></p>
+                    <p class="text-3xl font-bold text-purple-600 mt-2"><%= Math.floor((question.avg_time_seconds || 0) / 60) %>m</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-purple-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Content -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-question-circle text-blue-600"></i>
+            <%= t('question') || 'Question' %>
+        </h2>
+        <div class="prose max-w-none">
+            <%- question.question_text %>
+        </div>
+
+        <!-- Media -->
+        <% if (question.image_url || question.video_url || question.audio_url) { %>
+            <div class="mt-6 space-y-4">
+                <% if (question.image_url) { %>
+                    <div>
+                        <img src="<%= question.image_url %>" alt="Question image" class="max-w-2xl rounded-lg border border-gray-200">
+                    </div>
+                <% } %>
+                <% if (question.video_url) { %>
+                    <div>
+                        <video controls class="max-w-2xl rounded-lg border border-gray-200">
+                            <source src="<%= question.video_url %>" type="video/mp4">
+                        </video>
+                    </div>
+                <% } %>
+                <% if (question.audio_url) { %>
+                    <div>
+                        <audio controls class="w-full max-w-2xl">
+                            <source src="<%= question.audio_url %>" type="audio/mpeg">
+                        </audio>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Answer Options -->
+    <% if (question.options && question.options.length > 0) { %>
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-list text-blue-600"></i>
+                <%= t('answerOptions') || 'Answer Options' %>
+            </h2>
+            <div class="space-y-3">
+                <% question.options.forEach((option, index) => { %>
+                    <div class="flex items-start gap-4 p-4 rounded-lg border <%= option.is_correct ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-gray-50' %>">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold
+                            <%= option.is_correct ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700' %>">
+                            <%= String.fromCharCode(65 + index) %>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <%- option.option_text %>
+                                <% if (option.is_correct) { %>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
+                                        <%= t('correctAnswer') || 'Correct' %>
+                                    </span>
+                                <% } %>
+                            </div>
+                            <% if (option.explanation) { %>
+                                <p class="text-sm text-gray-600 mt-2"><%- option.explanation %></p>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Additional Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Explanation -->
+        <% if (question.explanation) { %>
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-yellow-600"></i>
+                    <%= t('explanation') || 'Explanation' %>
+                </h3>
+                <p class="text-gray-700"><%- question.explanation %></p>
+            </div>
+        <% } %>
+
+        <!-- Hint -->
+        <% if (question.hint) { %>
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <i class="fas fa-question text-blue-600"></i>
+                    <%= t('hint') || 'Hint' %>
+                </h3>
+                <p class="text-gray-700"><%- question.hint %></p>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Metadata Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Question Metadata -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-info-circle text-blue-600"></i>
+                <%= t('metadata') || 'Metadata' %>
+            </h3>
+            <dl class="space-y-3">
+                <% if (question.bloom_taxonomy_level) { %>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500"><%= t('bloomTaxonomy') || 'Bloom\'s Taxonomy' %></dt>
+                        <dd class="mt-1 text-sm text-gray-900 capitalize"><%= question.bloom_taxonomy_level %></dd>
+                    </div>
+                <% } %>
+                <% if (question.learning_objective) { %>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500"><%= t('learningObjective') || 'Learning Objective' %></dt>
+                        <dd class="mt-1 text-sm text-gray-900"><%- question.learning_objective %></dd>
+                    </div>
+                <% } %>
+                <% if (question.topic_tags) { %>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500"><%= t('topicTags') || 'Topic Tags' %></dt>
+                        <dd class="mt-1 flex flex-wrap gap-2">
+                            <% try {
+                                const tags = typeof question.topic_tags === 'string' ? JSON.parse(question.topic_tags) : question.topic_tags;
+                                tags.forEach(tag => { %>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"><%= tag %></span>
+                                <% });
+                            } catch(e) { %>
+                                <span class="text-sm text-gray-900"><%= question.topic_tags %></span>
+                            <% } %>
+                        </dd>
+                    </div>
+                <% } %>
+                <% if (question.reference) { %>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500"><%= t('reference') || 'Reference' %></dt>
+                        <dd class="mt-1 text-sm text-gray-900"><%= question.reference %></dd>
+                    </div>
+                <% } %>
+            </dl>
+        </div>
+
+        <!-- Creation & Update Info -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-history text-blue-600"></i>
+                <%= t('history') || 'History' %>
+            </h3>
+            <dl class="space-y-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500"><%= t('createdBy') || 'Created By' %></dt>
+                    <dd class="mt-1 text-sm text-gray-900">User ID: <%= question.created_by %></dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500"><%= t('createdAt') || 'Created At' %></dt>
+                    <dd class="mt-1 text-sm text-gray-900"><%= new Date(question.created_at).toLocaleString() %></dd>
+                </div>
+                <% if (question.updated_at && question.updated_at !== question.created_at) { %>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500"><%= t('updatedAt') || 'Updated At' %></dt>
+                        <dd class="mt-1 text-sm text-gray-900"><%= new Date(question.updated_at).toLocaleString() %></dd>
+                    </div>
+                <% } %>
+                <% if (question.is_verified && question.verified_by) { %>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500"><%= t('verifiedBy') || 'Verified By' %></dt>
+                        <dd class="mt-1 text-sm text-gray-900">User ID: <%= question.verified_by %></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500"><%= t('verifiedAt') || 'Verified At' %></dt>
+                        <dd class="mt-1 text-sm text-gray-900"><%= new Date(question.verified_at).toLocaleString() %></dd>
+                    </div>
+                <% } %>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('actions') || 'Actions' %></h3>
+        <div class="flex flex-wrap gap-3">
+            <a href="/courses/<%= courseId %>/questions/<%= question.question_id %>/edit"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <i class="fas fa-edit"></i>
+                <%= t('edit') || 'Edit' %>
+            </a>
+            <button onclick="duplicateQuestion()"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
+                <i class="fas fa-copy"></i>
+                <%= t('duplicate') || 'Duplicate' %>
+            </button>
+            <% if (user.role === 'admin' && !question.is_verified) { %>
+                <button onclick="verifyQuestion()"
+                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2">
+                    <i class="fas fa-check-circle"></i>
+                    <%= t('verify') || 'Verify' %>
+                </button>
+            <% } %>
+            <button onclick="deleteQuestion()"
+                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2">
+                <i class="fas fa-trash"></i>
+                <%= t('delete') || 'Delete' %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+async function duplicateQuestion() {
+    if (!confirm('<%= t("confirmDuplicate") || "Are you sure you want to duplicate this question?" %>')) return;
+
+    try {
+        const response = await fetch('/api/questions/<%= question.question_id %>/duplicate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('<%= t("questionDuplicated") || "Question duplicated successfully" %>');
+            window.location.href = '/courses/<%= courseId %>/questions/' + data.data.question_id;
+        } else {
+            alert(data.message || '<%= t("error") || "An error occurred" %>');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('<%= t("error") || "An error occurred" %>');
+    }
+}
+
+async function verifyQuestion() {
+    if (!confirm('<%= t("confirmVerify") || "Verify this question?" %>')) return;
+
+    try {
+        const response = await fetch('/api/questions/<%= question.question_id %>/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('<%= t("questionVerified") || "Question verified successfully" %>');
+            window.location.reload();
+        } else {
+            alert(data.message || '<%= t("error") || "An error occurred" %>');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('<%= t("error") || "An error occurred" %>');
+    }
+}
+
+async function deleteQuestion() {
+    if (!confirm('<%= t("confirmDelete") || "Are you sure you want to delete this question?" %>')) return;
+
+    try {
+        const response = await fetch('/api/questions/<%= question.question_id %>', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('<%= t("questionDeleted") || "Question deleted successfully" %>');
+            window.location.href = '/courses/<%= courseId %>/questions';
+        } else {
+            alert(data.message || '<%= t("error") || "An error occurred" %>');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('<%= t("error") || "An error occurred" %>');
+    }
+}
+</script>

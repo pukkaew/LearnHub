@@ -28,8 +28,8 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const apiRoutes = require('./routes/apiRoutes');
 const languageRoutes = require('./routes/languageRoutes');
 const settingRoutes = require('./routes/settingRoutes');
-const debugRoutes = require('./routes/debugRoutes');
 const organizationRoutes = require('./routes/organizationRoutes');
+const questionBankRoutes = require('./routes/questionBankRoutes');
 
 // Import services
 const proctoringService = require('./utils/proctoringService');
@@ -200,8 +200,8 @@ app.use('/reports', reportRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/language', languageRoutes);
 app.use('/settings', settingRoutes);
-app.use('/debug', debugRoutes);
 app.use('/organization', organizationRoutes);
+app.use('/', questionBankRoutes);
 
 // Home page redirect
 app.get('/', (req, res) => {
@@ -249,6 +249,7 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/applicants', applicantRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api', questionBankRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

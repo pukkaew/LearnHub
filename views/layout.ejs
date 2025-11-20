@@ -646,16 +646,16 @@
                         <div class="nav-menu-item-dropdown">
                             <a href="#" class="nav-menu-item has-submenu" onclick="event.preventDefault()">
                                 <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
-                                <span>หลักสูตร</span>
+                                <span><%= typeof t === 'function' ? t('courses') : 'หลักสูตร' %></span>
                             </a>
                             <div class="nav-submenu">
                                 <a href="/courses" class="nav-submenu-item">
                                     <span class="nav-submenu-icon"><i class="fas fa-book-open"></i></span>
-                                    <span>รายการคอร์ส</span>
+                                    <span><%= typeof t === 'function' ? t('coursesList') : 'รายการคอร์ส' %></span>
                                 </a>
                                 <a href="/courses/categories" class="nav-submenu-item">
                                     <span class="nav-submenu-icon"><i class="fas fa-folder-tree"></i></span>
-                                    <span>จัดการหมวดหมู่</span>
+                                    <span><%= typeof t === 'function' ? t('manageCategories') : 'จัดการหมวดหมู่' %></span>
                                 </a>
                             </div>
                         </div>
@@ -824,16 +824,16 @@
                 <!-- Admin only: Show dropdown with submenu -->
                 <button class="nav-mobile-menu-item has-submenu" id="mobile-courses-menu-toggle">
                     <span class="nav-menu-icon"><i class="fas fa-graduation-cap"></i></span>
-                    <span>หลักสูตร</span>
+                    <span><%= typeof t === 'function' ? t('courses') : 'หลักสูตร' %></span>
                 </button>
                 <div class="nav-mobile-submenu" id="mobile-courses-submenu">
                     <a href="/courses" class="nav-mobile-submenu-item">
                         <span class="nav-submenu-icon"><i class="fas fa-book-open"></i></span>
-                        <span>รายการคอร์ส</span>
+                        <span><%= typeof t === 'function' ? t('coursesList') : 'รายการคอร์ส' %></span>
                     </a>
                     <a href="/courses/categories" class="nav-mobile-submenu-item">
                         <span class="nav-submenu-icon"><i class="fas fa-folder-tree"></i></span>
-                        <span>จัดการหมวดหมู่</span>
+                        <span><%= typeof t === 'function' ? t('manageCategories') : 'จัดการหมวดหมู่' %></span>
                     </a>
                 </div>
                 <% } else { %>

@@ -1506,7 +1506,14 @@ const courseController = {
                     t.test_id,
                     t.title as test_name,
                     t.description as test_description,
-                    (SELECT COUNT(*) FROM test_questions WHERE test_id = t.test_id) as total_questions,
+                    (
+                        SELECT COUNT(*)
+                        FROM Questions WHERE test_id = t.test_id AND is_active = 1
+                    ) + (
+                        SELECT COUNT(*)
+                        FROM TestQuestions tq
+                        WHERE tq.test_id = t.test_id
+                    ) as total_questions,
                     t.passing_marks as passing_score,
                     t.time_limit as duration_minutes,
                     t.attempts_allowed as max_attempts,
@@ -1564,25 +1571,26 @@ const courseController = {
                 .input('description', test_description || null)
                 .input('course_id', course_id || null)
                 .input('instructor_id', userId)
-                .input('passing_score', passing_score || 70)
-                .input('max_attempts', max_attempts || 3)
-                .input('duration_minutes', duration_minutes || 60)
+                .input('passing_marks', passing_score || 70)
+                .input('attempts_allowed', max_attempts || 3)
+                .input('time_limit', duration_minutes || 60)
                 .input('randomize_questions', randomize_questions !== false)
-                .input('randomize_answers', randomize_answers !== false)
-                .input('show_results_immediately', show_results_immediately !== false)
+                .input('show_results', show_results_immediately !== false)
+                .input('status', 'Active')
+                .input('type', 'assessment')
                 .query(`
                     INSERT INTO Tests (
                         title, description, course_id, instructor_id,
-                        passing_score, max_attempts, duration_minutes,
-                        randomize_questions, randomize_answers, show_results_immediately,
-                        is_active, created_at
+                        passing_marks, attempts_allowed, time_limit,
+                        randomize_questions, show_results,
+                        status, type, created_at
                     )
                     OUTPUT INSERTED.test_id
                     VALUES (
                         @title, @description, @course_id, @instructor_id,
-                        @passing_score, @max_attempts, @duration_minutes,
-                        @randomize_questions, @randomize_answers, @show_results_immediately,
-                        1, GETDATE()
+                        @passing_marks, @attempts_allowed, @time_limit,
+                        @randomize_questions, @show_results,
+                        @status, @type, GETDATE()
                     )
                 `);
 

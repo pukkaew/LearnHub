@@ -50,7 +50,9 @@
       "Bash(cmd.exe /c \"findstr /n /i \"file_url.*description\" \"D:AppLearnHubcontrollerscourseController.js\"\")",
       "Bash(curl:*)",
       "Bash(cmd.exe /c taskkill /F /PID 22468)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

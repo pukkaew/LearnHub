@@ -1,0 +1,379 @@
+<%- contentFor('body') %>
+
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900"><%= t('editQuestion') || 'Edit Question' %></h1>
+            <p class="text-gray-600 mt-2"><%= t('editQuestionDesc') || 'Update question details' %></p>
+        </div>
+        <div class="flex gap-3">
+            <a href="/courses/<%= courseId %>/questions/<%= question.question_id %>"
+                class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                <i class="fas fa-eye"></i>
+                <span><%= t('view') || 'View' %></span>
+            </a>
+            <a href="/courses/<%= courseId %>/questions"
+                class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i>
+                <span><%= t('back') || 'Back' %></span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form id="editQuestionForm" class="space-y-6">
+        <!-- Question Content Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-question-circle text-blue-600"></i>
+                <%= t('questionContent') || 'Question Content' %>
+            </h2>
+
+            <!-- Question Type -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <%= t('questionType') || 'Question Type' %> <span class="text-red-500">*</span>
+                </label>
+                <select id="questionType" name="question_type" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="multiple-choice" <%= question.question_type === 'multiple-choice' ? 'selected' : '' %>>Multiple Choice</option>
+                    <option value="true-false" <%= question.question_type === 'true-false' ? 'selected' : '' %>>True/False</option>
+                    <option value="short-answer" <%= question.question_type === 'short-answer' ? 'selected' : '' %>>Short Answer</option>
+                    <option value="essay" <%= question.question_type === 'essay' ? 'selected' : '' %>>Essay</option>
+                    <option value="matching" <%= question.question_type === 'matching' ? 'selected' : '' %>>Matching</option>
+                    <option value="fill-in-blank" <%= question.question_type === 'fill-in-blank' ? 'selected' : '' %>>Fill in Blank</option>
+                </select>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <%= t('questionText') || 'Question' %> <span class="text-red-500">*</span>
+                </label>
+                <textarea id="questionText" name="question_text" rows="4" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><%- question.question_text %></textarea>
+            </div>
+
+            <!-- Media Files -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-image mr-1"></i> <%= t('imageUrl') || 'Image URL' %>
+                    </label>
+                    <input type="url" name="image_url" value="<%= question.image_url || '' %>"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-video mr-1"></i> <%= t('videoUrl') || 'Video URL' %>
+                    </label>
+                    <input type="url" name="video_url" value="<%= question.video_url || '' %>"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-volume-up mr-1"></i> <%= t('audioUrl') || 'Audio URL' %>
+                    </label>
+                    <input type="url" name="audio_url" value="<%= question.audio_url || '' %>"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Answer Options Section -->
+        <div id="optionsSection" class="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
+            style="display: <%= ['multiple-choice', 'true-false', 'matching'].includes(question.question_type) ? 'block' : 'none' %>;">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-list text-blue-600"></i>
+                <%= t('answerOptions') || 'Answer Options' %>
+            </h2>
+
+            <div id="optionsList" class="space-y-4">
+                <% if (question.options && question.options.length > 0) { %>
+                    <% question.options.forEach((option, index) => { %>
+                        <div class="option-item flex items-start gap-4 p-4 border border-gray-200 rounded-lg bg-gray-50" data-option-id="<%= option.option_id %>">
+                            <div class="flex items-center pt-2">
+                                <input type="radio" name="correct_option" value="<%= option.option_id %>" <%= option.is_correct ? 'checked' : '' %>
+                                    class="w-5 h-5 text-green-600 border-gray-300 focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div class="flex-1">
+                                <input type="text" name="option_text_<%= option.option_id %>" value="<%- option.option_text %>" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2">
+                                <textarea name="option_explanation_<%= option.option_id %>" rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><%- option.explanation || '' %></textarea>
+                            </div>
+                            <button type="button" onclick="removeOption('<%= option.option_id %>')"
+                                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <button type="button" id="addOptionBtn"
+                class="mt-4 px-4 py-2 text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2">
+                <i class="fas fa-plus"></i>
+                <%= t('addOption') || 'Add Option' %>
+            </button>
+        </div>
+
+        <!-- Question Settings Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-cog text-blue-600"></i>
+                <%= t('questionSettings') || 'Question Settings' %>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Difficulty Level -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <%= t('difficulty') || 'Difficulty Level' %>
+                    </label>
+                    <select name="difficulty_level" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="easy" <%= question.difficulty_level === 'easy' ? 'selected' : '' %>>Easy</option>
+                        <option value="medium" <%= question.difficulty_level === 'medium' ? 'selected' : '' %>>Medium</option>
+                        <option value="hard" <%= question.difficulty_level === 'hard' ? 'selected' : '' %>>Hard</option>
+                        <option value="expert" <%= question.difficulty_level === 'expert' ? 'selected' : '' %>>Expert</option>
+                    </select>
+                </div>
+
+                <!-- Default Points -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <%= t('points') || 'Points' %>
+                    </label>
+                    <input type="number" name="default_points" value="<%= question.default_points %>" min="0.25" step="0.25"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Bloom's Taxonomy -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <%= t('bloomTaxonomy') || 'Bloom\'s Taxonomy Level' %>
+                    </label>
+                    <select name="bloom_taxonomy_level"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- <%= t('select') || 'Select' %> --</option>
+                        <option value="remember" <%= question.bloom_taxonomy_level === 'remember' ? 'selected' : '' %>>Remember</option>
+                        <option value="understand" <%= question.bloom_taxonomy_level === 'understand' ? 'selected' : '' %>>Understand</option>
+                        <option value="apply" <%= question.bloom_taxonomy_level === 'apply' ? 'selected' : '' %>>Apply</option>
+                        <option value="analyze" <%= question.bloom_taxonomy_level === 'analyze' ? 'selected' : '' %>>Analyze</option>
+                        <option value="evaluate" <%= question.bloom_taxonomy_level === 'evaluate' ? 'selected' : '' %>>Evaluate</option>
+                        <option value="create" <%= question.bloom_taxonomy_level === 'create' ? 'selected' : '' %>>Create</option>
+                    </select>
+                </div>
+
+                <!-- Chapter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <%= t('chapter') || 'Chapter' %> (Optional)
+                    </label>
+                    <input type="number" name="chapter_id" value="<%= question.chapter_id || '' %>"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Topic Tags -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <%= t('topicTags') || 'Topic Tags' %>
+                </label>
+                <input type="text" name="topic_tags" value="<%= question.topic_tags || '' %>"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Learning Objective -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <%= t('learningObjective') || 'Learning Objective' %>
+                </label>
+                <textarea name="learning_objective" rows="2"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><%- question.learning_objective || '' %></textarea>
+            </div>
+        </div>
+
+        <!-- Additional Information Section -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i class="fas fa-info-circle text-blue-600"></i>
+                <%= t('additionalInfo') || 'Additional Information' %>
+            </h2>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <%= t('explanation') || 'Explanation' %>
+                </label>
+                <textarea name="explanation" rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><%- question.explanation || '' %></textarea>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <%= t('hint') || 'Hint' %>
+                </label>
+                <textarea name="hint" rows="2"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><%- question.hint || '' %></textarea>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <%= t('reference') || 'Reference' %>
+                </label>
+                <input type="text" name="reference" value="<%= question.reference || '' %>"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="flex items-center gap-3">
+                <input type="checkbox" id="isPublic" name="is_public" value="1" <%= question.is_public ? 'checked' : '' %>
+                    class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                <label for="isPublic" class="text-sm font-medium text-gray-700">
+                    <%= t('makePublic') || 'Make this question available for other courses' %>
+                </label>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-4">
+            <a href="/courses/<%= courseId %>/questions"
+                class="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <%= t('cancel') || 'Cancel' %>
+            </a>
+            <button type="submit"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <i class="fas fa-save"></i>
+                <%= t('updateQuestion') || 'Update Question' %>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+let optionCount = <%= question.options ? question.options.length : 0 %>;
+
+// Question Type Change Handler
+document.getElementById('questionType').addEventListener('change', function() {
+    const type = this.value;
+    const optionsSection = document.getElementById('optionsSection');
+
+    if (['multiple-choice', 'true-false', 'matching'].includes(type)) {
+        optionsSection.style.display = 'block';
+    } else {
+        optionsSection.style.display = 'none';
+    }
+});
+
+// Add Option
+document.getElementById('addOptionBtn').addEventListener('click', function() {
+    optionCount++;
+    const optionHtml = `
+        <div class="option-item flex items-start gap-4 p-4 border border-gray-200 rounded-lg bg-gray-50" data-option-id="new_${optionCount}">
+            <div class="flex items-center pt-2">
+                <input type="radio" name="correct_option" value="new_${optionCount}"
+                    class="w-5 h-5 text-green-600 border-gray-300 focus:ring-2 focus:ring-green-500">
+            </div>
+            <div class="flex-1">
+                <input type="text" name="option_text_new_${optionCount}" required
+                    placeholder="<%= t('optionText') || 'Option text' %>"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2">
+                <textarea name="option_explanation_new_${optionCount}" rows="2"
+                    placeholder="<%= t('optionExplanation') || 'Optional explanation' %>"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            <button type="button" onclick="removeOption('new_${optionCount}')"
+                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    document.getElementById('optionsList').insertAdjacentHTML('beforeend', optionHtml);
+});
+
+function removeOption(id) {
+    const option = document.querySelector(`[data-option-id="${id}"]`);
+    if (option) {
+        option.remove();
+    }
+}
+
+// Form Submission
+document.getElementById('editQuestionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const questionType = formData.get('question_type');
+
+    // Build question data
+    const questionData = {
+        question_text: formData.get('question_text'),
+        question_type: questionType,
+        image_url: formData.get('image_url') || null,
+        video_url: formData.get('video_url') || null,
+        audio_url: formData.get('audio_url') || null,
+        difficulty_level: formData.get('difficulty_level'),
+        default_points: parseFloat(formData.get('default_points')),
+        bloom_taxonomy_level: formData.get('bloom_taxonomy_level') || null,
+        topic_tags: formData.get('topic_tags') || null,
+        learning_objective: formData.get('learning_objective') || null,
+        explanation: formData.get('explanation') || null,
+        hint: formData.get('hint') || null,
+        reference: formData.get('reference') || null,
+        is_public: formData.get('is_public') === '1'
+    };
+
+    // Build options array
+    const options = [];
+    if (['multiple-choice', 'true-false', 'matching'].includes(questionType)) {
+        const correctOption = formData.get('correct_option');
+
+        document.querySelectorAll('.option-item').forEach((item, index) => {
+            const optionId = item.dataset.optionId;
+            const optionText = formData.get(`option_text_${optionId}`);
+            const optionExplanation = formData.get(`option_explanation_${optionId}`);
+
+            if (optionText) {
+                options.push({
+                    option_text: optionText,
+                    is_correct: correctOption === optionId,
+                    option_order: index + 1,
+                    explanation: optionExplanation || null
+                });
+            }
+        });
+
+        if (!options.some(opt => opt.is_correct)) {
+            alert('<%= t("selectCorrectAnswer") || "Please select the correct answer" %>');
+            return;
+        }
+    }
+
+    // Submit data
+    try {
+        const response = await fetch('/api/questions/<%= question.question_id %>', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ...questionData,
+                options: options.length > 0 ? options : null
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('<%= t("questionUpdated") || "Question updated successfully!" %>');
+            window.location.href = '/courses/<%= courseId %>/questions/<%= question.question_id %>';
+        } else {
+            alert(result.message || '<%= t("error") || "An error occurred" %>');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('<%= t("error") || "An error occurred" %>');
+    }
+});
+</script>
