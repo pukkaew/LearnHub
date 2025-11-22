@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
 const authMiddleware = require('../middleware/auth');
+const validationMiddleware = require('../middleware/validation');
 
 // Apply authentication to all course routes
 router.use(authMiddleware.requireAuth);
@@ -19,11 +20,12 @@ router.get('/api/all', courseController.getAllCourses);
 router.get('/api/list', courseController.getAllCourses);  // Alias for /api/all
 router.get('/api/my-courses', courseController.getMyEnrollments);
 router.get('/api/categories', courseController.getCategories);
+router.get('/api/instructors', courseController.getInstructors);
 router.get('/api/recommended', courseController.getRecommendedCourses);
 router.get('/api/popular', courseController.getPopularCourses);
 router.get('/api/target-positions', courseController.getTargetPositions);
 router.get('/api/target-departments', courseController.getTargetDepartments);
-router.post('/api/create', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), courseController.createCourse);
+router.post('/api/create', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), validationMiddleware.validateCourseCreation(), courseController.createCourse);
 
 // Dynamic routes MUST come after static routes
 router.get('/api/:course_id', courseController.getCourseById);

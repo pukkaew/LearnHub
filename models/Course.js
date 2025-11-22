@@ -158,8 +158,13 @@ class Course {
 
     // Create new course
     static async create(courseData) {
+        const pool = await poolPromise;
+        const transaction = new sql.Transaction(pool);
+
         try {
-            const pool = await poolPromise;
+            // Begin transaction
+            await transaction.begin();
+            console.log('🔄 Transaction started for course creation');
 
             // Debug logging
             console.log('Course.create received data:', {
@@ -174,7 +179,7 @@ class Course {
             let categoryName = courseData.category || 'General';
             if (courseData.category_id && !courseData.category) {
                 // If category_id is provided but no category name, try to get it
-                const categoryResult = await pool.request()
+                const categoryResult = await transaction.request()
                     .input('categoryId', sql.Int, parseInt(courseData.category_id))
                     .query('SELECT category_name FROM CourseCategories WHERE category_id = @categoryId');
 
@@ -186,11 +191,23 @@ class Course {
             // Convert duration hours and minutes to hours
             let durationHours = 0;
             if (courseData.duration_hours) {
-                durationHours = parseInt(courseData.duration_hours);
+                durationHours = parseFloat(courseData.duration_hours);
+                console.log('🔍 DEBUG duration_hours:', {
+                    original: courseData.duration_hours,
+                    type: typeof courseData.duration_hours,
+                    parsed: durationHours
+                });
             }
             if (courseData.duration_minutes) {
-                durationHours += parseInt(courseData.duration_minutes) / 60;
+                const minutesPart = parseInt(courseData.duration_minutes) / 60;
+                durationHours += minutesPart;
+                console.log('🔍 DEBUG duration_minutes:', {
+                    original: courseData.duration_minutes,
+                    minutesPart: minutesPart,
+                    total: durationHours
+                });
             }
+            console.log('🔍 FINAL durationHours:', durationHours);
 
             // Normalize thumbnail value (handle empty objects from form uploads)
             const thumbnailValue = this.normalizeValue(courseData.course_image) ||
@@ -230,8 +247,8 @@ class Course {
                 console.log('  ⚠️  No positions or departments selected → target_audience = NULL');
             }
 
-            // Insert course with all columns
-            const result = await pool.request()
+            // Insert course with all columns (using transaction)
+            const result = await transaction.request()
                 .input('courseCode', sql.NVarChar(50), courseData.course_code || null)
                 .input('title', sql.NVarChar(255), courseData.course_name || courseData.title || 'Untitled Course')
                 .input('description', sql.NVarChar(sql.MAX), courseData.description || '')
@@ -242,7 +259,7 @@ class Course {
                 .input('instructorId', sql.Int, courseData.instructor_id ? parseInt(courseData.instructor_id) : null)
                 .input('instructorName', sql.NVarChar(255), courseData.instructor_name || null)
                 .input('thumbnail', sql.NVarChar(500), thumbnailValue)
-                .input('durationHours', sql.Int, Math.ceil(durationHours))
+                .input('durationHours', sql.Decimal(5, 2), durationHours)
                 .input('price', sql.Decimal(10, 2), courseData.price || 0)
                 .input('isFree', sql.Bit, courseData.is_free !== false)
                 .input('status', sql.NVarChar(50), courseData.status || 'Published')
@@ -281,31 +298,33 @@ class Course {
 
             const newCourseId = result.recordset[0].course_id;
 
-            // Insert lessons if provided
+            // Insert lessons if provided (using transaction)
             if (courseData.lessons && Array.isArray(courseData.lessons) && courseData.lessons.length > 0) {
+                console.log(`📚 Inserting ${courseData.lessons.length} lessons...`);
                 for (let i = 0; i < courseData.lessons.length; i++) {
                     const lesson = courseData.lessons[i];
-                    try {
-                        await pool.request()
-                            .input('courseId', sql.Int, newCourseId)
-                            .input('title', sql.NVarChar(255), lesson.title || `บทที่ ${i + 1}`)
-                            .input('content', sql.NVarChar(sql.MAX), lesson.description || '')
-                            .input('type', sql.NVarChar(50), 'lesson')
-                            .input('filePath', sql.NVarChar(500), lesson.video_url || null)
-                            .input('orderIndex', sql.Int, i + 1)
-                            .input('duration', sql.Int, lesson.duration || 0)
-                            .query(`
-                                INSERT INTO course_materials (
-                                    course_id, title, content, type, file_path, order_index, duration_minutes, created_at
-                                ) VALUES (
-                                    @courseId, @title, @content, @type, @filePath, @orderIndex, @duration, GETDATE()
-                                )
-                            `);
-                    } catch (lessonError) {
-                        console.error(`Error inserting lesson ${i + 1}:`, lessonError);
-                    }
+                    await transaction.request()
+                        .input('courseId', sql.Int, newCourseId)
+                        .input('title', sql.NVarChar(255), lesson.title || `บทที่ ${i + 1}`)
+                        .input('content', sql.NVarChar(sql.MAX), lesson.description || '')
+                        .input('type', sql.NVarChar(50), 'lesson')
+                        .input('filePath', sql.NVarChar(500), lesson.video_url || null)
+                        .input('orderIndex', sql.Int, i + 1)
+                        .input('duration', sql.Int, lesson.duration || 0)
+                        .query(`
+                            INSERT INTO course_materials (
+                                course_id, title, content, type, file_path, order_index, duration_minutes, created_at
+                            ) VALUES (
+                                @courseId, @title, @content, @type, @filePath, @orderIndex, @duration, GETDATE()
+                            )
+                        `);
+                    console.log(`  ✅ Lesson ${i + 1} inserted successfully`);
                 }
             }
+
+            // Commit transaction
+            await transaction.commit();
+            console.log('✅ Transaction committed successfully');
 
             // Return data in format expected by controller
             return {
@@ -315,7 +334,15 @@ class Course {
                 }
             };
         } catch (error) {
-            console.error('Course.create error:', error);
+            // Rollback transaction on error
+            try {
+                await transaction.rollback();
+                console.log('⚠️ Transaction rolled back due to error');
+            } catch (rollbackError) {
+                console.error('❌ Error rolling back transaction:', rollbackError);
+            }
+
+            console.error('❌ Course.create error:', error);
             return {
                 success: false,
                 message: `Error creating course: ${error.message}`

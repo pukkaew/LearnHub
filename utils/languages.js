@@ -791,7 +791,39 @@ const translations = {
         faq: 'คำถามที่พบบ่อย',
         learningResources: 'แหล่งเรียนรู้',
         elearning: 'ระบบเรียนออนไลน์',
-        careers: 'ร่วมงานกับเรา'
+        careers: 'ร่วมงานกับเรา',
+
+        // Test Types - ประเภทการประเมิน
+        testTypes: {
+            pre_training_assessment: 'แบบทดสอบก่อนอบรม',
+            post_training_assessment: 'แบบทดสอบหลังอบรม',
+            knowledge_check: 'แบบทดสอบย่อย',
+            progress_assessment: 'แบบประเมินความก้าวหน้า',
+            midcourse_assessment: 'แบบทดสอบกลางหลักสูตร',
+            final_assessment: 'แบบทดสอบท้ายหลักสูตร',
+            certification_assessment: 'แบบทดสอบรับใบประกาศนียบัตร',
+            practice_exercise: 'แบบฝึกหัด'
+        },
+
+        // Test Type Descriptions - คำอธิบายประเภทการประเมิน
+        testTypeDescriptions: {
+            pre_training_assessment: 'ทดสอบความรู้พื้นฐานก่อนเริ่มอบรม วัดระดับเริ่มต้นของผู้เข้าอบรม',
+            post_training_assessment: 'ทดสอบหลังอบรมจบ เปรียบเทียบกับก่อนอบรม เพื่อวัดความก้าวหน้า',
+            knowledge_check: 'ทดสอบย่อยระหว่างอบรม เช็คความเข้าใจแต่ละหัวข้อ นับคะแนน 10-15%',
+            progress_assessment: 'ประเมินความก้าวหน้าต่อเนื่องระหว่างอบรม เช็คจุดที่เข้าใจและควรทบทวน',
+            midcourse_assessment: 'ทดสอบกลางหลักสูตร สำหรับหลักสูตรยาว นับคะแนน 30-40%',
+            final_assessment: 'ทดสอบหลักเพื่อจบหลักสูตร นับคะแนน 40-50% ต้องผ่านถึงจะได้ Certificate',
+            certification_assessment: 'ทดสอบเพื่อรับ Certificate อย่างเป็นทางการ เข้มงวดสูงสุด',
+            practice_exercise: 'ฝึกทำได้ไม่จำกัด ไม่นับคะแนน เหมาะสำหรับฝึกฝนและทบทวน'
+        },
+
+        // Test Type Groups - กลุ่มประเภทการประเมิน
+        testTypeGroups: {
+            prePostTraining: 'ก่อน-หลังอบรม',
+            duringTraining: 'ระหว่างอบรม',
+            mainAssessments: 'แบบทดสอบหลัก',
+            practice: 'ฝึกหัด'
+        }
     },
     en: {
         // Navigation
@@ -1586,7 +1618,39 @@ const translations = {
         faq: 'FAQ',
         learningResources: 'Learning Resources',
         elearning: 'E-Learning Platform',
-        careers: 'Careers'
+        careers: 'Careers',
+
+        // Test Types - Assessment Types
+        testTypes: {
+            pre_training_assessment: 'Pre-training Assessment',
+            post_training_assessment: 'Post-training Assessment',
+            knowledge_check: 'Knowledge Check',
+            progress_assessment: 'Progress Assessment',
+            midcourse_assessment: 'Mid-course Assessment',
+            final_assessment: 'Final Assessment',
+            certification_assessment: 'Certification Assessment',
+            practice_exercise: 'Practice Exercise'
+        },
+
+        // Test Type Descriptions
+        testTypeDescriptions: {
+            pre_training_assessment: 'Test baseline knowledge before training begins to measure participants\' starting level',
+            post_training_assessment: 'Test after training completion to compare with pre-training and measure progress',
+            knowledge_check: 'Quick assessments during training to check understanding of each topic, weighted 10-15%',
+            progress_assessment: 'Continuous progress evaluation during training to identify areas of understanding and review',
+            midcourse_assessment: 'Mid-course assessment for longer programs, weighted 30-40%',
+            final_assessment: 'Main assessment to complete the course, weighted 40-50%, must pass to receive Certificate',
+            certification_assessment: 'Official assessment for Certificate, highest level of rigor',
+            practice_exercise: 'Unlimited practice, not graded, ideal for skill development and review'
+        },
+
+        // Test Type Groups
+        testTypeGroups: {
+            prePostTraining: 'Pre-Post Training',
+            duringTraining: 'During Training',
+            mainAssessments: 'Main Assessments',
+            practice: 'Practice'
+        }
     }
 };
 

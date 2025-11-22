@@ -171,16 +171,257 @@ class ValidationMiddleware {
 
     // Course validation middlewares
     validateCourseCreation() {
-        return this.validate({
-            title: 'required|minLength:5|maxLength:200',
-            description: 'required|minLength:20',
-            category_id: 'required|numeric',
-            instructor_id: 'numeric',
-            duration_hours: 'numeric|min:1',
-            max_students: 'numeric|min:1',
-            price: 'numeric|min:0',
-            status: 'in:draft,published,archived'
-        });
+        return (req, res, next) => {
+            // Basic course field validation
+            const baseValidation = this.validationService.validate(req.body, {
+                title: 'required|minLength:10|maxLength:200',
+                course_name: 'minLength:10|maxLength:200',  // Validate course_name if provided
+                description: 'required|minLength:50',
+                category_id: 'required|numeric',
+                instructor_id: 'numeric',
+                duration_hours: 'numeric|min:1',
+                max_students: 'numeric|min:1',
+                price: 'numeric|min:0',
+                status: 'in:draft,published,archived'
+            });
+
+            if (!baseValidation.isValid) {
+                logger.info('Course base validation failed', {
+                    endpoint: req.originalUrl,
+                    errors: baseValidation.errors,
+                    user_id: req.user?.user_id
+                });
+
+                return res.status(400).json({
+                    success: false,
+                    message: 'ข้อมูลหลักสูตรไม่ถูกต้อง',
+                    errors: baseValidation.errors
+                });
+            }
+
+            // Validate learning objectives array
+            if (req.body.learning_objectives) {
+                if (!Array.isArray(req.body.learning_objectives)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'วัตถุประสงค์การเรียนรู้ต้องเป็น Array'
+                    });
+                }
+
+                // ✅ FIX 1: ต้องมีอย่างน้อย 3 ข้อ
+                if (req.body.learning_objectives.length < 3) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'กรุณากรอกวัตถุประสงค์การเรียนรู้อย่างน้อย 3 ข้อ',
+                        errors: {
+                            learning_objectives: ['ต้องมีอย่างน้อย 3 ข้อ']
+                        }
+                    });
+                }
+
+                if (req.body.learning_objectives.length > 0) {
+                    for (let i = 0; i < req.body.learning_objectives.length; i++) {
+                        const obj = req.body.learning_objectives[i];
+                        if (typeof obj !== 'string' || obj.trim().length < 5) {
+                            return res.status(400).json({
+                                success: false,
+                                message: `วัตถุประสงค์ข้อที่ ${i + 1} ต้องมีความยาวอย่างน้อย 5 ตัวอักษร`
+                            });
+                        }
+                    }
+                }
+            } else {
+                // ✅ FIX 2: learning_objectives เป็น required field
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณากรอกวัตถุประสงค์การเรียนรู้',
+                    errors: {
+                        learning_objectives: ['ฟิลด์นี้จำเป็นต้องระบุ']
+                    }
+                });
+            }
+
+            // Validate lessons array
+            if (req.body.lessons) {
+                if (!Array.isArray(req.body.lessons)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'บทเรียนต้องเป็น Array'
+                    });
+                }
+
+                // ✅ FIX 3: ต้องมีอย่างน้อย 1 บทเรียน
+                if (req.body.lessons.length < 1) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'กรุณาเพิ่มบทเรียนอย่างน้อย 1 บทเรียน',
+                        errors: {
+                            lessons: ['ต้องมีอย่างน้อย 1 บทเรียน']
+                        }
+                    });
+                }
+
+                for (let i = 0; i < req.body.lessons.length; i++) {
+                    const lesson = req.body.lessons[i];
+                    if (!lesson.title || lesson.title.trim().length < 3) {
+                        return res.status(400).json({
+                            success: false,
+                            message: `ชื่อบทเรียนที่ ${i + 1} ต้องมีความยาวอย่างน้อย 3 ตัวอักษร`
+                        });
+                    }
+
+                    if (lesson.duration && (isNaN(lesson.duration) || lesson.duration < 1)) {
+                        return res.status(400).json({
+                            success: false,
+                            message: `ระยะเวลาของบทเรียนที่ ${i + 1} ไม่ถูกต้อง`
+                        });
+                    }
+                }
+            } else {
+                // ✅ FIX 4: lessons เป็น required field
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณาเพิ่มบทเรียน',
+                    errors: {
+                        lessons: ['ฟิลด์นี้จำเป็นต้องระบุ']
+                    }
+                });
+            }
+
+            // Validate test creation if assessment_type is 'create_new'
+            if (req.body.assessment_type === 'create_new') {
+                const validTestTypes = [
+                    'pre_training_assessment', 'post_training_assessment',
+                    'knowledge_check', 'progress_assessment',
+                    'midcourse_assessment', 'final_assessment', 'certification_assessment',
+                    'practice_exercise'
+                ];
+
+                const testValidation = this.validationService.validate(req.body, {
+                    new_test_name: 'required|minLength:5|maxLength:200',
+                    new_test_type: `required|in:${validTestTypes.join(',')}`,
+                    new_test_duration: 'required|numeric|min:5|max:480',
+                    new_passing_score: 'numeric|min:0|max:100',
+                    new_max_attempts: 'numeric|min:0'
+                });
+
+                if (!testValidation.isValid) {
+                    logger.info('Test validation failed', {
+                        endpoint: req.originalUrl,
+                        errors: testValidation.errors,
+                        user_id: req.user?.user_id,
+                        debug_new_test_duration: req.body.new_test_duration,
+                        debug_new_passing_score: req.body.new_passing_score,
+                        debug_new_max_attempts: req.body.new_max_attempts
+                    });
+
+                    return res.status(400).json({
+                        success: false,
+                        message: 'ข้อมูลข้อสอบไม่ถูกต้อง',
+                        errors: testValidation.errors
+                    });
+                }
+
+                // Additional validation for passing score (double check)
+                if (req.body.new_passing_score !== undefined && req.body.new_passing_score !== '') {
+                    const score = parseFloat(req.body.new_passing_score);
+                    if (isNaN(score) || score < 0 || score > 100) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'เกณฑ์การผ่านต้องอยู่ระหว่าง 0-100',
+                            errors: {
+                                new_passing_score: ['ต้องอยู่ระหว่าง 0-100']
+                            }
+                        });
+                    }
+                }
+
+                // Validate max attempts if provided
+                if (req.body.new_max_attempts) {
+                    const attempts = parseInt(req.body.new_max_attempts);
+                    if (isNaN(attempts) || attempts < 1 || attempts > 20) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'จำนวนครั้งที่ทำได้ต้องอยู่ระหว่าง 1-20'
+                        });
+                    }
+                }
+
+                // Validate available dates if provided
+                if (req.body.new_available_from && req.body.new_available_until) {
+                    const fromDate = new Date(req.body.new_available_from);
+                    const untilDate = new Date(req.body.new_available_until);
+
+                    if (fromDate >= untilDate) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'วันที่เปิดข้อสอบต้องมาก่อนวันที่ปิดข้อสอบ'
+                        });
+                    }
+                }
+
+                // Validate proctoring strictness if proctoring is enabled
+                if (req.body.new_enable_proctoring && req.body.new_proctoring_strictness) {
+                    const validStrictness = ['low', 'medium', 'high'];
+                    if (!validStrictness.includes(req.body.new_proctoring_strictness)) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'ระดับความเข้มงวดในการคุมสอบไม่ถูกต้อง'
+                        });
+                    }
+                }
+
+                // Validate score weight if provided
+                if (req.body.new_score_weight) {
+                    const weight = parseFloat(req.body.new_score_weight);
+                    if (isNaN(weight) || weight < 0 || weight > 100) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'น้ำหนักคะแนนต้องอยู่ระหว่าง 0-100'
+                        });
+                    }
+                }
+
+                // Validate logical consistency
+                // ถ้าต้องผ่านถึงจะจบหลักสูตร ต้องบังคับทำและนับคะแนนด้วย
+                if (req.body.new_is_passing_required === true || req.body.new_is_passing_required === 'true') {
+                    if (!(req.body.new_is_required === true || req.body.new_is_required === 'true')) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'ถ้าต้องผ่านถึงจะจบหลักสูตร ต้องเป็นข้อสอบบังคับทำด้วย'
+                        });
+                    }
+                    if (!(req.body.new_is_graded === true || req.body.new_is_graded === 'true')) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'ถ้าต้องผ่านถึงจะจบหลักสูตร ต้องนับคะแนนด้วย'
+                        });
+                    }
+                }
+            }
+
+            // Validate existing test selection if assessment_type is 'existing'
+            if (req.body.assessment_type === 'existing') {
+                if (!req.body.test_id) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'กรุณาเลือกข้อสอบที่มีอยู่'
+                    });
+                }
+
+                const testId = parseInt(req.body.test_id);
+                if (isNaN(testId) || testId <= 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'รหัสข้อสอบไม่ถูกต้อง'
+                    });
+                }
+            }
+
+            // Store validated data
+            req.validated = req.body;
+            next();
+        };
     }
 
     validateCourseUpdate() {

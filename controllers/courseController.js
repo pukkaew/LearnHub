@@ -148,8 +148,89 @@ const courseController = {
                 course_name: courseData.course_name,
                 category_id: courseData.category_id,
                 target_positions: courseData.target_positions,
-                target_departments: courseData.target_departments
+                target_departments: courseData.target_departments,
+                assessment_type: req.body.assessment_type
             });
+
+            // Handle test creation if assessment_type is 'create_new'
+            if (req.body.assessment_type === 'create_new') {
+                console.log('📝 Creating new test along with course');
+                const pool = await poolPromise;
+
+                try {
+                    // Create test
+                    const testResult = await pool.request()
+                        .input('title', sql.NVarChar(200), req.body.new_test_name)
+                        .input('description', sql.NVarChar(sql.MAX), req.body.new_test_description || '')
+                        .input('testType', sql.NVarChar(50), req.body.new_test_type || 'final_exam')
+                        .input('timeLimit', sql.Int, parseInt(req.body.new_test_duration) || 60)
+                        .input('passingScore', sql.Int, req.body.new_passing_score ? parseInt(req.body.new_passing_score) : null)
+                        .input('maxAttempts', sql.Int, req.body.new_max_attempts ? parseInt(req.body.new_max_attempts) : null)
+                        .input('randomizeQuestions', sql.Bit, req.body.new_randomize_questions === true || req.body.new_randomize_questions === 'true')
+                        .input('randomizeChoices', sql.Bit, req.body.new_randomize_choices === true || req.body.new_randomize_choices === 'true')
+                        .input('showAnswer', sql.NVarChar(20), req.body.new_show_answer || 'immediately')
+                        .input('showResultsImmediately', sql.Bit, req.body.new_show_results_immediately === true || req.body.new_show_results_immediately === 'true')
+                        .input('availableFrom', sql.DateTime2, req.body.new_available_from || null)
+                        .input('availableUntil', sql.DateTime2, req.body.new_available_until || null)
+                        .input('enableProctoring', sql.Bit, req.body.new_enable_proctoring === true || req.body.new_enable_proctoring === 'true')
+                        .input('proctoringStrictness', sql.NVarChar(20), req.body.new_proctoring_strictness || 'medium')
+                        .input('isGraded', sql.Bit, req.body.new_is_graded === true || req.body.new_is_graded === 'true')
+                        .input('isRequired', sql.Bit, req.body.new_is_required === true || req.body.new_is_required === 'true')
+                        .input('isPassingRequired', sql.Bit, req.body.new_is_passing_required === true || req.body.new_is_passing_required === 'true')
+                        .input('scoreWeight', sql.Int, req.body.new_score_weight ? parseInt(req.body.new_score_weight) : null)
+                        .input('showScoreBreakdown', sql.Bit, req.body.new_show_score_breakdown === true || req.body.new_show_score_breakdown === 'true')
+                        .input('status', sql.NVarChar(20), 'active')
+                        .input('createdBy', sql.Int, userId)
+                        .query(`
+                            INSERT INTO tests (
+                                title, description, type, time_limit, passing_marks, attempts_allowed,
+                                randomize_questions, show_results, status,
+                                available_from, available_until, proctoring_enabled, proctoring_strictness,
+                                is_graded, is_required, is_passing_required, score_weight, show_score_breakdown,
+                                instructor_id, created_at, updated_at
+                            ) VALUES (
+                                @title, @description, @testType, @timeLimit, @passingScore, @maxAttempts,
+                                @randomizeQuestions, @showResultsImmediately, @status,
+                                @availableFrom, @availableUntil, @enableProctoring, @proctoringStrictness,
+                                @isGraded, @isRequired, @isPassingRequired, @scoreWeight, @showScoreBreakdown,
+                                @createdBy, GETDATE(), GETDATE()
+                            );
+                            SELECT SCOPE_IDENTITY() AS test_id;
+                        `);
+
+                    const newTestId = testResult.recordset[0].test_id;
+                    console.log(`✅ Test created successfully with ID: ${newTestId}`);
+
+                    // Add test_id to courseData
+                    courseData.test_id = newTestId;
+
+                    // Log test creation
+                    await ActivityLog.logDataChange(
+                        userId,
+                        'Create',
+                        'Tests',
+                        newTestId,
+                        null,
+                        { test_name: req.body.new_test_name, test_type: req.body.new_test_type },
+                        req.ip,
+                        req.get('User-Agent'),
+                        req.sessionID,
+                        `Created test: ${req.body.new_test_name} for course`
+                    );
+
+                } catch (testError) {
+                    console.error('❌ Test creation failed:', testError);
+                    return res.status(500).json({
+                        success: false,
+                        message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ',
+                        error: testError.message
+                    });
+                }
+            } else if (req.body.assessment_type === 'existing' && req.body.test_id) {
+                // Use existing test
+                courseData.test_id = parseInt(req.body.test_id);
+                console.log(`✅ Using existing test with ID: ${courseData.test_id}`);
+            }
 
             const result = await Course.create(courseData);
 
@@ -715,6 +796,108 @@ const courseController = {
             res.status(500).json({
                 success: false,
                 message: 'เกิดข้อผิดพลาดในการโหลดหมวดหมู่หลักสูตร'
+            });
+        }
+    },
+
+    async getInstructors(req, res) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request().query(`
+                SELECT
+                    user_id,
+                    CONCAT(first_name, ' ', last_name) as full_name,
+                    email,
+                    position_id
+                FROM users
+                WHERE is_active = 1
+                ORDER BY first_name, last_name
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+
+        } catch (error) {
+            console.error('Get instructors error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดรายชื่อผู้สอน'
+            });
+        }
+    },
+
+    async getAvailableTests(req, res) {
+        try {
+            const pool = await poolPromise;
+            const { type, status, course_id } = req.query;
+
+            // Build dynamic query
+            let whereConditions = ['1=1'];
+            const params = {};
+
+            // Filter by test type if provided
+            if (type && ['final_exam', 'chapter_quiz', 'lesson_quiz', 'standalone_test', 'practice_test'].includes(type)) {
+                whereConditions.push('test_type = @testType');
+                params.testType = type;
+            }
+
+            // Filter by status if provided
+            if (status && ['draft', 'active', 'inactive'].includes(status)) {
+                whereConditions.push('status = @status');
+                params.status = status;
+            } else {
+                // Default: only show active tests
+                whereConditions.push('status = @status');
+                params.status = 'active';
+            }
+
+            // Exclude tests already attached to a specific course
+            if (course_id) {
+                whereConditions.push('test_id NOT IN (SELECT test_id FROM courses WHERE course_id = @courseId AND test_id IS NOT NULL)');
+                params.courseId = parseInt(course_id);
+            }
+
+            const query = `
+                SELECT
+                    test_id,
+                    title,
+                    description,
+                    test_type,
+                    time_limit,
+                    passing_score,
+                    max_attempts,
+                    total_questions,
+                    status,
+                    created_at,
+                    updated_at
+                FROM tests
+                WHERE ${whereConditions.join(' AND ')}
+                ORDER BY created_at DESC
+            `;
+
+            const request = pool.request();
+
+            // Add parameters to request
+            if (params.testType) request.input('testType', sql.NVarChar(50), params.testType);
+            if (params.status) request.input('status', sql.NVarChar(20), params.status);
+            if (params.courseId) request.input('courseId', sql.Int, params.courseId);
+
+            const result = await request.query(query);
+
+            res.json({
+                success: true,
+                data: result.recordset,
+                count: result.recordset.length
+            });
+
+        } catch (error) {
+            console.error('Get available tests error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดรายการข้อสอบ',
+                error: error.message
             });
         }
     },

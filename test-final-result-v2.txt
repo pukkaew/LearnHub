@@ -1,0 +1,106 @@
+[0m
+[35m[0m
+[0m╔════════════════════════════════════════════════════════════════════╗[0m
+[0m║  🧪 FINAL COMPREHENSIVE TEST - ทดสอบทุก Feature อย่างละเอียด   ║[0m
+[0m╚════════════════════════════════════════════════════════════════════╝[0m
+[0m[0m[0m
+[34m
+======================================================================[0m
+[34m📋 🔐 Login[0m
+[34m======================================================================[0m
+[36m📸 Screenshot: 01-login.png[0m
+[36m📸 Screenshot: 02-dashboard.png[0m
+[32m✅ [F1.1] Login successful[0m
+[34m
+======================================================================[0m
+[34m📋 📚 Navigate to Create Course[0m
+[34m======================================================================[0m
+[36m📸 Screenshot: 03-form-loaded.png[0m
+[32m✅ [F2.1] Create form loaded[0m
+[34m
+======================================================================[0m
+[34m📋 📝 Step 1: Basic Information[0m
+[34m======================================================================[0m
+[36m📸 Screenshot: 04-step1-filled.png[0m
+[36m📸 Screenshot: 05-step2.png[0m
+[32m✅ [F3.1] Step 1 completed[0m
+[34m
+======================================================================[0m
+[34m📋 📄 Step 2: Details + Target Audience[0m
+[34m======================================================================[0m
+[32m✅ [F4.1] Target departments selected[0m
+[36m   → Selected: 1[0m
+[32m✅ [F4.2] Target positions selected[0m
+[36m   → Selected: 1[0m
+[36m📸 Screenshot: 06-step2-filled.png[0m
+[36m📸 Screenshot: 07-step3.png[0m
+[32m✅ [F5.1] Step 2 completed[0m
+[34m
+======================================================================[0m
+[34m📋 🎬 Step 3: Lessons + Quiz[0m
+[34m======================================================================[0m
+[32m✅ [F6.1] Lesson quiz enabled[0m
+[32m✅ [F6.2] Quiz details filled[0m
+[36m📸 Screenshot: 08-step3-filled.png[0m
+[36m📸 Screenshot: 09-step4.png[0m
+[32m✅ [F7.1] Step 3 completed[0m
+[34m
+======================================================================[0m
+[34m📋 📝 Step 4: Assessment[0m
+[34m======================================================================[0m
+[36m📸 Screenshot: 10-assessment.png[0m
+[32m✅ [F8.1] Assessment configured[0m
+[34m
+======================================================================[0m
+[34m📋 🔍 Verify Data Collection[0m
+[34m======================================================================[0m
+[36m
+📊 Collected Data:[0m
+[36m   title: Complete Test Course 2025[0m
+[36m   duration_hours: 3.75[0m
+[36m   target_departments: ["1"][0m
+[36m   target_positions: ["28"][0m
+[36m   lessons: 1[0m
+[32m✅ [F9.1] Title mapping[0m
+[36m   → Got: "Complete Test Course 2025"[0m
+[32m✅ [F9.2] Duration (3.75)[0m
+[36m   → Got: 3.75[0m
+[32m✅ [F9.3] Departments collected[0m
+[32m✅ [F9.4] Positions collected[0m
+[32m✅ [F9.5] Lessons collected[0m
+[36m   → Count: 1[0m
+[36m📸 Screenshot: 11-data-verified.png[0m
+[34m
+======================================================================[0m
+[34m📋 🚀 Submit Course[0m
+[34m======================================================================[0m
+[33m🔘 Clicking submit...[0m
+[31m
+❌ Error: Navigation timeout of 30000 ms exceeded[0m
+[31mTimeoutError: Navigation timeout of 30000 ms exceeded
+    at new Deferred (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\util\Deferred.js:60:34)
+    at Deferred.create (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\util\Deferred.js:21:16)
+    at new LifecycleWatcher (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\LifecycleWatcher.js:73:60)
+    at CdpFrame.waitForNavigation (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\Frame.js:197:29)
+    at CdpFrame.<anonymous> (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\util\decorators.js:109:27)
+    at CdpPage.waitForNavigation (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\api\Page.js:605:43)
+    at runFinalTest (D:\App\LearnHub\test_complete_FINAL_FIXED.js:318:18)[0m
+[31m❌ [ERROR] Test execution[0m
+[36m   → Navigation timeout of 30000 ms exceeded[0m
+[34m
+======================================================================[0m
+[34m📋 📊 Final Test Summary[0m
+[34m======================================================================[0m
+[34m
+Total Tests: 16[0m
+[32m✅ Passed: 15[0m
+[31m❌ Failed: 1[0m
+[33mPass Rate: 93.75%[0m
+[36m
+📸 Screenshots: D:\App\LearnHub\test-screenshots-final[0m
+[33m
+🔒 Closing browser in 5 seconds...[0m
+[34m
+======================================================================[0m
+[34m📋 ✅ Testing Completed[0m
+[34m======================================================================[0m

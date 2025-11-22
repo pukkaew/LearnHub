@@ -1,0 +1,113 @@
+[0m
+[35m[0m
+[0m╔════════════════════════════════════════════════════════════════════╗[0m
+[0m║                                                                    ║[0m
+[0m║   🧪 COMPLETE COMPREHENSIVE TEST - ทดสอบทุก Feature             ║[0m
+[0m║                                                                    ║[0m
+[0m╚════════════════════════════════════════════════════════════════════╝[0m
+[0m[0m[0m
+[34m
+======================================================================[0m
+[34m📋 🔐 Login[0m
+[34m======================================================================[0m
+[36m📸 Screenshot saved: 01-login.png[0m
+[36m📸 Screenshot saved: 02-dashboard.png[0m
+[32m✅ [C1.1] Login successful[0m
+[34m
+======================================================================[0m
+[34m📋 📚 Navigate to Create Course[0m
+[34m======================================================================[0m
+[36m📸 Screenshot saved: 03-create-form.png[0m
+[32m✅ [C2.1] Create form loaded[0m
+[34m
+======================================================================[0m
+[34m📋 📝 Step 1: Basic Information[0m
+[34m======================================================================[0m
+[36m📸 Screenshot saved: 04-step1-filled.png[0m
+[36m📸 Screenshot saved: 05-step2-visible.png[0m
+[32m✅ [C3.1] Step 1 completed and Step 2 visible[0m
+[34m
+======================================================================[0m
+[34m📋 📄 Step 2: Course Details + Target Audience Selection[0m
+[34m======================================================================[0m
+[33m
+🎯 Testing Target Departments Selection...[0m
+[33m🎯 Testing Target Positions Selection...[0m
+[36m📸 Screenshot saved: 06-step2-with-target-audience.png[0m
+[32m✅ [C4.1] Target departments selected[0m
+[36m   → Selected: 1 departments[0m
+[32m✅ [C4.2] Target positions selected[0m
+[36m   → Selected: 1 positions[0m
+[36m📸 Screenshot saved: 07-step3-visible.png[0m
+[32m✅ [C5.1] Step 2 completed and Step 3 visible[0m
+[34m
+======================================================================[0m
+[34m📋 🎬 Step 3: Lessons + Knowledge Check[0m
+[34m======================================================================[0m
+[33m
+📝 Testing Lesson Quiz (Knowledge Check)...[0m
+[32m✅ [C6.1] Lesson quiz checkbox toggled[0m
+[36m   → Quiz settings should be visible[0m
+[32m✅ [C6.2] Lesson quiz details filled[0m
+[36m📸 Screenshot saved: 08-step3-with-quiz.png[0m
+[36m📸 Screenshot saved: 09-step4-visible.png[0m
+[32m✅ [C7.1] Step 3 completed and Step 4 visible[0m
+[34m
+======================================================================[0m
+[34m📋 📝 Step 4: Assessment Types Testing[0m
+[34m======================================================================[0m
+[33m
+📋 Test 1: Final Assessment (requires date/time)...[0m
+[36m📸 Screenshot saved: 10-final-assessment.png[0m
+[31m❌ [C8.1] Final Assessment date fields visible[0m
+[36m   → Test type: final_assessment[0m
+[33m
+📋 Test 2: Practice Exercise (no date required)...[0m
+[32m✅ [C8.2] Practice Exercise date fields hidden[0m
+[36m   → Test type: practice_exercise[0m
+[36m📸 Screenshot saved: 11-assessment-configured.png[0m
+[34m
+======================================================================[0m
+[34m📋 🔍 Data Collection Verification[0m
+[34m======================================================================[0m
+[36m
+📊 Collected Data:[0m
+[36m   title: Complete Comprehensive Test Courseเพื่อทดสอบการเลือกหน่วยงานเพื่อทดสอบการเลือกตำแหน่งเพื่อทดสอบข้อสอบท้ายบท345บทเรียนที่ 1 - มีข้อสอบท้ายบท45บทเรียนนี้มีแบบทดสอบความรู้ท้ายบท1015703[0m
+[36m   duration_hours: 0[0m
+[36m   target_departments: ["1"][0m
+[36m   target_positions: [][0m
+[36m   lessons: 0 lessons[0m
+[31m❌ [C9.1] Title mapping works[0m
+[31m❌ [C9.2] Duration calculation (3.75)[0m
+[32m✅ [C9.3] Target departments collected[0m
+[32m✅ [C9.4] Target positions collected[0m
+[31m❌ [C9.5] Lessons collected[0m
+[36m📸 Screenshot saved: 12-data-verified.png[0m
+[34m
+======================================================================[0m
+[34m📋 🚀 Submit Course[0m
+[34m======================================================================[0m
+[33m🔘 Clicking Create Course button...[0m
+[31m
+❌ Error: Node is either not clickable or not an Element[0m
+[31m❌ [ERROR] Test execution[0m
+[36m   → Node is either not clickable or not an Element[0m
+[34m
+======================================================================[0m
+[34m📋 📊 Test Summary[0m
+[34m======================================================================[0m
+[34m
+Total Tests: 17[0m
+[32m✅ Passed: 12[0m
+[31m❌ Failed: 5[0m
+[33mPass Rate: 70.59%[0m
+[36m
+📸 Screenshots saved in: D:\App\LearnHub\test-screenshots-comprehensive[0m
+[33m
+⚠️ Some tests failed - please review[0m
+[33m
+🔒 Closing browser in 5 seconds...[0m
+[34m
+======================================================================[0m
+[34m📋 ✅ Complete Comprehensive Testing Completed[0m
+[34m======================================================================[0m

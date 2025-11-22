@@ -52,7 +52,13 @@
       "Bash(cmd.exe /c taskkill /F /PID 22468)",
       "Bash(git restore:*)",
       "Bash(find:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(tee:*)",
+      "Bash(pkill:*)",
+      "Bash(test-final-result.txt)",
+      "Bash(test-final-result-v2.txt)"
     ],
     "deny": [],
     "ask": []
