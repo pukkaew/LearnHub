@@ -170,72 +170,39 @@ let currentPage = 1;
 let currentFilters = {};
 let selectedCourseId = null;
 
-// Get current language from EJS
-const currentLang = '<%= language || "th" %>';
-
-// Translation object for JavaScript
-const translations = {
-    th: {
-        allCategories: 'ทุกหมวดหมู่',
-        errorLoadingData: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
-        errorLoadingCourses: 'เกิดข้อผิดพลาดในการโหลดคอร์ส',
-        noRecommendedCourses: 'ไม่มีคอร์สแนะนำในขณะนี้',
-        noCoursesFound: 'ไม่พบคอร์สที่ตรงกับเงื่อนไขการค้นหา',
-        clearFilters: 'ล้างตัวกรอง',
-        notEnrolledYet: 'คุณยังไม่ได้ลงทะเบียนคอร์สใดๆ',
-        viewRecommended: 'ดูคอร์สแนะนำ',
-        hours: 'ชั่วโมง',
-        general: 'ทั่วไป',
-        notSpecified: 'ไม่ระบุ',
-        progress: 'ความคืบหน้า',
-        enrolling: 'ลงทะเบียนแล้ว',
-        enterCourse: 'เข้าเรียน',
-        completed: 'เรียนจบแล้ว',
-        retake: 'เรียนซ้ำ',
-        enroll: 'ลงทะเบียน',
-        beginner: 'เริ่มต้น',
-        intermediate: 'ปานกลาง',
-        advanced: 'ขั้นสูง',
-        enrollmentTitle: 'ลงทะเบียนเรียน',
-        enrollmentConfirm: 'คุณต้องการลงทะเบียนเรียนคอร์สนี้หรือไม่?',
-        confirm: 'ยืนยัน',
-        cancel: 'ยกเลิก',
-        enrollSuccess: 'ลงทะเบียนเรียนสำเร็จ',
-        enrollError: 'เกิดข้อผิดพลาดในการลงทะเบียน'
-    },
-    en: {
-        allCategories: 'All Categories',
-        errorLoadingData: 'Error loading data',
-        errorLoadingCourses: 'Error loading courses',
-        noRecommendedCourses: 'No recommended courses at the moment',
-        noCoursesFound: 'No courses found matching your search criteria',
-        clearFilters: 'Clear Filters',
-        notEnrolledYet: 'You have not enrolled in any courses yet',
-        viewRecommended: 'View recommended courses',
-        hours: 'hours',
-        general: 'General',
-        notSpecified: 'Not specified',
-        progress: 'Progress',
-        enrolling: 'Enrolled',
-        enterCourse: 'Enter Course',
-        completed: 'Completed',
-        retake: 'Retake',
-        enroll: 'Enroll',
-        beginner: 'Beginner',
-        intermediate: 'Intermediate',
-        advanced: 'Advanced',
-        enrollmentTitle: 'Course Enrollment',
-        enrollmentConfirm: 'Do you want to enroll in this course?',
-        confirm: 'Confirm',
-        cancel: 'Cancel',
-        enrollSuccess: 'Successfully enrolled in course',
-        enrollError: 'Error enrolling in course'
-    }
-};
+// Get translations from server-side
+const translations = <%- JSON.stringify({
+    allCategories: t('allCategories'),
+    errorLoadingData: t('errorLoadingData'),
+    errorLoadingCourses: t('errorLoadingCourses'),
+    noRecommendedCourses: t('noRecommendedCourses'),
+    noCoursesFound: t('noCoursesFound'),
+    clearFilters: t('clearFilters'),
+    notEnrolledYet: t('notEnrolledYet'),
+    viewRecommended: t('viewRecommended'),
+    hours: t('hours'),
+    general: t('general'),
+    notSpecified: t('notSpecified'),
+    progress: t('progress'),
+    enrolling: t('enrolling'),
+    enterCourse: t('enterCourse'),
+    completed: t('completed'),
+    retake: t('retake'),
+    enroll: t('enroll'),
+    beginner: t('beginner'),
+    intermediate: t('intermediate'),
+    advanced: t('advanced'),
+    enrollmentTitle: t('enrollmentTitle'),
+    enrollmentConfirm: t('enrollmentConfirm'),
+    confirm: t('confirm'),
+    cancel: t('cancel'),
+    enrollSuccess: t('enrollSuccess'),
+    enrollError: t('enrollError')
+}) %>;
 
 // Helper function to get translation
 function t(key) {
-    return translations[currentLang][key] || key;
+    return translations[key] || key;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

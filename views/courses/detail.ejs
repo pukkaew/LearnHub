@@ -534,16 +534,16 @@ function updateCourseDisplay(course) {
 
     // Course type (support both old and new values)
     const courseTypeMap = {
-        'mandatory': 'typeMandatory',
-        'elective': 'typeElective',
-        'recommended': 'typeRecommended',
+        'mandatory': 'mandatory',
+        'elective': 'elective',
+        'recommended': 'recommended',
         // Support old values for backward compatibility
-        'Required': 'typeMandatory',
-        'บังคับ': 'typeMandatory',
-        'Optional': 'typeElective',
-        'เลือก': 'typeElective',
-        'Recommended': 'typeRecommended',
-        'แนะนำ': 'typeRecommended'
+        'Required': 'mandatory',
+        'บังคับ': 'mandatory',
+        'Optional': 'elective',
+        'เลือก': 'elective',
+        'Recommended': 'recommended',
+        'แนะนำ': 'recommended'
     };
     const typeKey = courseTypeMap[course.course_type];
     document.getElementById('sidebar-course-type').textContent = typeKey ? t(typeKey) : (course.course_type || t('notSpecified'));
@@ -882,19 +882,19 @@ function updateEnrollmentStatus(course) {
             <div class="space-y-4">
                 <div class="text-center">
                     <i class="fas fa-graduation-cap text-green-500 text-3xl mb-2"></i>
-                    <p class="text-green-600 font-semibold">คุณได้ลงทะเบียนเรียนแล้ว</p>
+                    <p class="text-green-600 font-semibold">${t('enrolled')}</p>
                 </div>
                 <a href="/courses/${course.course_id}/content" class="btn-ruxchai-primary w-full text-center block">
-                    <i class="fas fa-play mr-2"></i>เข้าเรียน
+                    <i class="fas fa-play mr-2"></i>${t('enterCourse')}
                 </a>
                 ${course.progress_percentage === 100 ? `
                     <button onclick="showRatingModal()" class="btn-ruxchai-outline w-full">
-                        <i class="fas fa-star mr-2"></i>ให้คะแนนคอร์ส
+                        <i class="fas fa-star mr-2"></i>${t('rateCourse')}
                     </button>
                 ` : ''}
                 ${canEdit ? `
                     <a href="/courses/${course.course_id}/edit" class="btn-ruxchai-outline w-full text-center block">
-                        <i class="fas fa-edit mr-2"></i>แก้ไขคอร์ส
+                        <i class="fas fa-edit mr-2"></i>${t('editCourse')}
                     </a>
                 ` : ''}
             </div>
@@ -904,17 +904,17 @@ function updateEnrollmentStatus(course) {
             <div class="space-y-4">
                 <div class="text-center">
                     <i class="fas fa-trophy text-yellow-500 text-3xl mb-2"></i>
-                    <p class="text-yellow-600 font-semibold">เรียนจบแล้ว</p>
+                    <p class="text-yellow-600 font-semibold">${t('courseCompleted')}</p>
                 </div>
                 <a href="/courses/${course.course_id}/certificate" class="btn-ruxchai-primary w-full text-center block">
-                    <i class="fas fa-certificate mr-2"></i>ดาวน์โหลดใบประกาศนียบัตร
+                    <i class="fas fa-certificate mr-2"></i>${t('downloadCertificate')}
                 </a>
                 <button onclick="showRatingModal()" class="btn-ruxchai-outline w-full">
-                    <i class="fas fa-star mr-2"></i>ให้คะแนนคอร์ส
+                    <i class="fas fa-star mr-2"></i>${t('rateCourse')}
                 </button>
                 ${canEdit ? `
                     <a href="/courses/${course.course_id}/edit" class="btn-ruxchai-outline w-full text-center block">
-                        <i class="fas fa-edit mr-2"></i>แก้ไขคอร์ส
+                        <i class="fas fa-edit mr-2"></i>${t('editCourse')}
                     </a>
                 ` : ''}
             </div>
@@ -924,14 +924,14 @@ function updateEnrollmentStatus(course) {
             <div class="space-y-4">
                 <div class="text-center">
                     <i class="fas fa-book text-ruxchai-primary text-3xl mb-2"></i>
-                    <p class="text-gray-600">เริ่มเรียนคอร์สนี้</p>
+                    <p class="text-gray-600">${t('startCourse')}</p>
                 </div>
                 <button onclick="showEnrollmentModal()" class="btn-ruxchai-primary w-full">
-                    <i class="fas fa-user-plus mr-2"></i>ลงทะเบียนเรียน
+                    <i class="fas fa-user-plus mr-2"></i>${t('enrollInCourse')}
                 </button>
                 ${canEdit ? `
                     <a href="/courses/${course.course_id}/edit" class="btn-ruxchai-outline w-full text-center block">
-                        <i class="fas fa-edit mr-2"></i>แก้ไขคอร์ส
+                        <i class="fas fa-edit mr-2"></i>${t('editCourse')}
                     </a>
                 ` : ''}
             </div>
@@ -1031,7 +1031,7 @@ function updateCurriculumDisplay(curriculum) {
         container.innerHTML = `
             <div class="border rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b">
-                    <h4 class="font-semibold text-gray-900">บทเรียนทั้งหมด (${curriculum.length} บท)</h4>
+                    <h4 class="font-semibold text-gray-900">${t('allLessons')} (${curriculum.length} ${t('lessons')})</h4>
                 </div>
                 <div class="p-4">
                     ${curriculum.map((lesson, index) => `
@@ -1054,7 +1054,7 @@ function updateCurriculumDisplay(curriculum) {
                                     ${lesson.video_url ? `
                                         <a href="${lesson.video_url}" target="_blank" class="flex items-center text-ruxchai-primary hover:text-ruxchai-secondary">
                                             <i class="fas fa-play-circle mr-1"></i>
-                                            <span class="text-xs">ดูวิดีโอ</span>
+                                            <span class="text-xs">${t('watchVideo')}</span>
                                         </a>
                                     ` : ''}
                                     ${lesson.completed ? '<i class="fas fa-check-circle text-green-500"></i>' : ''}
@@ -1123,7 +1123,7 @@ function updateMaterialsDisplay(materials) {
             <div class="flex items-center space-x-2">
                 <span class="text-sm text-gray-500">${formatFileSize(material.file_size)}</span>
                 <a href="${material.file_url}" target="_blank" class="btn-ruxchai-outline text-sm">
-                    <i class="fas fa-download mr-1"></i>ดาวน์โหลด
+                    <i class="fas fa-download mr-1"></i>${t('download')}
                 </a>
             </div>
         </div>
@@ -1162,8 +1162,8 @@ function updateDiscussionsDisplay(discussions) {
         container.innerHTML = `
             <div class="text-center py-8">
                 <i class="fas fa-comments text-gray-300 text-4xl mb-4"></i>
-                <p class="text-gray-500 mb-4">ยังไม่มีการอภิปราย</p>
-                <button class="btn-ruxchai-primary">เริ่มการอภิปราย</button>
+                <p class="text-gray-500 mb-4">${t('noDiscussions')}</p>
+                <button class="btn-ruxchai-primary">${t('startDiscussion')}</button>
             </div>
         `;
         return;
@@ -1183,10 +1183,10 @@ function updateDiscussionsDisplay(discussions) {
                     <p class="text-gray-700 mb-2">${discussion.content}</p>
                     <div class="flex items-center space-x-4 text-sm text-gray-500">
                         <button class="hover:text-ruxchai-primary">
-                            <i class="fas fa-reply mr-1"></i>ตอบกลับ
+                            <i class="fas fa-reply mr-1"></i>${t('reply')}
                         </button>
                         <span><i class="fas fa-heart mr-1"></i>${discussion.likes || 0}</span>
-                        <span>${discussion.replies || 0} ${t('reply')}</span>
+                        <span>${discussion.replies || 0} ${t('replies')}</span>
                     </div>
                 </div>
             </div>
@@ -1223,7 +1223,7 @@ function updateReviewsDisplay(reviews) {
     const container = document.getElementById('course-reviews');
 
     if (!reviews || reviews.length === 0) {
-        container.innerHTML = '<p class="text-gray-500">ยังไม่มีรีวิว</p>';
+        container.innerHTML = `<p class="text-gray-500">${t('noReviews')}</p>`;
         return;
     }
 
@@ -1470,18 +1470,20 @@ function getDifficultyColor(level) {
 
 function formatDate(dateString) {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('th-TH');
+    const locale = currentLang === 'th' ? 'th-TH' : 'en-US';
+    return new Date(dateString).toLocaleDateString(locale);
 }
 
 function formatDateTime(dateString) {
     if (!dateString) return '-';
+    const locale = currentLang === 'th' ? 'th-TH' : 'en-US';
     const date = new Date(dateString);
-    const dateStr = date.toLocaleDateString('th-TH', {
+    const dateStr = date.toLocaleDateString(locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
     });
-    const timeStr = date.toLocaleTimeString('th-TH', {
+    const timeStr = date.toLocaleTimeString(locale, {
         hour: '2-digit',
         minute: '2-digit'
     });

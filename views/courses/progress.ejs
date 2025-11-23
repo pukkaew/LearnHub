@@ -6,18 +6,18 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">
-                    <i class="fas fa-chart-line mr-3 text-ruxchai-primary"></i>ความก้าวหน้าหลักสูตร
+                    <i class="fas fa-chart-line mr-3 text-ruxchai-primary"></i><%= t('course_progress_title') %>
                 </h1>
-                <p class="mt-2 text-gray-600">ติดตามและวิเคราะห์ความก้าวหน้าการเรียนรู้</p>
+                <p class="mt-2 text-gray-600"><%= t('course_progress_subtitle') %></p>
             </div>
             <div class="flex space-x-3">
                 <button onclick="exportProgress()"
                         class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-download mr-2"></i>ส่งออกรายงาน
+                    <i class="fas fa-download mr-2"></i><%= t('export_report') %>
                 </button>
                 <button onclick="refreshData()"
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                    <i class="fas fa-sync mr-2"></i>รีเฟรชข้อมูล
+                    <i class="fas fa-sync mr-2"></i><%= t('refresh_data') %>
                 </button>
             </div>
         </div>
@@ -29,13 +29,13 @@
             <div class="flex items-center space-x-6">
                 <img id="course-image" class="h-24 w-32 object-cover rounded-lg" src="/images/course-placeholder.png" alt="Course Image">
                 <div class="flex-1">
-                    <h2 id="course-title" class="text-xl font-bold text-gray-900 mb-2">กำลังโหลด...</h2>
+                    <h2 id="course-title" class="text-xl font-bold text-gray-900 mb-2"><%= t('loading') %>...</h2>
                     <p id="course-code" class="text-sm text-gray-500 mb-1"></p>
                     <p id="course-description" class="text-gray-600 line-clamp-2"></p>
                     <div class="mt-3 flex items-center space-x-4 text-sm text-gray-500">
-                        <span><i class="fas fa-clock mr-1"></i><span id="duration">0</span> ชั่วโมง</span>
+                        <span><i class="fas fa-clock mr-1"></i><span id="duration">0</span> <%= t('hours') %></span>
                         <span><i class="fas fa-signal mr-1"></i><span id="difficulty">-</span></span>
-                        <span><i class="fas fa-users mr-1"></i><span id="enrolled-count">0</span> คน</span>
+                        <span><i class="fas fa-users mr-1"></i><span id="enrolled-count">0</span> <%= t('people') %></span>
                     </div>
                 </div>
                 <div class="text-center">
@@ -51,7 +51,7 @@
                             <span id="overall-progress" class="text-lg font-bold text-ruxchai-primary">0%</span>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-2">ความก้าวหน้ารวม</p>
+                    <p class="text-sm text-gray-500 mt-2"><%= t('overall_progress') %></p>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">เนื้อหาที่เริ่มแล้ว</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate"><%= t('materials_started') %></dt>
                             <dd class="text-2xl font-bold text-gray-900">
                                 <span id="started-materials">0</span>/<span id="total-materials">0</span>
                             </dd>
@@ -85,7 +85,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">เนื้อหาที่เสร็จแล้ว</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate"><%= t('materials_completed') %></dt>
                             <dd class="text-2xl font-bold text-green-600" id="completed-materials">0</dd>
                         </dl>
                     </div>
@@ -101,7 +101,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">เวลาที่ใช้</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate"><%= t('time_spent') %></dt>
                             <dd class="text-2xl font-bold text-yellow-600" id="time-spent">0h 0m</dd>
                         </dl>
                     </div>
@@ -117,7 +117,7 @@
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">คะแนนเฉลี่ย</dt>
+                            <dt class="text-sm font-medium text-gray-500 truncate"><%= t('average_score') %></dt>
                             <dd class="text-2xl font-bold text-purple-600" id="average-score">-</dd>
                         </dl>
                     </div>
@@ -131,7 +131,7 @@
         <!-- Progress Over Time -->
         <div class="bg-white shadow rounded-lg p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">
-                <i class="fas fa-chart-line mr-2 text-ruxchai-primary"></i>ความก้าวหน้าตามเวลา
+                <i class="fas fa-chart-line mr-2 text-ruxchai-primary"></i><%= t('progress_over_time') %>
             </h3>
             <canvas id="progressChart" width="400" height="300"></canvas>
         </div>
@@ -139,7 +139,7 @@
         <!-- Material Types Distribution -->
         <div class="bg-white shadow rounded-lg p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">
-                <i class="fas fa-chart-pie mr-2 text-ruxchai-primary"></i>ประเภทเนื้อหา
+                <i class="fas fa-chart-pie mr-2 text-ruxchai-primary"></i><%= t('material_types') %>
             </h3>
             <canvas id="materialTypesChart" width="400" height="300"></canvas>
         </div>
@@ -149,7 +149,7 @@
     <div class="bg-white shadow rounded-lg mb-8">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">
-                <i class="fas fa-route mr-2 text-ruxchai-primary"></i>เส้นทางการเรียนรู้
+                <i class="fas fa-route mr-2 text-ruxchai-primary"></i><%= t('learning_path') %>
             </h3>
         </div>
         <div class="p-6">
@@ -164,21 +164,21 @@
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-medium text-gray-900">
-                    <i class="fas fa-list mr-2 text-ruxchai-primary"></i>รายละเอียดความก้าวหน้า
+                    <i class="fas fa-list mr-2 text-ruxchai-primary"></i><%= t('progress_details') %>
                 </h3>
                 <div class="flex items-center space-x-3">
                     <select id="filter-status" class="text-sm border-gray-300 rounded-md">
-                        <option value="">ทั้งหมด</option>
-                        <option value="completed">เสร็จแล้ว</option>
-                        <option value="in-progress">กำลังทำ</option>
-                        <option value="not-started">ยังไม่เริ่ม</option>
+                        <option value=""><%= t('all') %></option>
+                        <option value="completed"><%= t('completed') %></option>
+                        <option value="in-progress"><%= t('in_progress') %></option>
+                        <option value="not-started"><%= t('not_started') %></option>
                     </select>
                     <select id="filter-type" class="text-sm border-gray-300 rounded-md">
-                        <option value="">ทุกประเภท</option>
-                        <option value="video">วิดีโอ</option>
-                        <option value="document">เอกสาร</option>
-                        <option value="text">บทความ</option>
-                        <option value="quiz">แบบทดสอบ</option>
+                        <option value=""><%= t('all_types') %></option>
+                        <option value="video"><%= t('video') %></option>
+                        <option value="document"><%= t('document') %></option>
+                        <option value="text"><%= t('article') %></option>
+                        <option value="quiz"><%= t('quiz') %></option>
                     </select>
                 </div>
             </div>
@@ -187,13 +187,13 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เนื้อหา</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ความก้าวหน้า</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เวลาที่ใช้</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อัปเดทล่าสุด</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การดำเนินการ</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('content') %></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('type') %></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('status') %></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('progress') %></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('time_spent') %></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('last_updated') %></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><%= t('actions') %></th>
                     </tr>
                 </thead>
                 <tbody id="materials-table" class="bg-white divide-y divide-gray-200">
@@ -227,7 +227,7 @@ async function loadCourseData() {
         }
     } catch (error) {
         console.error('Error loading course data:', error);
-        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลหลักสูตร');
+        showError('<%= t('error_loading_course') %>');
     }
 }
 
@@ -245,9 +245,9 @@ function populateCourseInfo(course) {
 
 function getDifficultyText(level) {
     const levels = {
-        'Beginner': 'เริ่มต้น',
-        'Intermediate': 'ปานกลาง',
-        'Advanced': 'ขั้นสูง'
+        'Beginner': '<%= t('beginner') %>',
+        'Intermediate': '<%= t('intermediate') %>',
+        'Advanced': '<%= t('advanced') %>'
     };
     return levels[level] || level;
 }
@@ -266,7 +266,7 @@ async function loadProgressData() {
         }
     } catch (error) {
         console.error('Error loading progress data:', error);
-        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลความก้าวหน้า');
+        showError('<%= t('error_loading_progress') %>');
     }
 }
 
@@ -345,7 +345,7 @@ function updateLearningTimeline() {
                             ` : ''}
                             <button onclick="continueMaterial('${material.material_id}')"
                                     class="text-sm text-ruxchai-primary hover:text-blue-700">
-                                ${isCompleted ? 'เรียนซ้ำ' : isInProgress ? 'ดำเนินการต่อ' : 'เริ่ม'}
+                                ${isCompleted ? '<%= t('review') %>' : isInProgress ? '<%= t('continue') %>' : '<%= t('start') %>'}
                             </button>
                         </div>
                     </div>
@@ -368,11 +368,11 @@ function getMaterialIcon(type) {
 
 function getMaterialTypeText(type) {
     const types = {
-        'video': 'วิดีโอ',
-        'document': 'เอกสาร',
-        'text': 'บทความ',
-        'quiz': 'แบบทดสอบ',
-        'audio': 'เสียง'
+        'video': '<%= t('video') %>',
+        'document': '<%= t('document') %>',
+        'text': '<%= t('article') %>',
+        'quiz': '<%= t('quiz') %>',
+        'audio': '<%= t('audio') %>'
     };
     return types[type] || type;
 }
@@ -414,12 +414,12 @@ function updateMaterialsTable() {
                 ${formatDuration(material.time_spent || 0)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                ${material.last_accessed ? formatDate(material.last_accessed) : 'ยังไม่เข้าใช้'}
+                ${material.last_accessed ? formatDate(material.last_accessed) : '<%= t('not_accessed_yet') %>'}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
                 <button onclick="continueMaterial('${material.material_id}')"
                         class="text-ruxchai-primary hover:text-blue-700">
-                    ${material.is_completed ? 'เรียนซ้ำ' : material.progress_percentage > 0 ? 'ดำเนินการต่อ' : 'เริ่ม'}
+                    ${material.is_completed ? '<%= t('review') %>' : material.progress_percentage > 0 ? '<%= t('continue') %>' : '<%= t('start') %>'}
                 </button>
             </td>
         </tr>
@@ -444,9 +444,9 @@ function getStatusColor(material) {
 }
 
 function getStatusText(material) {
-    if (material.is_completed) return 'เสร็จแล้ว';
-    if (material.progress_percentage > 0) return 'กำลังทำ';
-    return 'ยังไม่เริ่ม';
+    if (material.is_completed) return '<%= t('completed') %>';
+    if (material.progress_percentage > 0) return '<%= t('in_progress') %>';
+    return '<%= t('not_started') %>';
 }
 
 function initializeCharts() {
@@ -457,7 +457,7 @@ function initializeCharts() {
         data: {
             labels: [],
             datasets: [{
-                label: 'ความก้าวหน้า (%)',
+                label: '<%= t('progress_percentage') %>',
                 data: [],
                 borderColor: '#3B82F6',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -553,16 +553,16 @@ async function exportProgress() {
             a.click();
             window.URL.revokeObjectURL(url);
 
-            showSuccess('ส่งออกรายงานเรียบร้อยแล้ว');
+            showSuccess('<%= t('export_success') %>');
         }
     } catch (error) {
-        showError('เกิดข้อผิดพลาดในการส่งออกรายงาน');
+        showError('<%= t('error_exporting_report') %>');
     }
 }
 
 function refreshData() {
     loadProgressData();
-    showSuccess('รีเฟรชข้อมูลแล้ว');
+    showSuccess('<%= t('data_refreshed') %>');
 }
 
 // Helper functions

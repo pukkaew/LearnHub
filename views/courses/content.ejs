@@ -15,20 +15,20 @@
                 <!-- Progress -->
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700">ความก้าวหน้า</span>
+                        <span class="text-sm font-medium text-gray-700"><%= t('progress') %></span>
                         <span id="progress-percentage" class="text-sm font-medium text-ruxchai-primary">0%</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
                         <div id="progress-bar" class="bg-ruxchai-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
                     <div class="mt-2 text-xs text-gray-500">
-                        <span id="completed-materials">0</span> จาก <span id="total-materials">0</span> เนื้อหา
+                        <span id="completed-materials">0</span> <%= t('from') %> <span id="total-materials">0</span> <%= t('content') %>
                     </div>
                 </div>
 
                 <!-- Course Navigation -->
                 <div class="p-4">
-                    <h4 class="text-sm font-medium text-gray-900 mb-3">เนื้อหาหลักสูตร</h4>
+                    <h4 class="text-sm font-medium text-gray-900 mb-3"><%= t('courseContent') %></h4>
                     <nav id="course-navigation" class="space-y-1">
                         <!-- Navigation items will be loaded here -->
                     </nav>
@@ -40,15 +40,15 @@
                         <button id="bookmark-btn" onclick="toggleBookmark()"
                                 class="w-full flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             <i id="bookmark-icon" class="far fa-bookmark mr-2"></i>
-                            <span id="bookmark-text">บันทึก</span>
+                            <span id="bookmark-text"><%= t('bookmark') %></span>
                         </button>
                         <button onclick="shareContent()"
                                 class="w-full flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            <i class="fas fa-share mr-2"></i>แชร์
+                            <i class="fas fa-share mr-2"></i><%= t('share') %>
                         </button>
                         <button onclick="downloadContent()"
                                 class="w-full flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                            <i class="fas fa-download mr-2"></i><%= t('download') %>
                         </button>
                     </div>
                 </div>
@@ -62,17 +62,17 @@
                 <div class="px-6 py-4 border-b border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h1 id="content-title" class="text-2xl font-bold text-gray-900">กำลังโหลด...</h1>
+                            <h1 id="content-title" class="text-2xl font-bold text-gray-900"><%= t('loadingShort') %></h1>
                             <p id="content-type" class="text-sm text-gray-500 mt-1"></p>
                         </div>
                         <div class="flex items-center space-x-3">
                             <button id="prev-btn" onclick="previousContent()" disabled
                                     class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-chevron-left mr-2"></i>ก่อนหน้า
+                                <i class="fas fa-chevron-left mr-2"></i><%= t('previous') %>
                             </button>
                             <button id="next-btn" onclick="nextContent()" disabled
                                     class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
-                                ถัดไป<i class="fas fa-chevron-right ml-2"></i>
+                                <%= t('next') %><i class="fas fa-chevron-right ml-2"></i>
                             </button>
                         </div>
                     </div>
@@ -87,17 +87,17 @@
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-500">ระยะเวลาที่ใช้:</span>
+                            <span class="text-sm text-gray-500"><%= t('timeSpent') %>:</span>
                             <span id="time-spent" class="text-sm font-medium text-gray-900">00:00:00</span>
                         </div>
                         <div class="flex items-center space-x-3">
                             <button onclick="resetProgress()"
                                     class="text-sm text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-redo mr-1"></i>รีเซ็ตความก้าวหน้า
+                                <i class="fas fa-redo mr-1"></i><%= t('resetProgress') %>
                             </button>
                             <button id="complete-btn" onclick="markAsCompleted()"
                                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-check mr-2"></i>ทำเครื่องหมายเสร็จสิ้น
+                                <i class="fas fa-check mr-2"></i><%= t('markAsCompleted') %>
                             </button>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">
-                        <i class="fas fa-comments mr-2 text-ruxchai-primary"></i>การสนทนา
+                        <i class="fas fa-comments mr-2 text-ruxchai-primary"></i><%= t('discussion') %>
                     </h3>
                 </div>
 
@@ -116,13 +116,13 @@
                 <div class="p-6 border-b border-gray-200">
                     <form id="comment-form" class="space-y-4">
                         <div>
-                            <textarea id="comment-text" name="comment" rows="3" placeholder="แสดงความคิดเห็นหรือถามคำถาม..."
+                            <textarea id="comment-text" name="comment" rows="3" placeholder="<%= t('commentPlaceholder') %>"
                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"></textarea>
                         </div>
                         <div class="flex justify-end">
                             <button type="submit"
                                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:opacity-90">
-                                <i class="fas fa-paper-plane mr-2"></i>โพสต์ความคิดเห็น
+                                <i class="fas fa-paper-plane mr-2"></i><%= t('postComment') %>
                             </button>
                         </div>
                     </form>
@@ -142,7 +142,7 @@
     <div class="aspect-w-16 aspect-h-9 mb-4">
         <video id="content-video" class="w-full h-full rounded-lg" controls controlsList="nodownload">
             <source src="{{video_url}}" type="video/mp4">
-            เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ
+            <%= t('browserNotSupportVideo') %>
         </video>
     </div>
     <div class="mt-4">
@@ -164,11 +164,11 @@
             <div class="flex space-x-2">
                 <button onclick="openDocument('{{file_url}}')"
                         class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    <i class="fas fa-eye mr-2"></i>ดู
+                    <i class="fas fa-eye mr-2"></i><%= t('view') %>
                 </button>
                 <button onclick="downloadFile('{{file_url}}', '{{title}}')"
                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:opacity-90">
-                    <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                    <i class="fas fa-download mr-2"></i><%= t('download') %>
                 </button>
             </div>
         </div>
@@ -190,19 +190,46 @@
                 <i class="fas fa-question-circle text-blue-500 text-2xl mr-3"></i>
                 <div>
                     <h3 class="text-lg font-medium text-blue-900">{{title}}</h3>
-                    <p class="text-sm text-blue-700">แบบทดสอบความเข้าใจ</p>
+                    <p class="text-sm text-blue-700"><%= t('comprehensionQuiz') %></p>
                 </div>
             </div>
             <button onclick="startQuiz('{{quiz_id}}')"
                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                <i class="fas fa-play mr-2"></i>เริ่มทำแบบทดสอบ
+                <i class="fas fa-play mr-2"></i><%= t('startQuiz') %>
             </button>
         </div>
         <div class="mt-3 text-sm text-blue-700">
-            <p>จำนวนข้อ: {{question_count}} ข้อ • เวลา: {{time_limit}} นาที</p>
+            <p><%= t('questionCount') %>: {{question_count}} <%= t('questions') %> • <%= t('time') %>: {{time_limit}} <%= t('minutes') %></p>
         </div>
     </div>
     <div class="prose max-w-none">{{description}}</div>
+</script>
+
+<script>
+// Translations for client-side JavaScript
+const i18n = {
+    errorLoadingContent: '<%= t("errorLoadingContent") %>',
+    videoType: '<%= t("videoType") %>',
+    documentType: '<%= t("documentType") %>',
+    articleType: '<%= t("articleType") %>',
+    quizType: '<%= t("quizType") %>',
+    audioType: '<%= t("audioType") %>',
+    imageType: '<%= t("imageType") %>',
+    contentType: '<%= t("contentType") %>',
+    cannotDisplayContent: '<%= t("cannotDisplayContent") %>',
+    markedAsCompleted: '<%= t("markedAsCompleted") %>',
+    commentPosted: '<%= t("commentPosted") %>',
+    errorPostingComment: '<%= t("errorPostingComment") %>',
+    noComments: '<%= t("noComments") %>',
+    bookmarked: '<%= t("bookmarked") %>',
+    bookmark: '<%= t("bookmark") %>',
+    courseSaved: '<%= t("courseSaved") %>',
+    courseUnsaved: '<%= t("courseUnsaved") %>',
+    linkCopied: '<%= t("linkCopied") %>',
+    preparingDownload: '<%= t("preparingDownload") %>',
+    confirmResetProgress: '<%= t("confirmResetProgress") %>',
+    progressReset: '<%= t("progressReset") %>'
+};
 </script>
 
 <script>
@@ -259,7 +286,7 @@ async function loadCourseContent() {
         }
     } catch (error) {
         console.error('Error loading course content:', error);
-        showError('เกิดข้อผิดพลาดในการโหลดเนื้อหา');
+        showError(i18n.errorLoadingContent);
     }
 }
 
@@ -345,14 +372,14 @@ function loadContentByIndex(index) {
 
 function getContentTypeText(type) {
     const types = {
-        'video': 'วิดีโอ',
-        'document': 'เอกสาร',
-        'text': 'บทความ',
-        'quiz': 'แบบทดสอบ',
-        'audio': 'เสียง',
-        'image': 'รูปภาพ'
+        'video': i18n.videoType,
+        'document': i18n.documentType,
+        'text': i18n.articleType,
+        'quiz': i18n.quizType,
+        'audio': i18n.audioType,
+        'image': i18n.imageType
     };
-    return types[type] || 'เนื้อหา';
+    return types[type] || i18n.contentType;
 }
 
 function loadContentByType(content) {
@@ -378,7 +405,7 @@ function loadContentByType(content) {
         viewer.innerHTML = `
             <div class="text-center py-8">
                 <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
-                <p class="text-gray-600">ไม่สามารถแสดงเนื้อหาประเภทนี้ได้</p>
+                <p class="text-gray-600">${i18n.cannotDisplayContent}</p>
             </div>
         `;
     }
@@ -462,7 +489,7 @@ async function markCurrentContentCompleted() {
 
 async function markAsCompleted() {
     await markCurrentContentCompleted();
-    showSuccess('ทำเครื่องหมายเสร็จสิ้นแล้ว');
+    showSuccess(i18n.markedAsCompleted);
 }
 
 function startTimeTracking() {
@@ -513,10 +540,10 @@ function setupEventListeners() {
             if (response.ok) {
                 document.getElementById('comment-text').value = '';
                 loadComments();
-                showSuccess('โพสต์ความคิดเห็นแล้ว');
+                showSuccess(i18n.commentPosted);
             }
         } catch (error) {
-            showError('เกิดข้อผิดพลาดในการโพสต์ความคิดเห็น');
+            showError(i18n.errorPostingComment);
         }
     });
 
@@ -544,7 +571,7 @@ function displayComments(comments) {
         container.innerHTML = `
             <div class="p-6 text-center text-gray-500">
                 <i class="fas fa-comments text-gray-300 text-3xl mb-2"></i>
-                <p>ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็น!</p>
+                <p>${i18n.noComments}</p>
             </div>
         `;
         return;
@@ -573,12 +600,12 @@ function toggleBookmark() {
 
     if (icon.classList.contains('far')) {
         icon.className = 'fas fa-bookmark mr-2';
-        text.textContent = 'บันทึกแล้ว';
-        showSuccess('บันทึกหลักสูตรแล้ว');
+        text.textContent = i18n.bookmarked;
+        showSuccess(i18n.courseSaved);
     } else {
         icon.className = 'far fa-bookmark mr-2';
-        text.textContent = 'บันทึก';
-        showSuccess('ยกเลิกการบันทึกแล้ว');
+        text.textContent = i18n.bookmark;
+        showSuccess(i18n.courseUnsaved);
     }
 }
 
@@ -592,20 +619,20 @@ function shareContent() {
         });
     } else {
         navigator.clipboard.writeText(url).then(() => {
-            showSuccess('คัดลอกลิงก์แล้ว');
+            showSuccess(i18n.linkCopied);
         });
     }
 }
 
 function downloadContent() {
     // Implementation for download functionality
-    showSuccess('กำลังเตรียมไฟล์ดาวน์โหลด...');
+    showSuccess(i18n.preparingDownload);
 }
 
 function resetProgress() {
-    if (confirm('คุณต้องการรีเซ็ตความก้าวหน้าของหลักสูตรนี้หรือไม่?')) {
+    if (confirm(i18n.confirmResetProgress)) {
         // Implementation for reset progress
-        showSuccess('รีเซ็ตความก้าวหน้าแล้ว');
+        showSuccess(i18n.progressReset);
     }
 }
 

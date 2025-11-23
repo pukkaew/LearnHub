@@ -131,6 +131,15 @@ const translations = {
         enrollmentConfirm: 'คุณต้องการลงทะเบียนเรียนคอร์สนี้หรือไม่?',
         enrollSuccess: 'ลงทะเบียนเรียนสำเร็จ',
         enrollError: 'เกิดข้อผิดพลาดในการลงทะเบียน',
+        notEnrolledYet: 'คุณยังไม่ได้ลงทะเบียนคอร์สใดๆ',
+        viewRecommended: 'ดูคอร์สแนะนำ',
+        enrolling: 'ลงทะเบียนแล้ว',
+        enterCourse: 'เข้าเรียน',
+        retake: 'เรียนซ้ำ',
+        errorLoadingCourses: 'เกิดข้อผิดพลาดในการโหลดคอร์ส',
+        progress: 'ความคืบหน้า',
+        enroll: 'ลงทะเบียน',
+        completed: 'เรียนจบแล้ว',
 
         // Course Detail Page
         category: 'หมวดหมู่',
@@ -1206,6 +1215,15 @@ const translations = {
         enrollmentConfirm: 'Do you want to enroll in this course?',
         enrollSuccess: 'Successfully enrolled in course',
         enrollError: 'Error enrolling in course',
+        notEnrolledYet: 'You have not enrolled in any courses yet',
+        viewRecommended: 'View recommended courses',
+        enrolling: 'Enrolled',
+        enterCourse: 'Enter Course',
+        retake: 'Retake',
+        errorLoadingCourses: 'Error loading courses',
+        progress: 'Progress',
+        enroll: 'Enroll',
+        completed: 'Completed',
 
         // Course Detail Page
         category: 'Category',

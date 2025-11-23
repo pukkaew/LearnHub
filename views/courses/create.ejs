@@ -180,14 +180,14 @@
                             <input type="hidden" id="description-input" name="description">
                         </div>
                         <div class="flex justify-between mt-1">
-                            <span class="text-xs text-gray-500">ใช้เครื่องมือด้านบนเพื่อจัดรูปแบบข้อความ</span>
-                            <span id="char-count" class="text-xs text-gray-500">0/1000 ตัวอักษร</span>
+                            <span class="text-xs text-gray-500"><%= t('useEditorTools') %></span>
+                            <span id="char-count" class="text-xs text-gray-500">0/1000 <%= t('characters') %></span>
                         </div>
                     </div>
 
                     <!-- Learning Objectives -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('learningObjectivesLabel') %> <span class="text-red-500">*</span> (อย่างน้อย 3 ข้อ)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('learningObjectivesLabel') %> <span class="text-red-500">*</span> (<%= t('atLeast3Items') %>)</label>
                         <div id="learning-objectives" class="space-y-2">
                             <div class="flex items-start space-x-2">
                                 <span class="text-gray-400 mt-2">1.</span>
@@ -218,7 +218,7 @@
                             </div>
                         </div>
                         <button type="button" onclick="addObjective()" class="mt-2 text-sm text-blue-600 hover:text-blue-800">
-                            <i class="fas fa-plus"></i> เพิ่มวัตถุประสงค์
+                            <i class="fas fa-plus"></i> <%= t('addObjective') %>
                         </button>
                     </div>
 
@@ -230,20 +230,20 @@
                                     <span class="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">1</span>
                                     <%= t('targetAudienceLabel') %>
                                 </span>
-                                <span class="text-gray-400 text-xs ml-7">(เลือกก่อน เพื่อกรองตำแหน่ง)</span>
+                                <span class="text-gray-400 text-xs ml-7">(<%= t('selectDepartmentFirst') %>)</span>
                             </label>
                             <select id="target_departments" name="target_departments" multiple size="10"
                                     class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2"
                                     style="height: auto;">
-                                <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
+                                <option value="" disabled class="text-gray-400"><%= t('loadingData') %></option>
                             </select>
                             <div class="mt-2 flex items-center justify-between">
                                 <p class="text-xs text-gray-600">
-                                    <i class="fas fa-mouse-pointer text-blue-500"></i> <strong>คลิก</strong> เพื่อเลือก/ยกเลิก
+                                    <i class="fas fa-mouse-pointer text-blue-500"></i> <strong><%= t('click') %></strong> <%= t('toSelectUnselect') %>
                                 </p>
                                 <button type="button" id="clear-departments-btn"
                                         class="text-xs text-red-600 hover:text-red-800 hover:underline">
-                                    <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                    <i class="fas fa-times-circle"></i> <%= t('clearAll') %>
                                 </button>
                             </div>
                         </div>
@@ -252,22 +252,22 @@
                             <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">
                                 <span class="inline-flex items-center">
                                     <span class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">2</span>
-                                    ตำแหน่งเป้าหมาย
+                                    <%= t('targetPositions') %>
                                 </span>
-                                <span class="text-gray-400 text-xs ml-7">(ไม่เลือก = ทุกตำแหน่ง)</span>
+                                <span class="text-gray-400 text-xs ml-7">(<%= t('noSelectionAllPositions') %>)</span>
                             </label>
                             <select id="target_positions" name="target_positions" multiple size="10"
                                     class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-200 p-2"
                                     style="height: auto;">
-                                <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
+                                <option value="" disabled class="text-gray-400"><%= t('loadingData') %></option>
                             </select>
                             <div class="mt-2 flex items-center justify-between">
                                 <p class="text-xs text-gray-600">
-                                    <i class="fas fa-filter text-green-500"></i> กรองตามหน่วยงานที่เลือก
+                                    <i class="fas fa-filter text-green-500"></i> <%= t('filterBySelectedDepartments') %>
                                 </p>
                                 <button type="button" id="clear-positions-btn"
                                         class="text-xs text-red-600 hover:text-red-800 hover:underline">
-                                    <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                    <i class="fas fa-times-circle"></i> <%= t('clearAll') %>
                                 </button>
                             </div>
                         </div>
@@ -301,8 +301,8 @@
                             <label for="max_enrollments" class="block text-sm font-medium text-gray-700 mb-2"><%= t('maxEnrollmentsLabel') %></label>
                             <input type="number" id="max_enrollments" name="max_enrollments" min="1"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                   placeholder="ไม่จำกัด">
-                            <p class="text-xs text-gray-500 mt-1">ปล่อยว่างหากไม่จำกัดจำนวน</p>
+                                   placeholder="<%= t('unlimited') %>">
+                            <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankForUnlimited') %></p>
                         </div>
                     </div>
                 </div>
@@ -314,28 +314,28 @@
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">
                         <i class="fas fa-photo-video mr-2 text-ruxchai-primary"></i><%= t('step') %> 3: <%= t('courseContentLabel') %>
                     </h3>
-                    <p class="text-gray-600 mb-6">อัปโหลดสื่อการสอนและจัดการบทเรียน</p>
+                    <p class="text-gray-600 mb-6"><%= t('uploadMediaAndManageLessons') %></p>
                 </div>
 
                 <div class="space-y-6">
                     <!-- Course Cover Image -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">รูปหน้าปกหลักสูตร <span class="text-gray-400 text-xs">(ไม่บังคับ)</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('courseCoverImage') %> <span class="text-gray-400 text-xs">(<%= t('optional') %>)</span></label>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
                             <div class="flex items-center space-x-6">
                                 <div class="flex-shrink-0">
                                     <img id="course-image-preview" class="h-40 w-64 object-cover rounded-lg bg-gray-100"
                                          src="/images/course-default.svg"
                                          alt="Course Cover">
-                                    <p class="text-xs text-gray-500 mt-2 text-center">รูปที่จะแสดงหากไม่อัปโหลด</p>
+                                    <p class="text-xs text-gray-500 mt-2 text-center"><%= t('defaultImageIfNotUploaded') %></p>
                                 </div>
                                 <div class="flex-1">
                                     <input type="file" id="course_image" name="course_image" accept="image/*"
                                            class="hidden" onchange="previewCourseImage(this)">
                                     <label for="course_image" class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                        <i class="fas fa-cloud-upload-alt mr-2"></i>เลือกรูปภาพ
+                                        <i class="fas fa-cloud-upload-alt mr-2"></i><%= t('selectImage') %>
                                     </label>
-                                    <p class="text-xs text-gray-500 mt-2">JPG, PNG ขนาด 16:9 ไม่เกิน 2MB (ไม่บังคับ - จะใช้รูป default หากไม่อัปโหลด)</p>
+                                    <p class="text-xs text-gray-500 mt-2"><%= t('imageRequirements') %></p>
                                 </div>
                             </div>
                         </div>
@@ -343,20 +343,20 @@
 
                     <!-- Introduction Video -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">วิดีโอแนะนำหลักสูตร</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('introductionVideo') %></label>
                         <div class="border border-gray-300 rounded-lg p-4">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <input type="file" id="intro_video" name="intro_video" accept="video/*" class="hidden">
                                     <label for="intro_video" class="cursor-pointer inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
-                                        <i class="fas fa-video mr-2"></i>อัปโหลดวิดีโอ
+                                        <i class="fas fa-video mr-2"></i><%= t('uploadVideo') %>
                                     </label>
-                                    <span class="ml-3 text-sm text-gray-600">หรือ</span>
-                                    <input type="text" name="intro_video_url" placeholder="ใส่ลิงก์ YouTube/Vimeo"
+                                    <span class="ml-3 text-sm text-gray-600"><%= t('or') %></span>
+                                    <input type="text" name="intro_video_url" placeholder="<%= t('enterYoutubeVimeoLink') %>"
                                            class="ml-3 px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">วิดีโอไม่เกิน 3 นาที (ไฟล์ไม่เกิน 100MB)</p>
+                            <p class="text-xs text-gray-500 mt-2"><%= t('videoRequirements') %></p>
                         </div>
                     </div>
 
@@ -368,7 +368,7 @@
                                 <div class="flex items-start justify-between mb-3">
                                     <div class="flex items-center">
                                         <i class="fas fa-grip-vertical text-gray-400 mr-3 cursor-move"></i>
-                                        <span class="font-medium text-gray-700">บทที่ 1:</span>
+                                        <span class="font-medium text-gray-700"><%= t('lessonNo') %> 1:</span>
                                     </div>
                                     <button type="button" onclick="removeLesson(this)" class="text-red-600 hover:text-red-800">
                                         <i class="fas fa-trash-alt"></i>
@@ -379,21 +379,21 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                                     <input type="text" name="lesson_titles[]"
                                            class="rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                           placeholder="ชื่อบทเรียน">
+                                           placeholder="<%= t('lessonNamePlaceholder') %>">
                                     <input type="number" name="lesson_durations[]" min="1"
                                            class="rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                           placeholder="ระยะเวลา (นาที)">
+                                           placeholder="<%= t('durationMinutes') %>">
                                 </div>
 
                                 <!-- คำอธิบาย -->
                                 <textarea name="lesson_descriptions[]" rows="2"
                                           class="w-full mb-3 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                          placeholder="คำอธิบายบทเรียน"></textarea>
+                                          placeholder="<%= t('lessonDescriptionPlaceholder') %>"></textarea>
 
                                 <!-- วิดีโอบทเรียน -->
                                 <div class="bg-white rounded-md border border-gray-200 p-3 mb-3">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <i class="fas fa-video mr-1 text-blue-600"></i>วิดีโอบทเรียน
+                                        <i class="fas fa-video mr-1 text-blue-600"></i><%= t('lessonVideo') %>
                                     </label>
                                     <div class="space-y-2">
                                         <div class="flex items-center gap-2">
@@ -401,18 +401,18 @@
                                                    class="hidden lesson-video-file" onchange="handleLessonVideoUpload(this)">
                                             <button type="button" onclick="this.previousElementSibling.click()"
                                                     class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
-                                                <i class="fas fa-upload mr-2"></i>อัปโหลดวิดีโอ
+                                                <i class="fas fa-upload mr-2"></i><%= t('uploadVideo') %>
                                             </button>
                                             <span class="text-xs text-gray-500 lesson-video-name"></span>
                                         </div>
                                         <div class="flex items-center">
-                                            <span class="text-xs text-gray-500 mr-2">หรือ</span>
+                                            <span class="text-xs text-gray-500 mr-2"><%= t('or') %></span>
                                             <input type="text" name="lesson_video_urls[]"
                                                    class="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                                   placeholder="ใส่ลิงก์ YouTube/Vimeo (เช่น https://www.youtube.com/watch?v=...)">
+                                                   placeholder="<%= t('lessonVideoUrlPlaceholder') %>">
                                         </div>
                                         <p class="text-xs text-gray-500">
-                                            <i class="fas fa-info-circle mr-1"></i>MP4, AVI, MOV (ไม่เกิน 500MB) หรือใส่ลิงก์วิดีโอ
+                                            <i class="fas fa-info-circle mr-1"></i><%= t('lessonVideoRequirements') %>
                                         </p>
                                     </div>
                                 </div>
@@ -420,7 +420,7 @@
                                 <!-- เอกสารประกอบบทเรียน -->
                                 <div class="bg-white rounded-md border border-gray-200 p-3">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <i class="fas fa-file-pdf mr-1 text-red-600"></i>เอกสารประกอบ
+                                        <i class="fas fa-file-pdf mr-1 text-red-600"></i><%= t('supportingDocuments') %>
                                     </label>
                                     <div class="space-y-2">
                                         <input type="file" name="lesson_documents[]" multiple
@@ -428,11 +428,11 @@
                                                class="hidden lesson-documents-file" onchange="handleLessonDocumentsUpload(this)">
                                         <button type="button" onclick="this.previousElementSibling.click()"
                                                 class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
-                                            <i class="fas fa-paperclip mr-2"></i>แนบเอกสาร
+                                            <i class="fas fa-paperclip mr-2"></i><%= t('attachDocument') %>
                                         </button>
                                         <div class="lesson-documents-list text-xs text-gray-600"></div>
                                         <p class="text-xs text-gray-500">
-                                            <i class="fas fa-info-circle mr-1"></i>PDF, PPT, DOC, Excel (ไม่เกิน 50MB/ไฟล์)
+                                            <i class="fas fa-info-circle mr-1"></i><%= t('documentRequirements') %>
                                         </p>
                                     </div>
                                 </div>
@@ -442,34 +442,34 @@
                                     <div class="flex items-center justify-between mb-2">
                                         <label class="flex items-center text-sm font-medium text-gray-700">
                                             <input type="checkbox" name="lesson_has_quiz[]" class="rounded border-gray-300 text-ruxchai-primary mr-2" onchange="toggleLessonQuiz(this)">
-                                            <i class="fas fa-clipboard-check mr-1 text-amber-600"></i>เพิ่มแบบทดสอบย่อยท้ายบทเรียน
+                                            <i class="fas fa-clipboard-check mr-1 text-amber-600"></i><%= t('addLessonQuiz') %>
                                         </label>
                                     </div>
                                     <div class="lesson-quiz-options" style="display: none;">
                                         <p class="text-xs text-gray-600 mb-2">
-                                            <i class="fas fa-info-circle mr-1"></i>แบบทดสอบย่อยจะเปิดให้ทำอัตโนมัติเมื่อผู้เรียนดูบทเรียนจบ
+                                            <i class="fas fa-info-circle mr-1"></i><%= t('lessonQuizNote') %>
                                         </p>
                                         <div class="grid grid-cols-2 gap-2">
                                             <div>
-                                                <label class="text-xs text-gray-600">จำนวนข้อ</label>
+                                                <label class="text-xs text-gray-600"><%= t('numberOfQuestions') %></label>
                                                 <input type="number" name="lesson_quiz_questions[]" min="1" value="5"
                                                        class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                                        placeholder="5">
                                             </div>
                                             <div>
-                                                <label class="text-xs text-gray-600">เวลาทำ (นาที)</label>
+                                                <label class="text-xs text-gray-600"><%= t('timeLimit') %></label>
                                                 <input type="number" name="lesson_quiz_duration[]" min="1" value="10"
                                                        class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                                        placeholder="10">
                                             </div>
                                             <div>
-                                                <label class="text-xs text-gray-600">คะแนนผ่าน (%)</label>
+                                                <label class="text-xs text-gray-600"><%= t('passingScorePercent') %></label>
                                                 <input type="number" name="lesson_quiz_passing[]" min="0" max="100" value="60"
                                                        class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                                        placeholder="60">
                                             </div>
                                             <div>
-                                                <label class="text-xs text-gray-600">ทำได้กี่ครั้ง</label>
+                                                <label class="text-xs text-gray-600"><%= t('attemptsAllowed') %></label>
                                                 <input type="number" name="lesson_quiz_attempts[]" min="1" value="3"
                                                        class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                                        placeholder="3">
@@ -478,11 +478,11 @@
                                         <div class="mt-2 flex items-center gap-3">
                                             <label class="flex items-center text-xs text-gray-600">
                                                 <input type="checkbox" name="lesson_quiz_required[]" class="rounded border-gray-300 text-ruxchai-primary mr-1">
-                                                ต้องทำก่อนไปบทถัดไป
+                                                <%= t('requiredBeforeNextLesson') %>
                                             </label>
                                             <label class="flex items-center text-xs text-gray-600">
                                                 <input type="checkbox" name="lesson_quiz_graded[]" class="rounded border-gray-300 text-ruxchai-primary mr-1">
-                                                นับคะแนนรวม
+                                                <%= t('countTowardsTotal') %>
                                             </label>
                                         </div>
                                     </div>
@@ -505,13 +505,13 @@
                             <label for="course_materials" class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
                                 <i class="fas fa-paperclip mr-2"></i><%= t('addMaterial') %>
                             </label>
-                            <p class="text-xs text-gray-500 mt-2">PDF, PPT, DOC (ไม่เกิน 50MB/ไฟล์)</p>
+                            <p class="text-xs text-gray-500 mt-2"><%= t('materialFileRequirements') %></p>
                         </div>
                     </div>
 
                     <!-- External Links -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ลิงก์ภายนอก</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('externalLinks') %></label>
                         <div id="external-links" class="space-y-2">
                             <div class="flex space-x-2">
                                 <input type="url" name="external_links[]"
@@ -523,7 +523,7 @@
                             </div>
                         </div>
                         <button type="button" onclick="addExternalLink()" class="mt-2 text-sm text-blue-600 hover:text-blue-800">
-                            <i class="fas fa-plus"></i> เพิ่มลิงก์
+                            <i class="fas fa-plus"></i> <%= t('addLink') %>
                         </button>
                     </div>
                 </div>
@@ -535,28 +535,28 @@
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">
                         <i class="fas fa-tasks mr-2 text-ruxchai-primary"></i><%= t('step') %> 4: <%= t('assessmentConfiguration') %>
                     </h3>
-                    <p class="text-gray-600 mb-6">กำหนดวิธีการประเมินผลและเกณฑ์การผ่าน</p>
+                    <p class="text-gray-600 mb-6"><%= t('configureAssessmentAndCriteria') %></p>
                 </div>
 
                 <div class="space-y-6">
                     <!-- Assessment Type -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">รูปแบบการประเมิน <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('assessmentFormat') %> <span class="text-red-500">*</span></label>
                         <div class="space-y-2">
                             <label class="flex items-center">
                                 <input type="radio" name="assessment_type" value="none" checked onchange="toggleTestOptions()"
                                        class="mr-2 text-ruxchai-primary focus:ring-ruxchai-primary">
-                                <span class="text-sm">ไม่มีการประเมิน (เรียนจบอัตโนมัติ)</span>
+                                <span class="text-sm"><%= t('noAssessment') %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="radio" name="assessment_type" value="existing" onchange="toggleTestOptions()"
                                        class="mr-2 text-ruxchai-primary focus:ring-ruxchai-primary">
-                                <span class="text-sm">เลือกข้อสอบที่มีอยู่แล้ว</span>
+                                <span class="text-sm"><%= t('selectExistingTest') %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="radio" name="assessment_type" value="create_new" onchange="toggleTestOptions()"
                                        class="mr-2 text-ruxchai-primary focus:ring-ruxchai-primary">
-                                <span class="text-sm">สร้างข้อสอบใหม่</span>
+                                <span class="text-sm"><%= t('createNewTest') %></span>
                             </label>
                         </div>
                     </div>
@@ -567,16 +567,16 @@
                             <i class="fas fa-clipboard-list mr-2"></i><%= t('selectTest') %>
                         </h4>
                         <div>
-                            <label for="selected_test_id" class="block text-sm font-medium text-gray-700 mb-2">ข้อสอบ</label>
+                            <label for="selected_test_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('test') %></label>
                             <select id="selected_test_id" name="test_id"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value="">-- เลือกข้อสอบ --</option>
+                                <option value="">-- <%= t('selectTest') %> --</option>
                                 <!-- Tests will be loaded here via JavaScript -->
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">เลือกข้อสอบที่สร้างไว้แล้วในระบบ หรือจะไปจัดการข้อสอบได้ที่เมนู "ข้อสอบ"</p>
+                            <p class="text-xs text-gray-500 mt-1"><%= t('selectTestNote') %></p>
                         </div>
                         <div id="selected-test-info" class="mt-3 p-3 bg-blue-50 rounded-md" style="display: none;">
-                            <p class="text-sm text-gray-700"><strong>รายละเอียด:</strong></p>
+                            <p class="text-sm text-gray-700"><strong><%= t('details') %>:</strong></p>
                             <p class="text-sm text-gray-600 mt-1" id="test-info-detail"></p>
                         </div>
                     </div>
@@ -590,7 +590,7 @@
                         <div class="space-y-6">
                             <!-- Test Type Selection -->
                             <div class="bg-gray-50 p-4 rounded-md">
-                                <label for="new_test_type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทข้อสอบ <span class="text-red-500">*</span></label>
+                                <label for="new_test_type" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testTypeLabel') %> <span class="text-red-500">*</span></label>
                                 <select id="new_test_type" name="new_test_type" onchange="handleTestTypeChange()"
                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
 
@@ -621,17 +621,17 @@
 
                                 <!-- Test Type Description -->
                                 <div id="test-type-description" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                                    <p class="text-sm text-blue-900 font-medium mb-1" id="test-type-title">สอบปลายภาค (Final Exam)</p>
-                                    <p class="text-xs text-blue-800" id="test-type-detail">ข้อสอบหลักที่ต้องทำเพื่อจบหลักสูตร นับคะแนน 40-50% ต้องผ่านถึงจะได้ Certificate</p>
+                                    <p class="text-sm text-blue-900 font-medium mb-1" id="test-type-title"><%= t('testTypes.final_assessment') %></p>
+                                    <p class="text-xs text-blue-800" id="test-type-detail"><%= t('testTypeDescriptions.final_assessment') %></p>
                                     <div class="mt-2 flex flex-wrap gap-2" id="test-type-tags">
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                            <i class="fas fa-check-circle mr-1"></i> นับคะแนน
+                                            <i class="fas fa-check-circle mr-1"></i> <%= t('graded') %>
                                         </span>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                            <i class="fas fa-exclamation-circle mr-1"></i> ต้องทำ
+                                            <i class="fas fa-exclamation-circle mr-1"></i> <%= t('required') %>
                                         </span>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                            <i class="fas fa-redo mr-1"></i> ทำซ้ำได้ 1 ครั้ง
+                                            <i class="fas fa-redo mr-1"></i> <%= t('retake1Time') %>
                                         </span>
                                     </div>
                                 </div>
@@ -639,97 +639,97 @@
 
                             <!-- Basic Information -->
                             <div>
-                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">ข้อมูลพื้นฐาน</h5>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2"><%= t('basicInfo') %></h5>
                                 <div class="space-y-4">
                                     <div>
-                                        <label for="new_test_name" class="block text-sm font-medium text-gray-700 mb-2">ชื่อข้อสอบ <span class="text-red-500">*</span></label>
+                                        <label for="new_test_name" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testName') %> <span class="text-red-500">*</span></label>
                                         <input type="text" id="new_test_name" name="new_test_name"
                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                               placeholder="เช่น แบบทดสอบท้ายหลักสูตร">
+                                               placeholder="<%= t('testNamePlaceholder') %>">
                                     </div>
 
                                     <div>
-                                        <label for="new_test_description" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบาย</label>
+                                        <label for="new_test_description" class="block text-sm font-medium text-gray-700 mb-2"><%= t('description') %></label>
                                         <textarea id="new_test_description" name="new_test_description" rows="2"
                                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                                  placeholder="คำอธิบายเกี่ยวกับข้อสอบ"></textarea>
+                                                  placeholder="<%= t('testDescriptionPlaceholder') %>"></textarea>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Test Settings -->
                             <div>
-                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">การตั้งค่าข้อสอบ</h5>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2"><%= t('testSettings') %></h5>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label for="new_passing_score" class="block text-sm font-medium text-gray-700 mb-2"><%= t('passingScoreLabel') %> (%)</label>
-                                        <input type="number" id="new_passing_score" name="new_passing_score" min="0" max="100" placeholder="เช่น 70"
+                                        <input type="number" id="new_passing_score" name="new_passing_score" min="0" max="100" placeholder="<%= t('exampleValue70') %>"
                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ</p>
+                                        <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankIfNotSpecify') %></p>
                                     </div>
                                     <div>
                                         <label for="new_max_attempts" class="block text-sm font-medium text-gray-700 mb-2"><%= t('maxAttemptsLabel') %></label>
-                                        <input type="number" id="new_max_attempts" name="new_max_attempts" min="1" placeholder="เช่น 3"
+                                        <input type="number" id="new_max_attempts" name="new_max_attempts" min="1" placeholder="<%= t('exampleValue3') %>"
                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ (ไม่จำกัด)</p>
+                                        <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankForUnlimitedAttempts') %></p>
                                     </div>
                                     <div>
-                                        <label for="new_test_duration" class="block text-sm font-medium text-gray-700 mb-2">เวลาในการทำข้อสอบ (นาที)</label>
+                                        <label for="new_test_duration" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testDuration') %></label>
                                         <input type="number" id="new_test_duration" name="new_test_duration" min="1" value="60"
                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                     </div>
                                     <div>
-                                        <label for="new_show_answer" class="block text-sm font-medium text-gray-700 mb-2">การแสดงเฉลย</label>
+                                        <label for="new_show_answer" class="block text-sm font-medium text-gray-700 mb-2"><%= t('showAnswers') %></label>
                                         <select id="new_show_answer" name="new_show_answer"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                            <option value="immediately">ทันทีหลังส่ง</option>
-                                            <option value="after_close">หลังปิดการสอบ</option>
-                                            <option value="never">ไม่แสดงเฉลย</option>
+                                            <option value="immediately"><%= t('immediately') %></option>
+                                            <option value="after_close"><%= t('afterClose') %></option>
+                                            <option value="never"><%= t('never') %></option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label for="new_score_weight" class="block text-sm font-medium text-gray-700 mb-2">น้ำหนักคะแนน (%)</label>
-                                        <input type="number" id="new_score_weight" name="new_score_weight" min="0" max="100" placeholder="เช่น 40"
+                                        <label for="new_score_weight" class="block text-sm font-medium text-gray-700 mb-2"><%= t('scoreWeight') %></label>
+                                        <input type="number" id="new_score_weight" name="new_score_weight" min="0" max="100" placeholder="<%= t('exampleValue40') %>"
                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <p class="text-xs text-gray-500 mt-1">น้ำหนักคะแนนต่อคะแนนรวมของหลักสูตร (ถ้านับคะแนน)</p>
+                                        <p class="text-xs text-gray-500 mt-1"><%= t('scoreWeightNote') %></p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Test Properties -->
                             <div>
-                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">คุณสมบัติข้อสอบ</h5>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2"><%= t('testProperties') %></h5>
                                 <div class="space-y-3">
                                     <label class="flex items-start">
                                         <input type="checkbox" id="new_is_graded" name="new_is_graded" checked
                                                class="mt-1 mr-3 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
                                         <div>
-                                            <span class="text-sm font-medium text-gray-700">นับคะแนน</span>
-                                            <p class="text-xs text-gray-600 mt-0.5">คะแนนจากข้อสอบนี้จะนับเป็นคะแนนในหลักสูตร</p>
+                                            <span class="text-sm font-medium text-gray-700"><%= t('graded') %></span>
+                                            <p class="text-xs text-gray-600 mt-0.5"><%= t('gradedNote') %></p>
                                         </div>
                                     </label>
                                     <label class="flex items-start">
                                         <input type="checkbox" id="new_is_required" name="new_is_required" checked
                                                class="mt-1 mr-3 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
                                         <div>
-                                            <span class="text-sm font-medium text-gray-700">บังคับทำ</span>
-                                            <p class="text-xs text-gray-600 mt-0.5">ผู้เรียนต้องทำข้อสอบนี้ (แม้จะไม่นับคะแนนก็ตาม)</p>
+                                            <span class="text-sm font-medium text-gray-700"><%= t('requiredTest') %></span>
+                                            <p class="text-xs text-gray-600 mt-0.5"><%= t('requiredTestNote') %></p>
                                         </div>
                                     </label>
                                     <label class="flex items-start">
                                         <input type="checkbox" id="new_is_passing_required" name="new_is_passing_required" checked
                                                class="mt-1 mr-3 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
                                         <div>
-                                            <span class="text-sm font-medium text-gray-700">ต้องผ่านถึงจะจบหลักสูตร</span>
-                                            <p class="text-xs text-gray-600 mt-0.5">ผู้เรียนต้องทำคะแนนให้ได้ตามเกณฑ์ผ่าน จึงจะถือว่าจบหลักสูตร</p>
+                                            <span class="text-sm font-medium text-gray-700"><%= t('passingRequired') %></span>
+                                            <p class="text-xs text-gray-600 mt-0.5"><%= t('passingRequiredNote') %></p>
                                         </div>
                                     </label>
                                     <label class="flex items-start">
                                         <input type="checkbox" id="new_show_score_breakdown" name="new_show_score_breakdown"
                                                class="mt-1 mr-3 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
                                         <div>
-                                            <span class="text-sm font-medium text-gray-700">แสดงรายละเอียดคะแนน</span>
-                                            <p class="text-xs text-gray-600 mt-0.5">แสดงคะแนนแยกตามหมวดหมู่/ประเภทคำถาม</p>
+                                            <span class="text-sm font-medium text-gray-700"><%= t('showScoreBreakdown') %></span>
+                                            <p class="text-xs text-gray-600 mt-0.5"><%= t('showScoreBreakdownNote') %></p>
                                         </div>
                                     </label>
                                 </div>
@@ -737,71 +737,71 @@
 
                             <!-- Available Dates -->
                             <div>
-                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">ช่วงเวลาเปิดข้อสอบ</h5>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2"><%= t('testAvailability') %></h5>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label for="new_available_from" class="block text-sm font-medium text-gray-700 mb-2">เปิดให้ทำตั้งแต่</label>
+                                        <label for="new_available_from" class="block text-sm font-medium text-gray-700 mb-2"><%= t('availableFrom') %></label>
                                         <input type="text" id="new_available_from" name="new_available_from"
                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                               placeholder="เลือกวันเวลา">
-                                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าต้องการเปิดทันที</p>
+                                               placeholder="<%= t('selectDateTime') %>">
+                                        <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankForImmediate') %></p>
                                     </div>
                                     <div>
-                                        <label for="new_available_until" class="block text-sm font-medium text-gray-700 mb-2">ปิดข้อสอบเมื่อ</label>
+                                        <label for="new_available_until" class="block text-sm font-medium text-gray-700 mb-2"><%= t('availableUntil') %></label>
                                         <input type="text" id="new_available_until" name="new_available_until"
                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                               placeholder="เลือกวันเวลา">
-                                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่มีกำหนดปิด</p>
+                                               placeholder="<%= t('selectDateTime') %>">
+                                        <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankForNoEndDate') %></p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Test Behavior -->
                             <div>
-                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">พฤติกรรมข้อสอบ</h5>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2"><%= t('testBehavior') %></h5>
                                 <div class="space-y-3">
                                     <label class="flex items-center">
                                         <input type="checkbox" id="new_randomize_questions" name="new_randomize_questions" checked
                                                class="mr-2 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="text-sm text-gray-700">สุ่มลำดับข้อสอบ</span>
+                                        <span class="text-sm text-gray-700"><%= t('randomizeQuestions') %></span>
                                     </label>
                                     <label class="flex items-center">
                                         <input type="checkbox" id="new_randomize_choices" name="new_randomize_choices" checked
                                                class="mr-2 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="text-sm text-gray-700">สุ่มลำดับตัวเลือก</span>
+                                        <span class="text-sm text-gray-700"><%= t('randomizeChoices') %></span>
                                     </label>
                                     <label class="flex items-center">
                                         <input type="checkbox" id="new_show_results_immediately" name="new_show_results_immediately" checked
                                                class="mr-2 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="text-sm text-gray-700">แสดงผลคะแนนทันทีหลังส่งข้อสอบ</span>
+                                        <span class="text-sm text-gray-700"><%= t('showResultsImmediately') %></span>
                                     </label>
                                 </div>
                             </div>
 
                             <!-- Proctoring Options -->
                             <div>
-                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">การคุมสอบ (Proctoring)</h5>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2"><%= t('proctoring') %></h5>
                                 <div class="space-y-4">
                                     <label class="flex items-center">
                                         <input type="checkbox" id="new_enable_proctoring" name="new_enable_proctoring"
                                                onchange="toggleProctoringOptions()"
                                                class="mr-2 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="text-sm text-gray-700">เปิดใช้งานระบบคุมสอบ</span>
+                                        <span class="text-sm text-gray-700"><%= t('enableProctoring') %></span>
                                     </label>
 
                                     <div id="proctoring-options" style="display: none;" class="ml-6 space-y-3">
                                         <div>
-                                            <label for="new_proctoring_strictness" class="block text-sm font-medium text-gray-700 mb-2">ระดับความเข้มงวด</label>
+                                            <label for="new_proctoring_strictness" class="block text-sm font-medium text-gray-700 mb-2"><%= t('proctoringStrictness') %></label>
                                             <select id="new_proctoring_strictness" name="new_proctoring_strictness"
                                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                                <option value="low">ต่ำ - เตือนเมื่อสลับหน้าต่าง</option>
-                                                <option value="medium" selected>กลาง - บันทึกการสลับหน้าต่าง</option>
-                                                <option value="high">สูง - ส่งข้อสอบอัตโนมัติเมื่อสลับหน้าต่าง</option>
+                                                <option value="low"><%= t('strictnessLow') %></option>
+                                                <option value="medium" selected><%= t('strictnessMedium') %></option>
+                                                <option value="high"><%= t('strictnessHigh') %></option>
                                             </select>
                                         </div>
                                         <div class="text-xs text-gray-600 bg-blue-50 p-3 rounded">
                                             <i class="fas fa-info-circle mr-1"></i>
-                                            <strong>หมายเหตุ:</strong> ระบบคุมสอบจะติดตามการสลับหน้าต่าง, การคัดลอก-วาง, และพฤติกรรมต้องสงสัยอื่นๆ
+                                            <strong><%= t('note') %>:</strong> <%= t('proctoringNote') %>
                                         </div>
                                     </div>
                                 </div>
@@ -810,7 +810,7 @@
                             <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3">
                                 <p class="text-sm text-yellow-800">
                                     <i class="fas fa-info-circle mr-1"></i>
-                                    <strong>หมายเหตุ:</strong> หลังจากสร้างหลักสูตรแล้ว คุณสามารถเพิ่มคำถามในข้อสอบได้ที่เมนู "ข้อสอบ"
+                                    <strong><%= t('note') %>:</strong> <%= t('addQuestionsLaterNote') %>
                                 </p>
                             </div>
                         </div>
@@ -818,12 +818,12 @@
 
                     <!-- Prerequisites Courses -->
                     <div>
-                        <label for="prerequisites" class="block text-sm font-medium text-gray-700 mb-2">หลักสูตรที่ต้องผ่านก่อน</label>
+                        <label for="prerequisites" class="block text-sm font-medium text-gray-700 mb-2"><%= t('prerequisiteCourses') %></label>
                         <select id="prerequisites" name="prerequisites[]" multiple
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary h-32">
                             <!-- Prerequisites will be loaded here -->
                         </select>
-                        <p class="text-xs text-gray-500 mt-1">กด Ctrl เพื่อเลือกหลายหลักสูตร</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('ctrlToSelectMultiple') %></p>
                     </div>
 
                     <!-- Certificate Settings -->
@@ -839,9 +839,9 @@
                             <select id="certificate_validity" name="certificate_validity"
                                     class="w-full md:w-1/2 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 <option value="unlimited"><%= t('unlimitedValidity') %></option>
-                                <option value="1year">1 ปี</option>
-                                <option value="2years">2 ปี</option>
-                                <option value="3years">3 ปี</option>
+                                <option value="1year"><%= t('oneYear') %></option>
+                                <option value="2years"><%= t('twoYears') %></option>
+                                <option value="3years"><%= t('threeYears') %></option>
                             </select>
                         </div>
                     </div>
@@ -855,27 +855,27 @@
                                     <i class="far fa-calendar-alt mr-1"></i><%= t('enrollmentStartLabel') %>
                                 </label>
                                 <input type="text" id="enrollment_start" name="enrollment_start"
-                                       placeholder="เลือกวันที่และเวลา"
+                                       placeholder="<%= t('selectDateAndTime') %>"
                                        class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                        readonly>
-                                <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
+                                <p class="text-xs text-gray-500 mt-1"><%= t('clickToSelectDateTime') %></p>
                             </div>
                             <div>
                                 <label for="enrollment_end" class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="far fa-calendar-alt mr-1"></i><%= t('enrollmentEndLabel') %>
                                 </label>
                                 <input type="text" id="enrollment_end" name="enrollment_end"
-                                       placeholder="เลือกวันที่และเวลา"
+                                       placeholder="<%= t('selectDateAndTime') %>"
                                        class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                        readonly>
-                                <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
+                                <p class="text-xs text-gray-500 mt-1"><%= t('clickToSelectDateTime') %></p>
                             </div>
                         </div>
                         <div class="mt-4">
                             <label class="flex items-center">
                                 <input type="checkbox" name="auto_enroll"
                                        class="mr-2 rounded text-ruxchai-primary focus:ring-ruxchai-primary">
-                                <span class="text-sm text-gray-700">ลงทะเบียนอัตโนมัติสำหรับพนักงานใหม่</span>
+                                <span class="text-sm text-gray-700"><%= t('autoEnrollNewEmployees') %></span>
                             </label>
                         </div>
                     </div>

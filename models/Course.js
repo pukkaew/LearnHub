@@ -52,7 +52,7 @@ class Course {
                                WHEN p.position_name IS NOT NULL AND ou.unit_name_th IS NOT NULL THEN CONCAT(p.position_name, ' - ', ou.unit_name_th)
                                WHEN p.position_name IS NOT NULL THEN p.position_name
                                WHEN ou.unit_name_th IS NOT NULL THEN ou.unit_name_th
-                               ELSE 'ผู้สอน'
+                               ELSE NULL
                            END as instructor_title,
                            (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id) as enrolled_count,
                            (SELECT AVG(CAST(grade as FLOAT)) FROM user_courses
@@ -131,9 +131,9 @@ class Course {
 
             // Add field aliases and defaults for view compatibility
             course.instructor_avatar = course.instructor_image;
-            course.instructor_title = course.instructor_title || 'ผู้สอน';
+            course.instructor_title = course.instructor_title || null;
             course.instructor_bio = course.instructor_bio || '';
-            course.prerequisites_text = course.prerequisite_knowledge || 'ไม่มีความต้องการพื้นฐานพิเศษ';
+            course.prerequisites_text = course.prerequisite_knowledge || '';
             course.full_description = course.description;
             course.rating = course.avg_rating || 0;
             course.rating_count = course.rating_count || 0;

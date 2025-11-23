@@ -63,7 +63,10 @@
       "Bash(timeout:*)",
       "Bash(copy viewscoursescategories.ejs viewscoursescategories.ejs.backup)",
       "Bash(copy:*)",
-      "Bash(copy viewscoursescreate.ejs viewscoursescreate.ejs.backup)"
+      "Bash(copy viewscoursescreate.ejs viewscoursescreate.ejs.backup)",
+      "Bash(grep:*)",
+      "Bash(cmd.exe /c \"type D:\\App\\LearnHub\\views\\courses\\detail.ejs | findstr /N /C:ภาษา /C:บังคับ /C:เลือก /C:แนะนำ /C:ทั้งหมด\")",
+      "Bash(cmd.exe /c \"type D:\\App\\LearnHub\\models\\Course.js | findstr /N /C:ไม่ /C:ผู้ /C:หลักสูตร /C:ข้อมูล /C:เกิด /C:ไม่พบ\")"
     ],
     "deny": [],
     "ask": []

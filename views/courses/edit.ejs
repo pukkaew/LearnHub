@@ -6,16 +6,16 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">
-                    <i class="fas fa-edit mr-3 text-ruxchai-primary"></i>แก้ไขหลักสูตร
+                    <i class="fas fa-edit mr-3 text-ruxchai-primary"></i><%= t('editCourse') %>
                 </h1>
-                <p class="mt-2 text-gray-600">แก้ไขข้อมูลหลักสูตร: <span id="course-title" class="font-medium"></span></p>
+                <p class="mt-2 text-gray-600"><%= t('editCourseData') %>: <span id="course-title" class="font-medium"></span></p>
             </div>
             <div class="flex space-x-3">
                 <a href="/courses" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-arrow-left mr-2"></i>กลับไปรายการ
+                    <i class="fas fa-arrow-left mr-2"></i><%= t('backToCourseList') %>
                 </a>
                 <a id="view-course-link" href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-eye mr-2"></i>ดูหลักสูตร
+                    <i class="fas fa-eye mr-2"></i><%= t('viewCourse') %>
                 </a>
             </div>
         </div>
@@ -41,77 +41,77 @@
             <!-- Course Basic Information -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <i class="fas fa-info-circle mr-2 text-ruxchai-primary"></i>ข้อมูลพื้นฐาน
+                    <i class="fas fa-info-circle mr-2 text-ruxchai-primary"></i><%= t('basicInformation') %>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
-                        <label for="course_name" class="block text-sm font-medium text-gray-700 mb-2">ชื่อหลักสูตร <span class="text-red-500">*</span></label>
+                        <label for="course_name" class="block text-sm font-medium text-gray-700 mb-2"><%= t('courseNameLabel') %> <span class="text-red-500">*</span></label>
                         <input type="text" id="course_name" name="course_name" required
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                     </div>
 
                     <div>
-                        <label for="course_code" class="block text-sm font-medium text-gray-700 mb-2">รหัสหลักสูตร <span class="text-red-500">*</span></label>
+                        <label for="course_code" class="block text-sm font-medium text-gray-700 mb-2"><%= t('courseCodeLabel') %> <span class="text-red-500">*</span></label>
                         <input type="text" id="course_code" name="course_code" required
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                     </div>
 
                     <div>
-                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่ <span class="text-red-500">*</span></label>
+                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('categoryLabel') %> <span class="text-red-500">*</span></label>
                         <select id="category_id" name="category_id" required
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                            <option value="">เลือกหมวดหมู่</option>
+                            <option value=""><%= t('selectCategory') %></option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="difficulty_level" class="block text-sm font-medium text-gray-700 mb-2">ระดับความยาก</label>
+                        <label for="difficulty_level" class="block text-sm font-medium text-gray-700 mb-2"><%= t('difficultyLabel') %></label>
                         <select id="difficulty_level" name="difficulty_level"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                            <option value="Beginner">เริ่มต้น</option>
-                            <option value="Intermediate">ปานกลาง</option>
-                            <option value="Advanced">ขั้นสูง</option>
+                            <option value="Beginner"><%= t('beginnerLevel') %></option>
+                            <option value="Intermediate"><%= t('intermediateLevel') %></option>
+                            <option value="Advanced"><%= t('advancedLevel') %></option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="course_type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทหลักสูตร</label>
+                        <label for="course_type" class="block text-sm font-medium text-gray-700 mb-2"><%= t('courseTypeLabel') %></label>
                         <select id="course_type" name="course_type"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                            <option value="Required">บังคับ</option>
-                            <option value="Elective">เลือกเรียน</option>
-                            <option value="Recommended">แนะนำ</option>
+                            <option value="Required"><%= t('mandatory') %></option>
+                            <option value="Elective"><%= t('elective') %></option>
+                            <option value="Recommended"><%= t('recommended') %></option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="language" class="block text-sm font-medium text-gray-700 mb-2">ภาษา</label>
+                        <label for="language" class="block text-sm font-medium text-gray-700 mb-2"><%= t('teachingLanguageLabel') %></label>
                         <select id="language" name="language"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                            <option value="Thai">ภาษาไทย</option>
-                            <option value="English">ภาษาอังกฤษ</option>
-                            <option value="Both">ทั้งสองภาษา</option>
+                            <option value="Thai"><%= t('thai') %></option>
+                            <option value="English"><%= t('english') %></option>
+                            <option value="Both"><%= t('thaiEnglish') %></option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ระยะเวลา</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('courseDuration') %></label>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <input type="number" id="duration_hours" name="duration_hours" min="0" max="500" placeholder="ชั่วโมง"
+                                <input type="number" id="duration_hours" name="duration_hours" min="0" max="500" placeholder="<%= t('durationHoursLabel') %>"
                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <p class="text-xs text-gray-500 mt-1">ชั่วโมง</p>
+                                <p class="text-xs text-gray-500 mt-1"><%= t('durationHoursLabel') %></p>
                             </div>
                             <div>
-                                <input type="number" id="duration_minutes" name="duration_minutes" min="0" max="59" placeholder="นาที"
+                                <input type="number" id="duration_minutes" name="duration_minutes" min="0" max="59" placeholder="<%= t('durationMinutesLabel') %>"
                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <p class="text-xs text-gray-500 mt-1">นาที</p>
+                                <p class="text-xs text-gray-500 mt-1"><%= t('durationMinutesLabel') %></p>
                             </div>
                         </div>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายหลักสูตร</label>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2"><%= t('courseDescriptionLabel') %></label>
                         <textarea id="description" name="description" rows="4"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"></textarea>
                     </div>
@@ -121,25 +121,25 @@
             <!-- Course Details -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <i class="fas fa-list-ul mr-2 text-ruxchai-primary"></i>รายละเอียดหลักสูตร
+                    <i class="fas fa-list-ul mr-2 text-ruxchai-primary"></i><%= t('courseDetails') %>
                 </h3>
                 <div class="space-y-6">
                     <!-- Learning Objectives -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">วัตถุประสงค์การเรียนรู้</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('learningObjectivesLabel') %></label>
                         <div id="objectives-container" class="space-y-2">
                             <!-- Objectives will be loaded here -->
                         </div>
                         <button type="button" onclick="addObjective()" class="mt-2 inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
-                            <i class="fas fa-plus mr-2"></i>เพิ่มวัตถุประสงค์
+                            <i class="fas fa-plus mr-2"></i><%= t('addObjective') %>
                         </button>
                         <input type="hidden" id="learning_objectives" name="learning_objectives">
                     </div>
 
                     <!-- Prerequisite Knowledge -->
                     <div>
-                        <label for="prerequisite_knowledge" class="block text-sm font-medium text-gray-700 mb-2">ความรู้พื้นฐานที่ต้องมี</label>
-                        <textarea id="prerequisite_knowledge" name="prerequisite_knowledge" rows="3" placeholder="ระบุความรู้พื้นฐานที่ผู้เรียนควรมีก่อนเข้าเรียน"
+                        <label for="prerequisite_knowledge" class="block text-sm font-medium text-gray-700 mb-2"><%= t('prerequisitesLabel') %></label>
+                        <textarea id="prerequisite_knowledge" name="prerequisite_knowledge" rows="3" placeholder="<%= t('prerequisitesPlaceholder') %>"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"></textarea>
                     </div>
 
@@ -149,22 +149,22 @@
                             <label for="target_departments" class="block text-sm font-medium text-gray-700 mb-2">
                                 <span class="inline-flex items-center">
                                     <span class="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">1</span>
-                                    หน่วยงานเป้าหมาย
+                                    <%= t('targetAudienceLabel') %>
                                 </span>
-                                <span class="text-gray-400 text-xs ml-7">(เลือกก่อน เพื่อกรองตำแหน่ง)</span>
+                                <span class="text-gray-400 text-xs ml-7">(<%= t('selectDepartmentFirst') %>)</span>
                             </label>
                             <select id="target_departments" name="target_departments[]" multiple size="10"
                                     class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2"
                                     style="height: auto;">
-                                <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
+                                <option value="" disabled class="text-gray-400"><%= t('loadingData') %></option>
                             </select>
                             <div class="mt-2 flex items-center justify-between">
                                 <p class="text-xs text-gray-600">
-                                    <i class="fas fa-mouse-pointer text-blue-500"></i> <strong>คลิก</strong> เพื่อเลือก/ยกเลิก
+                                    <i class="fas fa-mouse-pointer text-blue-500"></i> <strong><%= t('click') %></strong> <%= t('toSelectUnselect') %>
                                 </p>
                                 <button type="button" id="clear-departments-btn"
                                         class="text-xs text-red-600 hover:text-red-800 hover:underline">
-                                    <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                    <i class="fas fa-times-circle"></i> <%= t('clearAll') %>
                                 </button>
                             </div>
                         </div>
@@ -173,22 +173,22 @@
                             <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">
                                 <span class="inline-flex items-center">
                                     <span class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">2</span>
-                                    ตำแหน่งเป้าหมาย
+                                    <%= t('targetPositions') %>
                                 </span>
-                                <span class="text-gray-400 text-xs ml-7">(ไม่เลือก = ทุกตำแหน่ง)</span>
+                                <span class="text-gray-400 text-xs ml-7">(<%= t('noSelectionAllPositions') %>)</span>
                             </label>
                             <select id="target_positions" name="target_positions[]" multiple size="10"
                                     class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-200 p-2"
                                     style="height: auto;">
-                                <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
+                                <option value="" disabled class="text-gray-400"><%= t('loadingData') %></option>
                             </select>
                             <div class="mt-2 flex items-center justify-between">
                                 <p class="text-xs text-gray-600">
-                                    <i class="fas fa-filter text-green-500"></i> กรองตามหน่วยงานที่เลือก
+                                    <i class="fas fa-filter text-green-500"></i> <%= t('filterBySelectedDepartments') %>
                                 </p>
                                 <button type="button" id="clear-positions-btn"
                                         class="text-xs text-red-600 hover:text-red-800 hover:underline">
-                                    <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                    <i class="fas fa-times-circle"></i> <%= t('clearAll') %>
                                 </button>
                             </div>
                         </div>
@@ -199,7 +199,7 @@
             <!-- Course Image -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <i class="fas fa-image mr-2 text-ruxchai-primary"></i>รูปภาพหลักสูตร
+                    <i class="fas fa-image mr-2 text-ruxchai-primary"></i><%= t('courseImage') %>
                 </h3>
                 <div class="flex items-center space-x-6">
                     <div class="flex-shrink-0">
@@ -207,12 +207,12 @@
                              src="/images/default-avatar.png" alt="Course Image Preview">
                     </div>
                     <div class="flex-1">
-                        <label for="course_image" class="block text-sm font-medium text-gray-700 mb-2">อัปโหลดรูปภาพใหม่</label>
+                        <label for="course_image" class="block text-sm font-medium text-gray-700 mb-2"><%= t('uploadNewImage') %></label>
                         <input type="file" id="course_image" name="course_image" accept="image/*"
                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-ruxchai-primary file:text-white hover:file:bg-blue-700">
-                        <p class="text-xs text-gray-500 mt-1">ขนาดแนะนำ: 800x600 px, ไฟล์ไม่เกิน 2MB</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('imageRequirements') %></p>
                         <button type="button" id="remove-image" class="hidden mt-2 text-sm text-red-600 hover:text-red-800">
-                            <i class="fas fa-trash mr-1"></i>ลบรูปภาพ
+                            <i class="fas fa-trash mr-1"></i><%= t('deleteImage') %>
                         </button>
                     </div>
                 </div>
@@ -221,14 +221,14 @@
             <!-- Course Statistics -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <i class="fas fa-chart-bar mr-2 text-ruxchai-primary"></i>สถิติหลักสูตร
+                    <i class="fas fa-chart-bar mr-2 text-ruxchai-primary"></i><%= t('courseStatistics') %>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-blue-50 rounded-lg p-4">
                         <div class="flex items-center">
                             <i class="fas fa-users text-blue-500 text-xl mr-3"></i>
                             <div>
-                                <p class="text-sm font-medium text-gray-600">ผู้ลงทะเบียน</p>
+                                <p class="text-sm font-medium text-gray-600"><%= t('enrolledStudents') %></p>
                                 <p id="total-enrollments" class="text-2xl font-bold text-blue-600">-</p>
                             </div>
                         </div>
@@ -237,7 +237,7 @@
                         <div class="flex items-center">
                             <i class="fas fa-graduation-cap text-green-500 text-xl mr-3"></i>
                             <div>
-                                <p class="text-sm font-medium text-gray-600">จบหลักสูตรแล้ว</p>
+                                <p class="text-sm font-medium text-gray-600"><%= t('courseCompleted') %></p>
                                 <p id="completed-count" class="text-2xl font-bold text-green-600">-</p>
                             </div>
                         </div>
@@ -246,7 +246,7 @@
                         <div class="flex items-center">
                             <i class="fas fa-star text-yellow-500 text-xl mr-3"></i>
                             <div>
-                                <p class="text-sm font-medium text-gray-600">คะแนนเฉลี่ย</p>
+                                <p class="text-sm font-medium text-gray-600"><%= t('averageScore') %></p>
                                 <p id="avg-score" class="text-2xl font-bold text-yellow-600">-</p>
                             </div>
                         </div>
@@ -255,7 +255,7 @@
                         <div class="flex items-center">
                             <i class="fas fa-percentage text-purple-500 text-xl mr-3"></i>
                             <div>
-                                <p class="text-sm font-medium text-gray-600">อัตราผ่าน</p>
+                                <p class="text-sm font-medium text-gray-600"><%= t('passRate') %></p>
                                 <p id="completion-rate" class="text-2xl font-bold text-purple-600">-</p>
                             </div>
                         </div>
@@ -266,56 +266,56 @@
             <!-- Course Settings -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <i class="fas fa-cogs mr-2 text-ruxchai-primary"></i>การตั้งค่าหลักสูตร
+                    <i class="fas fa-cogs mr-2 text-ruxchai-primary"></i><%= t('courseSettings') %>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="max_enrollments" class="block text-sm font-medium text-gray-700 mb-2">จำนวนผู้เรียนสูงสุด</label>
+                        <label for="max_enrollments" class="block text-sm font-medium text-gray-700 mb-2"><%= t('maxEnrollmentsLabel') %></label>
                         <input type="number" id="max_enrollments" name="max_enrollments" min="1"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                     </div>
 
                     <div>
-                        <label for="passing_score" class="block text-sm font-medium text-gray-700 mb-2">คะแนนผ่าน (%)</label>
-                        <input type="number" id="passing_score" name="passing_score" min="0" max="100" placeholder="เช่น 70"
+                        <label for="passing_score" class="block text-sm font-medium text-gray-700 mb-2"><%= t('passingScoreLabel') %> (%)</label>
+                        <input type="number" id="passing_score" name="passing_score" min="0" max="100" placeholder="<%= t('exampleValue70') %>"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankIfNotSpecify') %></p>
                     </div>
 
                     <div>
-                        <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2">ทำได้สูงสุด (ครั้ง)</label>
-                        <input type="number" id="max_attempts" name="max_attempts" min="1" placeholder="เช่น 3"
+                        <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2"><%= t('maxAttemptsLabel') %></label>
+                        <input type="number" id="max_attempts" name="max_attempts" min="1" placeholder="<%= t('exampleValue3') %>"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่ต้องการระบุ</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankIfNotSpecify') %></p>
                     </div>
 
                     <div>
-                        <label for="certificate_validity" class="block text-sm font-medium text-gray-700 mb-2">อายุใบประกาศนียบัตร (เดือน)</label>
-                        <input type="number" id="certificate_validity" name="certificate_validity" min="1" placeholder="เช่น 12"
+                        <label for="certificate_validity" class="block text-sm font-medium text-gray-700 mb-2"><%= t('certificateValidityMonths') %></label>
+                        <input type="number" id="certificate_validity" name="certificate_validity" min="1" placeholder="<%= t('exampleValue12') %>"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                        <p class="text-xs text-gray-500 mt-1">ปล่อยว่างถ้าไม่จำกัดอายุ</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('leaveBlankForUnlimitedValidity') %></p>
                     </div>
 
                     <div>
                         <label for="enrollment_start" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="far fa-calendar-alt mr-1"></i>วันเริ่มลงทะเบียน
+                            <i class="far fa-calendar-alt mr-1"></i><%= t('enrollmentStartLabel') %>
                         </label>
                         <input type="text" id="enrollment_start" name="enrollment_start"
-                               placeholder="เลือกวันที่และเวลา"
+                               placeholder="<%= t('selectDateAndTime') %>"
                                class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                readonly>
-                        <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('clickToSelectDateTime') %></p>
                     </div>
 
                     <div>
                         <label for="enrollment_end" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="far fa-calendar-alt mr-1"></i>วันสิ้นสุดการลงทะเบียน
+                            <i class="far fa-calendar-alt mr-1"></i><%= t('enrollmentEndLabel') %>
                         </label>
                         <input type="text" id="enrollment_end" name="enrollment_end"
-                               placeholder="เลือกวันที่และเวลา"
+                               placeholder="<%= t('selectDateAndTime') %>"
                                class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                readonly>
-                        <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('clickToSelectDateTime') %></p>
                     </div>
                 </div>
 
@@ -323,19 +323,19 @@
                     <label class="inline-flex items-center">
                         <input type="checkbox" id="is_mandatory" name="is_mandatory"
                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                        <span class="ml-2 text-sm text-gray-700">หลักสูตรบังคับ</span>
+                        <span class="ml-2 text-sm text-gray-700"><%= t('mandatoryCourse') %></span>
                     </label>
 
                     <label class="inline-flex items-center">
                         <input type="checkbox" id="allow_certificate" name="allow_certificate"
                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                        <span class="ml-2 text-sm text-gray-700">ออกใบประกาศนียบัตร</span>
+                        <span class="ml-2 text-sm text-gray-700"><%= t('issueCertificate') %></span>
                     </label>
 
                     <label class="inline-flex items-center">
                         <input type="checkbox" id="is_public" name="is_public"
                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                        <span class="ml-2 text-sm text-gray-700">เปิดให้ลงทะเบียนได้</span>
+                        <span class="ml-2 text-sm text-gray-700"><%= t('openForEnrollment') %></span>
                     </label>
                 </div>
             </div>
@@ -343,26 +343,26 @@
             <!-- Status Management -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <i class="fas fa-toggle-on mr-2 text-ruxchai-primary"></i>การจัดการสถานะ
+                    <i class="fas fa-toggle-on mr-2 text-ruxchai-primary"></i><%= t('statusManagement') %>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">สถานะหลักสูตร</label>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2"><%= t('courseStatus') %></label>
                         <select id="status" name="status"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                            <option value="Draft">ร่าง</option>
-                            <option value="Published">เผยแพร่แล้ว</option>
-                            <option value="Archived">เก็บถาวร</option>
-                            <option value="Suspended">หยุดชั่วคราว</option>
+                            <option value="Draft"><%= t('statusDraft') %></option>
+                            <option value="Published"><%= t('statusPublished') %></option>
+                            <option value="Archived"><%= t('statusArchived') %></option>
+                            <option value="Suspended"><%= t('statusSuspended') %></option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="instructor_name_display" class="block text-sm font-medium text-gray-700 mb-2">ผู้สอน</label>
+                        <label for="instructor_name_display" class="block text-sm font-medium text-gray-700 mb-2"><%= t('instructor') %></label>
                         <input type="text" id="instructor_name_display" readonly
                                class="w-full rounded-md border-gray-300 bg-gray-50 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary cursor-not-allowed">
                         <input type="hidden" id="instructor_id" name="instructor_id">
-                        <p class="text-xs text-gray-500 mt-1">ผู้สอนไม่สามารถเปลี่ยนแปลงได้</p>
+                        <p class="text-xs text-gray-500 mt-1"><%= t('instructorCannotChange') %></p>
                     </div>
                 </div>
             </div>
@@ -370,17 +370,17 @@
             <!-- Danger Zone -->
             <div class="border-b border-red-200 pb-6">
                 <h3 class="text-lg font-medium text-red-900 mb-4">
-                    <i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>การดำเนินการที่เป็นอันตราย
+                    <i class="fas fa-exclamation-triangle mr-2 text-red-600"></i><%= t('dangerZone') %>
                 </h3>
                 <div class="bg-red-50 border border-red-200 rounded-md p-4">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h4 class="text-sm font-medium text-red-800">ลบหลักสูตรถาวร</h4>
-                            <p class="text-sm text-red-600 mt-1">การดำเนินการนี้ไม่สามารถยกเลิกได้ ข้อมูลทั้งหมดจะถูกลบถาวร</p>
+                            <h4 class="text-sm font-medium text-red-800"><%= t('deleteCourseTitle') %></h4>
+                            <p class="text-sm text-red-600 mt-1"><%= t('deleteCourseWarning') %></p>
                         </div>
                         <button type="button" onclick="confirmDeleteCourse()"
                                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
-                            <i class="fas fa-trash mr-2"></i>ลบหลักสูตร
+                            <i class="fas fa-trash mr-2"></i><%= t('deleteCourse') %>
                         </button>
                     </div>
                 </div>
@@ -391,21 +391,21 @@
                 <div class="flex space-x-3">
                     <button type="button" onclick="previewCourse()"
                             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-eye mr-2"></i>ตัวอย่าง
+                        <i class="fas fa-eye mr-2"></i><%= t('preview') %>
                     </button>
                     <button type="button" onclick="duplicateCourse()"
                             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-copy mr-2"></i>คัดลอก
+                        <i class="fas fa-copy mr-2"></i><%= t('duplicate') %>
                     </button>
                 </div>
                 <div class="flex space-x-3">
                     <a href="/courses"
                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        ยกเลิก
+                        <%= t('cancel') %>
                     </a>
                     <button type="submit"
                             class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                        <i class="fas fa-save mr-2"></i>บันทึกการแก้ไข
+                        <i class="fas fa-save mr-2"></i><%= t('saveChanges') %>
                     </button>
                 </div>
             </div>
@@ -446,11 +446,11 @@ async function loadCourseData() {
             populateForm(course);
             loadCourseStats();
         } else {
-            showError('ไม่พบข้อมูลหลักสูตร');
+            showError('<%= t("courseNotFound") %>');
             setTimeout(() => window.location.href = '/courses', 2000);
         }
     } catch (error) {
-        showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+        showError('<%= t("errorLoadingData") %>');
     }
 }
 
@@ -471,7 +471,7 @@ function addObjective(value = '') {
     div.className = 'flex gap-2';
     div.innerHTML = `
         <input type="text" class="objective-input flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-               placeholder="วัตถุประสงค์ข้อที่ ${objectiveCount}" value="${value}">
+               placeholder="<%= t('objectivePlaceholder') %> ${objectiveCount}" value="${value}">
         <button type="button" onclick="removeObjective(this)" class="px-3 py-2 border border-red-300 rounded-md text-red-600 hover:bg-red-50">
             <i class="fas fa-trash"></i>
         </button>
@@ -573,7 +573,7 @@ function populateForm(course) {
     // Set instructor (readonly field - show name, store ID)
     document.getElementById('instructor_id').value = course.instructor_id || '';
     document.getElementById('instructor_name_display').value =
-        course.instructor_name || course.instructor_display_name || 'ไม่ระบุ';
+        course.instructor_name || course.instructor_display_name || '<%= t("notSpecified") %>';
 
     // Set learning objectives
     // Clear existing objectives first
@@ -692,25 +692,25 @@ function showStatusAlert(status) {
         case 'Draft':
             alert.classList.add('bg-yellow-50');
             icon.className = 'fas fa-exclamation-triangle text-yellow-400';
-            message.textContent = 'หลักสูตรนี้อยู่ในสถานะร่าง ยังไม่เปิดให้ผู้ใช้ลงทะเบียน';
+            message.textContent = '<%= t("statusDraftMessage") %>';
             message.className = 'text-sm font-medium text-yellow-800';
             break;
         case 'Published':
             alert.classList.add('bg-green-50');
             icon.className = 'fas fa-check-circle text-green-400';
-            message.textContent = 'หลักสูตรนี้ถูกเผยแพร่แล้ว ผู้ใช้สามารถลงทะเบียนได้';
+            message.textContent = '<%= t("statusPublishedMessage") %>';
             message.className = 'text-sm font-medium text-green-800';
             break;
         case 'Archived':
             alert.classList.add('bg-gray-50');
             icon.className = 'fas fa-archive text-gray-400';
-            message.textContent = 'หลักสูตรนี้ถูกเก็บถาวรแล้ว ไม่สามารถลงทะเบียนใหม่ได้';
+            message.textContent = '<%= t("statusArchivedMessage") %>';
             message.className = 'text-sm font-medium text-gray-800';
             break;
         case 'Suspended':
             alert.classList.add('bg-red-50');
             icon.className = 'fas fa-pause-circle text-red-400';
-            message.textContent = 'หลักสูตรนี้ถูกหยุดชั่วคราว ไม่สามารถลงทะเบียนได้';
+            message.textContent = '<%= t("statusSuspendedMessage") %>';
             message.className = 'text-sm font-medium text-red-800';
             break;
     }
@@ -903,16 +903,16 @@ function setupFormSubmit() {
                     });
                 }
 
-                showSuccess('บันทึกการแก้ไขเรียบร้อยแล้ว');
+                showSuccess('<%= t("saveSuccessful") %>');
                 // Redirect to course detail page after 500ms
                 setTimeout(() => {
                     window.location.href = `/courses/${courseId}`;
                 }, 500);
             } else {
-                showError(result.message || 'เกิดข้อผิดพลาดในการบันทึก');
+                showError(result.message || '<%= t("errorSaving") %>');
             }
         } catch (error) {
-            showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            showError('<%= t("connectionError") %>');
         }
     });
 }
@@ -922,7 +922,7 @@ function previewCourse() {
 }
 
 async function duplicateCourse() {
-    if (confirm('คุณต้องการคัดลอกหลักสูตรนี้หรือไม่?')) {
+    if (confirm('<%= t("confirmDuplicateCourse") %>')) {
         try {
             const response = await fetch(`/courses/api/${courseId}/duplicate`, {
                 method: 'POST'
@@ -931,15 +931,15 @@ async function duplicateCourse() {
             const result = await response.json();
 
             if (result.success) {
-                showSuccess('คัดลอกหลักสูตรเรียบร้อยแล้ว');
+                showSuccess('<%= t("duplicateSuccessful") %>');
                 setTimeout(() => {
                     window.location.href = `/courses/${result.data.course_id}/edit`;
                 }, 1500);
             } else {
-                showError(result.message || 'เกิดข้อผิดพลาดในการคัดลอก');
+                showError(result.message || '<%= t("errorDuplicating") %>');
             }
         } catch (error) {
-            showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            showError('<%= t("connectionError") %>');
         }
     }
 }
@@ -947,7 +947,7 @@ async function duplicateCourse() {
 async function confirmDeleteCourse() {
     const courseName = document.getElementById('course_name').value;
 
-    if (confirm(`คุณแน่ใจหรือไม่ที่จะลบหลักสูตร "${courseName}"?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้ และจะลบข้อมูลทั้งหมดที่เกี่ยวข้อง`)) {
+    if (confirm(`<%= t("confirmDeleteCourseMessage") %> "${courseName}"?\n\n<%= t("deleteActionCannotUndo") %>`)) {
         try {
             const response = await fetch(`/courses/api/${courseId}`, {
                 method: 'DELETE'
@@ -956,15 +956,15 @@ async function confirmDeleteCourse() {
             const result = await response.json();
 
             if (result.success) {
-                showSuccess('ลบหลักสูตรเรียบร้อยแล้ว');
+                showSuccess('<%= t("deleteSuccessful") %>');
                 setTimeout(() => {
                     window.location.href = '/courses';
                 }, 1500);
             } else {
-                showError(result.message || 'เกิดข้อผิดพลาดในการลบ');
+                showError(result.message || '<%= t("errorDeleting") %>');
             }
         } catch (error) {
-            showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            showError('<%= t("connectionError") %>');
         }
     }
 }
@@ -1091,7 +1091,7 @@ function filterPositionsByDepartment() {
         );
 
         if (filteredPositions.length === 0) {
-            posSelect.innerHTML = '<option value="" disabled>ไม่มีตำแหน่งในหน่วยงานที่เลือก</option>';
+            posSelect.innerHTML = '<option value="" disabled><%= t("noPositionsInDepartment") %></option>';
             console.log('⚠️ No positions found for selected departments');
         } else {
             filteredPositions.forEach(position => {
