@@ -1,110 +1,103 @@
-[0m
-[35m[0m
-[0m╔════════════════════════════════════════════════════════════════════╗[0m
-[0m║  🧪 FINAL COMPREHENSIVE TEST - ทดสอบทุก Feature อย่างละเอียด   ║[0m
-[0m╚════════════════════════════════════════════════════════════════════╝[0m
-[0m[0m[0m
-[34m
-======================================================================[0m
-[34m📋 🔐 Login[0m
-[34m======================================================================[0m
-[36m📸 Screenshot: 01-login.png[0m
-[36m📸 Screenshot: 02-dashboard.png[0m
-[32m✅ [F1.1] Login successful[0m
-[34m
-======================================================================[0m
-[34m📋 📚 Navigate to Create Course[0m
-[34m======================================================================[0m
-[36m📸 Screenshot: 03-form-loaded.png[0m
-[32m✅ [F2.1] Create form loaded[0m
-[34m
-======================================================================[0m
-[34m📋 📝 Step 1: Basic Information[0m
-[34m======================================================================[0m
-[36m📸 Screenshot: 04-step1-filled.png[0m
-[36m📸 Screenshot: 05-step2.png[0m
-[32m✅ [F3.1] Step 1 completed[0m
-[34m
-======================================================================[0m
-[34m📋 📄 Step 2: Details + Target Audience[0m
-[34m======================================================================[0m
-[32m✅ [F4.1] Target departments selected[0m
-[36m   → Selected: 1[0m
-[32m✅ [F4.2] Target positions selected[0m
-[36m   → Selected: 1[0m
-[36m📸 Screenshot: 06-step2-filled.png[0m
-[36m📸 Screenshot: 07-step3.png[0m
-[32m✅ [F5.1] Step 2 completed[0m
-[34m
-======================================================================[0m
-[34m📋 🎬 Step 3: Lessons + Quiz[0m
-[34m======================================================================[0m
-[32m✅ [F6.1] Lesson quiz enabled[0m
-[32m✅ [F6.2] Quiz details filled[0m
-[36m📸 Screenshot: 08-step3-filled.png[0m
-[36m📸 Screenshot: 09-step4.png[0m
-[32m✅ [F7.1] Step 3 completed[0m
-[34m
-======================================================================[0m
-[34m📋 📝 Step 4: Assessment[0m
-[34m======================================================================[0m
-[36m📸 Screenshot: 10-assessment.png[0m
-[32m✅ [F8.1] Assessment configured[0m
-[34m
-======================================================================[0m
-[34m📋 🔍 Verify Data Collection[0m
-[34m======================================================================[0m
-[36m
-📊 Collected Data:[0m
-[36m   title: Complete Test Course 2025[0m
-[36m   duration_hours: 3.75[0m
-[36m   target_departments: ["1"][0m
-[36m   target_positions: ["28"][0m
-[36m   lessons: 1[0m
-[32m✅ [F9.1] Title mapping[0m
-[36m   → Got: "Complete Test Course 2025"[0m
-[32m✅ [F9.2] Duration (3.75)[0m
-[36m   → Got: 3.75[0m
-[32m✅ [F9.3] Departments collected[0m
-[32m✅ [F9.4] Positions collected[0m
-[32m✅ [F9.5] Lessons collected[0m
-[36m   → Count: 1[0m
-[36m📸 Screenshot: 11-data-verified.png[0m
-[34m
-======================================================================[0m
-[34m📋 🚀 Submit Course[0m
-[34m======================================================================[0m
-[33m🔘 Clicking submit...[0m
-🔴 Browser Error: Failed to load resource: the server responded with a status of 404 (Not Found)
-[31m
-❌ Error: Page.captureScreenshot timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.[0m
-[31mProtocolError: Page.captureScreenshot timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.
-    at <instance_members_initializer> (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\common\CallbackRegistry.js:102:14)
-    at new Callback (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\common\CallbackRegistry.js:106:16)
-    at CallbackRegistry.create (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\common\CallbackRegistry.js:24:26)
-    at Connection._rawSend (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\Connection.js:99:26)
-    at CdpCDPSession.send (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\CdpSession.js:73:33)
-    at CdpPage._screenshot (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\cdp\Page.js:779:62)
-    at CdpPage.screenshot (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\api\Page.js:1075:41)
-    at async CdpPage.<anonymous> (D:\App\LearnHub\node_modules\puppeteer-core\lib\cjs\puppeteer\util\decorators.js:172:24)
-    at async screenshot (D:\App\LearnHub\test_complete_FINAL_FIXED.js:54:5)
-    at async runFinalTest (D:\App\LearnHub\test_complete_FINAL_FIXED.js:331:9)[0m
-[31m❌ [ERROR] Test execution[0m
-[36m   → Page.captureScreenshot timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.[0m
-[34m
-======================================================================[0m
-[34m📋 📊 Final Test Summary[0m
-[34m======================================================================[0m
-[34m
-Total Tests: 16[0m
-[32m✅ Passed: 15[0m
-[31m❌ Failed: 1[0m
-[33mPass Rate: 93.75%[0m
-[36m
-📸 Screenshots: D:\App\LearnHub\test-screenshots-final[0m
 [33m
-🔒 Closing browser in 5 seconds...[0m
-[34m
-======================================================================[0m
-[34m📋 ✅ Testing Completed[0m
-[34m======================================================================[0m
+╔══════════════════════════════════════════════════════════════════════╗
+║          LearnHub - Fixed Model Testing                              ║
+║          ทดสอบ Model ที่แก้ไขแล้ว                                    ║
+╚══════════════════════════════════════════════════════════════════════╝
+[0m
+[36mStart Time: 23/11/2568 00:45:54[0m
+
+[35m======================================================================[0m
+[35m1. Testing Database Connection[0m
+[35m======================================================================[0m
+
+Connected to MSSQL database
+[32mDatabase connected successfully![0m
+[32m✓ Tests table exists with 85 records[0m
+
+[35m======================================================================[0m
+[35m2. Testing Test.findById()[0m
+[35m======================================================================[0m
+
+[32m✓ Found test: ทดสอบ[0m
+[36m  Test ID: 1[0m
+[36m  Title: ทดสอบ[0m
+[36m  Type: assessment[0m
+[36m  Instructor ID: 17[0m
+[36m  Status: Active[0m
+[36m  Total Marks: 0[0m
+[36m  Passing Marks: 70[0m
+[36m  Time Limit: 60 minutes[0m
+[36m  Attempts Allowed: 3[0m
+
+[35m======================================================================[0m
+[35m3. Testing Test.findAll()[0m
+[35m======================================================================[0m
+
+[32m✓ Found 5 tests[0m
+[36m  1. Final Assessment Test (ID: 85, Status: active)[0m
+[36m  2. Final Assessment Test (ID: 84, Status: Active)[0m
+[36m  3. Final Assessment Test (ID: 83, Status: active)[0m
+[36m  4. Final Assessment Test (ID: 82, Status: Active)[0m
+[36m  5. Final Assessment Test (ID: 81, Status: active)[0m
+
+[35m======================================================================[0m
+[35m4. Testing Test.create()[0m
+[35m======================================================================[0m
+
+[36mCreating test with data:[0m
+[36m{
+  "course_id": null,
+  "instructor_id": 17,
+  "title": "Test สร้างโดย Automated Test",
+  "description": "นี่คือข้อสอบทดสอบที่สร้างโดย automated test script",
+  "type": "Quiz",
+  "time_limit": 30,
+  "total_marks": 100,
+  "passing_marks": 70,
+  "attempts_allowed": 3,
+  "randomize_questions": true,
+  "show_results": true,
+  "status": "Draft"
+}[0m
+[32m✓ Test created successfully! Test ID: 87[0m
+
+[35m======================================================================[0m
+[35m5. Testing Test.update()[0m
+[35m======================================================================[0m
+
+[36mUpdating test ID 87...[0m
+[32m✓ Test updated successfully![0m
+[36m  New title: Test อัพเดทโดย Automated Test[0m
+[36m  New status: Active[0m
+[36m  New passing marks: 75[0m
+
+[35m======================================================================[0m
+[35m6. Testing Test.delete()[0m
+[35m======================================================================[0m
+
+[36mDeleting test ID 87...[0m
+[32m✓ Test deleted (soft delete) successfully![0m
+[36m  Test status is now: Deleted[0m
+
+[35m======================================================================[0m
+[35m7. Cleanup[0m
+[35m======================================================================[0m
+
+[32m✓ Cleaned up test ID 87 from database[0m
+
+[35m======================================================================[0m
+[35mSUMMARY - สรุปผลการทดสอบ[0m
+[35m======================================================================[0m
+
+undefined[32mTests Passed: 6[0m[0m
+undefined[31mTests Failed: 0[0m[0m
+undefined[34mTotal Tests: 6[0m
+[0m
+undefined[32m✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓[0m[0m
+undefined[32mALL TESTS PASSED! 🎉[0m[0m
+undefined[32mModel is working correctly with database schema![0m[0m
+[36m
+End Time: 23/11/2568 00:45:54[0m
+undefined
+[35m======================================================================[0m
+[0m

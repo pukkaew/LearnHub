@@ -264,6 +264,173 @@ const translations = {
         noPositionOrDepartmentLimit: 'ไม่จำกัดตำแหน่งหรือหน่วยงาน',
         startDiscussion: 'เริ่มการอภิปราย',
 
+        // ===== Course Creation Page (create.ejs) =====
+        createNewCourse: 'สร้างหลักสูตรใหม่',
+        createCourseDescription: 'สร้างหลักสูตรการเรียนรู้สำหรับพนักงาน',
+        backToCourseList: 'กลับไปรายการหลักสูตร',
+
+        // Step labels
+        step: 'ขั้นตอนที่',
+        basicInformation: 'ข้อมูลพื้นฐาน',
+        courseDetailsStep: 'รายละเอียดหลักสูตร',
+        contentAndMedia: 'เนื้อหาและสื่อ',
+        assessmentStep: 'การประเมินผล',
+
+        // Step descriptions
+        enterBasicInfo: 'กรอกข้อมูลพื้นฐานของหลักสูตร',
+        specifyDetailsAndTarget: 'ระบุรายละเอียดและกลุ่มเป้าหมาย',
+        addLessonsAndMaterials: 'เพิ่มบทเรียนและเอกสารประกอบ',
+        configureTests: 'กำหนดการทดสอบและประเมินผล',
+
+        // Form labels
+        courseNameLabel: 'ชื่อหลักสูตร',
+        courseCodeLabel: 'รหัสหลักสูตร',
+        categoryLabel: 'หมวดหมู่',
+        difficultyLabel: 'ระดับความยาก',
+        courseTypeLabel: 'ประเภทหลักสูตร',
+        teachingLanguageLabel: 'ภาษาที่ใช้สอน',
+        instructorNameLabel: 'ผู้สอน',
+
+        // Placeholders
+        enterCourseName: 'ระบุชื่อหลักสูตร',
+        selectCategory: 'เลือกหมวดหมู่',
+        selectLevel: 'เลือกระดับ',
+        selectType: 'เลือกประเภท',
+        selectLanguage: 'เลือกภาษา',
+        instructorNamePlaceholder: 'ชื่อผู้สอน',
+
+        // Course types
+        mandatory: 'บังคับ',
+        elective: 'เลือก',
+        recommended: 'แนะนำ',
+
+        // Languages
+        thai: 'ภาษาไทย',
+        english: 'ภาษาอังกฤษ',
+        thaiEnglish: 'ไทย-อังกฤษ',
+
+        // Difficulty levels
+        beginnerLevel: 'Beginner - เริ่มต้น',
+        intermediateLevel: 'Intermediate - ปานกลาง',
+        advancedLevel: 'Advanced - ขั้นสูง',
+        difficultyBeginner: 'เริ่มต้น',
+        difficultyIntermediate: 'ปานกลาง',
+        difficultyAdvanced: 'ขั้นสูง',
+
+        // Course details
+        courseDescriptionLabel: 'คำอธิบายหลักสูตร',
+        courseDescriptionPlaceholder: 'อธิบายรายละเอียดของหลักสูตรนี้',
+        learningObjectivesLabel: 'วัตถุประสงค์การเรียนรู้',
+        learningObjectivesPlaceholder: 'ระบุวัตถุประสงค์หลัก ๆ ของการเรียนรู้',
+        targetAudienceLabel: 'กลุ่มเป้าหมาย',
+        targetAudiencePlaceholder: 'ระบุกลุ่มเป้าหมายที่เหมาะสม',
+        prerequisitesLabel: 'ความต้องการพื้นฐาน',
+        prerequisitesPlaceholder: 'ความรู้พื้นฐานที่ควรมีก่อนเรียน',
+
+        // Duration
+        durationHoursLabel: 'ชั่วโมง',
+        durationMinutesLabel: 'นาที',
+        courseDuration: 'ระยะเวลาหลักสูตร',
+
+        // Settings
+        maxEnrollmentsLabel: 'จำนวนผู้เรียนสูงสุด',
+        passingScoreLabel: 'เกณฑ์ผ่าน (%)',
+        maxAttemptsLabel: 'ทำได้สูงสุด (ครั้ง)',
+        certificateLabel: 'ออกใบประกาศนียบัตร',
+        allowCertificate: 'อนุญาตให้ออกใบประกาศนียบัตร',
+        certificateValidityLabel: 'อายุใบประกาศนียบัตร',
+        days: 'วัน',
+        unlimitedValidity: 'ไม่จำกัดอายุ',
+
+        // Enrollment dates
+        enrollmentDates: 'ช่วงเวลาเปิดลงทะเบียน',
+        enrollmentStartLabel: 'วันที่เปิดลงทะเบียน',
+        enrollmentEndLabel: 'วันที่ปิดลงทะเบียน',
+
+        // Options
+        isMandatory: 'เป็นหลักสูตรบังคับ',
+        isPublic: 'เปิดให้สาธารณะ',
+
+        // Content
+        courseContentLabel: 'เนื้อหาหลักสูตร',
+        addLesson: 'เพิ่มบทเรียน',
+        lessonTitle: 'หัวข้อบทเรียน',
+        lessonDescription: 'คำอธิบายบทเรียน',
+        lessonOrder: 'ลำดับ',
+        estimatedTime: 'เวลาโดยประมาณ',
+        lessonType: 'ประเภท',
+        lessonContent: 'เนื้อหา',
+
+        // Materials
+        courseMaterials: 'เอกสารประกอบการสอน',
+        addMaterial: 'เพิ่มเอกสาร',
+        materialTitle: 'ชื่อเอกสาร',
+        materialType: 'ประเภทเอกสาร',
+        uploadFile: 'อัพโหลดไฟล์',
+
+        // Assessment
+        assessmentConfiguration: 'การกำหนดการประเมินผล',
+        addTest: 'เพิ่มแบบทดสอบ',
+        selectTest: 'เลือกแบบทดสอบ',
+        testsList: 'รายการแบบทดสอบ',
+
+        // Buttons
+        previousStep: 'ย้อนกลับ',
+        nextStep: 'ถัดไป',
+        saveDraft: 'บันทึกร่าง',
+        saveAndPublish: 'บันทึกและเผยแพร่',
+
+        // Messages
+        codeGeneratedAuto: 'รหัสถูกสร้างอัตโนมัติ',
+        generateNew: 'สร้างใหม่',
+        optionalField: 'ระบุ',
+        requiredField: 'บังคับ',
+
+        // ===== Category Management Page (categories.ejs) =====
+        manageCourseCategories: 'จัดการหมวดหมู่หลักสูตร',
+        manageCategoriesDescription: 'เพิ่ม แก้ไข และจัดการหมวดหมู่หลักสูตรทั้งหมด',
+        addNewCategory: 'เพิ่มหมวดหมู่ใหม่',
+
+        // Table headers
+        icon: 'ไอคอน',
+        categoryName: 'ชื่อหมวดหมู่',
+        order: 'ลำดับ',
+        courseCount: 'จำนวนหลักสูตร',
+        manage: 'จัดการ',
+
+        // Form
+        categoryNameThai: 'ชื่อหมวดหมู่ (ไทย)',
+        categoryNameEnglish: 'ชื่อหมวดหมู่ (อังกฤษ)',
+        categoryDescriptionLabel: 'คำอธิบาย',
+        categoryIconLabel: 'ไอคอน (Font Awesome)',
+        categoryColorLabel: 'สีหมวดหมู่',
+        displayOrderLabel: 'ลำดับการแสดงผล',
+        activeStatus: 'เปิดใช้งาน',
+
+        // Placeholders
+        categoryNameThaiPlaceholder: 'เช่น เทคโนโลยีสารสนเทศ',
+        categoryNameEnglishPlaceholder: 'e.g. Information Technology',
+        categoryDescriptionPlaceholder: 'คำอธิบายของหมวดหมู่',
+        categoryIconPlaceholder: 'fa-laptop-code',
+
+        // Actions
+        edit: 'แก้ไข',
+        delete: 'ลบ',
+        save: 'บันทึก',
+        cancel: 'ยกเลิก',
+
+        // Modal titles
+        addCategoryTitle: 'เพิ่มหมวดหมู่ใหม่',
+        editCategoryTitle: 'แก้ไขหมวดหมู่',
+        deleteCategoryTitle: 'ยืนยันการลบหมวดหมู่',
+
+        // Messages
+        deleteCategoryConfirm: 'คุณแน่ใจหรือไม่ว่าต้องการลบหมวดหมู่',
+        cannotUndoDelete: 'การลบหมวดหมู่นี้จะทำให้ไม่สามารถกู้คืนได้',
+        deleteCategory: 'ลบหมวดหมู่',
+        loadingData: 'กำลังโหลดข้อมูล...',
+        viewAllIcons: 'ดูไอคอนทั้งหมด',
+
         // HR Management - Positions
         positionManagement: 'จัดการตำแหน่งงาน',
         positionName: 'ชื่อตำแหน่ง',
@@ -823,7 +990,93 @@ const translations = {
             duringTraining: 'ระหว่างอบรม',
             mainAssessments: 'แบบทดสอบหลัก',
             practice: 'ฝึกหัด'
-        }
+        },
+
+        // Course Detail Page - Error Messages
+        errorNoCourseId: 'ไม่สามารถโหลดข้อมูลคอร์สได้ เนื่องจากไม่พบรหัสคอร์ส',
+        errorCourseNotFound: 'ไม่พบข้อมูลคอร์ส',
+        errorLoadingCourse: 'เกิดข้อผิดพลาดในการโหลดข้อมูลคอร์ส',
+        errorLoadingVideo: 'เกิดข้อผิดพลาดในการโหลดวิดีโอ',
+        errorLoadingCurriculum: 'เกิดข้อผิดพลาดในการโหลดหลักสูตร',
+        errorLoadingMaterials: 'เกิดข้อผิดพลาดในการโหลดเอกสาร',
+        errorLoadingDiscussions: 'เกิดข้อผิดพลาดในการโหลดการอภิปราย',
+        errorLoadingReviews: 'เกิดข้อผิดพลาดในการโหลดรีวิว',
+        errorEnrollment: 'เกิดข้อผิดพลาดในการลงทะเบียน',
+        errorSubmitRating: 'เกิดข้อผิดพลาดในการส่งคะแนน',
+
+        // Loading Messages
+        loadingCourse: 'กำลังโหลดข้อมูลคอร์ส...',
+        loadingCurriculum: 'กำลังโหลดหลักสูตร...',
+        loadingMaterials: 'กำลังโหลดเอกสาร...',
+        loadingDiscussions: 'กำลังโหลดการอภิปราย...',
+        loadingReviews: 'กำลังโหลดรีวิว...',
+        loadingRelated: 'กำลังโหลด...',
+        enrolling: 'กำลังลงทะเบียน...',
+        submitting: 'กำลังส่ง...',
+        loading: 'กำลังโหลด...',
+
+        // General Labels
+        general: 'ทั่วไป',
+        noObjectives: 'ไม่ได้ระบุวัตถุประสงค์',
+        noPrerequisites: 'ไม่มีความต้องการพื้นฐานพิเศษ',
+        noInstructorBio: 'ไม่มีข้อมูลประวัติ',
+        instructor: 'ผู้สอน',
+        allLessons: 'บทเรียนทั้งหมด',
+        lesson: 'บท',
+        minutes: 'นาที',
+        watchVideo: 'ดูวิดีโอ',
+
+        // Empty States
+        noCurriculum: 'ยังไม่มีบทเรียนที่กำหนด',
+        cannotLoadCurriculum: 'ไม่สามารถโหลดหลักสูตรได้',
+        noMaterials: 'ยังไม่มีเอกสารประกอบการเรียน',
+        cannotLoadMaterials: 'ไม่สามารถโหลดเอกสารได้',
+        noDiscussions: 'ยังไม่มีการอภิปราย',
+        cannotLoadDiscussions: 'ไม่สามารถโหลดการอภิปรายได้',
+        noReviews: 'ยังไม่มีรีวิว',
+        cannotLoadReviews: 'ไม่สามารถโหลดรีวิวได้',
+        noRelatedCourses: 'ไม่มีคอร์สที่เกี่ยวข้อง',
+        cannotLoadRelated: 'ไม่สามารถโหลดคอร์สที่เกี่ยวข้องได้',
+
+        // Actions
+        startCourse: 'เริ่มเรียนคอร์สนี้',
+        enrollInCourse: 'ลงทะเบียนเรียน',
+        enterCourse: 'เข้าเรียน',
+        rateCourse: 'ให้คะแนนคอร์ส',
+        editCourse: 'แก้ไขคอร์ส',
+        downloadCertificate: 'ดาวน์โหลดใบประกาศนียบัตร',
+        download: 'ดาวน์โหลด',
+        startDiscussion: 'เริ่มการอภิปราย',
+        reply: 'ตอบกลับ',
+        confirmEnrollmentBtn: 'ยืนยันการลงทะเบียน',
+        submitRatingBtn: 'ส่งคะแนน',
+
+        // Status Messages
+        enrolled: 'คุณได้ลงทะเบียนเรียนแล้ว',
+        courseCompleted: 'เรียนจบแล้ว',
+        enrollmentSuccess: 'ลงทะเบียนเรียนสำเร็จ',
+        ratingSuccess: 'ส่งคะแนนสำเร็จ',
+        pleaseRate: 'กรุณาให้คะแนน',
+        reviewCount: 'รีวิว',
+
+        // Target Audience
+        targetGroup: 'กลุ่มเป้าหมาย',
+        position: 'ตำแหน่ง',
+        positions: 'ตำแหน่ง',
+        department: 'หน่วยงาน',
+        departments: 'หน่วยงาน',
+        all: 'ทั้งหมด',
+        openForEveryone: 'เปิดกว้างสำหรับทุกคน',
+        noRestrictions: 'ไม่จำกัดตำแหน่งหรือหน่วยงาน',
+        eligibilityCondition: 'เงื่อนไข: คุณสามารถเข้าเรียนได้หากอยู่ในตำแหน่งที่ระบุ หรือ อยู่ในหน่วยงานที่ระบุ',
+        positionsOnly: 'เฉพาะผู้ที่ดำรงตำแหน่งที่ระบุข้างต้น (ทุกหน่วยงาน)',
+        departmentsOnly: 'เฉพาะผู้ที่อยู่ในหน่วยงานที่ระบุข้างต้น (ทุกตำแหน่ง)',
+
+        // Time Ago
+        justNow: 'เมื่อสักครู่',
+        minutesAgo: 'นาทีที่แล้ว',
+        hoursAgo: 'ชั่วโมงที่แล้ว',
+        daysAgo: 'วันที่แล้ว'
     },
     en: {
         // Navigation
@@ -1085,6 +1338,173 @@ const translations = {
         openForEveryone: 'Open for Everyone',
         noPositionOrDepartmentLimit: 'No position or department restrictions',
         startDiscussion: 'Start Discussion',
+
+        // ===== Course Creation Page (create.ejs) =====
+        createNewCourse: 'Create New Course',
+        createCourseDescription: 'Create learning course for employees',
+        backToCourseList: 'Back to Course List',
+
+        // Step labels
+        step: 'Step',
+        basicInformation: 'Basic Information',
+        courseDetailsStep: 'Course Details',
+        contentAndMedia: 'Content and Media',
+        assessmentStep: 'Assessment',
+
+        // Step descriptions
+        enterBasicInfo: 'Enter basic course information',
+        specifyDetailsAndTarget: 'Specify details and target audience',
+        addLessonsAndMaterials: 'Add lessons and course materials',
+        configureTests: 'Configure tests and assessments',
+
+        // Form labels
+        courseNameLabel: 'Course Name',
+        courseCodeLabel: 'Course Code',
+        categoryLabel: 'Category',
+        difficultyLabel: 'Difficulty Level',
+        courseTypeLabel: 'Course Type',
+        teachingLanguageLabel: 'Teaching Language',
+        instructorNameLabel: 'Instructor',
+
+        // Placeholders
+        enterCourseName: 'Enter course name',
+        selectCategory: 'Select category',
+        selectLevel: 'Select level',
+        selectType: 'Select type',
+        selectLanguage: 'Select language',
+        instructorNamePlaceholder: 'Instructor name',
+
+        // Course types
+        mandatory: 'Mandatory',
+        elective: 'Elective',
+        recommended: 'Recommended',
+
+        // Languages
+        thai: 'Thai',
+        english: 'English',
+        thaiEnglish: 'Thai-English',
+
+        // Difficulty levels
+        beginnerLevel: 'Beginner',
+        intermediateLevel: 'Intermediate',
+        advancedLevel: 'Advanced',
+        difficultyBeginner: 'Beginner',
+        difficultyIntermediate: 'Intermediate',
+        difficultyAdvanced: 'Advanced',
+
+        // Course details
+        courseDescriptionLabel: 'Course Description',
+        courseDescriptionPlaceholder: 'Describe the course details',
+        learningObjectivesLabel: 'Learning Objectives',
+        learningObjectivesPlaceholder: 'Specify main learning objectives',
+        targetAudienceLabel: 'Target Audience',
+        targetAudiencePlaceholder: 'Specify appropriate target audience',
+        prerequisitesLabel: 'Prerequisites',
+        prerequisitesPlaceholder: 'Basic knowledge required before taking this course',
+
+        // Duration
+        durationHoursLabel: 'Hours',
+        durationMinutesLabel: 'Minutes',
+        courseDuration: 'Course Duration',
+
+        // Settings
+        maxEnrollmentsLabel: 'Maximum Enrollments',
+        passingScoreLabel: 'Passing Score (%)',
+        maxAttemptsLabel: 'Maximum Attempts',
+        certificateLabel: 'Issue Certificate',
+        allowCertificate: 'Allow certificate issuance',
+        certificateValidityLabel: 'Certificate Validity',
+        days: 'days',
+        unlimitedValidity: 'No expiration',
+
+        // Enrollment dates
+        enrollmentDates: 'Enrollment Period',
+        enrollmentStartLabel: 'Enrollment Start Date',
+        enrollmentEndLabel: 'Enrollment End Date',
+
+        // Options
+        isMandatory: 'Mandatory course',
+        isPublic: 'Public course',
+
+        // Content
+        courseContentLabel: 'Course Content',
+        addLesson: 'Add Lesson',
+        lessonTitle: 'Lesson Title',
+        lessonDescription: 'Lesson Description',
+        lessonOrder: 'Order',
+        estimatedTime: 'Estimated Time',
+        lessonType: 'Type',
+        lessonContent: 'Content',
+
+        // Materials
+        courseMaterials: 'Course Materials',
+        addMaterial: 'Add Material',
+        materialTitle: 'Material Title',
+        materialType: 'Material Type',
+        uploadFile: 'Upload File',
+
+        // Assessment
+        assessmentConfiguration: 'Assessment Configuration',
+        addTest: 'Add Test',
+        selectTest: 'Select Test',
+        testsList: 'Tests List',
+
+        // Buttons
+        previousStep: 'Previous',
+        nextStep: 'Next',
+        saveDraft: 'Save Draft',
+        saveAndPublish: 'Save and Publish',
+
+        // Messages
+        codeGeneratedAuto: 'Code generated automatically',
+        generateNew: 'Generate New',
+        optionalField: 'Optional',
+        requiredField: 'Required',
+
+        // ===== Category Management Page (categories.ejs) =====
+        manageCourseCategories: 'Manage Course Categories',
+        manageCategoriesDescription: 'Add, edit, and manage all course categories',
+        addNewCategory: 'Add New Category',
+
+        // Table headers
+        icon: 'Icon',
+        categoryName: 'Category Name',
+        order: 'Order',
+        courseCount: 'Course Count',
+        manage: 'Manage',
+
+        // Form
+        categoryNameThai: 'Category Name (Thai)',
+        categoryNameEnglish: 'Category Name (English)',
+        categoryDescriptionLabel: 'Description',
+        categoryIconLabel: 'Icon (Font Awesome)',
+        categoryColorLabel: 'Category Color',
+        displayOrderLabel: 'Display Order',
+        activeStatus: 'Active',
+
+        // Placeholders
+        categoryNameThaiPlaceholder: 'e.g. เทคโนโลยีสารสนเทศ',
+        categoryNameEnglishPlaceholder: 'e.g. Information Technology',
+        categoryDescriptionPlaceholder: 'Category description',
+        categoryIconPlaceholder: 'fa-laptop-code',
+
+        // Actions
+        edit: 'Edit',
+        delete: 'Delete',
+        save: 'Save',
+        cancel: 'Cancel',
+
+        // Modal titles
+        addCategoryTitle: 'Add New Category',
+        editCategoryTitle: 'Edit Category',
+        deleteCategoryTitle: 'Confirm Category Deletion',
+
+        // Messages
+        deleteCategoryConfirm: 'Are you sure you want to delete category',
+        cannotUndoDelete: 'This action cannot be undone',
+        deleteCategory: 'Delete Category',
+        loadingData: 'Loading data...',
+        viewAllIcons: 'View all icons',
 
         // HR Management - Positions
         positionManagement: 'Position Management',
@@ -1650,7 +2070,93 @@ const translations = {
             duringTraining: 'During Training',
             mainAssessments: 'Main Assessments',
             practice: 'Practice'
-        }
+        },
+
+        // Course Detail Page - Error Messages
+        errorNoCourseId: 'Cannot load course data due to missing course ID',
+        errorCourseNotFound: 'Course not found',
+        errorLoadingCourse: 'Error loading course data',
+        errorLoadingVideo: 'Error loading video',
+        errorLoadingCurriculum: 'Error loading curriculum',
+        errorLoadingMaterials: 'Error loading materials',
+        errorLoadingDiscussions: 'Error loading discussions',
+        errorLoadingReviews: 'Error loading reviews',
+        errorEnrollment: 'Error enrolling in course',
+        errorSubmitRating: 'Error submitting rating',
+
+        // Loading Messages
+        loadingCourse: 'Loading course data...',
+        loadingCurriculum: 'Loading curriculum...',
+        loadingMaterials: 'Loading materials...',
+        loadingDiscussions: 'Loading discussions...',
+        loadingReviews: 'Loading reviews...',
+        loadingRelated: 'Loading...',
+        enrolling: 'Enrolling...',
+        submitting: 'Submitting...',
+        loading: 'Loading...',
+
+        // General Labels
+        general: 'General',
+        noObjectives: 'No objectives specified',
+        noPrerequisites: 'No prerequisites required',
+        noInstructorBio: 'No instructor bio available',
+        instructor: 'Instructor',
+        allLessons: 'All Lessons',
+        lesson: 'Lesson',
+        minutes: 'minutes',
+        watchVideo: 'Watch Video',
+
+        // Empty States
+        noCurriculum: 'No lessons defined yet',
+        cannotLoadCurriculum: 'Cannot load curriculum',
+        noMaterials: 'No course materials available',
+        cannotLoadMaterials: 'Cannot load materials',
+        noDiscussions: 'No discussions yet',
+        cannotLoadDiscussions: 'Cannot load discussions',
+        noReviews: 'No reviews yet',
+        cannotLoadReviews: 'Cannot load reviews',
+        noRelatedCourses: 'No related courses',
+        cannotLoadRelated: 'Cannot load related courses',
+
+        // Actions
+        startCourse: 'Start this course',
+        enrollInCourse: 'Enroll in Course',
+        enterCourse: 'Enter Course',
+        rateCourse: 'Rate this Course',
+        editCourse: 'Edit Course',
+        downloadCertificate: 'Download Certificate',
+        download: 'Download',
+        startDiscussion: 'Start Discussion',
+        reply: 'Reply',
+        confirmEnrollmentBtn: 'Confirm Enrollment',
+        submitRatingBtn: 'Submit Rating',
+
+        // Status Messages
+        enrolled: 'You are enrolled in this course',
+        courseCompleted: 'Course Completed',
+        enrollmentSuccess: 'Successfully enrolled in course',
+        ratingSuccess: 'Rating submitted successfully',
+        pleaseRate: 'Please provide a rating',
+        reviewCount: 'reviews',
+
+        // Target Audience
+        targetGroup: 'Target Group',
+        position: 'Position',
+        positions: 'Positions',
+        department: 'Department',
+        departments: 'Departments',
+        all: 'All',
+        openForEveryone: 'Open for Everyone',
+        noRestrictions: 'No position or department restrictions',
+        eligibilityCondition: 'Condition: You can enroll if you match the specified positions OR departments',
+        positionsOnly: 'Only for specified positions (all departments)',
+        departmentsOnly: 'Only for specified departments (all positions)',
+
+        // Time Ago
+        justNow: 'just now',
+        minutesAgo: 'minutes ago',
+        hoursAgo: 'hours ago',
+        daysAgo: 'days ago'
     }
 };
 

@@ -328,193 +328,13 @@ let listenersSetup = false; // Prevent duplicate event listeners
 // Get current language from EJS
 const currentLang = '<%= currentLang || "th" %>';
 
-// Translation object for JavaScript
-const translations = {
-    th: {
-        hours: 'ชั่วโมง',
-        people: 'คน',
-        times: 'ครั้ง',
-        minutes: 'นาที',
-        lessons: 'บท',
-        notSpecified: 'ไม่ระบุ',
-        unlimited: 'ไม่จำกัด',
-        yes: 'มี',
-        no: 'ไม่มี',
-        general: 'ทั่วไป',
-        languageThai: 'ภาษาไทย',
-        languageEnglish: 'ภาษาอังกฤษ',
-        languageThaiEnglish: 'ไทย-อังกฤษ',
-        typeMandatory: 'บังคับ',
-        typeElective: 'เลือก',
-        typeRecommended: 'แนะนำ',
-        difficultyBeginner: 'เริ่มต้น',
-        difficultyIntermediate: 'ปานกลาง',
-        difficultyAdvanced: 'ขั้นสูง',
-        // Loading states
-        loadingCourseData: 'กำลังโหลดข้อมูลคอร์ส...',
-        loadingCurriculum: 'กำลังโหลดหลักสูตร...',
-        loadingMaterials: 'กำลังโหลดเอกสาร...',
-        loadingDiscussions: 'กำลังโหลดการอภิปราย...',
-        loadingReviews: 'กำลังโหลดรีวิว...',
-        loadingRelatedCourses: 'กำลังโหลด...',
-        // Error states
-        noCourseId: 'ไม่สามารถโหลดข้อมูลคอร์สได้ เนื่องจากไม่พบรหัสคอร์ส',
-        courseNotFound: 'ไม่พบข้อมูลคอร์ส',
-        errorLoadingCourse: 'เกิดข้อผิดพลาดในการโหลดข้อมูลคอร์ส',
-        errorLoadingCurriculum: 'เกิดข้อผิดพลาดในการโหลดหลักสูตร',
-        errorLoadingMaterials: 'เกิดข้อผิดพลาดในการโหลดเอกสาร',
-        errorLoadingDiscussions: 'เกิดข้อผิดพลาดในการโหลดการอภิปราย',
-        errorLoadingReviews: 'เกิดข้อผิดพลาดในการโหลดรีวิว',
-        errorLoadingRelatedCourses: 'ไม่สามารถโหลดคอร์สที่เกี่ยวข้องได้',
-        cannotLoadCurriculum: 'ไม่สามารถโหลดหลักสูตรได้',
-        cannotLoadMaterials: 'ไม่สามารถโหลดเอกสารได้',
-        cannotLoadDiscussions: 'ไม่สามารถโหลดการอภิปรายได้',
-        cannotLoadReviews: 'ไม่สามารถโหลดรีวิวได้',
-        errorLoadingVideo: 'เกิดข้อผิดพลาดในการโหลดวิดีโอ',
-        cannotLoadVideo: 'ไม่สามารถโหลดวิดีโอได้: URL ไม่ถูกต้อง',
-        // Empty states
-        noDescription: 'ไม่มีคำอธิบาย',
-        noObjectives: 'ไม่ได้ระบุวัตถุประสงค์',
-        noPrerequisites: 'ไม่มีความต้องการพื้นฐานพิเศษ',
-        noLessons: 'ยังไม่มีบทเรียนที่กำหนด',
-        noMaterials: 'ยังไม่มีเอกสารประกอบการเรียน',
-        noDiscussions: 'ยังไม่มีการอภิปราย',
-        noReviewsYet: 'ยังไม่มีรีวิว',
-        noRelatedCourses: 'ไม่มีคอร์สที่เกี่ยวข้อง',
-        noBio: 'ไม่มีข้อมูลประวัติ',
-        // Content
-        courseCode: 'รหัสหลักสูตร',
-        allLessons: 'บทเรียนทั้งหมด',
-        viewVideo: 'ดูวิดีโอ',
-        download: 'ดาวน์โหลด',
-        reply: 'ตอบกลับ',
-        replies: 'ตอบกลับ',
-        instructor: 'ผู้สอน',
-        // Enrollment
-        alreadyEnrolled: 'คุณได้ลงทะเบียนเรียนแล้ว',
-        startLearning: 'เริ่มเรียนคอร์สนี้',
-        enrollInCourse: 'ลงทะเบียนเรียน',
-        confirmEnrollment: 'ยืนยันการลงทะเบียน',
-        enrolling: 'กำลังลงทะเบียน...',
-        enrollSuccess: 'ลงทะเบียนเรียนสำเร็จ',
-        enrollError: 'เกิดข้อผิดพลาดในการลงทะเบียน',
-        completed: 'เรียนจบแล้ว',
-        courseCertificate: 'ดาวน์โหลดใบประกาศนียบัตร',
-        editCourse: 'แก้ไขคอร์ส',
-        startCourse: 'เข้าเรียน',
-        rateThisCourse: 'ให้คะแนนคอร์ส',
-        // Rating
-        pleaseRate: 'กรุณาให้คะแนน',
-        submittingRating: 'กำลังส่ง...',
-        ratingSuccess: 'ส่งคะแนนสำเร็จ',
-        ratingError: 'เกิดข้อผิดพลาดในการส่งคะแนน',
-        // Target audience
-        targetGroup: 'กลุ่มเป้าหมาย:',
-        positions: 'ตำแหน่ง:',
-        unitDepartment: 'หน่วยงาน:',
-        allDepartmentsInOrg: '(ทั้งหมด)',
-        conditionPositionOrDepartment: '<strong>เงื่อนไข:</strong> คุณสามารถเข้าเรียนได้หากอยู่ใน<strong>ตำแหน่ง</strong>ที่ระบุ <strong>หรือ</strong> อยู่ใน<strong>หน่วยงาน</strong>ที่ระบุ',
-        onlyForPositions: 'เฉพาะผู้ที่ดำรงตำแหน่งที่ระบุข้างต้น (ทุกหน่วยงาน)',
-        onlyForDepartments: 'เฉพาะผู้ที่อยู่ในหน่วยงานที่ระบุข้างต้น (ทุกตำแหน่ง)',
-        openForEveryone: 'เปิดกว้างสำหรับทุกคน',
-        noPositionOrDepartmentLimit: 'ไม่จำกัดตำแหน่งหรือหน่วยงาน',
-        startDiscussion: 'เริ่มการอภิปราย'
-    },
-    en: {
-        hours: 'hours',
-        people: 'people',
-        times: 'times',
-        minutes: 'minutes',
-        lessons: 'lessons',
-        notSpecified: 'Not specified',
-        unlimited: 'Unlimited',
-        yes: 'Yes',
-        no: 'No',
-        general: 'General',
-        languageThai: 'Thai',
-        languageEnglish: 'English',
-        languageThaiEnglish: 'Thai-English',
-        typeMandatory: 'Mandatory',
-        typeElective: 'Elective',
-        typeRecommended: 'Recommended',
-        difficultyBeginner: 'Beginner',
-        difficultyIntermediate: 'Intermediate',
-        difficultyAdvanced: 'Advanced',
-        // Loading states
-        loadingCourseData: 'Loading course data...',
-        loadingCurriculum: 'Loading curriculum...',
-        loadingMaterials: 'Loading materials...',
-        loadingDiscussions: 'Loading discussions...',
-        loadingReviews: 'Loading reviews...',
-        loadingRelatedCourses: 'Loading...',
-        // Error states
-        noCourseId: 'Cannot load course data: Course ID not found',
-        courseNotFound: 'Course not found',
-        errorLoadingCourse: 'Error loading course data',
-        errorLoadingCurriculum: 'Error loading curriculum',
-        errorLoadingMaterials: 'Error loading materials',
-        errorLoadingDiscussions: 'Error loading discussions',
-        errorLoadingReviews: 'Error loading reviews',
-        errorLoadingRelatedCourses: 'Cannot load related courses',
-        cannotLoadCurriculum: 'Cannot load curriculum',
-        cannotLoadMaterials: 'Cannot load materials',
-        cannotLoadDiscussions: 'Cannot load discussions',
-        cannotLoadReviews: 'Cannot load reviews',
-        errorLoadingVideo: 'Error loading video',
-        cannotLoadVideo: 'Cannot load video: Invalid URL',
-        // Empty states
-        noDescription: 'No description',
-        noObjectives: 'No objectives specified',
-        noPrerequisites: 'No special prerequisites',
-        noLessons: 'No lessons yet',
-        noMaterials: 'No course materials yet',
-        noDiscussions: 'No discussions yet',
-        noReviewsYet: 'No reviews yet',
-        noRelatedCourses: 'No related courses',
-        noBio: 'No bio available',
-        // Content
-        courseCode: 'Course Code',
-        allLessons: 'All Lessons',
-        viewVideo: 'View Video',
-        download: 'Download',
-        reply: 'Reply',
-        replies: 'Replies',
-        instructor: 'Instructor',
-        // Enrollment
-        alreadyEnrolled: 'You are already enrolled',
-        startLearning: 'Start this course',
-        enrollInCourse: 'Enroll Now',
-        confirmEnrollment: 'Confirm Enrollment',
-        enrolling: 'Enrolling...',
-        enrollSuccess: 'Successfully enrolled',
-        enrollError: 'Error enrolling in course',
-        completed: 'Completed',
-        courseCertificate: 'Download Certificate',
-        editCourse: 'Edit Course',
-        startCourse: 'Start Learning',
-        rateThisCourse: 'Rate Course',
-        // Rating
-        pleaseRate: 'Please provide a rating',
-        submittingRating: 'Submitting...',
-        ratingSuccess: 'Rating submitted successfully',
-        ratingError: 'Error submitting rating',
-        // Target audience
-        targetGroup: 'Target Audience:',
-        positions: 'Position:',
-        unitDepartment: 'Department:',
-        allDepartmentsInOrg: '(All)',
-        conditionPositionOrDepartment: '<strong>Condition:</strong> You can enroll if you are in the specified <strong>position</strong> <strong>or</strong> in the specified <strong>department</strong>',
-        onlyForPositions: 'Only for specified positions (all departments)',
-        onlyForDepartments: 'Only for specified departments (all positions)',
-        openForEveryone: 'Open for Everyone',
-        noPositionOrDepartmentLimit: 'No position or department restrictions',
-        startDiscussion: 'Start Discussion'
-    }
-};
+// Translation object injected from server-side utils/languages.js
+// Note: translations is already the language-specific object (e.g., translations.th or translations.en)
+const translations = <%- JSON.stringify(translations) %>;
 
 // Helper function to get translation
 function t(key) {
-    return translations[currentLang][key] || key;
+    return translations[key] || key;
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -528,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         loadCourseDetail();
     } else {
         console.error('courseId is missing!');
-        showError('ไม่สามารถโหลดข้อมูลคอร์สได้ เนื่องจากไม่พบรหัสคอร์ส');
+        showError(t('errorNoCourseId'));
     }
     setupEventListeners();
 });
@@ -611,7 +431,7 @@ function setupEventListeners() {
 async function loadCourseDetail() {
     try {
         // Show loading indicator
-        showLoading('กำลังโหลดข้อมูลคอร์ส...');
+        showLoading(t('loadingCourse'));
 
         const response = await fetch(`/courses/api/${courseId}`);
 
@@ -637,19 +457,19 @@ async function loadCourseDetail() {
             hideLoading();
         } else {
             hideLoading();
-            showError(data.message || 'ไม่พบข้อมูลคอร์ส');
+            showError(data.message || t('errorCourseNotFound'));
         }
     } catch (error) {
         console.error('Error loading course detail:', error);
         hideLoading();
-        showError('เกิดข้อผิดพลาดในการโหลดข้อมูลคอร์ส');
+        showError(t('errorLoadingCourse'));
     }
 }
 
 function updateCourseDisplay(course) {
     // Safety check - ensure course object exists
     if (!course) {
-        showError('ไม่พบข้อมูลคอร์ส');
+        showError(t('errorCourseNotFound'));
         return;
     }
 
@@ -662,7 +482,7 @@ function updateCourseDisplay(course) {
         this.onerror = null; // Prevent infinite loop
     };
     document.getElementById('course-title').textContent = course.title || course.course_name;
-    document.getElementById('course-code').textContent = course.course_code ? `รหัสหลักสูตร: ${course.course_code}` : '';
+    document.getElementById('course-code').textContent = course.course_code ? `${t('courseCode')}: ${course.course_code}` : '';
 
     // Use innerHTML for description to render HTML properly
     const descriptionElement = document.getElementById('course-description');
@@ -672,15 +492,15 @@ function updateCourseDisplay(course) {
         tempDiv.innerHTML = course.description;
         descriptionElement.textContent = tempDiv.textContent || tempDiv.innerText || course.description;
     } else {
-        descriptionElement.textContent = 'ไม่มีคำอธิบาย';
+        descriptionElement.textContent = t('noDescription');
     }
 
-    document.getElementById('instructor-name').textContent = course.instructor_name || 'ไม่ระบุ';
-    document.getElementById('course-duration').textContent = `${course.duration_hours || 0} ชั่วโมง`;
-    document.getElementById('enrolled-count').textContent = `${course.enrolled_count || 0} คน`;
+    document.getElementById('instructor-name').textContent = course.instructor_name || t('notSpecified');
+    document.getElementById('course-duration').textContent = `${course.duration_hours || 0} ${t('hours')}`;
+    document.getElementById('enrolled-count').textContent = `${course.enrolled_count || 0} ${t('people')}`;
 
     // Badges
-    document.getElementById('category-badge').textContent = course.category_name || 'ทั่วไป';
+    document.getElementById('category-badge').textContent = course.category_name || t('general');
     document.getElementById('difficulty-badge').textContent = getDifficultyText(course.difficulty_level);
     document.getElementById('difficulty-badge').className = `badge-${getDifficultyColor(course.difficulty_level)}`;
 
@@ -700,31 +520,33 @@ function updateCourseDisplay(course) {
 
     // Language display (support both old and new values)
     const languageMap = {
-        'th': t('languageThai'),
-        'en': t('languageEnglish'),
-        'th-en': t('languageThaiEnglish'),
+        'th': 'thai',
+        'en': 'english',
+        'th-en': 'thaiEnglish',
         // Support old values for backward compatibility
-        'Thai': t('languageThai'),
-        'ภาษาไทย': t('languageThai'),
-        'English': t('languageEnglish'),
-        'ภาษาอังกฤษ': t('languageEnglish')
+        'Thai': 'thai',
+        'ภาษาไทย': 'thai',
+        'English': 'english',
+        'ภาษาอังกฤษ': 'english'
     };
-    document.getElementById('sidebar-language').textContent = languageMap[course.language] || course.language || t('notSpecified');
+    const langKey = languageMap[course.language];
+    document.getElementById('sidebar-language').textContent = langKey ? t(langKey) : (course.language || t('notSpecified'));
 
     // Course type (support both old and new values)
     const courseTypeMap = {
-        'mandatory': t('typeMandatory'),
-        'elective': t('typeElective'),
-        'recommended': t('typeRecommended'),
+        'mandatory': 'typeMandatory',
+        'elective': 'typeElective',
+        'recommended': 'typeRecommended',
         // Support old values for backward compatibility
-        'Required': t('typeMandatory'),
-        'บังคับ': t('typeMandatory'),
-        'Optional': t('typeElective'),
-        'เลือก': t('typeElective'),
-        'Recommended': t('typeRecommended'),
-        'แนะนำ': t('typeRecommended')
+        'Required': 'typeMandatory',
+        'บังคับ': 'typeMandatory',
+        'Optional': 'typeElective',
+        'เลือก': 'typeElective',
+        'Recommended': 'typeRecommended',
+        'แนะนำ': 'typeRecommended'
     };
-    document.getElementById('sidebar-course-type').textContent = courseTypeMap[course.course_type] || course.course_type || t('notSpecified');
+    const typeKey = courseTypeMap[course.course_type];
+    document.getElementById('sidebar-course-type').textContent = typeKey ? t(typeKey) : (course.course_type || t('notSpecified'));
 
     // Max students
     document.getElementById('sidebar-max-students').textContent = course.max_students ? `${course.max_students} ${t('people')}` : t('unlimited');
@@ -826,12 +648,12 @@ function updateCourseDisplay(course) {
             }
         } catch (error) {
             console.error('Error loading intro video:', error);
-            introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-red-500"><p>เกิดข้อผิดพลาดในการโหลดวิดีโอ</p></div>`;
+            introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-red-500"><p>${t('errorLoadingVideo')}</p></div>`;
         }
     }
 
     // Overview content
-    document.getElementById('course-full-description').innerHTML = course.description || 'ไม่มีคำอธิบาย';
+    document.getElementById('course-full-description').innerHTML = course.description || t('noDescription');
 
     // Learning objectives (already parsed by backend, no need to parse again)
     const objectives = Array.isArray(course.learning_objectives)
@@ -843,7 +665,7 @@ function updateCourseDisplay(course) {
             `<li class="text-gray-700">${obj}</li>`
         ).join('');
     } else {
-        document.getElementById('learning-objectives').innerHTML = '<li class="text-gray-500 list-none">ไม่ได้ระบุวัตถุประสงค์</li>';
+        document.getElementById('learning-objectives').innerHTML = `<li class="text-gray-500 list-none">${t('noObjectives')}</li>`;
     }
 
     // Target Audience - Use mapping from database (already parsed by backend)
@@ -862,16 +684,16 @@ function updateCourseDisplay(course) {
         targetHTML += `
             <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
                 <i class="fas fa-bullseye text-ruxchai-primary"></i>
-                <span class="font-semibold">กลุ่มเป้าหมาย:</span>
-                ${posCount > 0 ? `<span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded">${posCount} ตำแหน่ง</span>` : ''}
-                ${deptCount > 0 ? `<span class="px-2 py-0.5 bg-green-50 text-green-700 rounded">${deptCount} หน่วยงาน</span>` : ''}
+                <span class="font-semibold">${t('targetGroup')}:</span>
+                ${posCount > 0 ? `<span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded">${posCount} ${t('positions')}</span>` : ''}
+                ${deptCount > 0 ? `<span class="px-2 py-0.5 bg-green-50 text-green-700 rounded">${deptCount} ${t('departments')}</span>` : ''}
             </div>`;
 
         if (hasPositions) {
             targetHTML += '<div>';
             targetHTML += '<div class="flex items-center mb-2">';
             targetHTML += '<i class="fas fa-user-tie text-blue-600 mr-2"></i>';
-            targetHTML += '<span class="text-sm font-semibold text-gray-700">ตำแหน่ง:</span>';
+            targetHTML += `<span class="text-sm font-semibold text-gray-700">${t('position')}:</span>`;
             targetHTML += '</div>';
             targetHTML += '<div class="flex flex-wrap gap-2">';
 
@@ -895,7 +717,7 @@ function updateCourseDisplay(course) {
             targetHTML += '<div>';
             targetHTML += '<div class="flex items-center mb-2">';
             targetHTML += '<i class="fas fa-building text-green-600 mr-2"></i>';
-            targetHTML += '<span class="text-sm font-semibold text-gray-700">หน่วยงาน:</span>';
+            targetHTML += `<span class="text-sm font-semibold text-gray-700">${t('department')}:</span>`;
             targetHTML += '</div>';
             targetHTML += '<div class="flex flex-wrap gap-2">';
 
@@ -956,7 +778,7 @@ function updateCourseDisplay(course) {
                 }
 
                 const collapseIndicator = dept.isCollapsed ?
-                    `<span class="ml-1 text-xs opacity-75">(ทั้งหมด)</span>` : '';
+                    `<span class="ml-1 text-xs opacity-75">(${t('all')})</span>` : '';
 
                 targetHTML += `
                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${colorClass} border">
@@ -974,7 +796,7 @@ function updateCourseDisplay(course) {
                 <div class="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm">
                     <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
                     <span class="text-blue-800">
-                        <strong>เงื่อนไข:</strong> คุณสามารถเข้าเรียนได้หากอยู่ใน<strong>ตำแหน่ง</strong>ที่ระบุ <strong>หรือ</strong> อยู่ใน<strong>หน่วยงาน</strong>ที่ระบุ
+                        ${t('eligibilityCondition')}
                     </span>
                 </div>`;
         } else if (hasPositions) {
@@ -982,7 +804,7 @@ function updateCourseDisplay(course) {
                 <div class="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm">
                     <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
                     <span class="text-blue-800">
-                        เฉพาะผู้ที่ดำรงตำแหน่งที่ระบุข้างต้น (ทุกหน่วยงาน)
+                        ${t('positionsOnly')}
                     </span>
                 </div>`;
         } else if (hasDepartments) {
@@ -990,7 +812,7 @@ function updateCourseDisplay(course) {
                 <div class="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-100 text-sm">
                     <i class="fas fa-info-circle text-green-600 mt-0.5"></i>
                     <span class="text-green-800">
-                        เฉพาะผู้ที่อยู่ในหน่วยงานที่ระบุข้างต้น (ทุกตำแหน่ง)
+                        ${t('departmentsOnly')}
                     </span>
                 </div>`;
         }
@@ -1002,14 +824,14 @@ function updateCourseDisplay(course) {
             <div class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
                 <i class="fas fa-users text-purple-600 mr-3 text-2xl"></i>
                 <div>
-                    <div class="text-purple-900 font-semibold">เปิดกว้างสำหรับทุกคน</div>
-                    <div class="text-purple-700 text-sm">ไม่จำกัดตำแหน่งหรือหน่วยงาน</div>
+                    <div class="text-purple-900 font-semibold">${t('openForEveryone')}</div>
+                    <div class="text-purple-700 text-sm">${t('noRestrictions')}</div>
                 </div>
             </div>`;
     }
 
     // Prerequisites
-    const prerequisites = course.prerequisite_knowledge || 'ไม่มีความต้องการพื้นฐานพิเศษ';
+    const prerequisites = course.prerequisite_knowledge || t('noPrerequisites');
     document.getElementById('prerequisites').innerHTML = `<p class="text-gray-600">${prerequisites}</p>`;
 
     // Display curriculum immediately if available
@@ -1044,9 +866,9 @@ function updateRatingDisplay(rating, count) {
             }
         });
 
-        ratingText.textContent = `${rating.toFixed(1)} (${count} รีวิว)`;
+        ratingText.textContent = `${rating.toFixed(1)} (${count} ${t('reviewCount')})`;
     } else {
-        ratingText.textContent = 'ยังไม่มีรีวิว';
+        ratingText.textContent = t('noReviews');
     }
 }
 
@@ -1124,12 +946,12 @@ function updateInstructorInfo(course) {
     container.innerHTML = `
         <div class="flex items-start space-x-3">
             <img src="${course.instructor_avatar || '/images/default-avatar.png'}"
-                 alt="${course.instructor_name || 'ผู้สอน'}"
+                 alt="${course.instructor_name || t('instructor')}"
                  class="w-12 h-12 rounded-full">
             <div>
-                <h4 class="font-semibold text-gray-900">${course.instructor_name || 'ไม่ระบุ'}</h4>
-                <p class="text-sm text-gray-600">${course.instructor_title || 'ผู้สอน'}</p>
-                <p class="text-sm text-gray-500 mt-1">${course.instructor_bio || 'ไม่มีข้อมูลประวัติ'}</p>
+                <h4 class="font-semibold text-gray-900">${course.instructor_name || t('notSpecified')}</h4>
+                <p class="text-sm text-gray-600">${course.instructor_title || t('instructor')}</p>
+                <p class="text-sm text-gray-500 mt-1">${course.instructor_bio || t('noInstructorBio')}</p>
             </div>
         </div>
     `;
@@ -1138,7 +960,7 @@ function updateInstructorInfo(course) {
 async function loadCurriculum() {
     try {
         const container = document.getElementById('course-curriculum');
-        container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>กำลังโหลดหลักสูตร...</div>';
+        container.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>${t('loadingCurriculum')}</div>`;
 
         const response = await fetch(`/courses/api/${courseId}/curriculum`);
 
@@ -1151,12 +973,12 @@ async function loadCurriculum() {
         if (data.success) {
             updateCurriculumDisplay(data.data);
         } else {
-            container.innerHTML = '<p class="text-gray-500">ไม่สามารถโหลดหลักสูตรได้</p>';
+            container.innerHTML = `<p class="text-gray-500">${t('cannotLoadCurriculum')}</p>`;
         }
     } catch (error) {
         console.error('Error loading curriculum:', error);
         const container = document.getElementById('course-curriculum');
-        container.innerHTML = '<p class="text-red-500">เกิดข้อผิดพลาดในการโหลดหลักสูตร</p>';
+        container.innerHTML = `<p class="text-red-500">${t('errorLoadingCurriculum')}</p>`;
     }
 }
 
@@ -1169,7 +991,7 @@ function updateCurriculumDisplay(curriculum) {
         if (courseData && courseData.lessons && courseData.lessons.length > 0) {
             curriculum = courseData.lessons;
         } else {
-            container.innerHTML = '<p class="text-gray-500">ยังไม่มีบทเรียนที่กำหนด</p>';
+            container.innerHTML = `<p class="text-gray-500">${t('noCurriculum')}</p>`;
             return;
         }
     }
@@ -1196,7 +1018,7 @@ function updateCurriculumDisplay(curriculum) {
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 text-sm text-gray-500">
-                                <span>${lesson.duration || lesson.duration_minutes || '0'} นาที</span>
+                                <span>${lesson.duration || lesson.duration_minutes || '0'} ${t('minutes')}</span>
                                 ${lesson.completed ? '<i class="fas fa-check-circle text-green-500"></i>' : ''}
                             </div>
                         </div>
@@ -1227,7 +1049,7 @@ function updateCurriculumDisplay(curriculum) {
                                 <div class="flex items-center space-x-4 text-sm text-gray-500">
                                     <div class="flex items-center">
                                         <i class="far fa-clock mr-1"></i>
-                                        <span>${lesson.duration_minutes || lesson.duration || '0'} นาที</span>
+                                        <span>${lesson.duration_minutes || lesson.duration || '0'} ${t('minutes')}</span>
                                     </div>
                                     ${lesson.video_url ? `
                                         <a href="${lesson.video_url}" target="_blank" class="flex items-center text-ruxchai-primary hover:text-ruxchai-secondary">
@@ -1259,7 +1081,7 @@ function updateCurriculumDisplay(curriculum) {
 async function loadMaterials() {
     try {
         const container = document.getElementById('course-materials');
-        container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>กำลังโหลดเอกสาร...</div>';
+        container.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>${t('loadingMaterials')}</div>`;
 
         const response = await fetch(`/courses/api/${courseId}/materials`);
 
@@ -1272,12 +1094,12 @@ async function loadMaterials() {
         if (data.success) {
             updateMaterialsDisplay(data.data);
         } else {
-            container.innerHTML = '<p class="text-gray-500">ไม่สามารถโหลดเอกสารได้</p>';
+            container.innerHTML = `<p class="text-gray-500">${t('cannotLoadMaterials')}</p>`;
         }
     } catch (error) {
         console.error('Error loading materials:', error);
         const container = document.getElementById('course-materials');
-        container.innerHTML = '<p class="text-red-500">เกิดข้อผิดพลาดในการโหลดเอกสาร</p>';
+        container.innerHTML = `<p class="text-red-500">${t('errorLoadingMaterials')}</p>`;
     }
 }
 
@@ -1285,7 +1107,7 @@ function updateMaterialsDisplay(materials) {
     const container = document.getElementById('course-materials');
 
     if (!materials || materials.length === 0) {
-        container.innerHTML = '<p class="text-gray-500">ยังไม่มีเอกสารประกอบการเรียน</p>';
+        container.innerHTML = `<p class="text-gray-500">${t('noMaterials')}</p>`;
         return;
     }
 
@@ -1311,7 +1133,7 @@ function updateMaterialsDisplay(materials) {
 async function loadDiscussions() {
     try {
         const container = document.getElementById('course-discussions');
-        container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>กำลังโหลดการอภิปราย...</div>';
+        container.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>${t('loadingDiscussions')}</div>`;
 
         const response = await fetch(`/courses/api/${courseId}/discussions`);
 
@@ -1324,12 +1146,12 @@ async function loadDiscussions() {
         if (data.success) {
             updateDiscussionsDisplay(data.data);
         } else {
-            container.innerHTML = '<p class="text-gray-500">ไม่สามารถโหลดการอภิปรายได้</p>';
+            container.innerHTML = `<p class="text-gray-500">${t('cannotLoadDiscussions')}</p>`;
         }
     } catch (error) {
         console.error('Error loading discussions:', error);
         const container = document.getElementById('course-discussions');
-        container.innerHTML = '<p class="text-red-500">เกิดข้อผิดพลาดในการโหลดการอภิปราย</p>';
+        container.innerHTML = `<p class="text-red-500">${t('errorLoadingDiscussions')}</p>`;
     }
 }
 
@@ -1364,7 +1186,7 @@ function updateDiscussionsDisplay(discussions) {
                             <i class="fas fa-reply mr-1"></i>ตอบกลับ
                         </button>
                         <span><i class="fas fa-heart mr-1"></i>${discussion.likes || 0}</span>
-                        <span>${discussion.replies || 0} ตอบกลับ</span>
+                        <span>${discussion.replies || 0} ${t('reply')}</span>
                     </div>
                 </div>
             </div>
@@ -1375,7 +1197,7 @@ function updateDiscussionsDisplay(discussions) {
 async function loadReviews() {
     try {
         const container = document.getElementById('course-reviews');
-        container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>กำลังโหลดรีวิว...</div>';
+        container.innerHTML = `<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>${t('loadingReviews')}</div>`;
 
         const response = await fetch(`/courses/api/${courseId}/reviews`);
 
@@ -1388,12 +1210,12 @@ async function loadReviews() {
         if (data.success) {
             updateReviewsDisplay(data.data);
         } else {
-            container.innerHTML = '<p class="text-gray-500">ไม่สามารถโหลดรีวิวได้</p>';
+            container.innerHTML = `<p class="text-gray-500">${t('cannotLoadReviews')}</p>`;
         }
     } catch (error) {
         console.error('Error loading reviews:', error);
         const container = document.getElementById('course-reviews');
-        container.innerHTML = '<p class="text-red-500">เกิดข้อผิดพลาดในการโหลดรีวิว</p>';
+        container.innerHTML = `<p class="text-red-500">${t('errorLoadingReviews')}</p>`;
     }
 }
 
@@ -1433,7 +1255,7 @@ function updateReviewsDisplay(reviews) {
 async function loadRelatedCourses() {
     try {
         const container = document.getElementById('related-courses');
-        container.innerHTML = '<div class="text-center py-4 text-sm"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>กำลังโหลด...</div>';
+        container.innerHTML = `<div class="text-center py-4 text-sm"><i class="fas fa-spinner fa-spin text-gray-400 mr-2"></i>${t('loadingRelated')}</div>`;
 
         const response = await fetch(`/courses/api/${courseId}/related`);
 
@@ -1446,12 +1268,12 @@ async function loadRelatedCourses() {
         if (data.success) {
             updateRelatedCoursesDisplay(data.data);
         } else {
-            container.innerHTML = '<p class="text-gray-500 text-sm">ไม่สามารถโหลดคอร์สที่เกี่ยวข้องได้</p>';
+            container.innerHTML = `<p class="text-gray-500 text-sm">${t('cannotLoadRelated')}</p>`;
         }
     } catch (error) {
         console.error('Error loading related courses:', error);
         const container = document.getElementById('related-courses');
-        container.innerHTML = '<p class="text-gray-500 text-sm">ไม่สามารถโหลดคอร์สที่เกี่ยวข้องได้</p>';
+        container.innerHTML = `<p class="text-gray-500 text-sm">${t('cannotLoadRelated')}</p>`;
     }
 }
 
@@ -1459,7 +1281,7 @@ function updateRelatedCoursesDisplay(courses) {
     const container = document.getElementById('related-courses');
 
     if (!courses || courses.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-sm">ไม่มีคอร์สที่เกี่ยวข้อง</p>';
+        container.innerHTML = `<p class="text-gray-500 text-sm">${t('noRelatedCourses')}</p>`;
         return;
     }
 
@@ -1511,7 +1333,7 @@ async function enrollInCourse() {
         const confirmBtn = document.getElementById('confirm-enrollment');
         const originalText = confirmBtn.innerHTML;
         confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังลงทะเบียน...';
+        confirmBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${t('enrolling')}`;
 
         const response = await fetch(`/courses/api/${courseId}/enroll`, {
             method: 'POST',
@@ -1527,23 +1349,23 @@ async function enrollInCourse() {
         const data = await response.json();
 
         if (data.success) {
-            showSuccess('ลงทะเบียนเรียนสำเร็จ');
+            showSuccess(t('enrollmentSuccess'));
             closeEnrollmentModal();
             // Reload course data
             loadCourseDetail();
         } else {
-            showError(data.message || 'เกิดข้อผิดพลาดในการลงทะเบียน');
+            showError(data.message || t('errorEnrollment'));
         }
 
         confirmBtn.disabled = false;
         confirmBtn.innerHTML = originalText;
     } catch (error) {
         console.error('Error enrolling in course:', error);
-        showError('เกิดข้อผิดพลาดในการลงทะเบียน');
+        showError(t('errorEnrollment'));
 
         const confirmBtn = document.getElementById('confirm-enrollment');
         confirmBtn.disabled = false;
-        confirmBtn.innerHTML = 'ยืนยันการลงทะเบียน';
+        confirmBtn.innerHTML = t('confirmEnrollmentBtn');
     }
 }
 
@@ -1572,7 +1394,7 @@ function updateStarDisplay() {
 
 async function submitRating() {
     if (currentRating === 0) {
-        showError('กรุณาให้คะแนน');
+        showError(t('pleaseRate'));
         return;
     }
 
@@ -1580,7 +1402,7 @@ async function submitRating() {
         const submitBtn = document.getElementById('submit-rating');
         const originalText = submitBtn.innerHTML;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังส่ง...';
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${t('submitting')}`;
 
         const response = await fetch(`/courses/api/${courseId}/rate`, {
             method: 'POST',
@@ -1600,24 +1422,24 @@ async function submitRating() {
         const data = await response.json();
 
         if (data.success) {
-            showSuccess('ส่งคะแนนสำเร็จ');
+            showSuccess(t('ratingSuccess'));
             closeRatingModal();
             // Reload reviews
             loadReviews();
             loadCourseDetail();
         } else {
-            showError(data.message || 'เกิดข้อผิดพลาดในการส่งคะแนน');
+            showError(data.message || t('errorSubmitRating'));
         }
 
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
     } catch (error) {
         console.error('Error submitting rating:', error);
-        showError('เกิดข้อผิดพลาดในการส่งคะแนน');
+        showError(t('errorSubmitRating'));
 
         const submitBtn = document.getElementById('submit-rating');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'ส่งคะแนน';
+        submitBtn.innerHTML = t('submitRatingBtn');
     }
 }
 
@@ -1708,10 +1530,10 @@ function timeAgo(dateString) {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
 
-    if (diffInSeconds < 60) return 'เมื่อสักครู่';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} นาทีที่แล้ว`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ชั่วโมงที่แล้ว`;
-    return `${Math.floor(diffInSeconds / 86400)} วันที่แล้ว`;
+    if (diffInSeconds < 60) return t('justNow');
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} ${t('minutesAgo')}`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ${t('hoursAgo')}`;
+    return `${Math.floor(diffInSeconds / 86400)} ${t('daysAgo')}`;
 }
 
 function showSuccess(message) {
@@ -1730,7 +1552,7 @@ function showError(message) {
     setTimeout(() => alert.remove(), 3000);
 }
 
-function showLoading(message = 'กำลังโหลด...') {
+function showLoading(message = t('loading')) {
     // Remove existing loading overlay if any
     hideLoading();
 

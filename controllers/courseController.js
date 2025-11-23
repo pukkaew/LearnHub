@@ -627,7 +627,7 @@ const courseController = {
             const userId = req.user.user_id;
 
             // Import language helpers
-            const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+            const { getCurrentLanguage, getTranslation, translations } = require('../utils/languages');
             const currentLang = getCurrentLanguage(req);
             const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
@@ -650,7 +650,8 @@ const courseController = {
                 enrollment: enrollment,
                 is_enrolled: !!enrollment,
                 t: t,
-                currentLang: currentLang
+                currentLang: currentLang,
+                translations: translations[currentLang] || translations.th
             });
 
         } catch (error) {
@@ -1328,10 +1329,17 @@ const courseController = {
                 });
             }
 
+            // Import language helpers
+            const { getCurrentLanguage, getTranslation } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
             res.render('courses/categories', {
                 title: 'จัดการหมวดหมู่หลักสูตร - Rukchai Hongyen LearnHub',
                 user: req.session.user,
-                userRole: req.user.role_name
+                userRole: req.user.role_name,
+                t: t,
+                currentLang: currentLang
             });
 
         } catch (error) {

@@ -58,7 +58,12 @@
       "Bash(tee:*)",
       "Bash(pkill:*)",
       "Bash(test-final-result.txt)",
-      "Bash(test-final-result-v2.txt)"
+      "Bash(test-final-result-v2.txt)",
+      "Bash(copy modelsTest.js modelsTest.js.backup)",
+      "Bash(timeout:*)",
+      "Bash(copy viewscoursescategories.ejs viewscoursescategories.ejs.backup)",
+      "Bash(copy:*)",
+      "Bash(copy viewscoursescreate.ejs viewscoursescreate.ejs.backup)"
     ],
     "deny": [],
     "ask": []

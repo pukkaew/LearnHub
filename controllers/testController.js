@@ -20,12 +20,13 @@ const testController = {
             if (course_id) {filters.course_id = course_id;}
             if (instructor_id) {filters.instructor_id = instructor_id;}
             if (test_type) {filters.test_type = test_type;}
-            if (is_active !== undefined) {filters.is_active = is_active === 'true';}
+            if (is_active !== undefined) {filters.is_active = is_active;}
             if (search) {filters.search = search;}
 
             const offset = (parseInt(page) - 1) * parseInt(limit);
             filters.limit = parseInt(limit);
             filters.offset = offset;
+            filters.page = parseInt(page);
 
             const tests = await Test.findAll(filters);
 
@@ -74,12 +75,12 @@ const testController = {
             await ActivityLog.create({
                 user_id: userId,
                 action: 'View_Test',
-                table_name: 'Tests',
+                table_name: 'tests',
                 record_id: test_id,
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
-                description: `User viewed test: ${test.test_name}`,
+                description: `User viewed test: ${test.title}`,
                 severity: 'Info',
                 module: 'Assessment'
             });
@@ -113,10 +114,37 @@ const testController = {
                 });
             }
 
+            // Map legacy field names to database schema
             const testData = {
-                ...req.body,
+                course_id: req.body.course_id || null,
                 instructor_id: userRole === 'Instructor' ? userId : req.body.instructor_id,
-                created_by: userId
+                title: req.body.test_name || req.body.title,
+                description: req.body.test_description || req.body.description,
+                type: req.body.test_type || req.body.type || 'Quiz',
+                time_limit: req.body.time_limit_minutes || req.body.duration_minutes || req.body.time_limit || null,
+                total_marks: req.body.total_score || req.body.total_marks || 0,
+                passing_marks: req.body.passing_score || req.body.passing_marks || 0,
+                attempts_allowed: req.body.max_attempts || req.body.attempts_allowed || 1,
+                randomize_questions: req.body.shuffle_questions !== undefined ? req.body.shuffle_questions : req.body.randomize_questions,
+                show_results: req.body.show_results !== undefined ? req.body.show_results : true,
+                status: req.body.is_active === true ? 'Active' : req.body.status || 'Draft',
+                start_date: req.body.start_date || null,
+                end_date: req.body.end_date || null,
+                proctoring_enabled: req.body.proctoring_enabled || false,
+                proctoring_strictness: req.body.proctoring_strictness || null,
+                chapter_id: req.body.chapter_id || null,
+                lesson_id: req.body.lesson_id || null,
+                test_category: req.body.test_category || null,
+                available_after_chapter_complete: req.body.available_after_chapter_complete || false,
+                required_for_completion: req.body.required_for_completion || false,
+                weight_in_course: req.body.weight_in_course || null,
+                available_from: req.body.available_from || null,
+                available_until: req.body.available_until || null,
+                is_graded: req.body.is_graded !== undefined ? req.body.is_graded : true,
+                is_required: req.body.is_required || false,
+                is_passing_required: req.body.is_passing_required || false,
+                score_weight: req.body.score_weight || 100,
+                show_score_breakdown: req.body.show_score_breakdown !== undefined ? req.body.show_score_breakdown : true
             };
 
             const result = await Test.create(testData);
@@ -128,14 +156,14 @@ const testController = {
             await ActivityLog.logDataChange(
                 userId,
                 'Create',
-                'Tests',
+                'tests',
                 result.data.test_id,
                 null,
                 testData,
                 req.ip,
                 req.get('User-Agent'),
                 req.sessionID,
-                `Created test: ${testData.test_name}`
+                `Created test: ${testData.title}`
             );
 
             res.status(201).json({
@@ -148,7 +176,8 @@ const testController = {
             console.error('Create test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ'
+                message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ',
+                error: error.message
             });
         }
     },
@@ -181,7 +210,25 @@ const testController = {
                 });
             }
 
-            const updateData = { ...req.body };
+            // Map legacy field names to database schema
+            const updateData = {};
+            if (req.body.test_name) updateData.title = req.body.test_name;
+            if (req.body.title) updateData.title = req.body.title;
+            if (req.body.test_description) updateData.description = req.body.test_description;
+            if (req.body.description) updateData.description = req.body.description;
+            if (req.body.test_type) updateData.type = req.body.test_type;
+            if (req.body.type) updateData.type = req.body.type;
+            if (req.body.passing_score !== undefined) updateData.passing_marks = req.body.passing_score;
+            if (req.body.passing_marks !== undefined) updateData.passing_marks = req.body.passing_marks;
+            if (req.body.time_limit_minutes !== undefined) updateData.time_limit = req.body.time_limit_minutes;
+            if (req.body.time_limit !== undefined) updateData.time_limit = req.body.time_limit;
+            if (req.body.max_attempts !== undefined) updateData.attempts_allowed = req.body.max_attempts;
+            if (req.body.attempts_allowed !== undefined) updateData.attempts_allowed = req.body.attempts_allowed;
+            if (req.body.is_active !== undefined) updateData.status = req.body.is_active ? 'Active' : 'Inactive';
+            if (req.body.status) updateData.status = req.body.status;
+            if (req.body.show_results !== undefined) updateData.show_results = req.body.show_results;
+
+            // Remove instructor_id from update data for security
             delete updateData.instructor_id;
 
             const result = await Test.update(test_id, updateData);
@@ -193,14 +240,14 @@ const testController = {
             await ActivityLog.logDataChange(
                 userId,
                 'Update',
-                'Tests',
+                'tests',
                 test_id,
                 test,
                 updateData,
                 req.ip,
                 req.get('User-Agent'),
                 req.sessionID,
-                `Updated test: ${test.test_name}`
+                `Updated test: ${test.title}`
             );
 
             res.json({
@@ -248,14 +295,14 @@ const testController = {
             await ActivityLog.logDataChange(
                 userId,
                 'Delete',
-                'Tests',
+                'tests',
                 test_id,
                 test,
                 null,
                 req.ip,
                 req.get('User-Agent'),
                 req.sessionID,
-                `Deleted test: ${test.test_name}`
+                `Deleted test: ${test.title}`
             );
 
             res.json({
@@ -285,7 +332,7 @@ const testController = {
                 });
             }
 
-            if (!test.is_active) {
+            if (test.status !== 'Active') {
                 return res.status(400).json({
                     success: false,
                     message: 'ข้อสอบนี้ยังไม่เปิดใช้งาน'
@@ -293,7 +340,7 @@ const testController = {
             }
 
             const existingAttempts = await Test.getUserAttempts(test_id, userId);
-            if (existingAttempts.length >= test.max_attempts) {
+            if (existingAttempts.length >= (test.attempts_allowed || 1)) {
                 return res.status(400).json({
                     success: false,
                     message: 'คุณใช้สิทธิ์ทำข้อสอบครบแล้ว'
@@ -324,12 +371,12 @@ const testController = {
             await ActivityLog.create({
                 user_id: userId,
                 action: 'Start_Test',
-                table_name: 'TestAttempts',
+                table_name: 'test_attempts',
                 record_id: result.data.attempt_id,
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
-                description: `Started test: ${test.test_name}`,
+                description: `Started test: ${test.title}`,
                 severity: 'Info',
                 module: 'Assessment'
             });
@@ -393,12 +440,12 @@ const testController = {
             await ActivityLog.create({
                 user_id: userId,
                 action: 'Submit_Test',
-                table_name: 'TestAttempts',
+                table_name: 'test_attempts',
                 record_id: attempt_id,
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
-                description: `Submitted test: ${test.test_name}, Score: ${result.data.total_score}`,
+                description: `Submitted test: ${test.title}, Score: ${result.data.total_score}`,
                 severity: 'Info',
                 module: 'Assessment'
             });
@@ -570,7 +617,7 @@ const testController = {
             }
 
             res.render('tests/detail', {
-                title: `${test.test_name} - Rukchai Hongyen LearnHub`,
+                title: `${test.title} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role,
                 test: test
@@ -615,7 +662,7 @@ const testController = {
             const questions = await Question.findByTestId(test_id);
 
             res.render('tests/taking', {
-                title: `ทำข้อสอบ: ${test.test_name} - Rukchai Hongyen LearnHub`,
+                title: `ทำข้อสอบ: ${test.title} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role,
                 test: test,

@@ -1,0 +1,204 @@
+[33m
+╔════════════════════════════════════════════════════════════╗
+║      LearnHub Tests API - Error Scenarios Testing         ║
+║                  ทดสอบเพื่อหา Errors                       ║
+╚════════════════════════════════════════════════════════════╝
+[0m
+[34mℹ Testing API: http://localhost:3000/tests/api[0m
+[34mℹ Start Time: 23/11/2568 00:51:41[0m
+
+[35m============================================================[0m
+[35m1. AUTHENTICATION & AUTHORIZATION ERRORS[0m
+[35m============================================================[0m
+
+[31m❌ ไม่มี Authentication Token[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Invalid Authentication Token[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Expired Token[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+
+[35m============================================================[0m
+[35m2. VALIDATION ERRORS[0m
+[35m============================================================[0m
+
+[31m❌ Missing Required Fields (test_name)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Wrong Data Types (string instead of number)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Negative Values (duration, score, attempts)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Out of Range Values (too large)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Empty Strings for Required Fields[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Null Values for Required Fields[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Very Long Strings (1000+ characters)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+
+[35m============================================================[0m
+[35m3. SECURITY ERRORS (SQL Injection & XSS)[0m
+[35m============================================================[0m
+
+[31m❌ SQL Injection Attempt[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ XSS Attack Attempt[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Path Traversal Attempt[0m
+   Status: 404
+   Message: ไม่พบหน้าที่ต้องการ
+[31m❌ NoSQL Injection Attempt[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+
+[35m============================================================[0m
+[35m4. NOT FOUND ERRORS[0m
+[35m============================================================[0m
+
+[31m❌ Non-existent Test ID (999999999)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Invalid Test ID Format (string)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Negative Test ID (-1)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Zero Test ID (0)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Delete Non-existent Test[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+
+[35m============================================================[0m
+[35m5. BUSINESS LOGIC ERRORS[0m
+[35m============================================================[0m
+
+[31m❌ Start Inactive Test (is_active = false)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Exceed Maximum Attempts[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Submit Already Completed Test[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Submit with Invalid Attempt ID[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Submit Test Without Answers[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Submit Test With Empty Answers Array[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Start Test With Existing Active Attempt[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+
+[35m============================================================[0m
+[35m6. EDGE CASES & UNUSUAL SCENARIOS[0m
+[35m============================================================[0m
+
+[31m❌ Update Test With Empty Body[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Create Test With Non-existent Course ID[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Invalid Pagination Parameters (negative/zero)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Very Large Pagination Limit (100000)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Malformed JSON Body[0m
+   Status: 500
+   Message: Unexpected token '"', ""not-valid-json"" is not valid JSON
+[31m❌ Wrong HTTP Method (PATCH instead of POST)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+
+[35m============================================================[0m
+[35m7. RATE LIMITING & PERFORMANCE[0m
+[35m============================================================[0m
+
+[34mℹ Sending 50 rapid requests...[0m
+[32m✓ Rapid Requests[0m
+   All 50 requests succeeded - No rate limiting detected
+
+[35m============================================================[0m
+[35m8. DATABASE CONSTRAINT VIOLATIONS[0m
+[35m============================================================[0m
+
+[31m❌ Duplicate Test Name (Unique Constraint)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+[31m❌ Invalid Foreign Key (instructor_id)[0m
+   Status: 401
+   Message: กรุณาเข้าสู่ระบบก่อนใช้งาน
+
+[35m============================================================[0m
+[35mSUMMARY - สรุปผลการทดสอบ[0m
+[35m============================================================[0m
+
+[33mTotal Errors Found: 34[0m
+[34mTotal Tests Run: 35[0m
+
+Errors by Status Code:
+  [31m401[0m: 32 errors
+    - ไม่มี Authentication Token
+    - Invalid Authentication Token
+    - Expired Token
+    - Missing Required Fields (test_name)
+    - Wrong Data Types (string instead of number)
+    - Negative Values (duration, score, attempts)
+    - Out of Range Values (too large)
+    - Empty Strings for Required Fields
+    - Null Values for Required Fields
+    - Very Long Strings (1000+ characters)
+    - SQL Injection Attempt
+    - XSS Attack Attempt
+    - NoSQL Injection Attempt
+    - Non-existent Test ID (999999999)
+    - Invalid Test ID Format (string)
+    - Negative Test ID (-1)
+    - Zero Test ID (0)
+    - Delete Non-existent Test
+    - Start Inactive Test (is_active = false)
+    - Exceed Maximum Attempts
+    - Submit Already Completed Test
+    - Submit with Invalid Attempt ID
+    - Submit Test Without Answers
+    - Submit Test With Empty Answers Array
+    - Start Test With Existing Active Attempt
+    - Update Test With Empty Body
+    - Create Test With Non-existent Course ID
+    - Invalid Pagination Parameters (negative/zero)
+    - Very Large Pagination Limit (100000)
+    - Wrong HTTP Method (PATCH instead of POST)
+    - Duplicate Test Name (Unique Constraint)
+    - Invalid Foreign Key (instructor_id)
+  [31m404[0m: 1 errors
+    - Path Traversal Attempt
+  [31m500[0m: 1 errors
+    - Malformed JSON Body
+[34mℹ 
+End Time: 23/11/2568 00:51:46[0m
+
+[35m============================================================[0m
+
