@@ -5,6 +5,7 @@ const ApplicantNote = require('../models/ApplicantNote');
 const ActivityLog = require('../models/ActivityLog');
 const { poolPromise, sql } = require('../config/database');
 const bcrypt = require('bcryptjs');
+const { t } = require('../utils/languages');
 
 const hrApplicantController = {
     // แสดงรายชื่อผู้สมัครทั้งหมด
@@ -35,7 +36,7 @@ const hrApplicantController = {
             `);
 
             res.render('hr/applicants/index', {
-                title: 'จัดการผู้สมัครงาน',
+                title: req.t('manageApplicantsTitle'),
                 applicants: result.data,
                 pagination: {
                     page: result.page,
@@ -48,7 +49,7 @@ const hrApplicantController = {
             });
         } catch (error) {
             console.error('Error fetching applicants:', error);
-            req.flash('error_msg', 'เกิดข้อผิดพลาดในการดึงข้อมูลผู้สมัคร');
+            req.flash('error_msg', req.t('errorFetchingApplicants'));
             res.redirect('/dashboard');
         }
     },
@@ -57,11 +58,11 @@ const hrApplicantController = {
     async showAddForm(req, res) {
         try {
             res.render('hr/applicants/add', {
-                title: 'เพิ่มผู้สมัครงาน'
+                title: req.t('addApplicantTitle')
             });
         } catch (error) {
             console.error('Error showing add form:', error);
-            req.flash('error_msg', 'เกิดข้อผิดพลาดในการแสดงฟอร์ม');
+            req.flash('error_msg', req.t('errorShowingForm'));
             res.redirect('/hr/applicants');
         }
     },
@@ -84,7 +85,7 @@ const hrApplicantController = {
             if (!User.validateThaiIdCard(id_card_number)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'เลขบัตรประชาชนไม่ถูกต้อง'
+                    message: req.t('invalidIdCardNumber')
                 });
             }
 
@@ -103,7 +104,7 @@ const hrApplicantController = {
             if (!result.success) {
                 return res.status(400).json({
                     success: false,
-                    message: 'ไม่สามารถสร้างผู้สมัครได้'
+                    message: req.t('cannotCreateApplicant')
                 });
             }
 
@@ -122,7 +123,7 @@ const hrApplicantController = {
 
             res.json({
                 success: true,
-                message: 'เพิ่มผู้สมัครสำเร็จ',
+                message: req.t('applicantAddedSuccess'),
                 applicantId: result.userId
             });
 
@@ -130,7 +131,7 @@ const hrApplicantController = {
             console.error('Error creating applicant:', error);
             res.status(500).json({
                 success: false,
-                message: error.message || 'เกิดข้อผิดพลาดในการเพิ่มผู้สมัคร'
+                message: error.message || req.t('errorCreatingApplicant')
             });
         }
     },
@@ -142,7 +143,7 @@ const hrApplicantController = {
             const user = await User.findById(applicantId);
 
             if (!user || user.user_type !== 'APPLICANT') {
-                req.flash('error_msg', 'ไม่พบข้อมูลผู้สมัคร');
+                req.flash('error_msg', req.t('applicantNotFound'));
                 return res.redirect('/hr/applicants');
             }
 
@@ -156,7 +157,7 @@ const hrApplicantController = {
             const notes = await ApplicantNote.getByApplicant(applicantId);
 
             res.render('hr/applicants/show', {
-                title: `ข้อมูลผู้สมัคร: ${user.first_name} ${user.last_name}`,
+                title: `${req.t('applicantInfo')}: ${user.first_name} ${user.last_name}`,
                 applicant: user,
                 assignments,
                 results,
@@ -164,7 +165,7 @@ const hrApplicantController = {
             });
         } catch (error) {
             console.error('Error showing applicant:', error);
-            req.flash('error_msg', 'เกิดข้อผิดพลาดในการดึงข้อมูลผู้สมัคร');
+            req.flash('error_msg', req.t('errorFetchingApplicantData'));
             res.redirect('/hr/applicants');
         }
     },
@@ -176,17 +177,17 @@ const hrApplicantController = {
             const user = await User.findById(applicantId);
 
             if (!user || user.user_type !== 'APPLICANT') {
-                req.flash('error_msg', 'ไม่พบข้อมูลผู้สมัคร');
+                req.flash('error_msg', req.t('applicantNotFound'));
                 return res.redirect('/hr/applicants');
             }
 
             res.render('hr/applicants/edit', {
-                title: `แก้ไขข้อมูลผู้สมัคร: ${user.first_name} ${user.last_name}`,
+                title: `${req.t('editApplicantData')}: ${user.first_name} ${user.last_name}`,
                 applicant: user
             });
         } catch (error) {
             console.error('Error showing edit form:', error);
-            req.flash('error_msg', 'เกิดข้อผิดพลาดในการแสดงฟอร์ม');
+            req.flash('error_msg', req.t('errorShowingForm'));
             res.redirect('/hr/applicants');
         }
     },
@@ -228,14 +229,14 @@ const hrApplicantController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทข้อมูลสำเร็จ'
+                message: req.t('applicantUpdateSuccess')
             });
 
         } catch (error) {
             console.error('Error updating applicant:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทข้อมูล'
+                message: req.t('errorUpdatingApplicant')
             });
         }
     },
@@ -249,7 +250,7 @@ const hrApplicantController = {
             if (!['ACTIVE', 'DISABLED'].includes(status)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'สถานะไม่ถูกต้อง'
+                    message: req.t('invalidStatus')
                 });
             }
 
@@ -277,14 +278,14 @@ const hrApplicantController = {
 
             res.json({
                 success: true,
-                message: status === 'ACTIVE' ? 'เปิดใช้งานบัญชีสำเร็จ' : 'ปิดใช้งานบัญชีสำเร็จ'
+                message: status === 'ACTIVE' ? req.t('accountActivatedSuccess') : req.t('accountDisabledSuccess')
             });
 
         } catch (error) {
             console.error('Error updating status:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเปลี่ยนสถานะ'
+                message: req.t('errorChangingStatus')
             });
         }
     },
@@ -296,7 +297,7 @@ const hrApplicantController = {
             const user = await User.findById(applicantId);
 
             if (!user || user.user_type !== 'APPLICANT') {
-                req.flash('error_msg', 'ไม่พบข้อมูลผู้สมัคร');
+                req.flash('error_msg', req.t('applicantNotFound'));
                 return res.redirect('/hr/applicants');
             }
 
@@ -313,7 +314,7 @@ const hrApplicantController = {
             const assignments = await ApplicantTestAssignment.getByApplicant(applicantId);
 
             res.render('hr/applicants/assign-tests', {
-                title: `มอบหมายข้อสอบ: ${user.first_name} ${user.last_name}`,
+                title: `${req.t('assignTestsTo')}: ${user.first_name} ${user.last_name}`,
                 applicant: user,
                 tests: testsResult.recordset,
                 assignments
@@ -321,7 +322,7 @@ const hrApplicantController = {
 
         } catch (error) {
             console.error('Error showing assign tests:', error);
-            req.flash('error_msg', 'เกิดข้อผิดพลาดในการแสดงหน้า');
+            req.flash('error_msg', req.t('errorShowingPage'));
             res.redirect('/hr/applicants');
         }
     },
@@ -361,7 +362,7 @@ const hrApplicantController = {
 
             res.json({
                 success: true,
-                message: 'มอบหมายข้อสอบสำเร็จ',
+                message: req.t('testAssignedSuccess'),
                 assignmentId: result.assignment_id
             });
 
@@ -369,7 +370,7 @@ const hrApplicantController = {
             console.error('Error assigning test:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการมอบหมายข้อสอบ'
+                message: req.t('errorAssigningTest')
             });
         }
     },
@@ -403,14 +404,14 @@ const hrApplicantController = {
 
             res.json({
                 success: true,
-                message: 'ยกเลิกการมอบหมายสำเร็จ'
+                message: req.t('unassignmentSuccess')
             });
 
         } catch (error) {
             console.error('Error unassigning test:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการยกเลิกการมอบหมาย'
+                message: req.t('errorUnassigningTest')
             });
         }
     },
@@ -430,7 +431,7 @@ const hrApplicantController = {
 
             res.json({
                 success: true,
-                message: 'เพิ่มบันทึกสำเร็จ',
+                message: req.t('noteAddedSuccess'),
                 noteId: result.note_id
             });
 
@@ -438,7 +439,7 @@ const hrApplicantController = {
             console.error('Error adding note:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเพิ่มบันทึก'
+                message: req.t('errorAddingNote')
             });
         }
     },
@@ -454,7 +455,7 @@ const hrApplicantController = {
             if (!user || user.user_type !== 'APPLICANT') {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้สมัคร'
+                    message: req.t('applicantNotFound')
                 });
             }
 
@@ -485,7 +486,7 @@ const hrApplicantController = {
 
             res.json({
                 success: true,
-                message: 'รีเซ็ตรหัสผ่านสำเร็จ',
+                message: req.t('passwordResetSuccess'),
                 defaultPassword: defaultPassword
             });
 
@@ -493,7 +494,7 @@ const hrApplicantController = {
             console.error('Error resetting password:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน'
+                message: req.t('errorResettingPassword')
             });
         }
     }

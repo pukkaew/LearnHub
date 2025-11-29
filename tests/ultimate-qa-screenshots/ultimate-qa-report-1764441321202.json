@@ -1,0 +1,1412 @@
+{
+  "summary": {
+    "total": 167,
+    "passed": 92,
+    "failed": 11,
+    "warnings": 51,
+    "skipped": 13,
+    "passRate": "55.1%",
+    "duration": "107.03s",
+    "timestamp": "2025-11-29T18:35:21.202Z"
+  },
+  "suites": {
+    "Auth": {
+      "passed": 19,
+      "failed": 0,
+      "warnings": 1,
+      "skipped": 0
+    },
+    "CourseCRUD": {
+      "passed": 7,
+      "failed": 5,
+      "warnings": 11,
+      "skipped": 2
+    },
+    "Enrollment": {
+      "passed": 6,
+      "failed": 0,
+      "warnings": 9,
+      "skipped": 5
+    },
+    "FormValidation": {
+      "passed": 20,
+      "failed": 0,
+      "warnings": 0,
+      "skipped": 0
+    },
+    "API": {
+      "passed": 4,
+      "failed": 0,
+      "warnings": 16,
+      "skipped": 0
+    },
+    "Security": {
+      "passed": 10,
+      "failed": 0,
+      "warnings": 4,
+      "skipped": 1
+    },
+    "UIUX": {
+      "passed": 8,
+      "failed": 1,
+      "warnings": 3,
+      "skipped": 0
+    },
+    "ErrorHandling": {
+      "passed": 5,
+      "failed": 5,
+      "warnings": 4,
+      "skipped": 1
+    },
+    "DataIntegrity": {
+      "passed": 3,
+      "failed": 0,
+      "warnings": 3,
+      "skipped": 4
+    },
+    "Performance": {
+      "passed": 10,
+      "failed": 0,
+      "warnings": 0,
+      "skipped": 0
+    }
+  },
+  "details": [
+    {
+      "suite": "Auth",
+      "id": "1.1",
+      "name": "Login page loads",
+      "status": "pass",
+      "detail": "เข้าสู่ระบบ - Rukchai Hongyen LearnHub",
+      "time": "2025-11-29T18:33:35.710Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.2",
+      "name": "Login form elements",
+      "status": "pass",
+      "detail": "empId:true pwd:true submit:true",
+      "time": "2025-11-29T18:33:35.740Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.3",
+      "name": "Input placeholders exist",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:35.756Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.4",
+      "name": "Empty form blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:36.868Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.5",
+      "name": "Invalid credentials show error",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:40.057Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.6",
+      "name": "SQL Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:41.978Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.7",
+      "name": "XSS Attack blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:43.978Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.8",
+      "name": "LDAP Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:45.896Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.9",
+      "name": "Command Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:47.799Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.10",
+      "name": "Buffer Overflow blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:49.769Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.11",
+      "name": "Valid login successful",
+      "status": "pass",
+      "detail": "http://localhost:3000/dashboard",
+      "time": "2025-11-29T18:33:54.483Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.12",
+      "name": "Session persists across pages",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:55.108Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.13",
+      "name": "User info displayed",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:55.139Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.14",
+      "name": "Admin can access create page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:55.844Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.15",
+      "name": "Admin can access users page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:56.532Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.16",
+      "name": "Admin can access settings",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:57.268Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.17",
+      "name": "Logout link exists",
+      "status": "warn",
+      "detail": "Not found",
+      "time": "2025-11-29T18:33:57.320Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.18",
+      "name": "Logout redirects to login",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:58.482Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.19",
+      "name": "Protected route after logout",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:33:59.062Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.20",
+      "name": "No cached protected pages",
+      "status": "pass",
+      "detail": "Manual verification needed",
+      "time": "2025-11-29T18:33:59.062Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.1",
+      "name": "Course list page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:04.240Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.2",
+      "name": "List page elements",
+      "status": "pass",
+      "detail": "search:false cat:false create:false",
+      "time": "2025-11-29T18:34:04.269Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.3",
+      "name": "Courses displayed",
+      "status": "pass",
+      "detail": "0 courses",
+      "time": "2025-11-29T18:34:04.599Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.4",
+      "name": "Search functionality",
+      "status": "skip",
+      "detail": "No search input",
+      "time": "2025-11-29T18:34:04.631Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.5",
+      "name": "Filter dropdowns",
+      "status": "warn",
+      "detail": "0 filters",
+      "time": "2025-11-29T18:34:05.509Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.6",
+      "name": "Create page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:06.709Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.7",
+      "name": "Course name input",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:06.903Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.8",
+      "name": "Category dropdown",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:06.934Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.9",
+      "name": "Difficulty dropdown",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:06.966Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.10",
+      "name": "Course type dropdown",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:06.997Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.11",
+      "name": "Language dropdown",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:07.029Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.12",
+      "name": "Step 1 form filled",
+      "status": "pass",
+      "detail": "QA Ultimate Test 1764441247030",
+      "time": "2025-11-29T18:34:07.313Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.13",
+      "name": "Navigate to Step 2",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:08.475Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.14",
+      "name": "Description field",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:08.505Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.15",
+      "name": "Duration field",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:08.536Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.16",
+      "name": "Navigate to Step 3",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:09.706Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.17",
+      "name": "Content section visible",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:09.734Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.18",
+      "name": "Navigate to Step 4",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:10.913Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.19",
+      "name": "Assessment section visible",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:10.942Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.20",
+      "name": "Back button works",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:11.479Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.21",
+      "name": "Step indicators exist",
+      "status": "warn",
+      "detail": "0 indicators",
+      "time": "2025-11-29T18:34:11.574Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.22",
+      "name": "Course detail page",
+      "status": "skip",
+      "detail": "No courses",
+      "time": "2025-11-29T18:34:12.540Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.23",
+      "name": "Edit button visible",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:12.571Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.24",
+      "name": "Course detail info",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:12.601Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.25",
+      "name": "My Courses page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:13.854Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.1",
+      "name": "Navigate to course",
+      "status": "skip",
+      "detail": "No courses available",
+      "time": "2025-11-29T18:34:19.212Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.2",
+      "name": "Enrollment state detected",
+      "status": "pass",
+      "detail": "enrolled:false startBtn:false",
+      "time": "2025-11-29T18:34:19.244Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.3",
+      "name": "Action button clicked",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:21.431Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.4",
+      "name": "Redirected to learning",
+      "status": "warn",
+      "detail": "http://localhost:3000/auth/login",
+      "time": "2025-11-29T18:34:21.431Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.5",
+      "name": "Learning page elements",
+      "status": "pass",
+      "detail": "progress:false video:false",
+      "time": "2025-11-29T18:34:21.460Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.6",
+      "name": "Learning page screenshot",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:21.589Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.7",
+      "name": "Progress bar exists",
+      "status": "warn",
+      "detail": "Not found",
+      "time": "2025-11-29T18:34:21.617Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.8",
+      "name": "Completion status shown",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:21.648Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.9",
+      "name": "Next lesson button",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:21.679Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.10",
+      "name": "Previous lesson button",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:21.695Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.11",
+      "name": "Lesson list visible",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:21.711Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.12",
+      "name": "My Courses page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:22.913Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.13",
+      "name": "Stats categories shown",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:22.943Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.14",
+      "name": "Enrolled courses displayed",
+      "status": "pass",
+      "detail": "0 cards",
+      "time": "2025-11-29T18:34:23.254Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.15",
+      "name": "Continue learning button",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:23.285Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.16",
+      "name": "Completion features",
+      "status": "pass",
+      "detail": "cert:false score:false",
+      "time": "2025-11-29T18:34:23.316Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.17",
+      "name": "Certificate download",
+      "status": "skip",
+      "detail": "Requires course completion",
+      "time": "2025-11-29T18:34:23.316Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.18",
+      "name": "Score display",
+      "status": "skip",
+      "detail": "Requires assessment",
+      "time": "2025-11-29T18:34:23.316Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.19",
+      "name": "Learning history",
+      "status": "skip",
+      "detail": "Requires learning activity",
+      "time": "2025-11-29T18:34:23.316Z"
+    },
+    {
+      "suite": "Enrollment",
+      "id": "3.20",
+      "name": "Course rating",
+      "status": "skip",
+      "detail": "Requires course completion",
+      "time": "2025-11-29T18:34:23.316Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.1",
+      "name": "Empty string",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:28.188Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.2",
+      "name": "Whitespace only",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:28.501Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.3",
+      "name": "Very short (1 char)",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:28.814Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.4",
+      "name": "Very long (2000 chars)",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:29.122Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.5",
+      "name": "HTML injection",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:29.425Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.6",
+      "name": "Script injection",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:29.723Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.7",
+      "name": "SQL injection",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:30.031Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.8",
+      "name": "Path traversal",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:30.327Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.9",
+      "name": "Unicode/Thai",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:30.639Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.10",
+      "name": "Emoji",
+      "status": "pass",
+      "detail": "Input accepted",
+      "time": "2025-11-29T18:34:30.939Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.11",
+      "name": "Negative number",
+      "status": "pass",
+      "detail": "Input handled",
+      "time": "2025-11-29T18:34:31.248Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.12",
+      "name": "Zero",
+      "status": "pass",
+      "detail": "Input handled",
+      "time": "2025-11-29T18:34:31.556Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.13",
+      "name": "Very large number",
+      "status": "pass",
+      "detail": "Input handled",
+      "time": "2025-11-29T18:34:31.858Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.14",
+      "name": "Decimal",
+      "status": "pass",
+      "detail": "Input handled",
+      "time": "2025-11-29T18:34:32.174Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.15",
+      "name": "Text in number field",
+      "status": "pass",
+      "detail": "Input handled",
+      "time": "2025-11-29T18:34:32.503Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.16",
+      "name": "Invalid category ID",
+      "status": "pass",
+      "detail": "Server will validate",
+      "time": "2025-11-29T18:34:32.805Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.17",
+      "name": "Negative ID",
+      "status": "pass",
+      "detail": "Server will validate",
+      "time": "2025-11-29T18:34:33.116Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.18",
+      "name": "Invalid difficulty",
+      "status": "pass",
+      "detail": "Server will validate",
+      "time": "2025-11-29T18:34:33.426Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.19",
+      "name": "Invalid course type",
+      "status": "pass",
+      "detail": "Server will validate",
+      "time": "2025-11-29T18:34:33.727Z"
+    },
+    {
+      "suite": "FormValidation",
+      "id": "4.20",
+      "name": "Invalid language",
+      "status": "pass",
+      "detail": "Server will validate",
+      "time": "2025-11-29T18:34:34.041Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.1",
+      "name": "Get all courses",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.073Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.2",
+      "name": "Get categories",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.120Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.3",
+      "name": "Get course by ID",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.166Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.4",
+      "name": "Paginated courses",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.197Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.5",
+      "name": "Search courses",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.242Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.6",
+      "name": "ID zero",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.289Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.7",
+      "name": "Negative ID",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.319Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.8",
+      "name": "Non-numeric ID",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.365Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.9",
+      "name": "Very large ID",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.397Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.10",
+      "name": "Decimal ID",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.428Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.11",
+      "name": "SQL injection",
+      "status": "pass",
+      "detail": "Status: 400",
+      "time": "2025-11-29T18:34:38.460Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.12",
+      "name": "XSS in params",
+      "status": "pass",
+      "detail": "Status: 400",
+      "time": "2025-11-29T18:34:38.492Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.13",
+      "name": "Path traversal",
+      "status": "pass",
+      "detail": "Status: 404",
+      "time": "2025-11-29T18:34:38.539Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.14",
+      "name": "Prototype pollution",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.586Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.15",
+      "name": "Non-existent endpoint",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.632Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.16",
+      "name": "POST: POST without body",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.681Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.17",
+      "name": "PUT: PUT without body",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.743Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.18",
+      "name": "DELETE: DELETE non-existent",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.789Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.19",
+      "name": "PATCH: PATCH method",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:38.836Z"
+    },
+    {
+      "suite": "API",
+      "id": "5.20",
+      "name": "OPTIONS: OPTIONS (CORS)",
+      "status": "pass",
+      "detail": "Status: 204",
+      "time": "2025-11-29T18:34:38.868Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.1",
+      "name": "Reflected XSS in URL",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:43.390Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.2",
+      "name": "Stored XSS attempt",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:43.982Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.3",
+      "name": "DOM-based XSS",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.590Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.4",
+      "name": "CSRF token exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.608Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.5",
+      "name": "X-Content-Type-Options",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.689Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.6",
+      "name": "X-Frame-Options",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.689Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.7",
+      "name": "X-XSS-Protection",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.689Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.8",
+      "name": "Content-Security-Policy",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.689Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.9",
+      "name": "Session cookie HttpOnly",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.719Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.10",
+      "name": "Session cookie Secure",
+      "status": "warn",
+      "detail": "May be false on localhost",
+      "time": "2025-11-29T18:34:44.719Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.11",
+      "name": "No stack trace in errors",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.967Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.12",
+      "name": "No sensitive info exposed",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:44.983Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.13",
+      "name": "Rate limiting",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:34:45.028Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.14",
+      "name": "Clickjacking protection",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:45.045Z"
+    },
+    {
+      "suite": "Security",
+      "id": "6.15",
+      "name": "HTTPS enforcement",
+      "status": "skip",
+      "detail": "Localhost test - verify in production",
+      "time": "2025-11-29T18:34:45.045Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.1",
+      "name": "Navigation exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:49.545Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.2",
+      "name": "Footer exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:49.545Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.3",
+      "name": "Main content area",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:49.545Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.4",
+      "name": "Accessibility check",
+      "status": "fail",
+      "detail": "document is not defined",
+      "time": "2025-11-29T18:34:49.575Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.8",
+      "name": "iPhone SE (320x568)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:50.094Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.9",
+      "name": "iPhone 8 (375x667)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:50.550Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.10",
+      "name": "iPad (768x1024)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:51.015Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.11",
+      "name": "iPad Landscape (1024x768)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:51.483Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.12",
+      "name": "Laptop (1366x768)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:51.969Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.13",
+      "name": "Desktop (1920x1080)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:52.445Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.14",
+      "name": "Viewport meta tag",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:52.506Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "7.15",
+      "name": "Focus styles exist",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:52.537Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.1",
+      "name": "Non-existent page",
+      "status": "pass",
+      "detail": "Status: 404",
+      "time": "2025-11-29T18:34:56.553Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.2",
+      "name": "Non-existent course",
+      "status": "warn",
+      "detail": "Status: 304",
+      "time": "2025-11-29T18:34:56.632Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.3",
+      "name": "Non-existent API",
+      "status": "warn",
+      "detail": "Status: 304",
+      "time": "2025-11-29T18:34:56.696Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.4",
+      "name": "Non-existent user",
+      "status": "warn",
+      "detail": "Status: 304",
+      "time": "2025-11-29T18:34:56.772Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.5",
+      "name": "Error page shows 404",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:57.380Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.6",
+      "name": "Error page has home link",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:34:57.380Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.7",
+      "name": "Error page has navigation",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:34:57.380Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.8",
+      "name": "Very long search query",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:57.786Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.9",
+      "name": "XSS in search",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:58.178Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.10",
+      "name": "Thai in search",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:58.567Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.11",
+      "name": "Emoji in search",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:58.963Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.12",
+      "name": "Negative page number",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T18:34:59.388Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.13",
+      "name": "Expired session handling",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:35:00.171Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.14",
+      "name": "Rapid navigation",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:35:04.636Z"
+    },
+    {
+      "suite": "ErrorHandling",
+      "id": "8.15",
+      "name": "Network error handling",
+      "status": "skip",
+      "detail": "Manual test required",
+      "time": "2025-11-29T18:35:04.636Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.1",
+      "name": "Course data loads",
+      "status": "pass",
+      "detail": "0 items",
+      "time": "2025-11-29T18:35:09.721Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.2",
+      "name": "Statistics data",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T18:35:10.821Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.3",
+      "name": "API returns valid JSON",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:35:10.861Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.4",
+      "name": "Categories data valid",
+      "status": "warn",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T18:35:10.893Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.5",
+      "name": "UTF-8 encoding",
+      "status": "pass",
+      "detail": "UTF-8",
+      "time": "2025-11-29T18:35:11.001Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.6",
+      "name": "No encoding errors",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T18:35:11.031Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.7",
+      "name": "Database constraints",
+      "status": "skip",
+      "detail": "Backend test - verify constraints",
+      "time": "2025-11-29T18:35:11.031Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.8",
+      "name": "Foreign key integrity",
+      "status": "skip",
+      "detail": "Backend test - verify relationships",
+      "time": "2025-11-29T18:35:11.031Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.9",
+      "name": "Unique constraints",
+      "status": "skip",
+      "detail": "Backend test - verify uniqueness",
+      "time": "2025-11-29T18:35:11.032Z"
+    },
+    {
+      "suite": "DataIntegrity",
+      "id": "9.10",
+      "name": "Data type validation",
+      "status": "skip",
+      "detail": "Backend test - verify types",
+      "time": "2025-11-29T18:35:11.032Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.1",
+      "name": "Course list load",
+      "status": "pass",
+      "detail": "76ms",
+      "time": "2025-11-29T18:35:15.118Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.2",
+      "name": "Create page load",
+      "status": "pass",
+      "detail": "63ms",
+      "time": "2025-11-29T18:35:15.181Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.3",
+      "name": "My courses load",
+      "status": "pass",
+      "detail": "63ms",
+      "time": "2025-11-29T18:35:15.245Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.4",
+      "name": "Memory usage",
+      "status": "pass",
+      "detail": "4MB heap",
+      "time": "2025-11-29T18:35:15.275Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.5",
+      "name": "DOM element count",
+      "status": "pass",
+      "detail": "65 elements",
+      "time": "2025-11-29T18:35:15.291Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.6",
+      "name": "No JS errors",
+      "status": "pass",
+      "detail": "0 errors",
+      "time": "2025-11-29T18:35:17.346Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.7",
+      "name": "Console warnings",
+      "status": "pass",
+      "detail": "0 warnings",
+      "time": "2025-11-29T18:35:18.397Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.8",
+      "name": "Stress test (10 loads)",
+      "status": "pass",
+      "detail": "695ms",
+      "time": "2025-11-29T18:35:19.092Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.9",
+      "name": "Network requests",
+      "status": "pass",
+      "detail": "13 requests",
+      "time": "2025-11-29T18:35:21.170Z"
+    },
+    {
+      "suite": "Performance",
+      "id": "10.10",
+      "name": "Performance timing",
+      "status": "pass",
+      "detail": "TTFB: 8ms",
+      "time": "2025-11-29T18:35:21.201Z"
+    }
+  ]
+}

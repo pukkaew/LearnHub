@@ -1,0 +1,501 @@
+{
+  "summary": {
+    "total": 34,
+    "passed": 9,
+    "failed": 22,
+    "skipped": 0,
+    "warnings": 3,
+    "passRate": "26.47",
+    "duration": "365.83",
+    "categories": {
+      "Validation": {
+        "pass": 3,
+        "fail": 5,
+        "skip": 0,
+        "warn": 0
+      },
+      "Boundary": {
+        "pass": 1,
+        "fail": 4,
+        "skip": 0,
+        "warn": 0
+      },
+      "Assessment": {
+        "pass": 0,
+        "fail": 6,
+        "skip": 0,
+        "warn": 0
+      },
+      "EdgeCase": {
+        "pass": 3,
+        "fail": 2,
+        "skip": 0,
+        "warn": 2
+      },
+      "Navigation": {
+        "pass": 2,
+        "fail": 3,
+        "skip": 0,
+        "warn": 0
+      },
+      "Integration": {
+        "pass": 0,
+        "fail": 2,
+        "skip": 0,
+        "warn": 1
+      }
+    }
+  },
+  "results": [
+    {
+      "category": "Validation",
+      "testName": "1.1 Empty course name blocked",
+      "status": "PASS",
+      "details": "Prevented navigation",
+      "duration": 7302,
+      "timestamp": "2025-11-27T19:24:40.117Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.2 Course name too short",
+      "status": "PASS",
+      "details": "Validation triggered",
+      "duration": 10783,
+      "timestamp": "2025-11-27T19:24:50.900Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.3 Missing category blocked",
+      "status": "PASS",
+      "details": "Category validation",
+      "duration": 11672,
+      "timestamp": "2025-11-27T19:25:02.572Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.4 Description too short blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14108,
+      "timestamp": "2025-11-27T19:25:16.680Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.5 Missing objectives blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14067,
+      "timestamp": "2025-11-27T19:25:30.747Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.6 Duration=0 blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14043,
+      "timestamp": "2025-11-27T19:25:44.790Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.7 Invalid URL format",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13984,
+      "timestamp": "2025-11-27T19:25:58.774Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.8 Missing lesson title blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14058,
+      "timestamp": "2025-11-27T19:26:12.833Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.1 Max course name (255 chars)",
+      "status": "PASS",
+      "details": "Stored length: 255",
+      "duration": 10684,
+      "timestamp": "2025-11-27T19:26:23.518Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.2 Min description (50 chars)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13868,
+      "timestamp": "2025-11-27T19:26:37.386Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.3 Max duration hours (999)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#duration_hours` failed",
+      "duration": 13819,
+      "timestamp": "2025-11-27T19:26:51.205Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.4 Max enrollments (10000)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#max_enrollments` failed",
+      "duration": 5004,
+      "timestamp": "2025-11-27T19:26:56.209Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.5 Negative duration handling",
+      "status": "FAIL",
+      "details": "Waiting for selector `#duration_hours` failed",
+      "duration": 13680,
+      "timestamp": "2025-11-27T19:27:09.889Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.1 Default assessment type is \"none\"",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13818,
+      "timestamp": "2025-11-27T19:27:23.707Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.2 \"Existing\" shows test dropdown",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13818,
+      "timestamp": "2025-11-27T19:27:37.525Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.3 \"Create new\" shows form",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13834,
+      "timestamp": "2025-11-27T19:27:51.359Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.4 Fill create_new test details",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13822,
+      "timestamp": "2025-11-27T19:28:05.181Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.5 Randomize questions toggle",
+      "status": "FAIL",
+      "details": "Node is either not clickable or not an Element",
+      "duration": 13,
+      "timestamp": "2025-11-27T19:28:05.194Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.6 Assessment type switching",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13810,
+      "timestamp": "2025-11-27T19:28:19.004Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.1 Multiple lessons creation",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13839,
+      "timestamp": "2025-11-27T19:28:32.844Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.2 Remove lesson",
+      "status": "FAIL",
+      "details": "Node is either not clickable or not an Element",
+      "duration": 16,
+      "timestamp": "2025-11-27T19:28:32.860Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.3 Special chars in name",
+      "status": "WARN",
+      "details": "Stored: Course <script>alert(\"XSS\")</script> Test & \"Quote",
+      "duration": 7675,
+      "timestamp": "2025-11-27T19:28:40.535Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.4 Thai + numbers mixed",
+      "status": "PASS",
+      "details": "Match: true",
+      "duration": 7241,
+      "timestamp": "2025-11-27T19:28:47.776Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.5 Emoji handling",
+      "status": "PASS",
+      "details": "Emojis preserved: true",
+      "duration": 7111,
+      "timestamp": "2025-11-27T19:28:54.887Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.6 Save draft functionality",
+      "status": "WARN",
+      "details": "No confirmation",
+      "duration": 12231,
+      "timestamp": "2025-11-27T19:29:07.118Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.7 Rapid click handling",
+      "status": "PASS",
+      "details": "No crash from rapid clicks",
+      "duration": 8263,
+      "timestamp": "2025-11-27T19:29:15.381Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.1 Back navigation preserves data",
+      "status": "FAIL",
+      "details": "Waiting for selector `#prev-btn` failed",
+      "duration": 13269,
+      "timestamp": "2025-11-27T19:29:28.651Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.2 Multiple back-forth cycles",
+      "status": "FAIL",
+      "details": "Waiting for selector `#prev-btn` failed",
+      "duration": 13062,
+      "timestamp": "2025-11-27T19:29:41.713Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.3 Step indicator updates",
+      "status": "PASS",
+      "details": "Step indicators functional",
+      "duration": 8376,
+      "timestamp": "2025-11-27T19:29:50.089Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.4 Direct URL access",
+      "status": "FAIL",
+      "details": "Form: false, Step1: true",
+      "duration": 5671,
+      "timestamp": "2025-11-27T19:29:55.760Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.5 Page refresh clears form",
+      "status": "PASS",
+      "details": "After refresh: empty",
+      "duration": 8831,
+      "timestamp": "2025-11-27T19:30:04.591Z"
+    },
+    {
+      "category": "Integration",
+      "testName": "6.1 Complete course (none assessment)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14099,
+      "timestamp": "2025-11-27T19:30:18.690Z"
+    },
+    {
+      "category": "Integration",
+      "testName": "6.2 Complete course (create_new assessment)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14031,
+      "timestamp": "2025-11-27T19:30:32.721Z"
+    },
+    {
+      "category": "Integration",
+      "testName": "6.3 Created course in list",
+      "status": "WARN",
+      "details": "Not found (may be on different page)",
+      "duration": 2757,
+      "timestamp": "2025-11-27T19:30:35.478Z"
+    }
+  ],
+  "failedTests": [
+    {
+      "category": "Validation",
+      "testName": "1.4 Description too short blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14108,
+      "timestamp": "2025-11-27T19:25:16.680Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.5 Missing objectives blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14067,
+      "timestamp": "2025-11-27T19:25:30.747Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.6 Duration=0 blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14043,
+      "timestamp": "2025-11-27T19:25:44.790Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.7 Invalid URL format",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13984,
+      "timestamp": "2025-11-27T19:25:58.774Z"
+    },
+    {
+      "category": "Validation",
+      "testName": "1.8 Missing lesson title blocked",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14058,
+      "timestamp": "2025-11-27T19:26:12.833Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.2 Min description (50 chars)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13868,
+      "timestamp": "2025-11-27T19:26:37.386Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.3 Max duration hours (999)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#duration_hours` failed",
+      "duration": 13819,
+      "timestamp": "2025-11-27T19:26:51.205Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.4 Max enrollments (10000)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#max_enrollments` failed",
+      "duration": 5004,
+      "timestamp": "2025-11-27T19:26:56.209Z"
+    },
+    {
+      "category": "Boundary",
+      "testName": "2.5 Negative duration handling",
+      "status": "FAIL",
+      "details": "Waiting for selector `#duration_hours` failed",
+      "duration": 13680,
+      "timestamp": "2025-11-27T19:27:09.889Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.1 Default assessment type is \"none\"",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13818,
+      "timestamp": "2025-11-27T19:27:23.707Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.2 \"Existing\" shows test dropdown",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13818,
+      "timestamp": "2025-11-27T19:27:37.525Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.3 \"Create new\" shows form",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13834,
+      "timestamp": "2025-11-27T19:27:51.359Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.4 Fill create_new test details",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13822,
+      "timestamp": "2025-11-27T19:28:05.181Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.5 Randomize questions toggle",
+      "status": "FAIL",
+      "details": "Node is either not clickable or not an Element",
+      "duration": 13,
+      "timestamp": "2025-11-27T19:28:05.194Z"
+    },
+    {
+      "category": "Assessment",
+      "testName": "3.6 Assessment type switching",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13810,
+      "timestamp": "2025-11-27T19:28:19.004Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.1 Multiple lessons creation",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 13839,
+      "timestamp": "2025-11-27T19:28:32.844Z"
+    },
+    {
+      "category": "EdgeCase",
+      "testName": "4.2 Remove lesson",
+      "status": "FAIL",
+      "details": "Node is either not clickable or not an Element",
+      "duration": 16,
+      "timestamp": "2025-11-27T19:28:32.860Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.1 Back navigation preserves data",
+      "status": "FAIL",
+      "details": "Waiting for selector `#prev-btn` failed",
+      "duration": 13269,
+      "timestamp": "2025-11-27T19:29:28.651Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.2 Multiple back-forth cycles",
+      "status": "FAIL",
+      "details": "Waiting for selector `#prev-btn` failed",
+      "duration": 13062,
+      "timestamp": "2025-11-27T19:29:41.713Z"
+    },
+    {
+      "category": "Navigation",
+      "testName": "5.4 Direct URL access",
+      "status": "FAIL",
+      "details": "Form: false, Step1: true",
+      "duration": 5671,
+      "timestamp": "2025-11-27T19:29:55.760Z"
+    },
+    {
+      "category": "Integration",
+      "testName": "6.1 Complete course (none assessment)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14099,
+      "timestamp": "2025-11-27T19:30:18.690Z"
+    },
+    {
+      "category": "Integration",
+      "testName": "6.2 Complete course (create_new assessment)",
+      "status": "FAIL",
+      "details": "Waiting for selector `#description` failed",
+      "duration": 14031,
+      "timestamp": "2025-11-27T19:30:32.721Z"
+    }
+  ]
+}

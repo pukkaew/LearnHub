@@ -1,4 +1,5 @@
 const QuestionBank = require('../models/QuestionBank');
+const { t } = require('../utils/languages');
 
 /**
  * Question Bank Controller
@@ -57,7 +58,7 @@ exports.showQuestionBank = async (req, res) => {
 
     } catch (error) {
         console.error('Error showing question bank:', error);
-        req.flash('error', 'เกิดข้อผิดพลาดในการแสดงคลังข้อสอบ');
+        req.flash('error', req.t('errorDisplayingQuestionBank'));
         res.redirect(`/courses/${req.params.courseId}`);
     }
 };
@@ -82,7 +83,7 @@ exports.showCreateForm = async (req, res) => {
 
     } catch (error) {
         console.error('Error showing create form:', error);
-        req.flash('error', 'เกิดข้อผิดพลาดในการแสดงฟอร์ม');
+        req.flash('error', req.t('errorDisplayingForm'));
         res.redirect(`/courses/${req.params.courseId}/questions`);
     }
 };
@@ -99,13 +100,13 @@ exports.showEditForm = async (req, res) => {
         const question = await QuestionBank.findById(questionId);
 
         if (!question) {
-            req.flash('error', 'ไม่พบข้อสอบที่ต้องการแก้ไข');
+            req.flash('error', req.t('questionNotFoundForEdit'));
             return res.redirect(`/courses/${courseId}/questions`);
         }
 
         // Check permission (only creator or admin can edit)
         if (question.created_by !== req.user.user_id && req.user.role !== 'admin') {
-            req.flash('error', 'คุณไม่มีสิทธิ์แก้ไขข้อสอบนี้');
+            req.flash('error', req.t('noPermissionEditThisQuestion'));
             return res.redirect(`/courses/${courseId}/questions`);
         }
 
@@ -118,7 +119,7 @@ exports.showEditForm = async (req, res) => {
 
     } catch (error) {
         console.error('Error showing edit form:', error);
-        req.flash('error', 'เกิดข้อผิดพลาดในการแสดงฟอร์มแก้ไข');
+        req.flash('error', req.t('errorDisplayingEditForm'));
         res.redirect(`/courses/${req.params.courseId}/questions`);
     }
 };
@@ -135,7 +136,7 @@ exports.showDetail = async (req, res) => {
         const question = await QuestionBank.findById(questionId, true);
 
         if (!question) {
-            req.flash('error', 'ไม่พบข้อสอบที่ต้องการดู');
+            req.flash('error', req.t('questionNotFoundForView'));
             return res.redirect(`/courses/${courseId}/questions`);
         }
 
@@ -148,7 +149,7 @@ exports.showDetail = async (req, res) => {
 
     } catch (error) {
         console.error('Error showing question detail:', error);
-        req.flash('error', 'เกิดข้อผิดพลาดในการแสดงรายละเอียดข้อสอบ');
+        req.flash('error', req.t('errorDisplayingQuestionDetails'));
         res.redirect(`/courses/${req.params.courseId}/questions`);
     }
 };
@@ -201,7 +202,7 @@ exports.getQuestions = async (req, res) => {
         console.error('Error getting questions:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลข้อสอบ',
+            message: req.t('errorFetchingQuestionData'),
             error: error.message
         });
     }
@@ -221,7 +222,7 @@ exports.getQuestionById = async (req, res) => {
         if (!question) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบข้อสอบที่ต้องการ'
+                message: req.t('testNotFound')
             });
         }
 
@@ -234,7 +235,7 @@ exports.getQuestionById = async (req, res) => {
         console.error('Error getting question:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูลข้อสอบ',
+            message: req.t('errorFetchingQuestionData'),
             error: error.message
         });
     }
@@ -279,7 +280,7 @@ exports.createQuestion = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'สร้างข้อสอบสำเร็จ',
+            message: req.t('testCreatedSuccess'),
             data: { question_id: questionId }
         });
 
@@ -287,7 +288,7 @@ exports.createQuestion = async (req, res) => {
         console.error('Error creating question:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ',
+            message: req.t('errorCreatingTest'),
             error: error.message
         });
     }
@@ -308,7 +309,7 @@ exports.updateQuestion = async (req, res) => {
         if (!existingQuestion) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบข้อสอบที่ต้องการแก้ไข'
+                message: req.t('questionNotFoundForEdit')
             });
         }
 
@@ -316,7 +317,7 @@ exports.updateQuestion = async (req, res) => {
         if (existingQuestion.created_by !== userId && req.user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์แก้ไขข้อสอบนี้'
+                message: req.t('noPermissionEditThisQuestion')
             });
         }
 
@@ -347,14 +348,14 @@ exports.updateQuestion = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'แก้ไขข้อสอบสำเร็จ'
+            message: req.t('questionUpdatedSuccess')
         });
 
     } catch (error) {
         console.error('Error updating question:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการแก้ไขข้อสอบ',
+            message: req.t('errorUpdatingQuestion'),
             error: error.message
         });
     }
@@ -375,7 +376,7 @@ exports.deleteQuestion = async (req, res) => {
         if (!question) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบข้อสอบที่ต้องการลบ'
+                message: req.t('questionNotFoundForDelete')
             });
         }
 
@@ -383,7 +384,7 @@ exports.deleteQuestion = async (req, res) => {
         if (question.created_by !== userId && req.user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์ลบข้อสอบนี้'
+                message: req.t('noPermissionDeleteQuestion')
             });
         }
 
@@ -392,14 +393,14 @@ exports.deleteQuestion = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'ลบข้อสอบสำเร็จ'
+            message: req.t('testDeletedSuccess')
         });
 
     } catch (error) {
         console.error('Error deleting question:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการลบข้อสอบ',
+            message: req.t('errorDeletingTest'),
             error: error.message
         });
     }
@@ -418,7 +419,7 @@ exports.duplicateQuestion = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'ทำสำเนาข้อสอบสำเร็จ',
+            message: req.t('questionDuplicatedSuccess'),
             data: { question_id: newQuestionId }
         });
 
@@ -426,7 +427,7 @@ exports.duplicateQuestion = async (req, res) => {
         console.error('Error duplicating question:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการทำสำเนาข้อสอบ',
+            message: req.t('errorDuplicatingQuestion'),
             error: error.message
         });
     }
@@ -444,7 +445,7 @@ exports.getRandomQuestions = async (req, res) => {
         if (!count || count < 1) {
             return res.status(400).json({
                 success: false,
-                message: 'กรุณาระบุจำนวนข้อสอบที่ต้องการ'
+                message: req.t('pleaseSpecifyQuestionCount')
             });
         }
 
@@ -460,7 +461,7 @@ exports.getRandomQuestions = async (req, res) => {
         console.error('Error getting random questions:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการสุ่มข้อสอบ',
+            message: req.t('errorRandomizingQuestions'),
             error: error.message
         });
     }
@@ -485,7 +486,7 @@ exports.getStatistics = async (req, res) => {
         console.error('Error getting statistics:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงสถิติ',
+            message: req.t('errorFetchingStatistics'),
             error: error.message
         });
     }
@@ -504,7 +505,7 @@ exports.verifyQuestion = async (req, res) => {
         if (req.user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์ในการยืนยันข้อสอบ'
+                message: req.t('noPermissionVerifyQuestion')
             });
         }
 
@@ -516,14 +517,14 @@ exports.verifyQuestion = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'ยืนยันข้อสอบสำเร็จ'
+            message: req.t('questionVerifiedSuccess')
         });
 
     } catch (error) {
         console.error('Error verifying question:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการยืนยันข้อสอบ',
+            message: req.t('errorVerifyingQuestion'),
             error: error.message
         });
     }
@@ -542,7 +543,7 @@ exports.bulkImport = async (req, res) => {
         if (!questions || !Array.isArray(questions) || questions.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'กรุณาระบุข้อมูลข้อสอบที่ต้องการนำเข้า'
+                message: req.t('pleaseSpecifyQuestionDataToImport')
             });
         }
 
@@ -589,7 +590,7 @@ exports.bulkImport = async (req, res) => {
 
         res.json({
             success: true,
-            message: `นำเข้าข้อสอบเสร็จสิ้น: สำเร็จ ${successCount} ข้อ, ผิดพลาด ${errorCount} ข้อ`,
+            message: req.t('questionImportComplete').replace('{success}', successCount).replace('{error}', errorCount),
             results,
             summary: {
                 total: questions.length,
@@ -602,7 +603,7 @@ exports.bulkImport = async (req, res) => {
         console.error('Error bulk importing questions:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการนำเข้าข้อสอบ',
+            message: req.t('errorImportingQuestions'),
             error: error.message
         });
     }

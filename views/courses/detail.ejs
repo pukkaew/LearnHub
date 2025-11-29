@@ -413,8 +413,35 @@ function setupEventListeners() {
     });
 
     // Modal events
-    document.getElementById('confirm-enrollment').addEventListener('click', enrollInCourse);
-    document.getElementById('cancel-enrollment').addEventListener('click', closeEnrollmentModal);
+    const confirmEnrollBtn = document.getElementById('confirm-enrollment');
+    const cancelEnrollBtn = document.getElementById('cancel-enrollment');
+    const enrollmentModal = document.getElementById('enrollment-modal');
+
+    if (confirmEnrollBtn) {
+        confirmEnrollBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Confirm enrollment button clicked');
+            enrollInCourse();
+        });
+    }
+
+    if (cancelEnrollBtn) {
+        cancelEnrollBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeEnrollmentModal();
+        });
+    }
+
+    // Close modal when clicking overlay
+    if (enrollmentModal) {
+        enrollmentModal.addEventListener('click', function(e) {
+            // Only close if clicking on the modal background (not the content)
+            if (e.target === enrollmentModal || e.target.classList.contains('modal-overlay')) {
+                closeEnrollmentModal();
+            }
+        });
+    }
 
     // Rating events
     document.querySelectorAll('.star-rating').forEach(star => {
@@ -1003,7 +1030,7 @@ function updateCurriculumDisplay(curriculum) {
             <div class="border rounded-lg mb-4">
                 <div class="bg-gray-50 px-4 py-3 border-b">
                     <h4 class="font-semibold text-gray-900">
-                        ${index + 1}. ${section.title}
+                        ${curriculum.length > 1 ? (index + 1) + '. ' : ''}${t(section.title) || section.title}
                     </h4>
                     <p class="text-sm text-gray-600">${section.description || ''}</p>
                 </div>
@@ -1329,24 +1356,40 @@ function closeEnrollmentModal() {
 }
 
 async function enrollInCourse() {
+    console.log('enrollInCourse function called');
+    console.log('Course ID:', courseId);
+
     try {
         const confirmBtn = document.getElementById('confirm-enrollment');
+        if (!confirmBtn) {
+            console.error('Confirm button not found');
+            return;
+        }
+
         const originalText = confirmBtn.innerHTML;
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>${t('enrolling')}`;
+
+        console.log(`Fetching: /courses/api/${courseId}/enroll`);
 
         const response = await fetch(`/courses/api/${courseId}/enroll`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'same-origin' // Ensure cookies are sent
         });
 
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error:', errorText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log('Response data:', data);
 
         if (data.success) {
             showSuccess(t('enrollmentSuccess'));
@@ -1364,8 +1407,10 @@ async function enrollInCourse() {
         showError(t('errorEnrollment'));
 
         const confirmBtn = document.getElementById('confirm-enrollment');
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = t('confirmEnrollmentBtn');
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = t('confirmEnrollmentBtn');
+        }
     }
 }
 
@@ -1623,5 +1668,24 @@ function hideLoading() {
 
 .prose li {
     margin-bottom: 0.25rem;
+}
+
+/* Modal styles - Fix for enrollment modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 20;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 </style>

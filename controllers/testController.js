@@ -2,6 +2,8 @@ const Test = require('../models/Test');
 const Question = require('../models/Question');
 const TestBank = require('../models/TestBank');
 const ActivityLog = require('../models/ActivityLog');
+const Chapter = require('../models/Chapter');
+const Lesson = require('../models/Lesson');
 
 const testController = {
     async getAllTests(req, res) {
@@ -44,7 +46,7 @@ const testController = {
             console.error('Get all tests error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายการข้อสอบ'
+                message: req.t('errorLoadingTestList')
             });
         }
     },
@@ -53,20 +55,20 @@ const testController = {
         try {
             const { test_id } = req.params;
             const userId = req.user.user_id;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
 
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อสอบที่ต้องการ'
+                    message: req.t('testNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && test.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์เข้าถึงข้อสอบนี้'
+                    message: req.t('noPermissionAccessTest')
                 });
             }
 
@@ -97,27 +99,27 @@ const testController = {
             console.error('Get test by id error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลข้อสอบ'
+                message: req.t('errorLoadingTestData')
             });
         }
     },
 
     async createTest(req, res) {
         try {
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
             const userId = req.user.user_id;
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์สร้างข้อสอบ'
+                    message: req.t('noPermissionCreateTest')
                 });
             }
 
             // Map legacy field names to database schema
             const testData = {
                 course_id: req.body.course_id || null,
-                instructor_id: userRole === 'Instructor' ? userId : req.body.instructor_id,
+                instructor_id: req.body.instructor_id || userId, // Use current user if not specified
                 title: req.body.test_name || req.body.title,
                 description: req.body.test_description || req.body.description,
                 type: req.body.test_type || req.body.type || 'Quiz',
@@ -168,7 +170,7 @@ const testController = {
 
             res.status(201).json({
                 success: true,
-                message: 'สร้างข้อสอบสำเร็จ',
+                message: req.t('testCreatedSuccess'),
                 data: result.data
             });
 
@@ -176,7 +178,7 @@ const testController = {
             console.error('Create test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ',
+                message: req.t('errorCreatingTest'),
                 error: error.message
             });
         }
@@ -185,28 +187,28 @@ const testController = {
     async updateTest(req, res) {
         try {
             const { test_id } = req.params;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
             const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อสอบที่ต้องการ'
+                    message: req.t('testNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && test.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์แก้ไขข้อสอบนี้'
+                    message: req.t('noPermissionEditThisTest')
                 });
             }
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์แก้ไขข้อสอบ'
+                    message: req.t('noPermissionEditTest')
                 });
             }
 
@@ -252,7 +254,7 @@ const testController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทข้อสอบสำเร็จ',
+                message: req.t('testUpdatedSuccess'),
                 data: result.data
             });
 
@@ -260,7 +262,7 @@ const testController = {
             console.error('Update test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทข้อสอบ'
+                message: req.t('errorUpdatingTest')
             });
         }
     },
@@ -268,13 +270,13 @@ const testController = {
     async deleteTest(req, res) {
         try {
             const { test_id } = req.params;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
             const userId = req.user.user_id;
 
             if (userRole !== 'Admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ลบข้อสอบ'
+                    message: req.t('noPermissionDeleteTest')
                 });
             }
 
@@ -282,7 +284,7 @@ const testController = {
             if (!test) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อสอบที่ต้องการ'
+                    message: req.t('testNotFound')
                 });
             }
 
@@ -307,14 +309,14 @@ const testController = {
 
             res.json({
                 success: true,
-                message: 'ลบข้อสอบสำเร็จ'
+                message: req.t('testDeletedSuccess')
             });
 
         } catch (error) {
             console.error('Delete test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการลบข้อสอบ'
+                message: req.t('errorDeletingTest')
             });
         }
     },
@@ -328,14 +330,14 @@ const testController = {
             if (!test) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อสอบที่ต้องการ'
+                    message: req.t('testNotFound')
                 });
             }
 
             if (test.status !== 'Active') {
                 return res.status(400).json({
                     success: false,
-                    message: 'ข้อสอบนี้ยังไม่เปิดใช้งาน'
+                    message: req.t('testNotActive')
                 });
             }
 
@@ -343,7 +345,7 @@ const testController = {
             if (existingAttempts.length >= (test.attempts_allowed || 1)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'คุณใช้สิทธิ์ทำข้อสอบครบแล้ว'
+                    message: req.t('testAttemptsExceeded')
                 });
             }
 
@@ -351,7 +353,7 @@ const testController = {
             if (activeAttempt) {
                 return res.status(400).json({
                     success: false,
-                    message: 'คุณมีการทำข้อสอบที่ยังไม่เสร็จสิ้น'
+                    message: req.t('testAttemptInProgress')
                 });
             }
 
@@ -385,7 +387,7 @@ const testController = {
 
             res.json({
                 success: true,
-                message: 'เริ่มทำข้อสอบสำเร็จ',
+                message: req.t('testStartSuccess'),
                 data: {
                     attempt: result.data,
                     test: test,
@@ -397,7 +399,7 @@ const testController = {
             console.error('Start test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเริ่มทำข้อสอบ'
+                message: req.t('errorStartingTest')
             });
         }
     },
@@ -412,7 +414,7 @@ const testController = {
             if (!test) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อสอบที่ต้องการ'
+                    message: req.t('testNotFound')
                 });
             }
 
@@ -420,14 +422,14 @@ const testController = {
             if (!attempt || attempt.user_id !== userId) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบการทำข้อสอบที่ต้องการ'
+                    message: req.t('testAttemptNotFound')
                 });
             }
 
             if (attempt.status !== 'In_Progress') {
                 return res.status(400).json({
                     success: false,
-                    message: 'การทำข้อสอบนี้เสร็จสิ้นแล้ว'
+                    message: req.t('testAttemptAlreadyCompleted')
                 });
             }
 
@@ -452,7 +454,7 @@ const testController = {
 
             res.json({
                 success: true,
-                message: 'ส่งข้อสอบสำเร็จ',
+                message: req.t('testSubmitSuccess'),
                 data: result.data
             });
 
@@ -460,7 +462,7 @@ const testController = {
             console.error('Submit test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการส่งข้อสอบ'
+                message: req.t('errorSubmittingTest')
             });
         }
     },
@@ -469,13 +471,13 @@ const testController = {
         try {
             const { test_id } = req.params;
             const userId = req.user.user_id;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
 
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อสอบที่ต้องการ'
+                    message: req.t('testNotFound')
                 });
             }
 
@@ -485,7 +487,7 @@ const testController = {
                 if (userRole === 'Instructor' && test.instructor_id !== userId) {
                     return res.status(403).json({
                         success: false,
-                        message: 'ไม่มีสิทธิ์ดูผลข้อสอบนี้'
+                        message: req.t('noPermissionViewTestResults')
                     });
                 }
                 attempts = await Test.getAllAttempts(test_id);
@@ -505,7 +507,7 @@ const testController = {
             console.error('Get test results error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดผลข้อสอบ'
+                message: req.t('errorLoadingTestResults')
             });
         }
     },
@@ -513,28 +515,28 @@ const testController = {
     async getTestStatistics(req, res) {
         try {
             const { test_id } = req.params;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
             const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อสอบที่ต้องการ'
+                    message: req.t('testNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && test.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดูสถิติข้อสอบนี้'
+                    message: req.t('noPermissionViewTestStatistics')
                 });
             }
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดูสถิติข้อสอบ'
+                    message: req.t('noPermissionViewStatistics')
                 });
             }
 
@@ -549,7 +551,7 @@ const testController = {
             console.error('Get test statistics error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดสถิติข้อสอบ'
+                message: req.t('errorLoadingTestStatistics')
             });
         }
     },
@@ -557,16 +559,16 @@ const testController = {
     async renderTestsList(req, res) {
         try {
             res.render('tests/index', {
-                title: 'รายการข้อสอบ - Rukchai Hongyen LearnHub',
+                title: req.t('testsListTitle'),
                 user: req.session.user,
-                userRole: req.user.role
+                userRole: req.user.role_name
             });
 
         } catch (error) {
             console.error('Render tests list error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้ารายการข้อสอบได้',
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingTestsListPage'),
                 user: req.session.user,
                 error: error
             });
@@ -587,17 +589,17 @@ const testController = {
             `);
 
             res.render('tests/create', {
-                title: 'สร้างข้อสอบใหม่ - Rukchai Hongyen LearnHub',
+                title: req.t('createTestTitle'),
                 user: req.session.user,
-                userRole: req.user.role,
+                userRole: req.user.role_name,
                 courses: coursesResult.recordset || []
             });
 
         } catch (error) {
             console.error('Render create test error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าสร้างข้อสอบได้',
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingCreateTestPage'),
                 user: req.session.user,
                 error: error
             });
@@ -611,7 +613,7 @@ const testController = {
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    title: req.t('pageNotFoundTitle'),
                     user: req.session.user
                 });
             }
@@ -619,15 +621,15 @@ const testController = {
             res.render('tests/detail', {
                 title: `${test.title} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
-                userRole: req.user.role,
+                userRole: req.user.role_name,
                 test: test
             });
 
         } catch (error) {
             console.error('Render test detail error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดข้อมูลข้อสอบได้',
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingTestDetailPage'),
                 user: req.session.user,
                 error: error
             });
@@ -642,7 +644,7 @@ const testController = {
             const test = await Test.findById(test_id);
             if (!test) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    title: req.t('pageNotFoundTitle'),
                     user: req.session.user
                 });
             }
@@ -650,7 +652,7 @@ const testController = {
             const attempt = await Test.getAttemptById(attempt_id);
             if (!attempt || attempt.user_id !== userId) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    title: req.t('pageNotFoundTitle'),
                     user: req.session.user
                 });
             }
@@ -662,9 +664,9 @@ const testController = {
             const questions = await Question.findByTestId(test_id);
 
             res.render('tests/taking', {
-                title: `ทำข้อสอบ: ${test.title} - Rukchai Hongyen LearnHub`,
+                title: `${req.t('takingTest')}: ${test.title} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
-                userRole: req.user.role,
+                userRole: req.user.role_name,
                 test: test,
                 attempt: attempt,
                 questions: questions
@@ -673,10 +675,107 @@ const testController = {
         } catch (error) {
             console.error('Render test taking error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าทำข้อสอบได้',
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingTestTakingPage'),
                 user: req.session.user,
                 error: error
+            });
+        }
+    },
+
+    // API: Get chapters by course ID
+    async getChaptersByCourse(req, res) {
+        try {
+            const { course_id } = req.params;
+
+            if (!course_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('courseIdRequired')
+                });
+            }
+
+            const chapters = await Chapter.findByCourseId(parseInt(course_id));
+
+            res.json({
+                success: true,
+                data: chapters
+            });
+
+        } catch (error) {
+            console.error('Get chapters by course error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingChapters')
+            });
+        }
+    },
+
+    // API: Get lessons by chapter ID
+    async getLessonsByChapter(req, res) {
+        try {
+            const { chapter_id } = req.params;
+
+            if (!chapter_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('chapterIdRequired')
+                });
+            }
+
+            const lessons = await Lesson.findByChapterId(parseInt(chapter_id));
+
+            res.json({
+                success: true,
+                data: lessons
+            });
+
+        } catch (error) {
+            console.error('Get lessons by chapter error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingLessons')
+            });
+        }
+    },
+
+    // API: Get tests by course ID (for assessment structure display)
+    async getTestsByCourse(req, res) {
+        try {
+            const { course_id } = req.params;
+
+            if (!course_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('courseIdRequired') || 'Course ID is required'
+                });
+            }
+
+            // Get all tests for this course
+            const tests = await Test.findAll({
+                course_id: parseInt(course_id),
+                limit: 100 // Get all tests for the course
+            });
+
+            // Return tests with essential info (type, title, status)
+            const testsSummary = tests.map(test => ({
+                test_id: test.test_id,
+                title: test.title,
+                type: test.type,
+                status: test.status,
+                created_at: test.created_at
+            }));
+
+            res.json({
+                success: true,
+                data: testsSummary
+            });
+
+        } catch (error) {
+            console.error('Get tests by course error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingTests') || 'Error loading tests'
             });
         }
     }

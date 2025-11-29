@@ -13,6 +13,7 @@ router.get('/my-courses', courseController.renderMyCourses);
 router.get('/create', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), courseController.renderCreateCourse);
 router.get('/categories', authMiddleware.requireRole(['Admin']), courseController.renderCategoryManagement);
 router.get('/:course_id/edit', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), courseController.renderEditCourse);
+router.get('/:course_id/content', courseController.renderCourseContent);
 router.get('/:course_id', courseController.renderCourseDetail);
 
 // API endpoints - Course CRUD operations (IMPORTANT: Static routes MUST come before dynamic routes)
@@ -63,9 +64,8 @@ router.post('/api/categories-admin', authMiddleware.requireRole(['Admin']), cour
 router.put('/api/categories-admin/:category_id', authMiddleware.requireRole(['Admin']), courseController.updateCategoryAdmin);
 router.delete('/api/categories-admin/:category_id', authMiddleware.requireRole(['Admin']), courseController.deleteCategoryAdmin);
 
-// Test Management for Courses
-router.get('/api/tests/available', authMiddleware.requireRole(['Admin', 'Instructor']), courseController.getAvailableTests);
-router.post('/api/tests/create', authMiddleware.requireRole(['Admin', 'Instructor']), courseController.createTestForCourse);
+// Get available tests for course creation
+router.get('/api/tests/available', courseController.getAvailableTests);
 
 // File Upload for Courses
 router.post('/api/upload/image', authMiddleware.requireRole(['Admin', 'Instructor']), courseController.uploadCourseImage);

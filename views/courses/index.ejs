@@ -22,6 +22,9 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('search') %></label>
                 <input type="text" id="search" placeholder="<%= t('searchPlaceholder') %>"
+                       data-testid="course-search"
+                       maxlength="200"
+                       autocomplete="off"
                        class="form-input-ruxchai">
             </div>
             <div>
@@ -572,8 +575,13 @@ function getDifficultyText(level) {
 }
 
 function handleFilterChange() {
+    // Sanitize search input - remove potentially dangerous characters
+    let searchValue = document.getElementById('search').value;
+    // Strip HTML tags and limit length
+    searchValue = searchValue.replace(/<[^>]*>/g, '').trim().substring(0, 200);
+
     currentFilters = {
-        search: document.getElementById('search').value,
+        search: searchValue,
         category: document.getElementById('category').value,
         difficulty: document.getElementById('difficulty').value,
         status: document.getElementById('status').value,

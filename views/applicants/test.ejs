@@ -6,19 +6,19 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 id="testTitle" class="text-2xl font-bold text-gray-900 mb-2">ข้อสอบการประเมินตำแหน่งงาน</h1>
+                    <h1 id="testTitle" class="text-2xl font-bold text-gray-900 mb-2"><%= t('applicantTestTitle') %></h1>
                     <div class="flex items-center space-x-6 text-sm text-gray-600">
-                        <span id="positionTitle">ตำแหน่ง: -</span>
-                        <span id="questionCount">จำนวนข้อ: 0 ข้อ</span>
-                        <span id="timeLimit">เวลา: 0 นาที</span>
-                        <span id="passingScore">คะแนนผ่าน: 0%</span>
+                        <span id="positionTitle"><%= t('applicantTestPosition') %>: -</span>
+                        <span id="questionCount"><%= t('applicantTestQuestionCount') %>: 0 <%= t('applicantTestQuestions') %></span>
+                        <span id="timeLimit"><%= t('applicantTestTime') %>: 0 <%= t('applicantTestMinutes') %></span>
+                        <span id="passingScore"><%= t('applicantTestPassingScore') %>: 0%</span>
                     </div>
                 </div>
 
                 <!-- Timer -->
                 <div class="text-right">
                     <div class="text-3xl font-bold text-ruxchai-primary" id="timer">00:00:00</div>
-                    <div class="text-sm text-gray-500">เวลาที่เหลือ</div>
+                    <div class="text-sm text-gray-500"><%= t('applicantTestTimeRemaining') %></div>
                 </div>
             </div>
         </div>
@@ -31,12 +31,12 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-lg font-medium text-gray-900">
-                            ข้อที่ <span id="currentQuestionNumber">1</span> จาก <span id="totalQuestions">0</span>
+                            <%= t('applicantTestQuestionNumber') %> <span id="currentQuestionNumber">1</span> <%= t('applicantTestFrom') %> <span id="totalQuestions">0</span>
                         </h2>
                         <div class="flex items-center space-x-2 text-sm text-gray-500">
-                            <span id="questionType">ปรนัย</span>
+                            <span id="questionType"><%= t('applicantTestMultipleChoice') %></span>
                             <span>•</span>
-                            <span id="questionPoints">1 คะแนน</span>
+                            <span id="questionPoints">1 <%= t('applicantTestPoint') %></span>
                         </div>
                     </div>
 
@@ -53,20 +53,20 @@
                     <!-- Navigation -->
                     <div class="flex justify-between items-center pt-8 border-t border-gray-200">
                         <button id="prevBtn" class="px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-chevron-left mr-2"></i>ข้อก่อนหน้า
+                            <i class="fas fa-chevron-left mr-2"></i><%= t('applicantTestPrevious') %>
                         </button>
 
                         <div class="flex space-x-3">
                             <button id="markBtn" class="px-4 py-2 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors">
-                                <i class="far fa-flag mr-2"></i>ทำเครื่องหมาย
+                                <i class="far fa-flag mr-2"></i><%= t('applicantTestMark') %>
                             </button>
                             <button id="clearBtn" class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
-                                <i class="fas fa-eraser mr-2"></i>ลบคำตอบ
+                                <i class="fas fa-eraser mr-2"></i><%= t('applicantTestClearAnswer') %>
                             </button>
                         </div>
 
                         <button id="nextBtn" class="px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
-                            ข้อถัดไป<i class="fas fa-chevron-right ml-2"></i>
+                            <%= t('applicantTestNext') %><i class="fas fa-chevron-right ml-2"></i>
                         </button>
                     </div>
                 </div>
@@ -74,10 +74,10 @@
                 <!-- Submit Test -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="text-center">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">พร้อมส่งข้อสอบแล้วหรือไม่?</h3>
-                        <p class="text-gray-600 mb-6">กรุณาตรวจสอบคำตอบของคุณก่อนส่งข้อสอบ การส่งข้อสอบไม่สามารถแก้ไขได้</p>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('applicantTestReadySubmit') %></h3>
+                        <p class="text-gray-600 mb-6"><%= t('applicantTestSubmitWarning') %></p>
                         <button id="submitTestBtn" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-lg font-medium">
-                            <i class="fas fa-paper-plane mr-2"></i>ส่งข้อสอบ
+                            <i class="fas fa-paper-plane mr-2"></i><%= t('applicantTestSubmitButton') %>
                         </button>
                     </div>
                 </div>
@@ -87,11 +87,11 @@
             <div class="space-y-6">
                 <!-- Progress -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">ความคืบหน้า</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('applicantTestProgress') %></h3>
 
                     <div class="mb-4">
                         <div class="flex justify-between text-sm text-gray-600 mb-2">
-                            <span>ตอบแล้ว</span>
+                            <span><%= t('applicantTestAnswered') %></span>
                             <span id="progressText">0/0</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
@@ -102,26 +102,26 @@
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="text-center p-3 bg-green-50 rounded-lg">
                             <div class="text-lg font-bold text-green-600" id="answeredCount">0</div>
-                            <div class="text-green-800">ตอบแล้ว</div>
+                            <div class="text-green-800"><%= t('applicantTestAnswered') %></div>
                         </div>
                         <div class="text-center p-3 bg-gray-50 rounded-lg">
                             <div class="text-lg font-bold text-gray-600" id="unansweredCount">0</div>
-                            <div class="text-gray-800">ยังไม่ตอบ</div>
+                            <div class="text-gray-800"><%= t('applicantTestUnanswered') %></div>
                         </div>
                         <div class="text-center p-3 bg-orange-50 rounded-lg">
                             <div class="text-lg font-bold text-orange-600" id="markedCount">0</div>
-                            <div class="text-orange-800">ทำเครื่องหมาย</div>
+                            <div class="text-orange-800"><%= t('applicantTestMarked') %></div>
                         </div>
                         <div class="text-center p-3 bg-blue-50 rounded-lg">
                             <div class="text-lg font-bold text-blue-600" id="reviewCount">0</div>
-                            <div class="text-blue-800">ทบทวน</div>
+                            <div class="text-blue-800"><%= t('applicantTestReview') %></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Question Navigator -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">ข้อคำถาม</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('applicantTestQuestionsNav') %></h3>
                     <div id="questionNavigator" class="grid grid-cols-5 gap-2">
                         <!-- Question buttons will be loaded here -->
                     </div>
@@ -129,7 +129,7 @@
 
                 <!-- Test Instructions -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">คำแนะนำการทำข้อสอบ</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('applicantTestInstructions') %></h3>
                     <div id="testInstructions" class="text-sm text-gray-600 space-y-2">
                         <!-- Instructions will be loaded here -->
                     </div>
@@ -137,25 +137,25 @@
 
                 <!-- Legends -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">สัญลักษณ์</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('applicantTestLegends') %></h3>
                     <div class="space-y-2 text-sm">
                         <div class="flex items-center">
                             <div class="w-6 h-6 bg-green-500 text-white rounded text-center text-xs leading-6 mr-3">1</div>
-                            <span>ตอบแล้ว</span>
+                            <span><%= t('applicantTestAnswered') %></span>
                         </div>
                         <div class="flex items-center">
                             <div class="w-6 h-6 bg-gray-300 text-gray-700 rounded text-center text-xs leading-6 mr-3">1</div>
-                            <span>ยังไม่ตอบ</span>
+                            <span><%= t('applicantTestUnanswered') %></span>
                         </div>
                         <div class="flex items-center">
                             <div class="w-6 h-6 bg-orange-500 text-white rounded text-center text-xs leading-6 mr-3">
                                 <i class="fas fa-flag text-xs"></i>
                             </div>
-                            <span>ทำเครื่องหมาย</span>
+                            <span><%= t('applicantTestMarked') %></span>
                         </div>
                         <div class="flex items-center">
                             <div class="w-6 h-6 bg-ruxchai-primary text-white rounded text-center text-xs leading-6 mr-3">1</div>
-                            <span>ข้อปัจจุบัน</span>
+                            <span><%= t('applicantTestCurrentQuestion') %></span>
                         </div>
                     </div>
                 </div>
@@ -173,25 +173,25 @@
                     <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">ยืนยันการส่งข้อสอบ</h3>
-                    <p class="text-gray-600 mb-6">คุณแน่ใจหรือไม่ที่จะส่งข้อสอบ? หลังจากส่งแล้วจะไม่สามารถแก้ไขคำตอบได้</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4"><%= t('applicantTestConfirmSubmit') %></h3>
+                    <p class="text-gray-600 mb-6"><%= t('applicantTestConfirmMessage') %></p>
 
                     <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
                         <div class="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                                <span class="text-gray-500">ตอบแล้ว:</span>
-                                <span id="finalAnsweredCount" class="font-medium">0 ข้อ</span>
+                                <span class="text-gray-500"><%= t('applicantTestAnswered') %>:</span>
+                                <span id="finalAnsweredCount" class="font-medium">0 <%= t('applicantTestQuestions') %></span>
                             </div>
                             <div>
-                                <span class="text-gray-500">ยังไม่ตอบ:</span>
-                                <span id="finalUnansweredCount" class="font-medium text-red-600">0 ข้อ</span>
+                                <span class="text-gray-500"><%= t('applicantTestUnanswered') %>:</span>
+                                <span id="finalUnansweredCount" class="font-medium text-red-600">0 <%= t('applicantTestQuestions') %></span>
                             </div>
                             <div>
-                                <span class="text-gray-500">ทำเครื่องหมาย:</span>
-                                <span id="finalMarkedCount" class="font-medium text-orange-600">0 ข้อ</span>
+                                <span class="text-gray-500"><%= t('applicantTestMarked') %>:</span>
+                                <span id="finalMarkedCount" class="font-medium text-orange-600">0 <%= t('applicantTestQuestions') %></span>
                             </div>
                             <div>
-                                <span class="text-gray-500">เวลาที่เหลือ:</span>
+                                <span class="text-gray-500"><%= t('applicantTestTimeRemaining') %>:</span>
                                 <span id="finalTimeLeft" class="font-medium">00:00:00</span>
                             </div>
                         </div>
@@ -199,10 +199,10 @@
 
                     <div class="flex space-x-3">
                         <button id="cancelSubmit" class="flex-1 px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            ยกเลิก
+                            <%= t('applicantTestCancel') %>
                         </button>
                         <button id="confirmSubmit" class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                            ยืนยันส่งข้อสอบ
+                            <%= t('applicantTestConfirmSubmitButton') %>
                         </button>
                     </div>
                 </div>
@@ -220,10 +220,10 @@
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-clock text-red-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">แจ้งเตือนเวลา</h3>
-                    <p id="timeWarningMessage" class="text-gray-600 mb-6">เหลือเวลาอีก 5 นาที กรุณาเตรียมตัวส่งข้อสอบ</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4"><%= t('applicantTestTimeWarningTitle') %></h3>
+                    <p id="timeWarningMessage" class="text-gray-600 mb-6"><%= t('applicantTestTimeWarning5Min') %></p>
                     <button id="acknowledgeWarning" class="px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
-                        รับทราบ
+                        <%= t('applicantTestAcknowledge') %>
                     </button>
                 </div>
             </div>
@@ -232,6 +232,43 @@
 </div>
 
 <script>
+// i18n translations for JavaScript
+const i18n = {
+    position: '<%= t('applicantTestPosition') %>',
+    questionCount: '<%= t('applicantTestQuestionCount') %>',
+    questions: '<%= t('applicantTestQuestions') %>',
+    time: '<%= t('applicantTestTime') %>',
+    minutes: '<%= t('applicantTestMinutes') %>',
+    passingScore: '<%= t('applicantTestPassingScore') %>',
+    point: '<%= t('applicantTestPoint') %>',
+    multipleChoice: '<%= t('applicantTestMultipleChoice') %>',
+    trueFalse: '<%= t('applicantTestTrueFalse') %>',
+    fillBlank: '<%= t('applicantTestFillBlank') %>',
+    essay: '<%= t('applicantTestEssay') %>',
+    multipleSelect: '<%= t('applicantTestMultipleSelect') %>',
+    unknownType: '<%= t('applicantTestUnknownType') %>',
+    next: '<%= t('applicantTestNext') %>',
+    finish: '<%= t('applicantTestFinish') %>',
+    unmarkButton: '<%= t('applicantTestUnmarkButton') %>',
+    markButton: '<%= t('applicantTestMark') %>',
+    true: '<%= t('applicantTestTrue') %>',
+    false: '<%= t('applicantTestFalse') %>',
+    answerLabel: '<%= t('applicantTestAnswerLabel') %>',
+    fillPlaceholder: '<%= t('applicantTestFillPlaceholder') %>',
+    essayPlaceholder: '<%= t('applicantTestEssayPlaceholder') %>',
+    characters: '<%= t('applicantTestCharacters') %>',
+    testStarted: '<%= t('applicantTestStarted') %>',
+    cannotStartTest: '<%= t('applicantTestCannotStart') %>',
+    errorLoadingTest: '<%= t('applicantTestErrorLoading') %>',
+    timeWarning5Min: '<%= t('applicantTestTimeWarning5Min') %>',
+    timeWarning1Min: '<%= t('applicantTestTimeWarning1Min') %>',
+    testSubmitted: '<%= t('applicantTestSubmitted') %>',
+    errorSubmitting: '<%= t('applicantTestErrorSubmitting') %>',
+    autoSubmitted: '<%= t('applicantTestAutoSubmitted') %>',
+    tabSwitchWarning: '<%= t('applicantTestTabSwitchWarning') %>',
+    errorLoading: '<%= t('applicantTestErrorLoadingData') %>'
+};
+
 // Global variables
 let testData = {};
 let questions = [];
@@ -333,7 +370,7 @@ function setupAntiCheating() {
             logSuspiciousActivity('focus_loss', { count: focusLossCount });
 
             if (focusLossCount >= 3) {
-                showWarning('คุณออกจากหน้าข้อสอบบ่อยเกินไป ระบบจะส่งข้อสอบอัตโนมัติหากออกอีก');
+                showWarning(i18n.tabSwitchWarning);
             }
 
             if (focusLossCount >= 5) {
@@ -361,24 +398,24 @@ async function initializeTest() {
             setupAutoSave();
             testStarted = true;
 
-            showMessage('เริ่มทำข้อสอบแล้ว', 'success');
+            showMessage(i18n.testStarted, 'success');
         } else {
-            showMessage(data.message || 'ไม่สามารถเริ่มข้อสอบได้', 'error');
+            showMessage(data.message || i18n.cannotStartTest, 'error');
             setTimeout(() => window.location.href = '/applicants', 2000);
         }
     } catch (error) {
         console.error('Error initializing test:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อสอบ', 'error');
+        showMessage(i18n.errorLoadingTest, 'error');
     }
 }
 
 // Display test information
 function displayTestInfo() {
     document.getElementById('testTitle').textContent = testData.title;
-    document.getElementById('positionTitle').textContent = `ตำแหน่ง: ${testData.position_title}`;
-    document.getElementById('questionCount').textContent = `จำนวนข้อ: ${questions.length} ข้อ`;
-    document.getElementById('timeLimit').textContent = `เวลา: ${testData.time_limit} นาที`;
-    document.getElementById('passingScore').textContent = `คะแนนผ่าน: ${testData.passing_score}%`;
+    document.getElementById('positionTitle').textContent = `${i18n.position}: ${testData.position_title}`;
+    document.getElementById('questionCount').textContent = `${i18n.questionCount}: ${questions.length} ${i18n.questions}`;
+    document.getElementById('timeLimit').textContent = `${i18n.time}: ${testData.time_limit} ${i18n.minutes}`;
+    document.getElementById('passingScore').textContent = `${i18n.passingScore}: ${testData.passing_score}%`;
     document.getElementById('totalQuestions').textContent = questions.length;
 
     // Display instructions
@@ -402,7 +439,7 @@ function loadQuestion(index) {
     // Update question info
     document.getElementById('currentQuestionNumber').textContent = index + 1;
     document.getElementById('questionType').textContent = getQuestionTypeName(question.type);
-    document.getElementById('questionPoints').textContent = `${question.points || 1} คะแนน`;
+    document.getElementById('questionPoints').textContent = `${question.points || 1} ${i18n.point}`;
 
     // Display question content
     document.getElementById('questionContent').innerHTML = `
@@ -417,12 +454,12 @@ function loadQuestion(index) {
 
     // Update navigation buttons
     document.getElementById('prevBtn').disabled = index === 0;
-    document.getElementById('nextBtn').textContent = index === questions.length - 1 ? 'เสร็จสิ้น' : 'ข้อถัดไป';
+    document.getElementById('nextBtn').textContent = index === questions.length - 1 ? i18n.finish : i18n.next;
 
     // Update mark button
     const markBtn = document.getElementById('markBtn');
     const isMarked = markedQuestions.has(index);
-    markBtn.innerHTML = isMarked ? '<i class="fas fa-flag mr-2"></i>ยกเลิกเครื่องหมาย' : '<i class="far fa-flag mr-2"></i>ทำเครื่องหมาย';
+    markBtn.innerHTML = isMarked ? `<i class="fas fa-flag mr-2"></i>${i18n.unmarkButton}` : `<i class="far fa-flag mr-2"></i>${i18n.markButton}`;
     markBtn.className = isMarked ?
         'px-4 py-2 text-orange-600 bg-orange-50 border border-orange-300 rounded-lg hover:bg-orange-100 transition-colors' :
         'px-4 py-2 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors';
@@ -455,13 +492,13 @@ function displayAnswerOptions(question) {
                     <input type="radio" name="answer" value="true"
                            ${currentAnswer === 'true' ? 'checked' : ''}
                            class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
-                    <span class="flex-1">ถูก</span>
+                    <span class="flex-1">${i18n.true}</span>
                 </label>
                 <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="radio" name="answer" value="false"
                            ${currentAnswer === 'false' ? 'checked' : ''}
                            class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
-                    <span class="flex-1">ผิด</span>
+                    <span class="flex-1">${i18n.false}</span>
                 </label>
             `;
             break;
@@ -469,10 +506,10 @@ function displayAnswerOptions(question) {
         case 'fill_blank':
             container.innerHTML = `
                 <div class="space-y-4">
-                    <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
+                    <label class="block text-sm font-medium text-gray-700">${i18n.answerLabel}:</label>
                     <input type="text" name="answer" value="${currentAnswer || ''}"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                           placeholder="กรอกคำตอบของคุณ...">
+                           placeholder="${i18n.fillPlaceholder}">
                 </div>
             `;
             break;
@@ -480,12 +517,12 @@ function displayAnswerOptions(question) {
         case 'essay':
             container.innerHTML = `
                 <div class="space-y-4">
-                    <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
+                    <label class="block text-sm font-medium text-gray-700">${i18n.answerLabel}:</label>
                     <textarea name="answer" rows="8"
                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent resize-none"
-                              placeholder="เขียนคำตอบของคุณ...">${currentAnswer || ''}</textarea>
+                              placeholder="${i18n.essayPlaceholder}">${currentAnswer || ''}</textarea>
                     <div class="text-sm text-gray-500">
-                        <span id="charCount">${(currentAnswer || '').length}</span> ตัวอักษร
+                        <span id="charCount">${(currentAnswer || '').length}</span> ${i18n.characters}
                     </div>
                 </div>
             `;
@@ -642,9 +679,9 @@ function startTimer() {
 
         // Time warnings
         if (timeRemaining === 300) { // 5 minutes
-            showTimeWarning('เหลือเวลาอีก 5 นาที กรุณาเตรียมตัวส่งข้อสอบ');
+            showTimeWarning(i18n.timeWarning5Min);
         } else if (timeRemaining === 60) { // 1 minute
-            showTimeWarning('เหลือเวลาอีก 1 นาที ระบบจะส่งข้อสอบอัตโนมัติ');
+            showTimeWarning(i18n.timeWarning1Min);
         } else if (timeRemaining <= 0) {
             autoSubmitTest('time_up');
         }
@@ -703,9 +740,9 @@ function showSubmitConfirmation() {
     const totalQuestions = questions.length;
     const answeredCount = Object.keys(answers).length;
 
-    document.getElementById('finalAnsweredCount').textContent = `${answeredCount} ข้อ`;
-    document.getElementById('finalUnansweredCount').textContent = `${totalQuestions - answeredCount} ข้อ`;
-    document.getElementById('finalMarkedCount').textContent = `${markedQuestions.size} ข้อ`;
+    document.getElementById('finalAnsweredCount').textContent = `${answeredCount} ${i18n.questions}`;
+    document.getElementById('finalUnansweredCount').textContent = `${totalQuestions - answeredCount} ${i18n.questions}`;
+    document.getElementById('finalMarkedCount').textContent = `${markedQuestions.size} ${i18n.questions}`;
     document.getElementById('finalTimeLeft').textContent = document.getElementById('timer').textContent;
 
     document.getElementById('confirmSubmitModal').classList.remove('hidden');
@@ -739,18 +776,18 @@ async function submitTest() {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ส่งข้อสอบเรียบร้อยแล้ว', 'success');
+            showMessage(i18n.testSubmitted, 'success');
 
             setTimeout(() => {
                 window.location.href = `/applicants/results/${data.result_id}`;
             }, 2000);
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.errorLoading, 'error');
             hideSubmitConfirmation();
         }
     } catch (error) {
         console.error('Error submitting test:', error);
-        showMessage('เกิดข้อผิดพลาดในการส่งข้อสอบ', 'error');
+        showMessage(i18n.errorSubmitting, 'error');
         hideSubmitConfirmation();
     }
 }
@@ -777,7 +814,7 @@ async function autoSubmitTest(reason) {
             })
         });
 
-        showMessage('ส่งข้อสอบอัตโนมัติแล้ว', 'info');
+        showMessage(i18n.autoSubmitted, 'info');
 
         setTimeout(() => {
             window.location.href = '/applicants';
@@ -825,13 +862,13 @@ function getTestIdFromUrl() {
 
 function getQuestionTypeName(type) {
     const types = {
-        multiple_choice: 'ปรนัย',
-        true_false: 'ถูก/ผิด',
-        fill_blank: 'เติมคำ',
-        essay: 'อัตนัย',
-        multiple_select: 'เลือกหลายคำตอบ'
+        multiple_choice: i18n.multipleChoice,
+        true_false: i18n.trueFalse,
+        fill_blank: i18n.fillBlank,
+        essay: i18n.essay,
+        multiple_select: i18n.multipleSelect
     };
-    return types[type] || 'ไม่ทราบประเภท';
+    return types[type] || i18n.unknownType;
 }
 
 function showMessage(message, type = 'info') {
@@ -865,7 +902,7 @@ window.addEventListener('beforeunload', function(e) {
     if (testStarted) {
         e.preventDefault();
         e.returnValue = '';
-        return 'คุณกำลังทำข้อสอบอยู่ หากออกจากหน้านี้ คำตอบของคุณอาจสูญหาย';
+        return i18n.tabSwitchWarning;
     }
 });
 </script>

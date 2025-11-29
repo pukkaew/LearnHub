@@ -295,8 +295,8 @@
             <div class="logo">
                 <img src="<%= logoUrl %>" alt="<%= siteName %>">
             </div>
-            <h1 class="title">ระบบทดสอบผู้สมัครงาน</h1>
-            <p class="subtitle">กรุณากรอกรหัสการทดสอบที่ HR แจ้งให้</p>
+            <h1 class="title"><%= t('applicantTestLoginTitle') %></h1>
+            <p class="subtitle"><%= t('applicantTestLoginSubtitle') %></p>
         </div>
 
         <!-- Error Message -->
@@ -315,26 +315,26 @@
         <form id="testLoginForm">
             <div class="form-group">
                 <label for="test_code" class="label">
-                    <i class="fas fa-key"></i>รหัสการทดสอบ
+                    <i class="fas fa-key"></i><%= t('applicantTestLoginCodeLabel') %>
                 </label>
                 <input type="text"
                        id="test_code"
                        name="test_code"
                        class="input"
-                       placeholder="กรุณากรอกรหัสการทดสอบ (เช่น TEST-XXXX-XXXX)"
+                       placeholder="<%= t('applicantTestLoginCodePlaceholder') %>"
                        required>
                 <p class="input-hint">
                     <i class="fas fa-info-circle"></i>
-                    รหัสการทดสอบจะได้รับจากทาง HR หลังจากสมัครงาน
+                    <%= t('applicantTestLoginCodeHint') %>
                 </p>
             </div>
 
             <button type="submit" class="submit-btn" id="submitBtn">
                 <i class="fas fa-sign-in-alt"></i>
-                <span id="btnText">เข้าสู่ระบบทดสอบ</span>
+                <span id="btnText"><%= t('applicantTestLoginButton') %></span>
                 <span id="btnLoading" style="display: none;">
                     <div class="loading-spinner"></div>
-                    กำลังตรวจสอบ...
+                    <%= t('applicantTestLoginValidating') %>
                 </span>
             </button>
         </form>
@@ -342,20 +342,20 @@
         <!-- Help Section -->
         <div class="help-section">
             <h3 class="help-title">
-                <i class="fas fa-question-circle"></i>ข้อมูลที่ควรทราบ
+                <i class="fas fa-question-circle"></i><%= t('applicantTestLoginInfo') %>
             </h3>
             <ul class="help-list">
                 <li>
                     <i class="fas fa-check"></i>
-                    <span>รหัสการทดสอบจะได้รับจากทาง HR หลังจากสมัครงาน</span>
+                    <span><%= t('applicantTestLoginInfo1') %></span>
                 </li>
                 <li>
                     <i class="fas fa-check"></i>
-                    <span>กรุณาเตรียมเอกสารประจำตัวสำหรับการยืนยันตัวตน</span>
+                    <span><%= t('applicantTestLoginInfo2') %></span>
                 </li>
                 <li>
                     <i class="fas fa-check"></i>
-                    <span>หากมีปัญหาการเข้าสู่ระบบ กรุณาติดต่อฝ่าย HR</span>
+                    <span><%= t('applicantTestLoginInfo3') %></span>
                 </li>
             </ul>
         </div>
@@ -367,6 +367,14 @@
     </div>
 
     <script>
+        // i18n translations for JavaScript
+        const i18n = {
+            errorCode: '<%= t('applicantTestLoginErrorCode') %>',
+            errorNotFound: '<%= t('applicantTestLoginErrorNotFound') %>',
+            success: '<%= t('applicantTestLoginSuccess') %>',
+            error: '<%= t('applicantTestLoginError') %>'
+        };
+
         document.getElementById('testLoginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -383,7 +391,7 @@
 
             // Validate test code format
             if (!testCode) {
-                showError('กรุณากรอกรหัสการทดสอบ');
+                showError(i18n.errorCode);
                 return;
             }
 
@@ -398,7 +406,7 @@
                 const checkData = await checkResponse.json();
 
                 if (!checkData.success) {
-                    showError(checkData.message || 'ไม่พบรหัสการทดสอบนี้');
+                    showError(checkData.message || i18n.errorNotFound);
                     submitBtn.disabled = false;
                     btnText.style.display = 'inline';
                     btnLoading.style.display = 'none';
@@ -406,7 +414,7 @@
                 }
 
                 // Show success and redirect
-                showSuccess('ตรวจสอบสำเร็จ กำลังเข้าสู่ระบบ...');
+                showSuccess(i18n.success);
 
                 setTimeout(() => {
                     window.location.href = `/applicants/test/${testCode}`;
@@ -414,7 +422,7 @@
 
             } catch (error) {
                 console.error('Login error:', error);
-                showError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
+                showError(i18n.error);
                 submitBtn.disabled = false;
                 btnText.style.display = 'inline';
                 btnLoading.style.display = 'none';

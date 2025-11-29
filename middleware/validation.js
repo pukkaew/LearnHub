@@ -171,15 +171,51 @@ class ValidationMiddleware {
 
     // Course validation middlewares
     validateCourseCreation() {
-        return (req, res, next) => {
+        return async (req, res, next) => {
+            // ============================================
+            // FIX 6.9: Payload size limit (100KB max)
+            // ============================================
+            const bodySize = JSON.stringify(req.body).length;
+            if (bodySize > 100000) { // 100KB
+                logger.warn('Payload too large', { size: bodySize, limit: 100000 });
+                return res.status(413).json({
+                    success: false,
+                    message: 'ขนาดข้อมูลเกินขีดจำกัด (สูงสุด 100KB)',
+                    errors: { payload: ['Payload size exceeds 100KB limit'] }
+                });
+            }
+
+            // ============================================
+            // FIX 2.11 & 2.12: Validate difficulty_level and course_type
+            // ============================================
+            const validDifficultyLevels = ['Beginner', 'Intermediate', 'Advanced'];
+            const validCourseTypes = ['mandatory', 'elective', 'recommended']; // บังคับ, เลือก, แนะนำ
+
+            if (req.body.difficulty_level && !validDifficultyLevels.includes(req.body.difficulty_level)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `ระดับความยากไม่ถูกต้อง (ต้องเป็น: ${validDifficultyLevels.join(', ')})`,
+                    errors: { difficulty_level: [`Must be one of: ${validDifficultyLevels.join(', ')}`] }
+                });
+            }
+
+            if (req.body.course_type && !validCourseTypes.includes(req.body.course_type)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `ประเภทหลักสูตรไม่ถูกต้อง (ต้องเป็น: ${validCourseTypes.join(', ')})`,
+                    errors: { course_type: [`Must be one of: ${validCourseTypes.join(', ')}`] }
+                });
+            }
+
             // Basic course field validation
+            // FIX 4.14: Allow duration_hours min:0 (with minutes validation below)
             const baseValidation = this.validationService.validate(req.body, {
                 title: 'required|minLength:10|maxLength:200',
                 course_name: 'minLength:10|maxLength:200',  // Validate course_name if provided
                 description: 'required|minLength:50',
                 category_id: 'required|numeric',
                 instructor_id: 'numeric',
-                duration_hours: 'numeric|min:1',
+                duration_hours: 'numeric|min:0',  // Changed from min:1 to min:0
                 max_students: 'numeric|min:1',
                 price: 'numeric|min:0',
                 status: 'in:draft,published,archived'
@@ -197,6 +233,67 @@ class ValidationMiddleware {
                     message: 'ข้อมูลหลักสูตรไม่ถูกต้อง',
                     errors: baseValidation.errors
                 });
+            }
+
+            // ============================================
+            // FIX 4.14: Minimum duration validation (at least 30 minutes)
+            // ============================================
+            const durationHours = parseFloat(req.body.duration_hours) || 0;
+            const durationMinutes = parseFloat(req.body.duration_minutes) || 0;
+            const totalMinutes = (durationHours * 60) + durationMinutes;
+
+            if (totalMinutes < 30) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ระยะเวลาหลักสูตรต้องมีอย่างน้อย 30 นาที',
+                    errors: { duration: ['Minimum duration is 30 minutes'] }
+                });
+            }
+
+            // ============================================
+            // FIX 2.3: Validate category_id exists in database
+            // ============================================
+            try {
+                const { poolPromise } = require('../config/database');
+                const pool = await poolPromise;
+                const categoryResult = await pool.request()
+                    .input('category_id', req.body.category_id)
+                    .query('SELECT category_id FROM CourseCategories WHERE category_id = @category_id AND is_active = 1');
+
+                if (categoryResult.recordset.length === 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'ไม่พบหมวดหมู่ที่เลือก หรือหมวดหมู่ไม่ได้เปิดใช้งาน',
+                        errors: { category_id: ['Category not found or inactive'] }
+                    });
+                }
+            } catch (dbError) {
+                logger.error('Error validating category_id', { error: dbError.message });
+                // Continue if DB check fails - let controller handle it
+            }
+
+            // ============================================
+            // FIX 2.20: Validate course_code is unique
+            // ============================================
+            if (req.body.course_code) {
+                try {
+                    const { poolPromise } = require('../config/database');
+                    const pool = await poolPromise;
+                    const codeResult = await pool.request()
+                        .input('course_code', req.body.course_code)
+                        .query('SELECT course_id FROM Courses WHERE course_code = @course_code');
+
+                    if (codeResult.recordset.length > 0) {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'รหัสหลักสูตรนี้ถูกใช้งานแล้ว กรุณาใช้รหัสอื่น',
+                            errors: { course_code: ['Course code already exists'] }
+                        });
+                    }
+                } catch (dbError) {
+                    logger.error('Error validating course_code uniqueness', { error: dbError.message });
+                    // Continue if DB check fails - let controller handle it
+                }
             }
 
             // Validate learning objectives array
@@ -250,16 +347,8 @@ class ValidationMiddleware {
                     });
                 }
 
-                // ✅ FIX 3: ต้องมีอย่างน้อย 1 บทเรียน
-                if (req.body.lessons.length < 1) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'กรุณาเพิ่มบทเรียนอย่างน้อย 1 บทเรียน',
-                        errors: {
-                            lessons: ['ต้องมีอย่างน้อย 1 บทเรียน']
-                        }
-                    });
-                }
+                // ✅ FIX 3: lessons array can be empty - validation only when has lessons
+                // Empty lessons array is now allowed - lessons can be added later
 
                 for (let i = 0; i < req.body.lessons.length; i++) {
                     const lesson = req.body.lessons[i];
@@ -277,16 +366,9 @@ class ValidationMiddleware {
                         });
                     }
                 }
-            } else {
-                // ✅ FIX 4: lessons เป็น required field
-                return res.status(400).json({
-                    success: false,
-                    message: 'กรุณาเพิ่มบทเรียน',
-                    errors: {
-                        lessons: ['ฟิลด์นี้จำเป็นต้องระบุ']
-                    }
-                });
             }
+            // ✅ FIX 4: lessons is now OPTIONAL - can create course without lessons first
+            // Lessons can be added later through course editing
 
             // Validate test creation if assessment_type is 'create_new'
             if (req.body.assessment_type === 'create_new') {

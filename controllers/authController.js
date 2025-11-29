@@ -33,7 +33,7 @@ const authController = {
                 console.log('Missing credentials - employee_id:', employee_id, 'password:', password ? '[REDACTED]' : 'undefined');
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกรหัสพนักงาน/เลขบัตรประชาชนและรหัสผ่าน'
+                    message: req.t('pleaseEnterEmployeeIdAndPassword')
                 });
             }
 
@@ -43,7 +43,7 @@ const authController = {
                 await loginAttemptTracker.recordAttempt(employee_id, null, req.ip, req.get('User-Agent'), false, 'Account locked');
                 return res.status(401).json({
                     success: false,
-                    message: `บัญชีของคุณถูกล็อคชั่วคราว กรุณารออีก ${lockStatus.minutesRemaining} นาที`,
+                    message: req.t('authAccountLockedWaitMinutes', { minutes: lockStatus.minutesRemaining }),
                     locked: true,
                     lockedUntil: lockStatus.lockedUntil
                 });
@@ -67,7 +67,7 @@ const authController = {
                 await ActivityLog.logLogin(null, req.ip, req.get('User-Agent'), req.sessionID, false);
                 return res.status(401).json({
                     success: false,
-                    message: 'รหัสพนักงาน/เลขบัตรประชาชนหรือรหัสผ่านไม่ถูกต้อง'
+                    message: req.t('invalidEmployeeIdOrPassword')
                 });
             }
 
@@ -75,7 +75,7 @@ const authController = {
                 await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), false, 'Account inactive');
                 return res.status(401).json({
                     success: false,
-                    message: 'บัญชีของคุณถูกระงับการใช้งาน'
+                    message: req.t('accountSuspended')
                 });
             }
 
@@ -84,7 +84,7 @@ const authController = {
                 await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), false, 'Account disabled');
                 return res.status(401).json({
                     success: false,
-                    message: 'บัญชีของคุณถูกปิดการใช้งานแล้ว กรุณาติดต่อฝ่าย HR'
+                    message: req.t('accountDisabledContactHR')
                 });
             }
 
@@ -92,7 +92,7 @@ const authController = {
                 await loginAttemptTracker.recordAttempt(employee_id, user.user_id, req.ip, req.get('User-Agent'), false, 'Account locked');
                 return res.status(401).json({
                     success: false,
-                    message: 'บัญชีของคุณถูกล็อค กรุณาติดต่อผู้ดูแลระบบ'
+                    message: req.t('accountLockedContactAdmin')
                 });
             }
 
@@ -108,14 +108,14 @@ const authController = {
                 if (lockCheck.shouldLock) {
                     return res.status(401).json({
                         success: false,
-                        message: `รหัสผ่านไม่ถูกต้อง บัญชีของคุณถูกล็อคชั่วคราว ${lockCheck.lockDuration} นาที เนื่องจากพยายาม login ผิดเกิน ${lockCheck.maxAttempts} ครั้ง`,
+                        message: req.t('authPasswordIncorrectAccountLocked', { duration: lockCheck.lockDuration, maxAttempts: lockCheck.maxAttempts }),
                         locked: true
                     });
                 }
 
                 return res.status(401).json({
                     success: false,
-                    message: `รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง (เหลือ ${lockCheck.remainingAttempts} ครั้ง)`,
+                    message: req.t('authInvalidCredentialsAttemptsRemaining', { remaining: lockCheck.remainingAttempts }),
                     remainingAttempts: lockCheck.remainingAttempts
                 });
             }
@@ -221,7 +221,7 @@ const authController = {
 
             res.json({
                 success: true,
-                message: 'เข้าสู่ระบบสำเร็จ',
+                message: req.t('loginSuccess'),
                 data: {
                     user: userData,
                     tokens: tokens,
@@ -234,7 +234,7 @@ const authController = {
             console.error('Login error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ'
+                message: req.t('errorLoggingIn')
             });
         }
     },
@@ -277,7 +277,7 @@ const authController = {
                 if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
                     res.json({
                         success: true,
-                        message: 'ออกจากระบบสำเร็จ'
+                        message: req.t('logoutSuccess')
                     });
                 } else {
                     res.redirect('/auth/login');
@@ -288,7 +288,7 @@ const authController = {
             console.error('Logout error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการออกจากระบบ'
+                message: req.t('authLogoutError')
             });
         }
     },
@@ -312,7 +312,7 @@ const authController = {
             if (password !== confirm_password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'รหัสผ่านไม่ตรงกัน'
+                    message: req.t('passwordMismatch')
                 });
             }
 
@@ -321,7 +321,7 @@ const authController = {
             if (!passwordValidation.valid) {
                 return res.status(400).json({
                     success: false,
-                    message: 'รหัสผ่านไม่ตรงตามเงื่อนไข',
+                    message: req.t('passwordDoesNotMeetSecurityRequirements'),
                     errors: passwordValidation.errors,
                     requirements: await passwordValidator.getRequirements()
                 });
@@ -371,7 +371,7 @@ const authController = {
 
             res.status(201).json({
                 success: true,
-                message: 'ลงทะเบียนสำเร็จ',
+                message: req.t('registrationSuccess'),
                 data: userData_response
             });
 
@@ -379,7 +379,7 @@ const authController = {
             console.error('Register error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการลงทะเบียน'
+                message: req.t('errorEnrolling')
             });
         }
     },
@@ -391,7 +391,7 @@ const authController = {
             if (!email) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกอีเมล'
+                    message: req.t('authPleaseEnterEmail')
                 });
             }
 
@@ -399,7 +399,7 @@ const authController = {
             if (!user) {
                 return res.json({
                     success: true,
-                    message: 'หากอีเมลนี้มีอยู่ในระบบ เราจะส่งลิงก์รีเซ็ตรหัสผ่านให้คุณ'
+                    message: req.t('authPasswordResetEmailSent')
                 });
             }
 
@@ -426,14 +426,14 @@ const authController = {
 
             res.json({
                 success: true,
-                message: 'หากอีเมลนี้มีอยู่ในระบบ เราจะส่งลิงก์รีเซ็ตรหัสผ่านให้คุณ'
+                message: req.t('authPasswordResetEmailSent')
             });
 
         } catch (error) {
             console.error('Forgot password error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการขอรีเซ็ตรหัสผ่าน'
+                message: req.t('authPasswordResetError')
             });
         }
     },
@@ -445,14 +445,14 @@ const authController = {
             if (!token || !password || !confirm_password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกข้อมูลให้ครบถ้วน'
+                    message: req.t('authPleaseEnterAllFields')
                 });
             }
 
             if (password !== confirm_password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'รหัสผ่านไม่ตรงกัน'
+                    message: req.t('passwordMismatch')
                 });
             }
 
@@ -461,7 +461,7 @@ const authController = {
             if (!passwordValidation.valid) {
                 return res.status(400).json({
                     success: false,
-                    message: 'รหัสผ่านไม่ตรงตามเงื่อนไข',
+                    message: req.t('passwordDoesNotMeetSecurityRequirements'),
                     errors: passwordValidation.errors,
                     requirements: await passwordValidator.getRequirements()
                 });
@@ -473,7 +473,7 @@ const authController = {
             } catch (error) {
                 return res.status(400).json({
                     success: false,
-                    message: 'ลิงก์รีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุ'
+                    message: req.t('authPasswordResetLinkInvalidOrExpired')
                 });
             }
 
@@ -481,7 +481,7 @@ const authController = {
             if (!user || user.password_reset_token !== token) {
                 return res.status(400).json({
                     success: false,
-                    message: 'ลิงก์รีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุ'
+                    message: req.t('authPasswordResetLinkInvalidOrExpired')
                 });
             }
 
@@ -507,14 +507,14 @@ const authController = {
 
             res.json({
                 success: true,
-                message: 'รีเซ็ตรหัสผ่านสำเร็จ'
+                message: req.t('passwordResetSuccess')
             });
 
         } catch (error) {
             console.error('Reset password error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน'
+                message: req.t('passwordResetFailed')
             });
         }
     },
@@ -527,14 +527,14 @@ const authController = {
             if (!current_password || !new_password || !confirm_password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกข้อมูลให้ครบถ้วน'
+                    message: req.t('authPleaseEnterAllFields')
                 });
             }
 
             if (new_password !== confirm_password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'รหัสผ่านใหม่ไม่ตรงกัน'
+                    message: req.t('authNewPasswordMismatch')
                 });
             }
 
@@ -543,7 +543,7 @@ const authController = {
             if (!passwordValidation.valid) {
                 return res.status(400).json({
                     success: false,
-                    message: 'รหัสผ่านใหม่ไม่ตรงตามเงื่อนไข',
+                    message: req.t('authNewPasswordDoesNotMeetRequirements'),
                     errors: passwordValidation.errors,
                     requirements: await passwordValidator.getRequirements()
                 });
@@ -553,7 +553,7 @@ const authController = {
             if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้ใช้'
+                    message: req.t('authUserNotFound')
                 });
             }
 
@@ -561,7 +561,7 @@ const authController = {
             if (!isCurrentPasswordValid) {
                 return res.status(400).json({
                     success: false,
-                    message: 'รหัสผ่านปัจจุบันไม่ถูกต้อง'
+                    message: req.t('authCurrentPasswordIncorrect')
                 });
             }
 
@@ -585,14 +585,14 @@ const authController = {
 
             res.json({
                 success: true,
-                message: 'เปลี่ยนรหัสผ่านสำเร็จ'
+                message: req.t('authPasswordChangeSuccess')
             });
 
         } catch (error) {
             console.error('Change password error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน'
+                message: req.t('authPasswordChangeError')
             });
         }
     },
@@ -603,7 +603,7 @@ const authController = {
             if (!user || !user.is_active) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Token ไม่ถูกต้องหรือบัญชีถูกระงับ'
+                    message: req.t('authTokenInvalidOrAccountSuspended')
                 });
             }
 
@@ -627,7 +627,7 @@ const authController = {
             console.error('Verify token error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการตรวจสอบ Token'
+                message: req.t('authTokenVerificationError')
             });
         }
     },
@@ -655,13 +655,13 @@ const authController = {
             return res.redirect('/dashboard');
         }
         res.render('auth/register', {
-            title: 'ลงทะเบียน - Rukchai Hongyen LearnHub'
+            title: `${req.t('register')} - Rukchai Hongyen LearnHub`
         });
     },
 
     renderForgotPassword(req, res) {
         res.render('auth/forgot-password', {
-            title: 'ลืมรหัสผ่าน - Rukchai Hongyen LearnHub'
+            title: `${req.t('forgotPassword')} - Rukchai Hongyen LearnHub`
         });
     },
 
@@ -672,7 +672,7 @@ const authController = {
         }
 
         res.render('auth/reset-password', {
-            title: 'รีเซ็ตรหัสผ่าน - Rukchai Hongyen LearnHub',
+            title: `${req.t('resetPassword')} - Rukchai Hongyen LearnHub`,
             token: token
         });
     },
@@ -685,7 +685,7 @@ const authController = {
             if (!refreshToken) {
                 return res.status(401).json({
                     success: false,
-                    message: 'ไม่พบ Refresh Token',
+                    message: req.t('authRefreshTokenNotFound'),
                     error: 'NO_REFRESH_TOKEN'
                 });
             }
@@ -710,7 +710,7 @@ const authController = {
             if (tokenResult.recordset.length === 0) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Refresh Token ไม่ถูกต้องหรือหมดอายุ',
+                    message: req.t('authRefreshTokenInvalidOrExpired'),
                     error: 'INVALID_REFRESH_TOKEN'
                 });
             }
@@ -734,7 +734,7 @@ const authController = {
             if (userResult.recordset.length === 0) {
                 return res.status(401).json({
                     success: false,
-                    message: 'ผู้ใช้ไม่มีอยู่ในระบบ',
+                    message: req.t('authUserNotFound'),
                     error: 'USER_NOT_FOUND'
                 });
             }
@@ -765,7 +765,7 @@ const authController = {
 
             res.json({
                 success: true,
-                message: 'ต่ออายุโทเคนเรียบร้อย',
+                message: req.t('authTokenRefreshSuccess'),
                 data: tokens
             });
 
@@ -773,7 +773,7 @@ const authController = {
             console.error('Refresh token error:', error);
             return res.status(401).json({
                 success: false,
-                message: 'ไม่สามารถต่ออายุโทเคนได้',
+                message: req.t('authTokenRefreshError'),
                 error: 'REFRESH_TOKEN_ERROR'
             });
         }
@@ -787,7 +787,7 @@ const authController = {
             if (!name) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณาระบุชื่อ API Key'
+                    message: req.t('authPleaseProvideApiKeyName')
                 });
             }
 
@@ -821,7 +821,7 @@ const authController = {
 
             res.json({
                 success: true,
-                message: 'สร้าง API Key เรียบร้อย',
+                message: req.t('authApiKeyGeneratedSuccess'),
                 data: {
                     apiKeyId: result.recordset[0].apiKeyId,
                     apiKey: apiKey,
@@ -834,7 +834,7 @@ const authController = {
             console.error('Generate API key error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้าง API Key'
+                message: req.t('authApiKeyGenerationError')
             });
         }
     }

@@ -1,0 +1,856 @@
+{
+  "summary": {
+    "total": 100,
+    "passed": 81,
+    "failed": 17,
+    "warnings": 1,
+    "skipped": 1,
+    "duration": "60.54s"
+  },
+  "suites": {
+    "Auth": {
+      "passed": 12,
+      "failed": 1,
+      "warnings": 1,
+      "skipped": 1
+    },
+    "Course": {
+      "passed": 20,
+      "failed": 0,
+      "warnings": 0,
+      "skipped": 0
+    },
+    "Validation": {
+      "passed": 15,
+      "failed": 0,
+      "warnings": 0,
+      "skipped": 0
+    },
+    "API": {
+      "passed": 2,
+      "failed": 13,
+      "warnings": 0,
+      "skipped": 0
+    },
+    "UIUX": {
+      "passed": 10,
+      "failed": 0,
+      "warnings": 0,
+      "skipped": 0
+    },
+    "Error": {
+      "passed": 14,
+      "failed": 1,
+      "warnings": 0,
+      "skipped": 0
+    },
+    "Perf": {
+      "passed": 8,
+      "failed": 2,
+      "warnings": 0,
+      "skipped": 0
+    }
+  },
+  "details": [
+    {
+      "suite": "Auth",
+      "id": "1.1",
+      "name": "Login page loads",
+      "status": "pass",
+      "detail": "เข้าสู่ระบบ - Rukchai Hongyen LearnHub",
+      "time": "2025-11-29T17:56:08.531Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.2",
+      "name": "Form elements exist",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:08.562Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.3",
+      "name": "Empty submission blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:09.709Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.4",
+      "name": "Invalid credentials rejected",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:13.180Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.5",
+      "name": "SQL Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:15.420Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.6",
+      "name": "XSS blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:17.201Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.7",
+      "name": "Buffer overflow handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:19.476Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.8",
+      "name": "Special characters handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:21.217Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.9",
+      "name": "Thai characters handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:23.996Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.10",
+      "name": "Valid login works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:28.823Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.11",
+      "name": "Session persists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:29.460Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.12",
+      "name": "Admin access to create",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:30.173Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.13",
+      "name": "Logout works",
+      "status": "skip",
+      "detail": "No logout link",
+      "time": "2025-11-29T17:56:30.204Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.14",
+      "name": "Protected route redirects",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T17:56:30.835Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.15",
+      "name": "Re-login works",
+      "status": "fail",
+      "detail": "No element found for selector: #employee_id",
+      "time": "2025-11-29T17:56:31.245Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.1",
+      "name": "Course list loads",
+      "status": "pass",
+      "detail": "allCourses - Rukchai Hongyen LearnHub - ระบบจัดการการเรียนรู้",
+      "time": "2025-11-29T17:56:32.644Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.2",
+      "name": "Search exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:33.017Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.3",
+      "name": "Filters exist",
+      "status": "pass",
+      "detail": "4 dropdowns",
+      "time": "2025-11-29T17:56:33.299Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.4",
+      "name": "Create button (Admin)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:33.330Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.5",
+      "name": "Course links exist",
+      "status": "pass",
+      "detail": "2 links",
+      "time": "2025-11-29T17:56:33.677Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.6",
+      "name": "Create page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:35.001Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.7",
+      "name": "Course name input",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:35.375Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.8",
+      "name": "Category dropdown",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:35.499Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.9",
+      "name": "Difficulty dropdown",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:35.625Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.10",
+      "name": "Course type dropdown",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:35.752Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.11",
+      "name": "Course name input works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:37.722Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.12",
+      "name": "Category selection works",
+      "status": "pass",
+      "detail": "10 options",
+      "time": "2025-11-29T17:56:38.298Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.13",
+      "name": "Difficulty selection works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:38.516Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.14",
+      "name": "Course type selection works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:38.738Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.15",
+      "name": "Language selection works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:38.958Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.16",
+      "name": "My Courses page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:40.318Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.17",
+      "name": "My Courses stats displayed",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:40.349Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.18",
+      "name": "404 for invalid course",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:41.125Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.19",
+      "name": "Non-numeric ID handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:41.751Z"
+    },
+    {
+      "suite": "Course",
+      "id": "2.20",
+      "name": "Negative ID handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:42.373Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.1",
+      "name": "Input: Empty string",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:43.452Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.2",
+      "name": "Input: Whitespace only",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:43.904Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.3",
+      "name": "Input: Single char",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:44.356Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.4",
+      "name": "Input: HTML tags",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:44.808Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.5",
+      "name": "Input: Script tag",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:45.261Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.6",
+      "name": "Input: Event handler",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:45.718Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.7",
+      "name": "Input: Path traversal",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:46.178Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.8",
+      "name": "Input: SQL injection",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:46.635Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.9",
+      "name": "Input: Long string (1000)",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:47.086Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.10",
+      "name": "Input: Unicode chars",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:47.536Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.11",
+      "name": "Input: Emoji",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:47.992Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.12",
+      "name": "Input: Newlines",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:48.463Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.13",
+      "name": "Input: Tabs",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:48.914Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.14",
+      "name": "Input: NULL char",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:49.367Z"
+    },
+    {
+      "suite": "Validation",
+      "id": "3.15",
+      "name": "Input: Thai text",
+      "status": "pass",
+      "detail": "Accepted (server validates)",
+      "time": "2025-11-29T17:56:49.818Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.1",
+      "name": "GET courses",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:49.898Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.2",
+      "name": "GET categories",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:49.990Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.3",
+      "name": "GET course by ID",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.068Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.4",
+      "name": "Course ID 0",
+      "status": "pass",
+      "detail": "Status: 500",
+      "time": "2025-11-29T17:56:50.130Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.5",
+      "name": "Course ID -1",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.209Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.6",
+      "name": "Course ID non-numeric",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.286Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.7",
+      "name": "Course ID very large",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.381Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.8",
+      "name": "SQL injection query",
+      "status": "pass",
+      "detail": "Status: 400",
+      "time": "2025-11-29T17:56:50.444Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.9",
+      "name": "XSS in search",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.522Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.10",
+      "name": "Path traversal",
+      "status": "fail",
+      "detail": "Status: 404",
+      "time": "2025-11-29T17:56:50.601Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.11",
+      "name": "Non-existent endpoint",
+      "status": "fail",
+      "detail": "Status: 404",
+      "time": "2025-11-29T17:56:50.681Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.12",
+      "name": "Prototype pollution",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.759Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.13",
+      "name": "JSONP callback",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.838Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.14",
+      "name": "Long path",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.918Z"
+    },
+    {
+      "suite": "API",
+      "id": "4.15",
+      "name": "Extreme pagination",
+      "status": "fail",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:50.997Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.1",
+      "name": "Navigation exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:51.991Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.2",
+      "name": "Footer exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:52.116Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.3",
+      "name": "Page has title",
+      "status": "pass",
+      "detail": "allCourses - Rukchai Hongyen LearnHub - ระบบจัดการการเรียนรู้",
+      "time": "2025-11-29T17:56:52.148Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.4",
+      "name": "Has H1 heading",
+      "status": "pass",
+      "detail": "1 H1 tags",
+      "time": "2025-11-29T17:56:52.494Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.5",
+      "name": "Viewport meta tag",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:52.525Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.6",
+      "name": "Mobile viewport (375px)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:53.077Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.7",
+      "name": "Tablet viewport (768px)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:53.627Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.8",
+      "name": "Desktop viewport (1920px)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:54.299Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.9",
+      "name": "Viewport reset",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:54.330Z"
+    },
+    {
+      "suite": "UIUX",
+      "id": "5.10",
+      "name": "Images have alt",
+      "status": "pass",
+      "detail": "0 without alt",
+      "time": "2025-11-29T17:56:54.518Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.1",
+      "name": "404 page",
+      "status": "pass",
+      "detail": "Status: 404",
+      "time": "2025-11-29T17:56:54.958Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.2",
+      "name": "Invalid course path",
+      "status": "pass",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:55.380Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.3",
+      "name": "Invalid API",
+      "status": "pass",
+      "detail": "Status: 404",
+      "time": "2025-11-29T17:56:55.783Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.4",
+      "name": "Path traversal",
+      "status": "pass",
+      "detail": "Status: 404",
+      "time": "2025-11-29T17:56:56.205Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.5",
+      "name": "Null byte",
+      "status": "pass",
+      "detail": "Status: 200",
+      "time": "2025-11-29T17:56:56.629Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.6",
+      "name": "Hides stack trace",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:56.787Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.7",
+      "name": "Hides sensitive info",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:56.818Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.8",
+      "name": "Error page has navigation",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:57.194Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.9",
+      "name": "No results",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:57.685Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.10",
+      "name": "Long query",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:58.157Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.11",
+      "name": "XSS in search",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:58.580Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.12",
+      "name": "Thai in search",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:56:59.052Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.13",
+      "name": "Expired session redirect",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:57:00.058Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.14",
+      "name": "Concurrent requests",
+      "status": "fail",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T17:57:03.653Z"
+    },
+    {
+      "suite": "Error",
+      "id": "6.15",
+      "name": "Rapid navigation",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T17:57:03.986Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.1",
+      "name": "Course list load time",
+      "status": "pass",
+      "detail": "77ms",
+      "time": "2025-11-29T17:57:04.064Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.2",
+      "name": "Create page load time",
+      "status": "pass",
+      "detail": "78ms",
+      "time": "2025-11-29T17:57:04.142Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.3",
+      "name": "My courses load time",
+      "status": "pass",
+      "detail": "77ms",
+      "time": "2025-11-29T17:57:04.220Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.4",
+      "name": "API response time",
+      "status": "fail",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T17:57:04.267Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.5",
+      "name": "DOM element count",
+      "status": "pass",
+      "detail": "65 elements",
+      "time": "2025-11-29T17:57:04.298Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.6",
+      "name": "Memory usage",
+      "status": "pass",
+      "detail": "31MB heap",
+      "time": "2025-11-29T17:57:04.329Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.7",
+      "name": "No JS errors",
+      "status": "pass",
+      "detail": "None",
+      "time": "2025-11-29T17:57:05.403Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.8",
+      "name": "Multiple API calls",
+      "status": "fail",
+      "detail": "Failed to fetch",
+      "time": "2025-11-29T17:57:05.451Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.9",
+      "name": "Stress test (10 loads)",
+      "status": "pass",
+      "detail": "695ms",
+      "time": "2025-11-29T17:57:06.146Z"
+    },
+    {
+      "suite": "Perf",
+      "id": "7.10",
+      "name": "Network requests",
+      "status": "pass",
+      "detail": "14 requests",
+      "time": "2025-11-29T17:57:07.243Z"
+    }
+  ]
+}

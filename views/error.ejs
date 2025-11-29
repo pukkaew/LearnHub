@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="<%= currentLanguage || 'th' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <% const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub'; const companyName = typeof getSetting === 'function' ? getSetting('company_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub'; %>
+    <%
+        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
+        const isEnglish = currentLang === 'en';
+        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteName = isEnglish ? siteNameEn : siteNameTh;
+        const companyNameTh = typeof getSetting === 'function' ? getSetting('company_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
+        const companyName = isEnglish ? companyNameEn : companyNameTh;
+    %>
     <title><%= title %> - <%= siteName %></title>
     <link href="/css/tailwind.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -28,13 +37,13 @@
 
             <!-- Error Message -->
             <p class="text-gray-600 mb-6">
-                <%= typeof message !== 'undefined' ? message : 'เกิดข้อผิดพลาด' %>
+                <%= typeof message !== 'undefined' ? message : (typeof t === 'function' ? t('errorOccurred') : 'An error occurred') %>
             </p>
 
             <!-- Error Details (Development Only) -->
             <% if (process.env.NODE_ENV !== 'production' && error && error.stack) { %>
             <div class="bg-gray-100 rounded-lg p-4 mb-6 text-left">
-                <h3 class="text-sm font-semibold text-gray-700 mb-2">รายละเอียดข้อผิดพลาด (Development Mode):</h3>
+                <h3 class="text-sm font-semibold text-gray-700 mb-2"><%= typeof t === 'function' ? t('errorDetailsDev') : 'Error Details (Development Mode)' %>:</h3>
                 <pre class="text-xs text-gray-600 overflow-auto max-h-32">
 <%= error.stack %>
                 </pre>
@@ -46,28 +55,28 @@
                 <button onclick="history.back()"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>
-                    กลับไปหน้าก่อนหน้า
+                    <%= typeof t === 'function' ? t('goBack') : 'Go Back' %>
                 </button>
 
                 <a href="/dashboard"
                    class="block w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
                     <i class="fas fa-home mr-2"></i>
-                    กลับสู่หน้าหลัก
+                    <%= typeof t === 'function' ? t('goHome') : 'Go Home' %>
                 </a>
 
                 <a href="/auth/login"
                    class="block w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition duration-200">
                     <i class="fas fa-sign-in-alt mr-2"></i>
-                    เข้าสู่ระบบ
+                    <%= typeof t === 'function' ? t('login') : 'Login' %>
                 </a>
             </div>
 
             <!-- Help Contact -->
             <div class="mt-8 pt-6 border-t border-gray-200">
                 <p class="text-sm text-gray-500">
-                    หากปัญหายังคงอยู่ กรุณาติดต่อ
+                    <%= typeof t === 'function' ? t('ifProblemPersists') : 'If the problem persists, please contact' %>
                     <a href="mailto:support@rukchaihongyen.com" class="text-blue-600 hover:text-blue-800">
-                        ทีมสนับสนุน
+                        <%= typeof t === 'function' ? t('supportTeam') : 'Support Team' %>
                     </a>
                 </p>
             </div>
@@ -76,17 +85,18 @@
         <!-- Footer -->
         <div class="text-center mt-6">
             <p class="text-sm text-gray-500">
-                © <%= new Date().getFullYear() %> <%= companyName %>. สงวนลิขสิทธิ์.
+                © <%= new Date().getFullYear() %> <%= companyName %>. <%= typeof t === 'function' ? t('allRightsReserved') : 'All rights reserved' %>.
             </p>
         </div>
     </div>
 
     <!-- Auto-redirect script for 404 errors -->
-    <% if (title.includes('ไม่พบหน้า')) { %>
+    <% if (title && (title.includes('ไม่พบหน้า') || title.includes('Not Found') || title.includes('404'))) { %>
     <script>
         // Auto redirect to dashboard after 10 seconds for 404 errors
+        const confirmMsg = '<%= typeof t === "function" ? t("wantToReturnHome") : "Want to return to home?" %>';
         setTimeout(() => {
-            if (confirm('ต้องการกลับสู่หน้าหลักหรือไม่?')) {
+            if (confirm(confirmMsg)) {
                 window.location.href = '/dashboard';
             }
         }, 10000);

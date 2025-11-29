@@ -6,8 +6,8 @@
         <div id="result-icon" class="mx-auto flex items-center justify-center h-20 w-20 rounded-full mb-6">
             <!-- Icon will be set based on score -->
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">ผลการทำแบบทดสอบ</h1>
-        <p id="test-title" class="text-gray-600">ชื่อแบบทดสอบ</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= t('testResultsTitle') %></h1>
+        <p id="test-title" class="text-gray-600"><%= t('testName') %></p>
     </div>
 
     <!-- Score Summary -->
@@ -15,15 +15,15 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div class="text-center">
                 <div id="final-score" class="text-5xl font-bold mb-2">0%</div>
-                <div class="text-gray-600">คะแนนที่ได้</div>
+                <div class="text-gray-600"><%= t('scoreReceived') %></div>
             </div>
             <div class="text-center">
                 <div id="time-taken" class="text-3xl font-semibold text-gray-900 mb-2">0</div>
-                <div class="text-gray-600">นาที</div>
+                <div class="text-gray-600"><%= t('minutesTaken') %></div>
             </div>
             <div class="text-center">
                 <div id="pass-status" class="text-2xl font-semibold mb-2">-</div>
-                <div class="text-gray-600">ผลการทดสอบ</div>
+                <div class="text-gray-600"><%= t('testResultLabel') %></div>
             </div>
         </div>
 
@@ -32,19 +32,19 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
                     <div id="correct-answers" class="text-2xl font-semibold text-green-600">0</div>
-                    <div class="text-sm text-gray-600">ข้อถูก</div>
+                    <div class="text-sm text-gray-600"><%= t('correctAnswersCount') %></div>
                 </div>
                 <div>
                     <div id="incorrect-answers" class="text-2xl font-semibold text-red-600">0</div>
-                    <div class="text-sm text-gray-600">ข้อผิด</div>
+                    <div class="text-sm text-gray-600"><%= t('incorrectAnswersCount') %></div>
                 </div>
                 <div>
                     <div id="unanswered" class="text-2xl font-semibold text-gray-600">0</div>
-                    <div class="text-sm text-gray-600">ไม่ตอบ</div>
+                    <div class="text-sm text-gray-600"><%= t('unansweredCount') %></div>
                 </div>
                 <div>
                     <div id="total-questions" class="text-2xl font-semibold text-blue-600">0</div>
-                    <div class="text-sm text-gray-600">ข้อทั้งหมด</div>
+                    <div class="text-sm text-gray-600"><%= t('totalQuestions') %></div>
                 </div>
             </div>
         </div>
@@ -52,12 +52,12 @@
 
     <!-- Performance Analysis -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-8 ruxchai-card">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">การวิเคราะห์ผลการทำงาน</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('performanceAnalysis') %></h3>
 
         <div class="space-y-6">
             <!-- Score Chart -->
             <div>
-                <h4 class="font-medium text-gray-900 mb-3">การเปรียบเทียบคะแนน</h4>
+                <h4 class="font-medium text-gray-900 mb-3"><%= t('scoreComparison') %></h4>
                 <div class="bg-gray-50 rounded-lg p-4">
                     <canvas id="score-chart" width="400" height="200"></canvas>
                 </div>
@@ -65,7 +65,7 @@
 
             <!-- Category Performance -->
             <div id="category-performance">
-                <h4 class="font-medium text-gray-900 mb-3">ผลการทำงานตามหมวดหมู่</h4>
+                <h4 class="font-medium text-gray-900 mb-3"><%= t('categoryPerformance') %></h4>
                 <div id="category-breakdown" class="space-y-3">
                     <!-- Category breakdown will be loaded here -->
                 </div>
@@ -73,7 +73,7 @@
 
             <!-- Difficulty Analysis -->
             <div>
-                <h4 class="font-medium text-gray-900 mb-3">การวิเคราะห์ตามระดับความยาก</h4>
+                <h4 class="font-medium text-gray-900 mb-3"><%= t('difficultyAnalysis') %></h4>
                 <div id="difficulty-analysis" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Difficulty analysis will be loaded here -->
                 </div>
@@ -84,11 +84,11 @@
     <!-- Question Review -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-8 ruxchai-card">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-gray-900">รายละเอียดคำถาม</h3>
+            <h3 class="text-lg font-semibold text-gray-900"><%= t('questionDetails') %></h3>
             <div class="flex space-x-2">
-                <button id="show-all" class="btn-ruxchai-outline text-sm">ทั้งหมด</button>
-                <button id="show-incorrect" class="btn-ruxchai-secondary text-sm">ข้อผิด</button>
-                <button id="show-correct" class="btn-ruxchai-accent text-sm">ข้อถูก</button>
+                <button id="show-all" class="btn-ruxchai-outline text-sm"><%= t('showAll') %></button>
+                <button id="show-incorrect" class="btn-ruxchai-secondary text-sm"><%= t('showIncorrect') %></button>
+                <button id="show-correct" class="btn-ruxchai-accent text-sm"><%= t('showCorrect') %></button>
             </div>
         </div>
 
@@ -100,25 +100,25 @@
     <!-- Actions -->
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="/tests" class="btn-ruxchai-outline text-center">
-            <i class="fas fa-list mr-2"></i>กลับไปแบบทดสอบ
+            <i class="fas fa-list mr-2"></i><%= t('backToTests') %>
         </a>
 
         <button id="retake-test" class="btn-ruxchai-primary hidden">
-            <i class="fas fa-redo mr-2"></i>ทำแบบทดสอบใหม่
+            <i class="fas fa-redo mr-2"></i><%= t('retakeTest') %>
         </button>
 
         <button id="download-certificate" class="btn-ruxchai-accent hidden">
-            <i class="fas fa-certificate mr-2"></i>ดาวน์โหลดใบประกาศนียบัตร
+            <i class="fas fa-certificate mr-2"></i><%= t('downloadCertificate') %>
         </button>
 
         <button id="print-results" class="btn-ruxchai-outline">
-            <i class="fas fa-print mr-2"></i>พิมพ์ผลการทดสอบ
+            <i class="fas fa-print mr-2"></i><%= t('printResults') %>
         </button>
     </div>
 
     <!-- Share Results -->
     <div class="mt-8 text-center">
-        <p class="text-gray-600 mb-4">แชร์ผลการทดสอบของคุณ</p>
+        <p class="text-gray-600 mb-4"><%= t('shareResults') %></p>
         <div class="flex justify-center space-x-4">
             <button onclick="shareResults('facebook')" class="text-blue-600 hover:text-blue-700">
                 <i class="fab fa-facebook text-xl"></i>
@@ -140,11 +140,40 @@
 <div id="loading-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
         <i class="fas fa-spinner fa-spin text-ruxchai-primary text-xl"></i>
-        <span class="text-gray-700">กำลังโหลดผลการทดสอบ...</span>
+        <span class="text-gray-700"><%= t('loadingResults') %></span>
     </div>
 </div>
 
 <script>
+// i18n translations for JavaScript
+const i18n = {
+    cannotLoadResults: '<%= t("cannotLoadResults") %>',
+    errorLoadingResults: '<%= t("errorLoadingResults") %>',
+    passed: '<%= t("passed") %>',
+    failed: '<%= t("failed") %>',
+    easy: '<%= t("easy") %>',
+    medium: '<%= t("medium") %>',
+    hard: '<%= t("hard") %>',
+    questionN: '<%= t("question") %>',
+    points: '<%= t("points") %>',
+    explanation: '<%= t("additionalExplanation") %>',
+    yourAnswer: '<%= t("answer") %>',
+    correctAnswer: '<%= t("correctAnswer") %>',
+    cannotDisplayOptions: 'ไม่สามารถแสดงตัวเลือกได้',
+    true: '<%= t("true") %>',
+    false: '<%= t("false") %>',
+    notAnswered: 'ไม่ได้ตอบ',
+    retakeConfirm: 'คุณต้องการทำแบบทดสอบใหม่หรือไม่?',
+    cannotRetake: 'ไม่สามารถเริ่มทำแบบทดสอบใหม่ได้',
+    errorRetaking: 'เกิดข้อผิดพลาดในการเริ่มทำแบบทดสอบใหม่',
+    cannotDownloadCertificate: 'ไม่สามารถดาวน์โหลดใบประกาศนียบัตรได้',
+    errorDownloadingCertificate: 'เกิดข้อผิดพลาดในการดาวน์โหลดใบประกาศนียบัตร',
+    linkCopied: '<%= t("linkCopied") %>',
+    correct: '<%= t("correct") %>',
+    incorrect: 'ผิด',
+    unanswered: '<%= t("unanswered") %>'
+};
+
 const SITE_NAME = '<%= typeof getSetting === "function" ? getSetting("site_name", "Rukchai Hongyen LearnHub") : "Rukchai Hongyen LearnHub" %>';
 let testResults = null;
 let attemptId = '<%= locals.attemptId || "" %>';
@@ -154,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (attemptId) {
         loadTestResults();
     } else {
-        showError('ไม่พบข้อมูลผลการทดสอบ');
+        showError(i18n.cannotLoadResults);
         window.location.href = '/tests';
     }
 
@@ -182,11 +211,11 @@ async function loadTestResults() {
             testResults = data.data;
             displayResults();
         } else {
-            showError('ไม่สามารถโหลดผลการทดสอบได้');
+            showError(i18n.cannotLoadResults);
         }
     } catch (error) {
         console.error('Error loading test results:', error);
-        showError('เกิดข้อผิดพลาดในการโหลดผลการทดสอบ');
+        showError(i18n.errorLoadingResults);
     } finally {
         document.getElementById('loading-overlay').style.display = 'none';
     }
@@ -208,7 +237,7 @@ function displayResults() {
     document.getElementById('time-taken').textContent = results.time_taken || '0';
 
     const passed = results.score >= results.passing_score;
-    document.getElementById('pass-status').textContent = passed ? 'ผ่าน' : 'ไม่ผ่าน';
+    document.getElementById('pass-status').textContent = passed ? i18n.passed : i18n.failed;
     document.getElementById('pass-status').className = `text-2xl font-semibold mb-2 ${passed ? 'text-green-600' : 'text-red-600'}`;
 
     // Update detailed breakdown
@@ -369,8 +398,8 @@ function renderAnswerOptions(question) {
 
         case 'true_false':
             const options = [
-                { value: 'true', text: 'จริง' },
-                { value: 'false', text: 'เท็จ' }
+                { value: 'true', text: i18n.true },
+                { value: 'false', text: i18n.false }
             ];
 
             return options.map(option => {
@@ -402,18 +431,18 @@ function renderAnswerOptions(question) {
             return `
                 <div class="space-y-2">
                     <div class="p-3 border rounded ${question.is_correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}">
-                        <h5 class="font-medium text-sm mb-1">คำตอบของคุณ:</h5>
-                        <p class="text-gray-900">${userAnswer || 'ไม่ได้ตอบ'}</p>
+                        <h5 class="font-medium text-sm mb-1">${i18n.yourAnswer}:</h5>
+                        <p class="text-gray-900">${userAnswer || i18n.notAnswered}</p>
                     </div>
                     <div class="p-3 border border-green-500 bg-green-50 rounded">
-                        <h5 class="font-medium text-sm mb-1">คำตอบที่ถูกต้อง:</h5>
+                        <h5 class="font-medium text-sm mb-1">${i18n.correctAnswer}:</h5>
                         <p class="text-gray-900">${correctAnswer}</p>
                     </div>
                 </div>
             `;
 
         default:
-            return '<p class="text-gray-500">ไม่สามารถแสดงตัวเลือกได้</p>';
+            return `<p class="text-gray-500">${i18n.cannotDisplayOptions}</p>`;
     }
 }
 
@@ -465,7 +494,7 @@ function createScoreChart() {
     scoreChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['ถูก', 'ผิด', 'ไม่ตอบ'],
+            labels: [i18n.correct, i18n.incorrect, i18n.unanswered],
             datasets: [{
                 data: [results.correct_answers, results.incorrect_answers, results.unanswered],
                 backgroundColor: ['#10b981', '#ef4444', '#6b7280'],
@@ -490,7 +519,7 @@ function createScoreChart() {
 }
 
 async function retakeTest() {
-    if (confirm('คุณต้องการทำแบบทดสอบใหม่หรือไม่?')) {
+    if (confirm(i18n.retakeConfirm)) {
         try {
             const response = await fetch(`/tests/api/${testResults.test_id}/start`, {
                 method: 'POST'
@@ -501,11 +530,11 @@ async function retakeTest() {
             if (data.success) {
                 window.location.href = `/tests/${testResults.test_id}/take?attempt_id=${data.data.attempt_id}`;
             } else {
-                showError(data.message || 'ไม่สามารถเริ่มทำแบบทดสอบใหม่ได้');
+                showError(data.message || i18n.cannotRetake);
             }
         } catch (error) {
             console.error('Error starting retake:', error);
-            showError('เกิดข้อผิดพลาดในการเริ่มทำแบบทดสอบใหม่');
+            showError(i18n.errorRetaking);
         }
     }
 }
@@ -525,11 +554,11 @@ async function downloadCertificate() {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
         } else {
-            showError('ไม่สามารถดาวน์โหลดใบประกาศนียบัตรได้');
+            showError(i18n.cannotDownloadCertificate);
         }
     } catch (error) {
         console.error('Error downloading certificate:', error);
-        showError('เกิดข้อผิดพลาดในการดาวน์โหลดใบประกาศนียบัตร');
+        showError(i18n.errorDownloadingCertificate);
     }
 }
 
@@ -561,7 +590,7 @@ function copyShareLink() {
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
-            showSuccess('คัดลอกลิงก์แล้ว');
+            showSuccess(i18n.linkCopied);
         });
     } else {
         // Fallback for older browsers
@@ -571,7 +600,7 @@ function copyShareLink() {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        showSuccess('คัดลอกลิงก์แล้ว');
+        showSuccess(i18n.linkCopied);
     }
 }
 
@@ -584,11 +613,11 @@ function getScoreColor(score) {
 
 function getDifficultyText(level) {
     const texts = {
-        'easy': 'ง่าย',
-        'medium': 'ปานกลาง',
-        'hard': 'ยาก'
+        'easy': i18n.easy,
+        'medium': i18n.medium,
+        'hard': i18n.hard
     };
-    return texts[level] || 'ปานกลาง';
+    return texts[level] || i18n.medium;
 }
 
 function getDifficultyColor(level) {

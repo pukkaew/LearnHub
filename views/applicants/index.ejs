@@ -1,19 +1,160 @@
 <%- include('../layouts/header') %>
 
+<%
+// i18n translations for client-side JavaScript
+const i18n = {
+    // Page title and headers
+    applicantTestingSystem: '<%= t("applicantTestingSystem") %>',
+    manageTestsAndEvaluateApplicants: '<%= t("manageTestsAndEvaluateApplicants") %>',
+    createNewTest: '<%= t("createNewTest") %>',
+    manageApplicants: '<%= t("manageApplicants") %>',
+
+    // Stats cards
+    allTests: '<%= t("allTests") %>',
+    allApplicants: '<%= t("allApplicants") %>',
+    waitingForTest: '<%= t("waitingForTest") %>',
+    passedTest: '<%= t("passedTest") %>',
+
+    // Tab navigation
+    tests: '<%= t("tests") %>',
+    positions: '<%= t("positions") %>',
+    applicants: '<%= t("applicants") %>',
+    testResults: '<%= t("testResults") %>',
+
+    // Filters and search
+    searchTests: '<%= t("searchTests") %>',
+    allStatuses: '<%= t("allStatuses") %>',
+    active: '<%= t("active") %>',
+    inactive: '<%= t("inactive") %>',
+    draft: '<%= t("draft") %>',
+    allPositions: '<%= t("allPositions") %>',
+    latest: '<%= t("latest") %>',
+    nameAtoZ: '<%= t("nameAtoZ") %>',
+    nameZtoA: '<%= t("nameZtoA") %>',
+    mostUsed: '<%= t("mostUsed") %>',
+
+    // Applicant filters
+    searchApplicants: '<%= t("searchApplicants") %>',
+    pending: '<%= t("pending") %>',
+    testing: '<%= t("testing") %>',
+    completedStatus: '<%= t("completedStatus") %>',
+    passed: '<%= t("passed") %>',
+    failed: '<%= t("failed") %>',
+    highestScore: '<%= t("highestScore") %>',
+    lowestScore: '<%= t("lowestScore") %>',
+
+    // Table headers
+    applicant: '<%= t("applicant") %>',
+    positionApplied: '<%= t("positionApplied") %>',
+    status: '<%= t("status") %>',
+    score: '<%= t("score") %>',
+    testDate: '<%= t("testDate") %>',
+    management: '<%= t("management") %>',
+
+    // Chart types
+    passRate: '<%= t("passRate") %>',
+    scoreDistribution: '<%= t("scoreDistribution") %>',
+    positionStats: '<%= t("positionStats") %>',
+    monthlyTrend: '<%= t("monthlyTrend") %>',
+    last30Days: '<%= t("last30Days") %>',
+    last90Days: '<%= t("last90Days") %>',
+    last6Months: '<%= t("last6Months") %>',
+    last1Year: '<%= t("last1Year") %>',
+
+    // Summary stats
+    overallPassRate: '<%= t("overallPassRate") %>',
+    averageScore: '<%= t("averageScore") %>',
+    averageTestTime: '<%= t("averageTestTime") %>',
+    popularTest: '<%= t("popularTest") %>',
+
+    // Modals
+    createNewTestModal: '<%= t("createNewTest") %>',
+    testName: '<%= t("testName") %>',
+    positionLabel: '<%= t("positionLabel") %>',
+    selectPosition: '<%= t("selectPosition") %>',
+    testTimeLimit: '<%= t("testTimeLimit") %>',
+    passingScore: '<%= t("passingScore") %>',
+    maxAttempts: '<%= t("maxAttempts") %>',
+    description: '<%= t("description") %>',
+    describeTest: '<%= t("describeTest") %>',
+    instructionsForApplicants: '<%= t("instructionsForApplicants") %>',
+    testInstructions: '<%= t("testInstructions") %>',
+    randomizeQuestions: '<%= t("randomizeQuestions") %>',
+    showResultsImmediately: '<%= t("showResultsImmediately") %>',
+    cancel: '<%= t("cancel") %>',
+    createTest: '<%= t("createTest") %>',
+
+    // Position modal
+    addPosition: '<%= t("addPosition") %>',
+    positionName: '<%= t("positionName") %>',
+    department: '<%= t("department") %>',
+    selectDepartment: '<%= t("selectDepartment") %>',
+    jobDescription: '<%= t("jobDescription") %>',
+    describeJob: '<%= t("describeJob") %>',
+    requiredQualifications: '<%= t("requiredQualifications") %>',
+    specifyQualifications: '<%= t("specifyQualifications") %>',
+
+    // Empty states
+    noTestsFound: '<%= t("noTestsFound") %>',
+    noPositions: '<%= t("noPositions") %>',
+    noApplicantsFound: '<%= t("noApplicantsFound") %>',
+
+    // Test card labels
+    noPositionSpecified: '<%= t("noPositionSpecified") %>',
+    minutes: '<%= t("minutes") %>',
+    passingScorePercent: '<%= t("passingScorePercent") %>',
+    peopleTookTest: '<%= t("peopleTookTest") %>',
+    noDescription: '<%= t("noDescription") %>',
+    createdOn: '<%= t("createdOn") %>',
+    edit: '<%= t("edit") %>',
+    manageQuestions: '<%= t("manageQuestions") %>',
+    viewTestResults: '<%= t("viewTestResults") %>',
+    enable: '<%= t("enable") %>',
+    disable: '<%= t("disable") %>',
+    deleteItem: '<%= t("deleteItem") %>',
+
+    // Position card labels
+    testsCount: '<%= t("testsCount") %>',
+    noDepartmentSpecified: '<%= t("noDepartmentSpecified") %>',
+    applicantsCount: '<%= t("applicantsCount") %>',
+    viewApplicants: '<%= t("viewApplicants") %>',
+
+    // Actions
+    viewDetails: '<%= t("viewDetails") %>',
+    sendTest: '<%= t("sendTest") %>',
+
+    // Messages
+    testCreatedSuccessfully: '<%= t("testCreatedSuccessfully") %>',
+    errorOccurred: '<%= t("errorOccurred") %>',
+    errorCreatingTest: '<%= t("errorCreatingTest") %>',
+    positionAddedSuccessfully: '<%= t("positionAddedSuccessfully") %>',
+    errorAddingPosition: '<%= t("errorAddingPosition") %>',
+    testStatusUpdated: '<%= t("testStatusUpdated") %>',
+    testDeleted: '<%= t("testDeleted") %>',
+    confirmDeleteTest: '<%= t("confirmDeleteTest") %>',
+    positionDeleted: '<%= t("positionDeleted") %>',
+    confirmDeletePosition: '<%= t("confirmDeletePosition") %>',
+    testSentSuccessfully: '<%= t("testSentSuccessfully") %>',
+    enabled: '<%= t("enabled") %>',
+    disabled: '<%= t("disabled") %>',
+    minutesUnit: '<%= t("minutesUnit") %>'
+};
+%>
+
 <div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
     <div class="container mx-auto px-6 py-8">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div class="mb-4 md:mb-0">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">ระบบทดสอบผู้สมัครงาน</h1>
-                <p class="text-gray-600">จัดการข้อสอบและประเมินผลผู้สมัครงาน</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= t('applicantTestingSystem') %></h1>
+                <p class="text-gray-600"><%= t('manageTestsAndEvaluateApplicants') %></p>
             </div>
             <div class="flex space-x-3">
                 <button id="createTestBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
-                    <i class="fas fa-plus mr-2"></i>สร้างข้อสอบใหม่
+                    <i class="fas fa-plus mr-2"></i><%= t('createNewTest') %>
                 </button>
                 <button id="manageApplicantsBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                    <i class="fas fa-users mr-2"></i>จัดการผู้สมัคร
+                    <i class="fas fa-users mr-2"></i><%= t('manageApplicants') %>
                 </button>
             </div>
         </div>
@@ -26,7 +167,7 @@
                         <i class="fas fa-file-alt text-blue-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ข้อสอบทั้งหมด</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('allTests') %></h3>
                         <p id="totalTests" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -37,7 +178,7 @@
                         <i class="fas fa-user-check text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ผู้สมัครทั้งหมด</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('allApplicants') %></h3>
                         <p id="totalApplicants" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -48,7 +189,7 @@
                         <i class="fas fa-clock text-yellow-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">รอการทดสอบ</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('waitingForTest') %></h3>
                         <p id="pendingTests" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -59,7 +200,7 @@
                         <i class="fas fa-award text-purple-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ผ่านการทดสอบ</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('passedTest') %></h3>
                         <p id="passedTests" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -71,16 +212,16 @@
             <div class="border-b border-gray-200">
                 <nav class="flex space-x-8 px-6">
                     <button class="tab-btn active py-4 px-2 border-b-2 border-ruxchai-primary text-ruxchai-primary font-medium" data-tab="tests">
-                        <i class="fas fa-file-alt mr-2"></i>ข้อสอบ
+                        <i class="fas fa-file-alt mr-2"></i><%= t('tests') %>
                     </button>
                     <button class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="positions">
-                        <i class="fas fa-briefcase mr-2"></i>ตำแหน่งงาน
+                        <i class="fas fa-briefcase mr-2"></i><%= t('positions') %>
                     </button>
                     <button class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="applicants">
-                        <i class="fas fa-users mr-2"></i>ผู้สมัคร
+                        <i class="fas fa-users mr-2"></i><%= t('applicants') %>
                     </button>
                     <button class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="results">
-                        <i class="fas fa-chart-bar mr-2"></i>ผลการทดสอบ
+                        <i class="fas fa-chart-bar mr-2"></i><%= t('testResults') %>
                     </button>
                 </nav>
             </div>
@@ -91,24 +232,24 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchTests" placeholder="ค้นหาข้อสอบ..."
+                        <input type="text" id="searchTests" placeholder="<%= t('searchTests') %>"
                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="">สถานะทั้งหมด</option>
-                        <option value="active">เปิดใช้งาน</option>
-                        <option value="inactive">ปิดใช้งาน</option>
-                        <option value="draft">ร่าง</option>
+                        <option value=""><%= t('allStatuses') %></option>
+                        <option value="active"><%= t('active') %></option>
+                        <option value="inactive"><%= t('inactive') %></option>
+                        <option value="draft"><%= t('draft') %></option>
                     </select>
                     <select id="positionFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="">ตำแหน่งทั้งหมด</option>
+                        <option value=""><%= t('allPositions') %></option>
                         <!-- Positions will be loaded dynamically -->
                     </select>
                     <select id="sortTests" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="latest">ล่าสุด</option>
-                        <option value="name_asc">ชื่อ A-Z</option>
-                        <option value="name_desc">ชื่อ Z-A</option>
-                        <option value="most_used">ใช้มากที่สุด</option>
+                        <option value="latest"><%= t('latest') %></option>
+                        <option value="name_asc"><%= t('nameAtoZ') %></option>
+                        <option value="name_desc"><%= t('nameZtoA') %></option>
+                        <option value="most_used"><%= t('mostUsed') %></option>
                     </select>
                 </div>
 
@@ -121,9 +262,9 @@
             <!-- Positions Tab -->
             <div id="positionsTab" class="tab-content p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-medium text-gray-900">ตำแหน่งงาน</h3>
+                    <h3 class="text-lg font-medium text-gray-900"><%= t('positions') %></h3>
                     <button id="addPositionBtn" class="bg-ruxchai-primary text-white px-4 py-2 rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
-                        <i class="fas fa-plus mr-2"></i>เพิ่มตำแหน่ง
+                        <i class="fas fa-plus mr-2"></i><%= t('addPosition') %>
                     </button>
                 </div>
 
@@ -138,25 +279,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchApplicants" placeholder="ค้นหาผู้สมัคร..."
+                        <input type="text" id="searchApplicants" placeholder="<%= t('searchApplicants') %>"
                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <select id="applicantStatusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="">สถานะทั้งหมด</option>
-                        <option value="pending">รอการทดสอบ</option>
-                        <option value="testing">กำลังทดสอบ</option>
-                        <option value="completed">ทดสอบเสร็จแล้ว</option>
-                        <option value="passed">ผ่าน</option>
-                        <option value="failed">ไม่ผ่าน</option>
+                        <option value=""><%= t('allStatuses') %></option>
+                        <option value="pending"><%= t('pending') %></option>
+                        <option value="testing"><%= t('testing') %></option>
+                        <option value="completed"><%= t('completedStatus') %></option>
+                        <option value="passed"><%= t('passed') %></option>
+                        <option value="failed"><%= t('failed') %></option>
                     </select>
                     <select id="applicantPositionFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="">ตำแหน่งทั้งหมด</option>
+                        <option value=""><%= t('allPositions') %></option>
                     </select>
                     <select id="sortApplicants" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="latest">ล่าสุด</option>
-                        <option value="name_asc">ชื่อ A-Z</option>
-                        <option value="score_desc">คะแนนสูงสุด</option>
-                        <option value="score_asc">คะแนนต่ำสุด</option>
+                        <option value="latest"><%= t('latest') %></option>
+                        <option value="name_asc"><%= t('nameAtoZ') %></option>
+                        <option value="score_desc"><%= t('highestScore') %></option>
+                        <option value="score_asc"><%= t('lowestScore') %></option>
                     </select>
                 </div>
 
@@ -165,12 +306,12 @@
                     <table class="w-full">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
-                                <th class="p-4 text-left text-sm font-medium text-gray-900">ผู้สมัคร</th>
-                                <th class="p-4 text-left text-sm font-medium text-gray-900">ตำแหน่งที่สมัคร</th>
-                                <th class="p-4 text-left text-sm font-medium text-gray-900">สถานะ</th>
-                                <th class="p-4 text-left text-sm font-medium text-gray-900">คะแนน</th>
-                                <th class="p-4 text-left text-sm font-medium text-gray-900">วันที่ทดสอบ</th>
-                                <th class="p-4 text-left text-sm font-medium text-gray-900">การจัดการ</th>
+                                <th class="p-4 text-left text-sm font-medium text-gray-900"><%= t('applicant') %></th>
+                                <th class="p-4 text-left text-sm font-medium text-gray-900"><%= t('positionApplied') %></th>
+                                <th class="p-4 text-left text-sm font-medium text-gray-900"><%= t('status') %></th>
+                                <th class="p-4 text-left text-sm font-medium text-gray-900"><%= t('score') %></th>
+                                <th class="p-4 text-left text-sm font-medium text-gray-900"><%= t('testDate') %></th>
+                                <th class="p-4 text-left text-sm font-medium text-gray-900"><%= t('management') %></th>
                             </tr>
                         </thead>
                         <tbody id="applicantsTableBody" class="divide-y divide-gray-200">
@@ -185,19 +326,19 @@
                 <!-- Chart Controls -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <select id="chartType" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="pass_rate">อัตราผ่าน</option>
-                        <option value="score_distribution">การกระจายคะแนน</option>
-                        <option value="position_stats">สถิติตามตำแหน่ง</option>
-                        <option value="monthly_trend">แนวโน้มรายเดือน</option>
+                        <option value="pass_rate"><%= t('passRate') %></option>
+                        <option value="score_distribution"><%= t('scoreDistribution') %></option>
+                        <option value="position_stats"><%= t('positionStats') %></option>
+                        <option value="monthly_trend"><%= t('monthlyTrend') %></option>
                     </select>
                     <select id="chartPosition" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="">ตำแหน่งทั้งหมด</option>
+                        <option value=""><%= t('allPositions') %></option>
                     </select>
                     <select id="chartPeriod" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="30">30 วันล่าสุด</option>
-                        <option value="90">90 วันล่าสุด</option>
-                        <option value="180">6 เดือนล่าสุด</option>
-                        <option value="365">1 ปีล่าสุด</option>
+                        <option value="30"><%= t('last30Days') %></option>
+                        <option value="90"><%= t('last90Days') %></option>
+                        <option value="180"><%= t('last6Months') %></option>
+                        <option value="365"><%= t('last1Year') %></option>
                     </select>
                 </div>
 
@@ -209,19 +350,19 @@
                 <!-- Summary Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-green-800 mb-2">อัตราผ่านโดยรวม</h4>
+                        <h4 class="text-sm font-medium text-green-800 mb-2"><%= t('overallPassRate') %></h4>
                         <p id="overallPassRate" class="text-2xl font-bold text-green-900">0%</p>
                     </div>
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-blue-800 mb-2">คะแนนเฉลี่ย</h4>
+                        <h4 class="text-sm font-medium text-blue-800 mb-2"><%= t('averageScore') %></h4>
                         <p id="averageScore" class="text-2xl font-bold text-blue-900">0</p>
                     </div>
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-yellow-800 mb-2">เวลาทำข้อสอบเฉลี่ย</h4>
-                        <p id="averageTime" class="text-2xl font-bold text-yellow-900">0 นาที</p>
+                        <h4 class="text-sm font-medium text-yellow-800 mb-2"><%= t('averageTestTime') %></h4>
+                        <p id="averageTime" class="text-2xl font-bold text-yellow-900">0 <%= t('minutesUnit') %></p>
                     </div>
                     <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-purple-800 mb-2">ข้อสอบยอดนิยม</h4>
+                        <h4 class="text-sm font-medium text-purple-800 mb-2"><%= t('popularTest') %></h4>
                         <p id="popularTest" class="text-sm font-medium text-purple-900">-</p>
                     </div>
                 </div>
@@ -235,7 +376,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">สร้างข้อสอบใหม่</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('createNewTest') %></h3>
                 <button id="closeCreateTestModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -243,65 +384,65 @@
             <form id="createTestForm" class="p-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อข้อสอบ *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('testName') %> *</label>
                         <input type="text" name="title" required
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ตำแหน่งงาน *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('positionLabel') %> *</label>
                         <select name="position_id" required
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                            <option value="">เลือกตำแหน่ง</option>
+                            <option value=""><%= t('selectPosition') %></option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ระยะเวลาทำข้อสอบ (นาที) *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('testTimeLimit') %> *</label>
                         <input type="number" name="time_limit" required min="1" max="480" value="60"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">คะแนนผ่าน *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('passingScore') %> *</label>
                         <input type="number" name="passing_score" required min="0" max="100" value="70"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">จำนวนครั้งที่ทำได้</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('maxAttempts') %></label>
                         <input type="number" name="max_attempts" min="1" max="10" value="1"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">คำอธิบาย</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('description') %></label>
                     <textarea name="description" rows="3"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="อธิบายข้อสอบ เช่น วัตถุประสงค์ หัวข้อที่ครอบคลุม..."></textarea>
+                              placeholder="<%= t('describeTest') %>"></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">คำแนะนำสำหรับผู้สมัคร</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('instructionsForApplicants') %></label>
                     <textarea name="instructions" rows="3"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="คำแนะนำและข้อปฏิบัติในการทำข้อสอบ..."></textarea>
+                              placeholder="<%= t('testInstructions') %>"></textarea>
                 </div>
 
                 <div class="flex items-center space-x-6">
                     <label class="flex items-center">
                         <input type="checkbox" name="randomize_questions" class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-2">
-                        <span class="text-sm text-gray-700">สุ่มลำดับข้อคำถาม</span>
+                        <span class="text-sm text-gray-700"><%= t('randomizeQuestions') %></span>
                     </label>
                     <label class="flex items-center">
                         <input type="checkbox" name="show_results" class="rounded border-gray-300 text-ruxchai-primary focus:ring-ruxchai-primary mr-2">
-                        <span class="text-sm text-gray-700">แสดงผลทันทีหลังทำข้อสอบ</span>
+                        <span class="text-sm text-gray-700"><%= t('showResultsImmediately') %></span>
                     </label>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <button type="button" id="cancelCreateTest" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        ยกเลิก
+                        <%= t('cancel') %>
                     </button>
                     <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        สร้างข้อสอบ
+                        <%= t('createTest') %>
                     </button>
                 </div>
             </form>
@@ -314,43 +455,43 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">เพิ่มตำแหน่งงาน</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('addPosition') %></h3>
                 <button id="closeAddPositionModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             <form id="addPositionForm" class="p-6 space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อตำแหน่ง *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('positionName') %> *</label>
                     <input type="text" name="title" required
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">แผนก *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('department') %> *</label>
                     <select name="department_id" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="">เลือกแผนก</option>
+                        <option value=""><%= t('selectDepartment') %></option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายงาน</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('jobDescription') %></label>
                     <textarea name="description" rows="4"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="อธิบายลักษณะงาน หน้าที่ความรับผิดชอบ..."></textarea>
+                              placeholder="<%= t('describeJob') %>"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">คุณสมบัติที่ต้องการ</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('requiredQualifications') %></label>
                     <textarea name="requirements" rows="3"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="ระบุคุณสมบัติ ทักษะ ประสบการณ์ที่ต้องการ..."></textarea>
+                              placeholder="<%= t('specifyQualifications') %>"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <button type="button" id="cancelAddPosition" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        ยกเลิก
+                        <%= t('cancel') %>
                     </button>
                     <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        เพิ่มตำแหน่ง
+                        <%= t('addPosition') %>
                     </button>
                 </div>
             </form>
@@ -506,7 +647,7 @@ function displayTests() {
     const container = document.getElementById('testsGrid');
 
     if (tests.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">ไม่พบข้อสอบ</div>';
+        container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500">${i18n.noTestsFound}</div>`;
         return;
     }
 
@@ -527,42 +668,42 @@ function createTestCard(test) {
             <div class="space-y-2 text-sm text-gray-600 mb-4">
                 <div class="flex items-center">
                     <i class="fas fa-briefcase mr-2 text-gray-400"></i>
-                    <span>${test.position_title || 'ไม่ระบุตำแหน่ง'}</span>
+                    <span>${test.position_title || i18n.noPositionSpecified}</span>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-clock mr-2 text-gray-400"></i>
-                    <span>${test.time_limit} นาที</span>
+                    <span>${test.time_limit} ${i18n.minutes}</span>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-percentage mr-2 text-gray-400"></i>
-                    <span>คะแนนผ่าน ${test.passing_score}%</span>
+                    <span>${i18n.passingScorePercent.replace('{score}', test.passing_score)}</span>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-users mr-2 text-gray-400"></i>
-                    <span>${test.applicant_count || 0} คนทำข้อสอบ</span>
+                    <span>${i18n.peopleTookTest.replace('{count}', test.applicant_count || 0)}</span>
                 </div>
             </div>
 
-            <p class="text-sm text-gray-600 mb-4 line-clamp-2">${test.description || 'ไม่มีคำอธิบาย'}</p>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">${test.description || i18n.noDescription}</p>
 
             <div class="flex justify-between items-center">
-                <span class="text-xs text-gray-500">สร้างเมื่อ ${formatDate(test.created_at)}</span>
+                <span class="text-xs text-gray-500">${i18n.createdOn} ${formatDate(test.created_at)}</span>
                 <div class="flex space-x-2">
-                    <button onclick="editTest(${test.test_id})" class="text-blue-600 hover:text-blue-800 p-1" title="แก้ไข">
+                    <button onclick="editTest(${test.test_id})" class="text-blue-600 hover:text-blue-800 p-1" title="${i18n.edit}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button onclick="manageQuestions(${test.test_id})" class="text-green-600 hover:text-green-800 p-1" title="จัดการคำถาม">
+                    <button onclick="manageQuestions(${test.test_id})" class="text-green-600 hover:text-green-800 p-1" title="${i18n.manageQuestions}">
                         <i class="fas fa-list"></i>
                     </button>
-                    <button onclick="viewTestResults(${test.test_id})" class="text-purple-600 hover:text-purple-800 p-1" title="ดูผลการทดสอบ">
+                    <button onclick="viewTestResults(${test.test_id})" class="text-purple-600 hover:text-purple-800 p-1" title="${i18n.viewTestResults}">
                         <i class="fas fa-chart-bar"></i>
                     </button>
                     <button onclick="toggleTestStatus(${test.test_id})"
                             class="${test.status === 'active' ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'} p-1"
-                            title="${test.status === 'active' ? 'ปิดใช้งาน' : 'เปิดใช้งาน'}">
+                            title="${test.status === 'active' ? i18n.disable : i18n.enable}">
                         <i class="fas ${test.status === 'active' ? 'fa-pause' : 'fa-play'}"></i>
                     </button>
-                    <button onclick="deleteTest(${test.test_id})" class="text-red-600 hover:text-red-800 p-1" title="ลบ">
+                    <button onclick="deleteTest(${test.test_id})" class="text-red-600 hover:text-red-800 p-1" title="${i18n.deleteItem}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -592,7 +733,7 @@ function displayPositions() {
     const container = document.getElementById('positionsGrid');
 
     if (positions.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">ยังไม่มีตำแหน่งงาน</div>';
+        container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500">${i18n.noPositions}</div>`;
         return;
     }
 
@@ -606,33 +747,33 @@ function createPositionCard(position) {
             <div class="flex justify-between items-start mb-4">
                 <h3 class="text-lg font-medium text-gray-900">${position.title}</h3>
                 <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                    ${position.test_count || 0} ข้อสอบ
+                    ${position.test_count || 0} ${i18n.testsCount}
                 </span>
             </div>
 
             <div class="space-y-2 text-sm text-gray-600 mb-4">
                 <div class="flex items-center">
                     <i class="fas fa-building mr-2 text-gray-400"></i>
-                    <span>${position.department_name || 'ไม่ระบุแผนก'}</span>
+                    <span>${position.department_name || i18n.noDepartmentSpecified}</span>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-users mr-2 text-gray-400"></i>
-                    <span>${position.applicant_count || 0} ผู้สมัคร</span>
+                    <span>${position.applicant_count || 0} ${i18n.applicantsCount}</span>
                 </div>
             </div>
 
-            <p class="text-sm text-gray-600 mb-4 line-clamp-3">${position.description || 'ไม่มีคำอธิบาย'}</p>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-3">${position.description || i18n.noDescription}</p>
 
             <div class="flex justify-between items-center">
-                <span class="text-xs text-gray-500">สร้างเมื่อ ${formatDate(position.created_at)}</span>
+                <span class="text-xs text-gray-500">${i18n.createdOn} ${formatDate(position.created_at)}</span>
                 <div class="flex space-x-2">
-                    <button onclick="editPosition(${position.position_id})" class="text-blue-600 hover:text-blue-800 p-1" title="แก้ไข">
+                    <button onclick="editPosition(${position.position_id})" class="text-blue-600 hover:text-blue-800 p-1" title="${i18n.edit}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button onclick="viewPositionApplicants(${position.position_id})" class="text-green-600 hover:text-green-800 p-1" title="ดูผู้สมัคร">
+                    <button onclick="viewPositionApplicants(${position.position_id})" class="text-green-600 hover:text-green-800 p-1" title="${i18n.viewApplicants}">
                         <i class="fas fa-users"></i>
                     </button>
-                    <button onclick="deletePosition(${position.position_id})" class="text-red-600 hover:text-red-800 p-1" title="ลบ">
+                    <button onclick="deletePosition(${position.position_id})" class="text-red-600 hover:text-red-800 p-1" title="${i18n.deleteItem}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -667,7 +808,7 @@ function displayApplicants() {
     const tbody = document.getElementById('applicantsTableBody');
 
     if (applicants.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">ไม่พบผู้สมัคร</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">${i18n.noApplicantsFound}</td></tr>`;
         return;
     }
 
@@ -704,16 +845,16 @@ function createApplicantRow(applicant) {
             </td>
             <td class="p-4">
                 <div class="flex space-x-2">
-                    <button onclick="viewApplicant(${applicant.applicant_id})" class="text-blue-600 hover:text-blue-800 p-1" title="ดูรายละเอียด">
+                    <button onclick="viewApplicant(${applicant.applicant_id})" class="text-blue-600 hover:text-blue-800 p-1" title="${i18n.viewDetails}">
                         <i class="fas fa-eye"></i>
                     </button>
                     ${applicant.status === 'pending' ? `
-                        <button onclick="sendTestInvitation(${applicant.applicant_id})" class="text-green-600 hover:text-green-800 p-1" title="ส่งการทดสอบ">
+                        <button onclick="sendTestInvitation(${applicant.applicant_id})" class="text-green-600 hover:text-green-800 p-1" title="${i18n.sendTest}">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     ` : ''}
                     ${applicant.test_result_id ? `
-                        <button onclick="viewTestResult(${applicant.test_result_id})" class="text-purple-600 hover:text-purple-800 p-1" title="ดูผลการทดสอบ">
+                        <button onclick="viewTestResult(${applicant.test_result_id})" class="text-purple-600 hover:text-purple-800 p-1" title="${i18n.viewTestResults}">
                             <i class="fas fa-chart-bar"></i>
                         </button>
                     ` : ''}
@@ -731,7 +872,7 @@ async function loadDepartments() {
 
         if (data.success) {
             const departmentSelect = document.querySelector('select[name="department_id"]');
-            departmentSelect.innerHTML = '<option value="">เลือกแผนก</option>' +
+            departmentSelect.innerHTML = `<option value="">${i18n.selectDepartment}</option>` +
                 data.departments.map(dept => `<option value="${dept.department_id}">${dept.name}</option>`).join('');
         }
     } catch (error) {
@@ -751,7 +892,7 @@ function updatePositionFilters() {
     positionFilters.forEach(select => {
         if (select) {
             const isCreateForm = select.name === 'position_id';
-            select.innerHTML = (isCreateForm ? '<option value="">เลือกตำแหน่ง</option>' : '<option value="">ตำแหน่งทั้งหมด</option>') +
+            select.innerHTML = (isCreateForm ? `<option value="">${i18n.selectPosition}</option>` : `<option value="">${i18n.allPositions}</option>`) +
                 positions.map(pos => `<option value="${pos.position_id}">${pos.title}</option>`).join('');
         }
     });
@@ -772,16 +913,16 @@ async function handleCreateTest(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('สร้างข้อสอบเรียบร้อยแล้ว', 'success');
+            showMessage(i18n.testCreatedSuccessfully, 'success');
             closeCreateTestModal();
             loadTests();
             loadStats();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.errorOccurred, 'error');
         }
     } catch (error) {
         console.error('Error creating test:', error);
-        showMessage('เกิดข้อผิดพลาดในการสร้างข้อสอบ', 'error');
+        showMessage(i18n.errorCreatingTest, 'error');
     }
 }
 
@@ -800,15 +941,15 @@ async function handleAddPosition(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('เพิ่มตำแหน่งเรียบร้อยแล้ว', 'success');
+            showMessage(i18n.positionAddedSuccessfully, 'success');
             closeAddPositionModal();
             loadPositions();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.errorOccurred, 'error');
         }
     } catch (error) {
         console.error('Error adding position:', error);
-        showMessage('เกิดข้อผิดพลาดในการเพิ่มตำแหน่ง', 'error');
+        showMessage(i18n.errorAddingPosition, 'error');
     }
 }
 
@@ -834,19 +975,19 @@ async function toggleTestStatus(testId) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage(`${data.status === 'active' ? 'เปิด' : 'ปิด'}ใช้งานข้อสอบเรียบร้อยแล้ว`, 'success');
+            showMessage(`${data.status === 'active' ? i18n.enabled : i18n.disabled}${i18n.testStatusUpdated}`, 'success');
             loadTests();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.errorOccurred, 'error');
         }
     } catch (error) {
         console.error('Error toggling test status:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(i18n.errorOccurred, 'error');
     }
 }
 
 async function deleteTest(testId) {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบข้อสอบนี้? การกระทำนี้ไม่สามารถยกเลิกได้')) return;
+    if (!confirm(i18n.confirmDeleteTest)) return;
 
     try {
         const response = await fetch(`/applicants/tests/${testId}`, {
@@ -856,15 +997,15 @@ async function deleteTest(testId) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ลบข้อสอบเรียบร้อยแล้ว', 'success');
+            showMessage(i18n.testDeleted, 'success');
             loadTests();
             loadStats();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.errorOccurred, 'error');
         }
     } catch (error) {
         console.error('Error deleting test:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(i18n.errorOccurred, 'error');
     }
 }
 
@@ -880,7 +1021,7 @@ function viewPositionApplicants(positionId) {
 }
 
 async function deletePosition(positionId) {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบตำแหน่งนี้? การกระทำนี้ไม่สามารถยกเลิกได้')) return;
+    if (!confirm(i18n.confirmDeletePosition)) return;
 
     try {
         const response = await fetch(`/applicants/positions/${positionId}`, {
@@ -890,14 +1031,14 @@ async function deletePosition(positionId) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ลบตำแหน่งเรียบร้อยแล้ว', 'success');
+            showMessage(i18n.positionDeleted, 'success');
             loadPositions();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.errorOccurred, 'error');
         }
     } catch (error) {
         console.error('Error deleting position:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(i18n.errorOccurred, 'error');
     }
 }
 
@@ -915,14 +1056,14 @@ async function sendTestInvitation(applicantId) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ส่งการทดสอบเรียบร้อยแล้ว', 'success');
+            showMessage(i18n.testSentSuccessfully, 'success');
             loadApplicants();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.errorOccurred, 'error');
         }
     } catch (error) {
         console.error('Error sending test invitation:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage(i18n.errorOccurred, 'error');
     }
 }
 
@@ -997,7 +1138,7 @@ async function loadResultsStats() {
         if (data.success) {
             document.getElementById('overallPassRate').textContent = `${data.stats.pass_rate || 0}%`;
             document.getElementById('averageScore').textContent = data.stats.average_score || 0;
-            document.getElementById('averageTime').textContent = `${data.stats.average_time || 0} นาที`;
+            document.getElementById('averageTime').textContent = `${data.stats.average_time || 0} ${i18n.minutesUnit}`;
             document.getElementById('popularTest').textContent = data.stats.popular_test || '-';
         }
     } catch (error) {
@@ -1008,20 +1149,20 @@ async function loadResultsStats() {
 // Status badges
 function getTestStatusBadge(status) {
     const badges = {
-        active: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">เปิดใช้งาน</span>',
-        inactive: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">ปิดใช้งาน</span>',
-        draft: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">ร่าง</span>'
+        active: `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${i18n.active}</span>`,
+        inactive: `<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">${i18n.inactive}</span>`,
+        draft: `<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">${i18n.draft}</span>`
     };
     return badges[status] || '';
 }
 
 function getApplicantStatusBadge(status) {
     const badges = {
-        pending: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">รอการทดสอบ</span>',
-        testing: '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">กำลังทดสอบ</span>',
-        completed: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">ทดสอบเสร็จแล้ว</span>',
-        passed: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">ผ่าน</span>',
-        failed: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">ไม่ผ่าน</span>'
+        pending: `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">${i18n.pending}</span>`,
+        testing: `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${i18n.testing}</span>`,
+        completed: `<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">${i18n.completedStatus}</span>`,
+        passed: `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${i18n.passed}</span>`,
+        failed: `<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">${i18n.failed}</span>`
     };
     return badges[status] || '';
 }
@@ -1044,7 +1185,7 @@ function formatDate(dateString) {
         month: 'short',
         day: 'numeric'
     };
-    return new Date(dateString).toLocaleDateString('th-TH', options);
+    return new Date(dateString).toLocaleDateString('<%= language === "th" ? "th-TH" : "en-US" %>', options);
 }
 
 function debounce(func, wait) {

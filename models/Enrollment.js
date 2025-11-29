@@ -29,14 +29,14 @@ class Enrollment {
                 .input('userId', sql.Int, enrollmentData.user_id)
                 .input('courseId', sql.Int, enrollmentData.course_id)
                 .query(`
-                    SELECT enrollment_id, completion_status
+                    SELECT enrollment_id, status
                     FROM user_courses
                     WHERE user_id = @userId AND course_id = @courseId
                 `);
 
             if (existingCheck.recordset.length > 0) {
                 const existing = existingCheck.recordset[0];
-                if (existing.completion_status !== 'DROPPED') {
+                if (existing.status !== 'DROPPED') {
                     return {
                         success: false,
                         message: 'User is already enrolled in this course'
@@ -48,16 +48,10 @@ class Enrollment {
                     .query(`
                         UPDATE user_courses
                         SET enrollment_date = GETDATE(),
-                            enrollment_type = 'SELF',
-                            start_date = NULL,
-                            expected_end_date = NULL,
-                            actual_end_date = NULL,
-                            progress_percentage = 0,
-                            completion_status = 'NOT_STARTED',
-                            final_score = NULL,
+                            progress = 0,
+                            status = 'active',
                             certificate_issued = 0,
-                            certificate_number = NULL,
-                            certificate_issued_date = NULL
+                            last_access_date = GETDATE()
                         WHERE enrollment_id = @enrollmentId
                     `);
 
@@ -117,23 +111,19 @@ class Enrollment {
                 expectedEndDate.setDate(expectedEndDate.getDate() + durationDays);
             }
 
-            // Create enrollment
+            // Create enrollment - use columns that exist in user_courses table
             const result = await pool.request()
-                .input('enrollmentId', sql.Int, enrollmentId)
                 .input('userId', sql.Int, enrollmentData.user_id)
                 .input('courseId', sql.Int, enrollmentData.course_id)
-                .input('enrollmentType', sql.NVarChar(20), enrollmentData.enrollment_type || 'SELF')
-                .input('expectedEndDate', sql.DateTime, expectedEndDate)
                 .query(`
                     INSERT INTO user_courses (
-                        enrollment_id, user_id, course_id, enrollment_date,
-                        enrollment_type, expected_end_date, progress_percentage,
-                        completion_status, created_date
+                        user_id, course_id, enrollment_date,
+                        progress, status, certificate_issued, last_access_date
                     ) VALUES (
-                        @enrollmentId, @userId, @courseId, GETDATE(),
-                        @enrollmentType, @expectedEndDate, 0,
-                        'NOT_STARTED', GETDATE()
-                    )
+                        @userId, @courseId, GETDATE(),
+                        0, 'active', 0, GETDATE()
+                    );
+                    SELECT SCOPE_IDENTITY() as enrollment_id;
                 `);
 
             // Skip notification - table may not exist
@@ -142,9 +132,12 @@ class Enrollment {
             // Skip gamification points - table may not exist
             // TODO: Add gamification support when UserPoints table is created
 
+            // Get the new enrollment_id from INSERT result
+            const newEnrollmentId = result.recordset[0]?.enrollment_id || enrollmentId;
+
             return {
                 success: true,
-                enrollmentId: enrollmentId
+                enrollmentId: newEnrollmentId
             };
         } catch (error) {
             throw new Error(`Error enrolling in course: ${error.message}`);
@@ -301,13 +294,18 @@ class Enrollment {
                             WHEN @progress >= 100 AND completion_date IS NULL THEN GETDATE()
                             ELSE completion_date
                         END,
-                        updated_at = GETDATE()
+                        last_access_date = GETDATE()
                     WHERE enrollment_id = @enrollmentId
                 `);
 
             // Check if course completed for certificate generation
             if (progressPercentage >= 100) {
-                await this.generateCertificate(enrollmentId);
+                try {
+                    await this.generateCertificate(enrollmentId);
+                } catch (certError) {
+                    // Log certificate generation error but don't fail progress update
+                    console.error('Certificate generation error (non-fatal):', certError.message);
+                }
             }
 
             return {

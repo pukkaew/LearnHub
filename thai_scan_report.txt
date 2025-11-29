@@ -1,0 +1,6 @@
+Lines with Thai characters (excluding comments and mappings):
+528: 'ภาษาไทย': 'thai',
+530: 'ภาษาอังกฤษ': 'english'
+542: 'บังคับ': 'mandatory',
+544: 'เลือก': 'elective',
+546: 'แนะนำ': 'recommended'

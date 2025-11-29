@@ -1008,6 +1008,7 @@ const userController = {
     async getInstructors(req, res) {
         try {
             const { poolPromise, sql } = require('../config/database');
+const { t } = require('../utils/languages');
             const pool = await poolPromise;
 
             const result = await pool.request().query(`
@@ -1038,7 +1039,7 @@ const userController = {
             console.error('Get instructors error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายชื่อผู้สอน'
+                message: req.t('errorLoadingInstructorList')
             });
         }
     }

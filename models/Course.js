@@ -267,7 +267,6 @@ class Course {
                 .input('maxStudents', sql.Int, courseData.max_students || courseData.max_enrollments || courseData.enrollment_limit || null)
                 .input('startDate', sql.DateTime2, courseData.enrollment_start || courseData.start_date || null)
                 .input('endDate', sql.DateTime2, courseData.enrollment_end || courseData.end_date || null)
-                .input('testId', sql.Int, courseData.test_id || null)
                 .input('learningObjectives', sql.NVarChar(sql.MAX), learningObjectivesJson)
                 .input('targetAudience', sql.NVarChar(sql.MAX), targetAudienceJson)
                 .input('prerequisiteKnowledge', sql.NVarChar(sql.MAX), courseData.prerequisite_knowledge || null)
@@ -281,14 +280,14 @@ class Course {
                     INSERT INTO courses (
                         course_code, title, description, category, difficulty_level, course_type, language,
                         instructor_id, instructor_name, thumbnail, duration_hours, price, is_free, status,
-                        enrollment_limit, max_students, start_date, end_date, test_id,
+                        enrollment_limit, max_students, start_date, end_date,
                         learning_objectives, target_audience, prerequisite_knowledge, intro_video_url,
                         passing_score, max_attempts, show_correct_answers, is_published, certificate_validity,
                         created_at, updated_at
                     ) VALUES (
                         @courseCode, @title, @description, @category, @difficultyLevel, @courseType, @language,
                         @instructorId, @instructorName, @thumbnail, @durationHours, @price, @isFree, @status,
-                        @enrollmentLimit, @maxStudents, @startDate, @endDate, @testId,
+                        @enrollmentLimit, @maxStudents, @startDate, @endDate,
                         @learningObjectives, @targetAudience, @prerequisiteKnowledge, @introVideoUrl,
                         @passingScore, @maxAttempts, @showCorrectAnswers, @isPublished, @certificateValidity,
                         GETDATE(), GETDATE()
@@ -296,14 +295,22 @@ class Course {
                     SELECT SCOPE_IDENTITY() AS course_id;
                 `);
 
-            const newCourseId = result.recordset[0].course_id;
+            const rawCourseId = result.recordset[0].course_id;
+            const newCourseId = parseInt(rawCourseId, 10);
+
+            // Validate the returned course_id is a valid integer
+            if (isNaN(newCourseId) || newCourseId <= 0) {
+                throw new Error(`Invalid course_id returned from database: ${rawCourseId}`);
+            }
 
             // Insert lessons if provided (using transaction)
             if (courseData.lessons && Array.isArray(courseData.lessons) && courseData.lessons.length > 0) {
                 console.log(`📚 Inserting ${courseData.lessons.length} lessons...`);
                 for (let i = 0; i < courseData.lessons.length; i++) {
                     const lesson = courseData.lessons[i];
-                    await transaction.request()
+
+                    // Insert lesson into course_materials
+                    const lessonResult = await transaction.request()
                         .input('courseId', sql.Int, newCourseId)
                         .input('title', sql.NVarChar(255), lesson.title || `บทที่ ${i + 1}`)
                         .input('content', sql.NVarChar(sql.MAX), lesson.description || '')
@@ -314,11 +321,45 @@ class Course {
                         .query(`
                             INSERT INTO course_materials (
                                 course_id, title, content, type, file_path, order_index, duration_minutes, created_at
-                            ) VALUES (
+                            ) OUTPUT INSERTED.material_id
+                            VALUES (
                                 @courseId, @title, @content, @type, @filePath, @orderIndex, @duration, GETDATE()
                             )
                         `);
-                    console.log(`  ✅ Lesson ${i + 1} inserted successfully`);
+
+                    const materialId = lessonResult.recordset[0]?.material_id;
+                    console.log(`  ✅ Lesson ${i + 1} inserted successfully (material_id: ${materialId})`);
+
+                    // Create quiz/test for this lesson if has_quiz is true
+                    // Only create quiz if we have a valid instructor/creator ID
+                    const quizCreatorId = courseData.instructor_id || courseData.created_by;
+                    if (lesson.has_quiz && materialId && quizCreatorId) {
+                        console.log(`  📝 Creating Knowledge Check for lesson ${i + 1}...`);
+                        // Note: Quiz is linked to course, material_id stored in description for reference
+                        await transaction.request()
+                            .input('title', sql.NVarChar(255), lesson.quiz_name || `แบบทดสอบท้ายบทที่ ${i + 1}`)
+                            .input('description', sql.NVarChar(sql.MAX), `แบบทดสอบท้ายบทสำหรับ: ${lesson.title} (material_id: ${materialId})`)
+                            .input('courseId', sql.Int, newCourseId)
+                            .input('instructorId', sql.Int, parseInt(quizCreatorId))
+                            .input('type', sql.NVarChar(50), 'knowledge_check')
+                            .input('passingMarks', sql.Int, lesson.quiz_passing_score || 70)
+                            .input('attemptsAllowed', sql.Int, lesson.quiz_max_attempts || 3)
+                            .input('testCategory', sql.NVarChar(50), 'lesson_quiz')
+                            .input('isRequired', sql.Bit, 0)
+                            .input('status', sql.NVarChar(20), 'draft')
+                            .query(`
+                                INSERT INTO tests (
+                                    title, description, course_id, instructor_id, type,
+                                    passing_marks, attempts_allowed, test_category,
+                                    is_required, status, created_at, updated_at
+                                ) VALUES (
+                                    @title, @description, @courseId, @instructorId, @type,
+                                    @passingMarks, @attemptsAllowed, @testCategory,
+                                    @isRequired, @status, GETDATE(), GETDATE()
+                                )
+                            `);
+                        console.log(`  ✅ Knowledge Check created for lesson ${i + 1}`);
+                    }
                 }
             }
 
@@ -506,8 +547,7 @@ class Course {
                 .query(`
                     UPDATE courses
                     SET is_published = @isPublished,
-                        published_date = CASE WHEN @isPublished = 1 THEN GETDATE() ELSE published_date END,
-                        modified_date = GETDATE()
+                        updated_at = GETDATE()
                     WHERE course_id = @courseId
                 `);
 
@@ -585,8 +625,14 @@ class Course {
                 FETCH NEXT @limit ROWS ONLY
             `);
 
+            // Add course_name alias for compatibility with frontend
+            const coursesWithAlias = result.recordset.map(course => ({
+                ...course,
+                course_name: course.title // Alias for compatibility
+            }));
+
             return {
-                data: result.recordset,
+                data: coursesWithAlias,
                 total: countResult.recordset[0].total,
                 page: page,
                 totalPages: Math.ceil(countResult.recordset[0].total / limit)
@@ -603,25 +649,28 @@ class Course {
             const result = await pool.request()
                 .input('limit', sql.Int, limit)
                 .query(`
-                    SELECT TOP (@limit) c.*,
+                    SELECT TOP (@limit) c.course_id, c.course_code, c.title, c.description,
+                           c.category, c.difficulty_level, c.course_type, c.language,
+                           c.instructor_id, c.instructor_name as instructor_name_stored,
+                           c.thumbnail, c.duration_hours, c.price, c.is_free,
+                           c.status, c.enrollment_limit, c.max_students, c.start_date, c.end_date,
+                           c.learning_objectives, c.target_audience, c.prerequisite_knowledge,
+                           c.intro_video_url, c.passing_score, c.max_attempts, c.show_correct_answers,
+                           c.is_published, c.certificate_validity, c.created_at, c.updated_at,
                            c.category as category_name,
-                           CONCAT(u.first_name, ' ', u.last_name) as instructor_name,
+                           COALESCE(c.instructor_name, CONCAT(u.first_name, ' ', u.last_name)) as instructor_name,
                            u.profile_image as instructor_image,
-                           COUNT(e.user_id) as enrolled_count,
-                           AVG(CAST(e.grade as FLOAT)) as avg_score,
+                           (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id) as enrolled_count,
+                           (SELECT AVG(CAST(grade as FLOAT)) FROM user_courses
+                            WHERE course_id = c.course_id AND grade IS NOT NULL) as avg_score,
                            0 as rating,
                            0 as rating_count,
                            NULL as enrollment_status,
                            0 as progress_percentage
                     FROM courses c
                     LEFT JOIN users u ON c.instructor_id = u.user_id
-                    LEFT JOIN user_courses e ON c.course_id = e.course_id
                     WHERE c.status IN ('Active', 'Published')
-                    GROUP BY c.course_id, c.title, c.description, c.category, c.difficulty_level,
-                             c.instructor_id, c.thumbnail, c.duration_hours, c.price, c.is_free,
-                             c.status, c.enrollment_limit, c.start_date, c.end_date,
-                             c.created_at, c.updated_at, c.test_id, u.first_name, u.last_name, u.profile_image
-                    ORDER BY COUNT(e.user_id) DESC
+                    ORDER BY (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id) DESC
                 `);
 
             return result.recordset;
@@ -708,10 +757,8 @@ class Course {
     static async addLesson(courseId, lessonData) {
         try {
             const pool = await poolPromise;
-            const lessonId = uuidv4();
 
             const result = await pool.request()
-                .input('lessonId', sql.Int, lessonId)
                 .input('courseId', sql.Int, courseId)
                 .input('lessonOrder', sql.Int, lessonData.lesson_order)
                 .input('lessonTitle', sql.NVarChar(200), lessonData.lesson_title)
@@ -723,15 +770,19 @@ class Course {
                 .input('minTimeMinutes', sql.Int, lessonData.min_time_minutes || 0)
                 .query(`
                     INSERT INTO course_materials (
-                        material_id, course_id, title, type, content,
+                        course_id, title, type, content,
                         order_index, duration_minutes, is_required,
                         created_at
-                    ) VALUES (
-                        @lessonId, @courseId, @lessonTitle, @lessonType,
+                    )
+                    OUTPUT INSERTED.material_id
+                    VALUES (
+                        @courseId, @lessonTitle, @lessonType,
                         @lessonDescription, @lessonOrder, @durationMinutes,
                         @isMandatory, GETDATE()
                     )
                 `);
+
+            const lessonId = result.recordset[0]?.material_id;
 
             // Update course duration
             await pool.request()
@@ -767,7 +818,7 @@ class Course {
                     SELECT COUNT(*) as count
                     FROM user_courses
                     WHERE course_id = @courseId
-                    AND completion_status IN ('IN_PROGRESS', 'NOT_STARTED')
+                    AND status IN ('IN_PROGRESS', 'NOT_STARTED', 'enrolled')
                 `);
 
             if (enrollmentCheck.recordset[0].count > 0) {
@@ -779,13 +830,11 @@ class Course {
 
             const result = await pool.request()
                 .input('courseId', sql.Int, courseId)
-                .input('deletedBy', sql.Int, deletedBy)
                 .query(`
                     UPDATE courses
                     SET is_active = 0,
                         is_published = 0,
-                        modified_by = @deletedBy,
-                        modified_date = GETDATE()
+                        updated_at = GETDATE()
                     WHERE course_id = @courseId
                 `);
 
@@ -837,7 +886,7 @@ class Course {
 
             // Add filters
             if (filters.status) {
-                whereClause += ' AND e.completion_status = @status';
+                whereClause += ' AND e.status = @status';
                 request.input('status', sql.NVarChar(20), filters.status);
             }
             if (filters.department_id) {
@@ -845,7 +894,7 @@ class Course {
                 request.input('departmentId', sql.Int, filters.department_id);
             }
             if (filters.min_progress !== undefined) {
-                whereClause += ' AND e.progress_percentage >= @minProgress';
+                whereClause += ' AND e.progress >= @minProgress';
                 request.input('minProgress', sql.Decimal(5,2), filters.min_progress);
             }
 
@@ -858,14 +907,14 @@ class Course {
                     u.email,
                     u.profile_image,
                     ou.unit_name_th as department_name,
-                    p.position_name_th as position_name,
+                    p.position_name as position_name,
                     e.enrollment_date,
-                    e.progress_percentage,
-                    e.completion_status,
+                    e.progress as progress_percentage,
+                    e.status as completion_status,
                     e.grade,
-                    e.last_accessed,
-                    e.completed_at,
-                    e.certificate_number,
+                    e.last_access_date as last_accessed,
+                    e.completion_date as completed_at,
+                    e.certificate_issued as certificate_number,
                     DATEDIFF(DAY, e.enrollment_date, GETDATE()) as days_enrolled,
                     0 as lessons_completed,
                     (SELECT COUNT(*) FROM course_materials WHERE course_id = @courseId) as total_lessons
@@ -894,16 +943,16 @@ class Course {
                 .query(`
                     SELECT
                         COUNT(*) as total_enrollments,
-                        SUM(CASE WHEN completion_status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_count,
-                        SUM(CASE WHEN completion_status = 'IN_PROGRESS' THEN 1 ELSE 0 END) as in_progress_count,
-                        SUM(CASE WHEN completion_status = 'NOT_STARTED' THEN 1 ELSE 0 END) as not_started_count,
-                        SUM(CASE WHEN completion_status = 'DROPPED' THEN 1 ELSE 0 END) as dropped_count,
+                        SUM(CASE WHEN status = 'COMPLETED' OR status = 'completed' THEN 1 ELSE 0 END) as completed_count,
+                        SUM(CASE WHEN status = 'IN_PROGRESS' OR status = 'enrolled' THEN 1 ELSE 0 END) as in_progress_count,
+                        SUM(CASE WHEN status = 'NOT_STARTED' THEN 1 ELSE 0 END) as not_started_count,
+                        SUM(CASE WHEN status = 'DROPPED' THEN 1 ELSE 0 END) as dropped_count,
                         AVG(CAST(grade as FLOAT)) as avg_score,
-                        AVG(CAST(progress_percentage as FLOAT)) as avg_progress,
+                        AVG(CAST(progress as FLOAT)) as avg_progress,
                         CAST(
                             CASE
                                 WHEN COUNT(*) > 0
-                                THEN (CAST(SUM(CASE WHEN completion_status = 'COMPLETED' THEN 1 ELSE 0 END) as FLOAT) / COUNT(*)) * 100
+                                THEN (CAST(SUM(CASE WHEN status = 'COMPLETED' OR status = 'completed' THEN 1 ELSE 0 END) as FLOAT) / COUNT(*)) * 100
                                 ELSE 0
                             END as DECIMAL(5,2)
                         ) as completion_rate
@@ -919,9 +968,9 @@ class Course {
                         ou.unit_name_th as department_name,
                         ou.unit_id as department_id,
                         COUNT(*) as enrollment_count,
-                        SUM(CASE WHEN e.completion_status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_count,
+                        SUM(CASE WHEN e.status = 'COMPLETED' OR e.status = 'completed' THEN 1 ELSE 0 END) as completed_count,
                         AVG(CAST(e.grade as FLOAT)) as avg_score,
-                        AVG(CAST(e.progress_percentage as FLOAT)) as avg_progress
+                        AVG(CAST(e.progress as FLOAT)) as avg_progress
                     FROM user_courses e
                     JOIN users u ON e.user_id = u.user_id
                     LEFT JOIN OrganizationUnits ou ON u.department_id = ou.unit_id
@@ -949,15 +998,15 @@ class Course {
                 .input('courseId', sql.Int, courseId)
                 .query(`
                     SELECT
-                        FORMAT(completed_at, 'yyyy-MM') as month,
+                        FORMAT(completion_date, 'yyyy-MM') as month,
                         COUNT(*) as completion_count,
                         AVG(CAST(grade as FLOAT)) as avg_score
                     FROM user_courses
                     WHERE course_id = @courseId
-                    AND completion_status = 'COMPLETED'
-                    AND completed_at IS NOT NULL
-                    AND completed_at >= DATEADD(MONTH, -12, GETDATE())
-                    GROUP BY FORMAT(completed_at, 'yyyy-MM')
+                    AND (status = 'COMPLETED' OR status = 'completed')
+                    AND completion_date IS NOT NULL
+                    AND completion_date >= DATEADD(MONTH, -12, GETDATE())
+                    GROUP BY FORMAT(completion_date, 'yyyy-MM')
                     ORDER BY month DESC
                 `);
 
@@ -986,15 +1035,15 @@ class Course {
                         CONCAT(u.first_name, ' ', u.last_name) as user_name,
                         u.profile_image,
                         e.grade,
-                        e.progress_percentage,
-                        e.completed_at,
+                        e.progress,
+                        e.completion_date,
                         ou.unit_name_th as department_name
                     FROM user_courses e
                     JOIN users u ON e.user_id = u.user_id
                     LEFT JOIN OrganizationUnits ou ON u.department_id = ou.unit_id
                     WHERE e.course_id = @courseId
                     AND e.grade IS NOT NULL
-                    ORDER BY e.grade DESC, e.completed_at ASC
+                    ORDER BY e.grade DESC, e.completion_date ASC
                 `);
 
             return {

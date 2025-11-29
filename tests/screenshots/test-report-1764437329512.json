@@ -1,0 +1,57 @@
+{
+  "passed": [
+    {
+      "name": "Login",
+      "details": "as ADM001",
+      "time": "2025-11-29T17:25:46.841Z"
+    },
+    {
+      "name": "7.1 Invalid Course ID Returns Error",
+      "details": "",
+      "time": "2025-11-29T17:28:49.042Z"
+    },
+    {
+      "name": "7.2 Empty Course Data Returns Error",
+      "details": "",
+      "time": "2025-11-29T17:28:49.102Z"
+    },
+    {
+      "name": "7.3 Enroll Non-existent Course Returns Error",
+      "details": "",
+      "time": "2025-11-29T17:28:49.163Z"
+    }
+  ],
+  "failed": [
+    {
+      "name": "Course List Navigation",
+      "error": "TimeoutError: Navigation timeout of 60000 ms exceeded",
+      "time": "2025-11-29T17:26:46.848Z"
+    },
+    {
+      "name": "Course Creation",
+      "error": "TimeoutError: Navigation timeout of 60000 ms exceeded",
+      "time": "2025-11-29T17:27:47.149Z"
+    },
+    {
+      "name": "My Courses",
+      "error": "TimeoutError: Navigation timeout of 60000 ms exceeded",
+      "time": "2025-11-29T17:28:48.792Z"
+    }
+  ],
+  "warnings": [
+    {
+      "message": "No course ID available for detail testing",
+      "time": "2025-11-29T17:27:48.773Z"
+    },
+    {
+      "message": "No course ID for enrollment testing",
+      "time": "2025-11-29T17:27:48.773Z"
+    },
+    {
+      "message": "No course ID for learning testing",
+      "time": "2025-11-29T17:27:48.773Z"
+    }
+  ],
+  "startTime": "2025-11-29T17:25:40.931Z",
+  "endTime": "2025-11-29T17:28:49.512Z"
+}

@@ -9,8 +9,8 @@
                     <div class="w-24 h-24 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
                         <i id="resultIcon" class="fas fa-check-circle text-4xl"></i>
                     </div>
-                    <h1 class="text-3xl font-bold mb-2">ผลการทดสอบ</h1>
-                    <p id="resultMessage" class="text-xl opacity-90">คุณได้คะแนน</p>
+                    <h1 class="text-3xl font-bold mb-2"><%= t('applicantResultTestResultTitle') %></h1>
+                    <p id="resultMessage" class="text-xl opacity-90"><%= t('applicantResultYouScored') %></p>
                 </div>
             </div>
 
@@ -19,25 +19,25 @@
                     <!-- Score -->
                     <div class="text-center">
                         <div id="totalScore" class="text-4xl font-bold text-ruxchai-primary mb-2">0%</div>
-                        <div class="text-sm text-gray-500">คะแนนรวม</div>
+                        <div class="text-sm text-gray-500"><%= t('applicantResultTotalScore') %></div>
                     </div>
 
                     <!-- Correct Answers -->
                     <div class="text-center">
                         <div id="correctAnswers" class="text-4xl font-bold text-green-600 mb-2">0</div>
-                        <div class="text-sm text-gray-500">ตอบถูก</div>
+                        <div class="text-sm text-gray-500"><%= t('applicantResultCorrectAnswers') %></div>
                     </div>
 
                     <!-- Wrong Answers -->
                     <div class="text-center">
                         <div id="wrongAnswers" class="text-4xl font-bold text-red-600 mb-2">0</div>
-                        <div class="text-sm text-gray-500">ตอบผิด</div>
+                        <div class="text-sm text-gray-500"><%= t('applicantResultWrongAnswers') %></div>
                     </div>
 
                     <!-- Time Taken -->
                     <div class="text-center">
                         <div id="timeTaken" class="text-4xl font-bold text-blue-600 mb-2">0</div>
-                        <div class="text-sm text-gray-500">เวลาที่ใช้ (นาที)</div>
+                        <div class="text-sm text-gray-500"><%= t('applicantResultTimeTakenMinutes') %></div>
                     </div>
                 </div>
 
@@ -45,7 +45,7 @@
                 <div class="mt-8 text-center">
                     <div id="passStatus" class="inline-flex items-center px-6 py-3 rounded-full text-lg font-medium">
                         <i class="fas fa-circle mr-2"></i>
-                        <span>กำลังประเมินผล...</span>
+                        <span><%= t('applicantResultEvaluating') %></span>
                     </div>
                 </div>
             </div>
@@ -53,41 +53,41 @@
 
         <!-- Test Information -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">ข้อมูลการทดสอบ</h2>
+            <h2 class="text-xl font-bold text-gray-900 mb-4"><%= t('applicantResultTestInfo') %></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-3">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ชื่อข้อสอบ:</span>
+                        <span class="text-gray-600"><%= t('applicantResultTestName') %>:</span>
                         <span id="testTitle" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">ตำแหน่งที่สมัคร:</span>
+                        <span class="text-gray-600"><%= t('applicantResultPosition') %>:</span>
                         <span id="positionTitle" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">จำนวนข้อคำถาม:</span>
-                        <span id="totalQuestions" class="font-medium">0 ข้อ</span>
+                        <span class="text-gray-600"><%= t('applicantResultTotalQuestions') %>:</span>
+                        <span id="totalQuestions" class="font-medium">0 <%= t('applicantResultQuestionsUnit') %></span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">คะแนนผ่าน:</span>
+                        <span class="text-gray-600"><%= t('applicantResultPassingScore') %>:</span>
                         <span id="passingScore" class="font-medium">0%</span>
                     </div>
                 </div>
                 <div class="space-y-3">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">วันที่ทำข้อสอบ:</span>
+                        <span class="text-gray-600"><%= t('applicantResultTestDate') %>:</span>
                         <span id="testDate" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">เวลาเริ่ม:</span>
+                        <span class="text-gray-600"><%= t('applicantResultStartTime') %>:</span>
                         <span id="startTime" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">เวลาสิ้นสุด:</span>
+                        <span class="text-gray-600"><%= t('applicantResultEndTime') %>:</span>
                         <span id="endTime" class="font-medium">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">สถานะการส่ง:</span>
+                        <span class="text-gray-600"><%= t('applicantResultSubmissionStatus') %>:</span>
                         <span id="submissionType" class="font-medium">-</span>
                     </div>
                 </div>
@@ -96,17 +96,17 @@
 
         <!-- Performance Chart -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">การวิเคราะห์ผลการทดสอบ</h2>
+            <h2 class="text-xl font-bold text-gray-900 mb-4"><%= t('applicantResultPerformanceAnalysis') %></h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Score Chart -->
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">การกระจายคะแนน</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('applicantResultScoreDistribution') %></h3>
                     <canvas id="scoreChart" width="400" height="300"></canvas>
                 </div>
 
                 <!-- Performance by Category -->
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">ผลงานตามหมวดหมู่</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4"><%= t('applicantResultPerformanceByCategory') %></h3>
                     <div id="categoryPerformance" class="space-y-4">
                         <!-- Category performance will be loaded here -->
                     </div>
@@ -117,19 +117,19 @@
         <!-- Answer Review -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-900">ทบทวนคำตอบ</h2>
+                <h2 class="text-xl font-bold text-gray-900"><%= t('applicantResultReviewAnswers') %></h2>
                 <div class="flex space-x-2">
                     <button id="showAllBtn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                        ทั้งหมด
+                        <%= t('applicantResultFilterAll') %>
                     </button>
                     <button id="showCorrectBtn" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
-                        ถูก
+                        <%= t('applicantResultFilterCorrect') %>
                     </button>
                     <button id="showWrongBtn" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
-                        ผิด
+                        <%= t('applicantResultFilterWrong') %>
                     </button>
                     <button id="showMarkedBtn" class="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors">
-                        ทำเครื่องหมาย
+                        <%= t('applicantResultFilterMarked') %>
                     </button>
                 </div>
             </div>
@@ -141,7 +141,7 @@
 
         <!-- Recommendations -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">คำแนะนำ</h2>
+            <h2 class="text-xl font-bold text-gray-900 mb-4"><%= t('applicantResultRecommendations') %></h2>
             <div id="recommendations" class="space-y-4">
                 <!-- Recommendations will be loaded here -->
             </div>
@@ -150,13 +150,13 @@
         <!-- Actions -->
         <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
             <button id="printResultBtn" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-print mr-2"></i>พิมพ์ผลการทดสอบ
+                <i class="fas fa-print mr-2"></i><%= t('applicantResultPrintResult') %>
             </button>
             <button id="shareResultBtn" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                <i class="fas fa-share mr-2"></i>แชร์ผลการทดสอบ
+                <i class="fas fa-share mr-2"></i><%= t('applicantResultShareResult') %>
             </button>
             <a href="/applicants" class="px-8 py-3 text-ruxchai-primary border border-ruxchai-primary rounded-lg hover:bg-ruxchai-primary hover:text-white transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>กลับหน้าหลัก
+                <i class="fas fa-arrow-left mr-2"></i><%= t('applicantResultBackToHome') %>
             </a>
         </div>
     </div>
@@ -167,7 +167,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">ใบประกาศนียบัตร</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('applicantResultCertificate') %></h3>
                 <button id="closeCertificateModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -177,10 +177,10 @@
             </div>
             <div class="flex justify-center space-x-4 p-6 border-t">
                 <button id="downloadCertificateBtn" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
-                    <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                    <i class="fas fa-download mr-2"></i><%= t('applicantResultDownload') %>
                 </button>
                 <button id="printCertificateBtn" class="px-6 py-2 text-ruxchai-primary border border-ruxchai-primary rounded-lg hover:bg-ruxchai-primary hover:text-white transition-colors">
-                    <i class="fas fa-print mr-2"></i>พิมพ์
+                    <i class="fas fa-print mr-2"></i><%= t('applicantResultPrint') %>
                 </button>
             </div>
         </div>
@@ -192,7 +192,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">แชร์ผลการทดสอบ</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('applicantResultShareResult') %></h3>
                 <button id="closeShareModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -202,23 +202,23 @@
                     <button class="w-full flex items-center space-x-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             onclick="shareToFacebook()">
                         <i class="fab fa-facebook-f"></i>
-                        <span>แชร์ไปยัง Facebook</span>
+                        <span><%= t('applicantResultShareToFacebook') %></span>
                     </button>
                     <button class="w-full flex items-center space-x-3 px-4 py-3 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
                             onclick="shareToTwitter()">
                         <i class="fab fa-twitter"></i>
-                        <span>แชร์ไปยัง Twitter</span>
+                        <span><%= t('applicantResultShareToTwitter') %></span>
                     </button>
                     <button class="w-full flex items-center space-x-3 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                             onclick="shareToLine()">
                         <i class="fab fa-line"></i>
-                        <span>แชร์ไปยัง LINE</span>
+                        <span><%= t('applicantResultShareToLine') %></span>
                     </button>
                     <div class="relative">
                         <input type="text" id="resultUrl" readonly
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
                         <button onclick="copyUrl()" class="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-ruxchai-primary text-white text-sm rounded">
-                            คัดลอก
+                            <%= t('applicantResultCopy') %>
                         </button>
                     </div>
                 </div>
@@ -230,6 +230,60 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+// i18n translations for client-side JavaScript
+const i18n = {
+    congratsPassedWith: '<%= t("applicantResultCongratsPassedWith") %>',
+    sorryFailedWith: '<%= t("applicantResultSorryFailedWith") %>',
+    notMeetCriteria: '<%= t("applicantResultNotMeetCriteria") %>',
+    passed: '<%= t("applicantResultPassed") %>',
+    failed: '<%= t("applicantResultFailed") %>',
+    questionsUnit: '<%= t("applicantResultQuestionsUnit") %>',
+    autoSubmission: '<%= t("applicantResultAutoSubmission") %>',
+    manualSubmission: '<%= t("applicantResultManualSubmission") %>',
+    scoreObtained: '<%= t("applicantResultScoreObtained") %>',
+    scoreRemaining: '<%= t("applicantResultScoreRemaining") %>',
+    noCategoryData: '<%= t("applicantResultNoCategoryData") %>',
+    noQuestionsInCategory: '<%= t("applicantResultNoQuestionsInCategory") %>',
+    questionNumber: '<%= t("applicantResultQuestionNumber") %>',
+    correct: '<%= t("applicantResultFilterCorrect") %>',
+    wrong: '<%= t("applicantResultFilterWrong") %>',
+    notAnswered: '<%= t("applicantResultNotAnswered") %>',
+    points: '<%= t("applicantResultPoints") %>',
+    explanation: '<%= t("applicantResultExplanation") %>',
+    yourAnswer: '<%= t("applicantResultYourAnswer") %>',
+    correctAnswer: '<%= t("applicantResultCorrectAnswer") %>',
+    notProvided: '<%= t("applicantResultNotProvided") %>',
+    cannotDisplayAnswer: '<%= t("applicantResultCannotDisplayAnswer") %>',
+    trueFalseTrue: '<%= t("applicantResultTrue") %>',
+    trueFalseFalse: '<%= t("applicantResultFalse") %>',
+    congratulations: '<%= t("applicantResultCongratulations") %>',
+    hrWillContact: '<%= t("applicantResultHrWillContact") %>',
+    certificateTitle: '<%= t("applicantResultCertificateReceive") %>',
+    certificateDescription: '<%= t("applicantResultCertificateDescription") %>',
+    studyMore: '<%= t("applicantResultStudyMore") %>',
+    studyMoreDesc: '<%= t("applicantResultStudyMoreDesc") %>',
+    retakeTest: '<%= t("applicantResultRetakeTest") %>',
+    retakeTestDesc: '<%= t("applicantResultRetakeTestDesc") %>',
+    takeTraining: '<%= t("applicantResultTakeTraining") %>',
+    takeTrainingDesc: '<%= t("applicantResultTakeTrainingDesc") %>',
+    ruxchaiLearningHub: '<%= t("applicantResultRuxchaiLearningHub") %>',
+    certificateOfCompletion: '<%= t("applicantResultCertificateOfCompletion") %>',
+    certificateMain: '<%= t("applicantResultCertificateMain") %>',
+    certificateCongrats: '<%= t("applicantResultCertificateCongrats") %>',
+    certificatePassed: '<%= t("applicantResultCertificatePassed") %>',
+    certificateForPosition: '<%= t("applicantResultCertificateForPosition") %>',
+    certificateWithScore: '<%= t("applicantResultCertificateWithScore") %>',
+    certificateIssueDate: '<%= t("applicantResultCertificateIssueDate") %>',
+    certificateDirector: '<%= t("applicantResultCertificateDirector") %>',
+    certificateNumber: '<%= t("applicantResultCertificateNumber") %>',
+    preparingDownload: '<%= t("applicantResultPreparingDownload") %>',
+    downloadComplete: '<%= t("applicantResultDownloadComplete") %>',
+    linkCopied: '<%= t("applicantResultLinkCopied") %>',
+    testNotFound: '<%= t("applicantResultTestNotFound") %>',
+    errorLoadingData: '<%= t("applicantResultErrorLoadingData") %>',
+    shareMessage: '<%= t("applicantResultShareMessage") %>'
+};
+
 // Global variables
 let resultData = {};
 let questions = [];
@@ -290,12 +344,12 @@ async function loadTestResult() {
                 setTimeout(() => showCertificate(), 2000);
             }
         } else {
-            showMessage('ไม่พบผลการทดสอบ', 'error');
+            showMessage(i18n.testNotFound, 'error');
             setTimeout(() => window.location.href = '/applicants', 2000);
         }
     } catch (error) {
         console.error('Error loading test result:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+        showMessage(i18n.errorLoadingData, 'error');
     }
 }
 
@@ -310,11 +364,11 @@ function displayResult() {
 
     if (passed) {
         resultIcon.className = 'fas fa-check-circle text-4xl text-green-500';
-        resultMessage.textContent = `ยินดีด้วย! คุณผ่านการทดสอบด้วยคะแนน ${score}%`;
+        resultMessage.textContent = `${i18n.congratsPassedWith} ${score}%`;
         resultMessage.className = 'text-xl opacity-90 text-green-100';
     } else {
         resultIcon.className = 'fas fa-times-circle text-4xl text-red-500';
-        resultMessage.textContent = `เสียใจด้วย คุณได้คะแนน ${score}% ไม่ผ่านเกณฑ์`;
+        resultMessage.textContent = `${i18n.sorryFailedWith} ${score}% ${i18n.notMeetCriteria}`;
         resultMessage.className = 'text-xl opacity-90 text-red-100';
     }
 
@@ -328,22 +382,22 @@ function displayResult() {
     const passStatus = document.getElementById('passStatus');
     if (passed) {
         passStatus.className = 'inline-flex items-center px-6 py-3 rounded-full text-lg font-medium bg-green-100 text-green-800';
-        passStatus.innerHTML = '<i class="fas fa-check-circle mr-2"></i><span>ผ่านการทดสอบ</span>';
+        passStatus.innerHTML = `<i class="fas fa-check-circle mr-2"></i><span>${i18n.passed}</span>`;
     } else {
         passStatus.className = 'inline-flex items-center px-6 py-3 rounded-full text-lg font-medium bg-red-100 text-red-800';
-        passStatus.innerHTML = '<i class="fas fa-times-circle mr-2"></i><span>ไม่ผ่านการทดสอบ</span>';
+        passStatus.innerHTML = `<i class="fas fa-times-circle mr-2"></i><span>${i18n.failed}</span>`;
     }
 
     // Update test information
     document.getElementById('testTitle').textContent = resultData.test_title || '-';
     document.getElementById('positionTitle').textContent = resultData.position_title || '-';
-    document.getElementById('totalQuestions').textContent = `${resultData.total_questions || 0} ข้อ`;
+    document.getElementById('totalQuestions').textContent = `${resultData.total_questions || 0} ${i18n.questionsUnit}`;
     document.getElementById('passingScore').textContent = `${resultData.passing_score || 0}%`;
     document.getElementById('testDate').textContent = formatDate(resultData.started_at);
     document.getElementById('startTime').textContent = formatTime(resultData.started_at);
     document.getElementById('endTime').textContent = formatTime(resultData.completed_at);
 
-    const submissionType = resultData.submission_type === 'auto' ? 'ส่งอัตโนมัติ' : 'ส่งด้วยตัวเอง';
+    const submissionType = resultData.submission_type === 'auto' ? i18n.autoSubmission : i18n.manualSubmission;
     document.getElementById('submissionType').textContent = submissionType;
 }
 
@@ -357,7 +411,7 @@ function displayChart() {
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['คะแนนที่ได้', 'คะแนนที่เหลือ'],
+            labels: [i18n.scoreObtained, i18n.scoreRemaining],
             datasets: [{
                 data: [score, 100 - score],
                 backgroundColor: [
@@ -400,12 +454,12 @@ function displayCategoryPerformance() {
                          style="width: ${category.score}%"></div>
                 </div>
                 <p class="text-sm text-gray-500 mt-2">
-                    ${category.correct}/${category.total} ข้อ
+                    ${category.correct}/${category.total} ${i18n.questionsUnit}
                 </p>
             </div>
         `).join('');
     } else {
-        container.innerHTML = '<p class="text-gray-500">ไม่มีข้อมูลการแยกประเภท</p>';
+        container.innerHTML = `<p class="text-gray-500">${i18n.noCategoryData}</p>`;
     }
 }
 
@@ -453,7 +507,7 @@ function displayFilteredQuestions(questions) {
     const container = document.getElementById('questionsReview');
 
     if (questions.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-8">ไม่มีข้อคำถามในหมวดนี้</p>';
+        container.innerHTML = `<p class="text-center text-gray-500 py-8">${i18n.noQuestionsInCategory}</p>`;
         return;
     }
 
@@ -469,7 +523,7 @@ function createQuestionReview(question, index) {
         <div class="border border-gray-200 rounded-lg p-6">
             <div class="flex justify-between items-start mb-4">
                 <h3 class="text-lg font-medium text-gray-900">
-                    ข้อที่ ${question.question_number}
+                    ${i18n.questionNumber} ${question.question_number}
                     ${question.is_marked ? '<i class="fas fa-flag text-orange-500 ml-2"></i>' : ''}
                 </h3>
                 <div class="flex items-center space-x-2">
@@ -477,14 +531,14 @@ function createQuestionReview(question, index) {
                         <span class="px-2 py-1 rounded-full text-xs font-medium ${
                             isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }">
-                            ${isCorrect ? 'ถูก' : 'ผิด'}
+                            ${isCorrect ? i18n.correct : i18n.wrong}
                         </span>
                     ` : `
                         <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                            ไม่ตอบ
+                            ${i18n.notAnswered}
                         </span>
                     `}
-                    <span class="text-sm text-gray-500">${question.points || 1} คะแนน</span>
+                    <span class="text-sm text-gray-500">${question.points || 1} ${i18n.points}</span>
                 </div>
             </div>
 
@@ -502,7 +556,7 @@ function createQuestionReview(question, index) {
             <!-- Explanation -->
             ${question.explanation ? `
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 class="font-medium text-blue-900 mb-2">คำอธิบาย:</h4>
+                    <h4 class="font-medium text-blue-900 mb-2">${i18n.explanation}:</h4>
                     <p class="text-blue-800">${question.explanation}</p>
                 </div>
             ` : ''}
@@ -532,8 +586,8 @@ function displayQuestionAnswers(question) {
                         <div class="flex items-center justify-between">
                             <span>${option}</span>
                             <div class="flex space-x-2">
-                                ${isUserAnswer ? '<i class="fas fa-user text-blue-600" title="คำตอบของคุณ"></i>' : ''}
-                                ${isCorrectAnswer ? '<i class="fas fa-check text-green-600" title="คำตอบที่ถูก"></i>' : ''}
+                                ${isUserAnswer ? `<i class="fas fa-user text-blue-600" title="${i18n.yourAnswer}"></i>` : ''}
+                                ${isCorrectAnswer ? `<i class="fas fa-check text-green-600" title="${i18n.correctAnswer}"></i>` : ''}
                             </div>
                         </div>
                     </div>
@@ -545,7 +599,7 @@ function displayQuestionAnswers(question) {
             const correctAnswer = question.correct_answer;
 
             return ['true', 'false'].map(value => {
-                const label = value === 'true' ? 'ถูก' : 'ผิด';
+                const label = value === 'true' ? i18n.trueFalseTrue : i18n.trueFalseFalse;
                 const isUserAnswer = userAnswer === value;
                 const isCorrectAnswer = correctAnswer === value;
 
@@ -563,8 +617,8 @@ function displayQuestionAnswers(question) {
                         <div class="flex items-center justify-between">
                             <span>${label}</span>
                             <div class="flex space-x-2">
-                                ${isUserAnswer ? '<i class="fas fa-user text-blue-600" title="คำตอบของคุณ"></i>' : ''}
-                                ${isCorrectAnswer ? '<i class="fas fa-check text-green-600" title="คำตอบที่ถูก"></i>' : ''}
+                                ${isUserAnswer ? `<i class="fas fa-user text-blue-600" title="${i18n.yourAnswer}"></i>` : ''}
+                                ${isCorrectAnswer ? `<i class="fas fa-check text-green-600" title="${i18n.correctAnswer}"></i>` : ''}
                             </div>
                         </div>
                     </div>
@@ -576,18 +630,18 @@ function displayQuestionAnswers(question) {
             return `
                 <div class="space-y-3">
                     <div class="p-3 border border-blue-200 rounded-lg bg-blue-50">
-                        <h5 class="font-medium text-blue-900 mb-1">คำตอบของคุณ:</h5>
-                        <p class="text-blue-800">${question.user_answer || 'ไม่ได้ตอบ'}</p>
+                        <h5 class="font-medium text-blue-900 mb-1">${i18n.yourAnswer}:</h5>
+                        <p class="text-blue-800">${question.user_answer || i18n.notAnswered}</p>
                     </div>
                     <div class="p-3 border border-green-200 rounded-lg bg-green-50">
-                        <h5 class="font-medium text-green-900 mb-1">คำตอบที่ถูก:</h5>
-                        <p class="text-green-800">${question.correct_answer || 'ไม่มีข้อมูล'}</p>
+                        <h5 class="font-medium text-green-900 mb-1">${i18n.correctAnswer}:</h5>
+                        <p class="text-green-800">${question.correct_answer || i18n.notProvided}</p>
                     </div>
                 </div>
             `;
 
         default:
-            return '<p class="text-gray-500">ไม่สามารถแสดงคำตอบได้</p>';
+            return `<p class="text-gray-500">${i18n.cannotDisplayAnswer}</p>`;
     }
 }
 
@@ -604,14 +658,14 @@ function displayRecommendations() {
             {
                 icon: 'fas fa-trophy',
                 color: 'text-yellow-600',
-                title: 'ยินดีด้วย!',
-                description: 'คุณผ่านการทดสอบเรียบร้อยแล้ว ทีมงาน HR จะติดต่อกลับในเร็วๆ นี้'
+                title: i18n.congratulations,
+                description: i18n.hrWillContact
             },
             {
                 icon: 'fas fa-certificate',
                 color: 'text-blue-600',
-                title: 'ใบประกาศนียบัตร',
-                description: 'คุณจะได้รับใบประกาศนียบัตรการผ่านการทดสอบ'
+                title: i18n.certificateTitle,
+                description: i18n.certificateDescription
             }
         ];
     } else {
@@ -619,14 +673,14 @@ function displayRecommendations() {
             {
                 icon: 'fas fa-book',
                 color: 'text-blue-600',
-                title: 'ศึกษาเพิ่มเติม',
-                description: 'แนะนำให้ศึกษาเนื้อหาเพิ่มเติมในส่วนที่ยังไม่แข็งแกร่ง'
+                title: i18n.studyMore,
+                description: i18n.studyMoreDesc
             },
             {
                 icon: 'fas fa-redo',
                 color: 'text-green-600',
-                title: 'ทำข้อสอบใหม่',
-                description: 'หากมีโอกาส คุณสามารถทำข้อสอบใหม่ได้ในอนาคต'
+                title: i18n.retakeTest,
+                description: i18n.retakeTestDesc
             }
         ];
 
@@ -634,8 +688,8 @@ function displayRecommendations() {
             recommendations.push({
                 icon: 'fas fa-graduation-cap',
                 color: 'text-purple-600',
-                title: 'เข้าอบรม',
-                description: 'แนะนำให้เข้าอบรมพื้นฐานก่อนทำข้อสอบใหม่'
+                title: i18n.takeTraining,
+                description: i18n.takeTrainingDesc
             });
         }
     }
@@ -661,31 +715,31 @@ function showCertificate() {
         <div class="certificate bg-gradient-to-br from-blue-50 to-purple-50 border-4 border-ruxchai-primary rounded-lg p-12 text-center">
             <div class="mb-8">
                 <img src="/images/ruxchai-logo.png" alt="Ruxchai Logo" class="w-24 h-24 mx-auto mb-4">
-                <h1 class="text-3xl font-bold text-ruxchai-primary mb-2">RUXCHAI LEARNING HUB</h1>
-                <p class="text-gray-600">ใบประกาศนียบัตรการผ่านการทดสอบ</p>
+                <h1 class="text-3xl font-bold text-ruxchai-primary mb-2">${i18n.ruxchaiLearningHub}</h1>
+                <p class="text-gray-600">${i18n.certificateOfCompletion}</p>
             </div>
 
             <div class="mb-8">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">ใบประกาศนียบัตร</h2>
-                <p class="text-xl text-gray-700 mb-6">ขอแสดงความยินดีกับ</p>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">${i18n.certificateMain}</h2>
+                <p class="text-xl text-gray-700 mb-6">${i18n.certificateCongrats}</p>
                 <h3 class="text-3xl font-bold text-ruxchai-primary mb-6">${resultData.applicant_name}</h3>
-                <p class="text-lg text-gray-700 mb-4">ที่ได้ผ่านการทดสอบ</p>
+                <p class="text-lg text-gray-700 mb-4">${i18n.certificatePassed}</p>
                 <h4 class="text-2xl font-semibold text-gray-900 mb-4">${resultData.test_title}</h4>
-                <p class="text-lg text-gray-700 mb-6">สำหรับตำแหน่ง ${resultData.position_title}</p>
-                <p class="text-xl font-semibold text-green-600">ด้วยคะแนน ${resultData.score}%</p>
+                <p class="text-lg text-gray-700 mb-6">${i18n.certificateForPosition} ${resultData.position_title}</p>
+                <p class="text-xl font-semibold text-green-600">${i18n.certificateWithScore} ${resultData.score}%</p>
             </div>
 
             <div class="flex justify-between items-end">
                 <div class="text-left">
-                    <p class="text-sm text-gray-600">วันที่ออกใบประกาศ</p>
+                    <p class="text-sm text-gray-600">${i18n.certificateIssueDate}</p>
                     <p class="font-medium">${formatDate(new Date())}</p>
                 </div>
                 <div class="text-center">
                     <div class="w-32 h-16 border-b-2 border-gray-400 mb-2"></div>
-                    <p class="text-sm text-gray-600">ผู้อำนวยการ Ruxchai</p>
+                    <p class="text-sm text-gray-600">${i18n.certificateDirector}</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-sm text-gray-600">หมายเลขใบประกาศ</p>
+                    <p class="text-sm text-gray-600">${i18n.certificateNumber}</p>
                     <p class="font-medium">CERT-${resultData.result_id.toString().padStart(6, '0')}</p>
                 </div>
             </div>
@@ -707,7 +761,7 @@ function printCertificate() {
     printWindow.document.write(`
         <html>
         <head>
-            <title>ใบประกาศนียบัตร</title>
+            <title>${i18n.certificateMain}</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
                 .certificate { background: linear-gradient(to bottom right, #eff6ff, #faf5ff); }
@@ -727,30 +781,30 @@ function printCertificate() {
 function downloadCertificate() {
     // This would typically convert the certificate to PDF
     // For now, we'll just show a message
-    showMessage('กำลังเตรียมการดาวน์โหลด...', 'info');
+    showMessage(i18n.preparingDownload, 'info');
 
     // In a real implementation, you would use a library like jsPDF or html2canvas
     setTimeout(() => {
-        showMessage('ดาวน์โหลดเสร็จสิ้น', 'success');
+        showMessage(i18n.downloadComplete, 'success');
     }, 2000);
 }
 
 // Share functions
 function shareToFacebook() {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`ผมได้คะแนน ${resultData.score}% ในการทดสอบ ${resultData.test_title} ที่ Ruxchai!`);
+    const text = encodeURIComponent(i18n.shareMessage.replace('{score}', resultData.score).replace('{test}', resultData.test_title));
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
 }
 
 function shareToTwitter() {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`ผมได้คะแนน ${resultData.score}% ในการทดสอบ ${resultData.test_title} ที่ Ruxchai! #RuxchaiTest`);
+    const text = encodeURIComponent(i18n.shareMessage.replace('{score}', resultData.score).replace('{test}', resultData.test_title) + ' #RuxchaiTest');
     window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
 }
 
 function shareToLine() {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`ผมได้คะแนน ${resultData.score}% ในการทดสอบ ${resultData.test_title} ที่ Ruxchai!`);
+    const text = encodeURIComponent(i18n.shareMessage.replace('{score}', resultData.score).replace('{test}', resultData.test_title));
     window.open(`https://social-plugins.line.me/lineit/share?url=${url}&text=${text}`, '_blank');
 }
 
@@ -758,7 +812,7 @@ function copyUrl() {
     const urlInput = document.getElementById('resultUrl');
     urlInput.select();
     document.execCommand('copy');
-    showMessage('คัดลอกลิงก์เรียบร้อยแล้ว', 'success');
+    showMessage(i18n.linkCopied, 'success');
 }
 
 // Utility functions

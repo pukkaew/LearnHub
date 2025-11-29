@@ -435,7 +435,8 @@ class SecurityMiddleware {
             /(['"])\s*;\s*(drop|delete|insert|update|create|alter)\b/gi,
             /\/\*.*\*\//gi,
             /--\s/gi,
-            /#.*$/gm
+            // MySQL comment detection: # followed by non-hex chars (exclude #abc123 color codes)
+            /#(?![0-9a-fA-F]{3,8}\b)[^\n]*/gm
         ];
 
         return this.checkPatterns(obj, sqlPatterns);

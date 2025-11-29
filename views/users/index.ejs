@@ -79,10 +79,10 @@
                 </select>
                 <select id="roleFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value=""><%= t('allRoles') %></option>
-                    <option value="Admin">ผู้ดูแลระบบ</option>
-                    <option value="HR">ฝ่ายบุคคล</option>
-                    <option value="Manager">ผู้จัดการ</option>
-                    <option value="Employee">พนักงาน</option>
+                    <option value="Admin"><%= t('roleAdmin') %></option>
+                    <option value="HR"><%= t('roleHR') %></option>
+                    <option value="Manager"><%= t('roleManager') %></option>
+                    <option value="Employee"><%= t('roleEmployee') %></option>
                 </select>
                 <select id="departmentFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value=""><%= t('allDepartments') %></option>
@@ -366,10 +366,10 @@
                                 <select name="role" id="roleSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
                                     <option value=""><%= t('selectRole') %></option>
-                                    <option value="Employee">👤 พนักงาน</option>
-                                    <option value="Manager">👔 ผู้จัดการ</option>
-                                    <option value="HR">💼 ฝ่ายบุคคล</option>
-                                    <option value="Admin">⚙️ ผู้ดูแลระบบ</option>
+                                    <option value="Employee">👤 <%= t('roleEmployee') %></option>
+                                    <option value="Manager">👔 <%= t('roleManager') %></option>
+                                    <option value="HR">💼 <%= t('roleHR') %></option>
+                                    <option value="Admin">⚙️ <%= t('roleAdmin') %></option>
                                 </select>
                             </div>
                             <div id="statusField">
@@ -547,10 +547,10 @@
                                 </label>
                                 <select name="role" id="editRole" required
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value="Employee">👤 พนักงาน</option>
-                                    <option value="Manager">👔 ผู้จัดการ</option>
-                                    <option value="HR">💼 ฝ่ายบุคคล</option>
-                                    <option value="Admin">⚙️ ผู้ดูแลระบบ</option>
+                                    <option value="Employee">👤 <%= t('roleEmployee') %></option>
+                                    <option value="Manager">👔 <%= t('roleManager') %></option>
+                                    <option value="HR">💼 <%= t('roleHR') %></option>
+                                    <option value="Admin">⚙️ <%= t('roleAdmin') %></option>
                                 </select>
                             </div>
                             <div>
@@ -1277,8 +1277,8 @@ async function loadEditDepartments() {
             const departments = data.units.filter(unit =>
                 unit.level_code === 'DEP' ||
                 unit.level_code === 'DEPT' ||
-                unit.unit_name_th?.includes('แผนก') ||
-                unit.unit_name_th?.includes('ฝ่าย')
+                unit.unit_name_th?.includes(translations.department) ||
+                unit.unit_name_th?.includes(translations.division)
             );
 
             const options = departments.map(dept =>

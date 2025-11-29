@@ -5,16 +5,16 @@
             <div class="mb-4 md:mb-0">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">
                     <i class="fas fa-user-tie text-ruxchai-primary mr-3"></i>
-                    จัดการผู้สมัครงาน
+                    <%= t('applicantManagementTitle') %>
                 </h1>
-                <p class="text-gray-600">ระบบจัดการผู้สมัครงานและการทดสอบ</p>
+                <p class="text-gray-600"><%= t('applicantManagementSubtitle') %></p>
             </div>
             <div class="flex space-x-3">
                 <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                    <i class="fas fa-download mr-2"></i>ส่งออกข้อมูล
+                    <i class="fas fa-download mr-2"></i><%= t('applicantManagementExport') %>
                 </button>
                 <button id="refreshBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
-                    <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
+                    <i class="fas fa-sync-alt mr-2"></i><%= t('applicantManagementRefresh') %>
                 </button>
             </div>
         </div>
@@ -27,7 +27,7 @@
                         <i class="fas fa-users text-blue-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ผู้สมัครทั้งหมด</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('applicantManagementTotalApplicants') %></h3>
                         <p id="totalApplicants" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
                         <i class="fas fa-clock text-yellow-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">รอการพิจารณา</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('applicantManagementPending') %></h3>
                         <p id="pendingApplicants" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
                         <i class="fas fa-check-circle text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ผ่านการคัดเลือก</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('applicantManagementPassed') %></h3>
                         <p id="passedApplicants" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                         <i class="fas fa-clipboard-check text-purple-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ทำแบบทดสอบแล้ว</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('applicantManagementCompleted') %></h3>
                         <p id="completedTests" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -72,11 +72,11 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchApplicants" placeholder="ค้นหาผู้สมัคร..."
+                    <input type="text" id="searchApplicants" placeholder="<%= t('applicantManagementSearch') %>"
                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <select id="positionFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">ตำแหน่งทั้งหมด</option>
+                    <option value=""><%= t('applicantManagementAllPositions') %></option>
                     <% if (positions && positions.length > 0) { %>
                         <% positions.forEach(position => { %>
                             <option value="<%= position.position_id %>"><%= position.position_name %></option>
@@ -84,17 +84,17 @@
                     <% } %>
                 </select>
                 <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">สถานะทั้งหมด</option>
-                    <option value="Pending">รอการพิจารณา</option>
-                    <option value="Screening">กำลังพิจารณา</option>
-                    <option value="Interview">นัดสัมภาษณ์</option>
-                    <option value="Passed">ผ่านการคัดเลือก</option>
-                    <option value="Rejected">ไม่ผ่านการคัดเลือก</option>
+                    <option value=""><%= t('applicantManagementAllStatuses') %></option>
+                    <option value="Pending"><%= t('applicantManagementStatusPending') %></option>
+                    <option value="Screening"><%= t('applicantManagementStatusScreening') %></option>
+                    <option value="Interview"><%= t('applicantManagementStatusInterview') %></option>
+                    <option value="Passed"><%= t('applicantManagementStatusPassed') %></option>
+                    <option value="Rejected"><%= t('applicantManagementStatusRejected') %></option>
                 </select>
                 <select id="testFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">การทดสอบทั้งหมด</option>
-                    <option value="true">ทำแบบทดสอบแล้ว</option>
-                    <option value="false">ยังไม่ได้ทำแบบทดสอบ</option>
+                    <option value=""><%= t('applicantManagementAllTests') %></option>
+                    <option value="true"><%= t('applicantManagementTestCompleted') %></option>
+                    <option value="false"><%= t('applicantManagementTestNotCompleted') %></option>
                 </select>
             </div>
         </div>
@@ -105,14 +105,14 @@
                 <table class="w-full" id="applicantsTable">
                     <thead>
                         <tr class="border-b border-gray-200">
-                            <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700">ผู้สมัคร</th>
-                            <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700">ตำแหน่ง</th>
-                            <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700">ติดต่อ</th>
-                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700">การทดสอบ</th>
-                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700">คะแนน</th>
-                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700">สถานะ</th>
-                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700">วันที่สมัคร</th>
-                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700">จัดการ</th>
+                            <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementApplicant') %></th>
+                            <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementPosition') %></th>
+                            <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementContact') %></th>
+                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementTest') %></th>
+                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementScore') %></th>
+                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementStatus') %></th>
+                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementApplicationDate') %></th>
+                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementActions') %></th>
                         </tr>
                     </thead>
                     <tbody id="applicantsTableBody">
@@ -125,14 +125,14 @@
             <div id="loadingState" class="p-8 text-center">
                 <div class="inline-flex items-center">
                     <i class="fas fa-spinner fa-spin mr-2 text-ruxchai-primary"></i>
-                    <span class="text-gray-600">กำลังโหลดข้อมูล...</span>
+                    <span class="text-gray-600"><%= t('applicantManagementLoading') %></span>
                 </div>
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="p-8 text-center hidden">
                 <i class="fas fa-user-tie text-gray-400 text-4xl mb-4"></i>
-                <p class="text-gray-500">ไม่พบข้อมูลผู้สมัครงาน</p>
+                <p class="text-gray-500"><%= t('applicantManagementNoData') %></p>
             </div>
         </div>
 
@@ -148,7 +148,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">อัปเดตสถานะ</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('applicantManagementUpdateStatus') %></h3>
                 <button id="closeStatusModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -157,30 +157,30 @@
                 <input type="hidden" id="applicantId" name="applicant_id">
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">สถานะใหม่</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('applicantManagementNewStatus') %></label>
                     <select id="newStatus" name="status" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="Pending">รอการพิจารณา</option>
-                        <option value="Screening">กำลังพิจารณา</option>
-                        <option value="Interview">นัดสัมภาษณ์</option>
-                        <option value="Passed">ผ่านการคัดเลือก</option>
-                        <option value="Rejected">ไม่ผ่านการคัดเลือก</option>
+                        <option value="Pending"><%= t('applicantManagementStatusPending') %></option>
+                        <option value="Screening"><%= t('applicantManagementStatusScreening') %></option>
+                        <option value="Interview"><%= t('applicantManagementStatusInterview') %></option>
+                        <option value="Passed"><%= t('applicantManagementStatusPassed') %></option>
+                        <option value="Rejected"><%= t('applicantManagementStatusRejected') %></option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('applicantManagementNotes') %></label>
                     <textarea id="notes" name="notes" rows="3"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="เพิ่มหมายเหตุ (ไม่บังคับ)"></textarea>
+                              placeholder="<%= t('applicantManagementNotesPlaceholder') %>"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <button type="button" id="cancelStatus" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        ยกเลิก
+                        <%= t('applicantManagementCancel') %>
                     </button>
                     <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        บันทึก
+                        <%= t('applicantManagementSave') %>
                     </button>
                 </div>
             </form>
@@ -189,6 +189,22 @@
 </div>
 
 <script>
+// i18n translations for JavaScript
+const i18n = {
+    completed: '<%= t('applicantManagementTestCompletedBadge') %>',
+    notCompleted: '<%= t('applicantManagementTestNotCompletedBadge') %>',
+    viewDetails: '<%= t('applicantManagementViewDetails') %>',
+    updateStatus: '<%= t('applicantManagementUpdateStatusButton') %>',
+    statusPending: '<%= t('applicantManagementStatusPending') %>',
+    statusScreening: '<%= t('applicantManagementStatusScreening') %>',
+    statusInterview: '<%= t('applicantManagementStatusInterview') %>',
+    statusPassed: '<%= t('applicantManagementStatusPassed') %>',
+    statusRejected: '<%= t('applicantManagementStatusRejected') %>',
+    errorLoading: '<%= t('applicantManagementErrorLoading') %>',
+    updateSuccess: '<%= t('applicantManagementUpdateSuccess') %>',
+    updateError: '<%= t('applicantManagementUpdateError') %>'
+};
+
 let currentPage = 1;
 let applicants = [];
 
@@ -247,7 +263,7 @@ async function loadApplicants() {
         }
     } catch (error) {
         console.error('Error loading applicants:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+        showMessage(i18n.errorLoading, 'error');
     } finally {
         document.getElementById('loadingState').classList.add('hidden');
     }
@@ -263,8 +279,8 @@ function displayApplicants() {
 function createApplicantRow(applicant) {
     const statusBadge = getStatusBadge(applicant.status);
     const testBadge = applicant.test_completed
-        ? '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><i class="fas fa-check mr-1"></i>เสร็จแล้ว</span>'
-        : '<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"><i class="fas fa-clock mr-1"></i>ยังไม่ได้ทำ</span>';
+        ? `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><i class="fas fa-check mr-1"></i>${i18n.completed}</span>`
+        : `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"><i class="fas fa-clock mr-1"></i>${i18n.notCompleted}</span>`;
 
     return `
         <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -306,12 +322,12 @@ function createApplicantRow(applicant) {
                 <div class="flex justify-center space-x-2">
                     <button onclick="viewApplicant(${applicant.applicant_id})"
                             class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-sm"
-                            title="ดูรายละเอียด">
+                            title="${i18n.viewDetails}">
                         <i class="fas fa-eye"></i>
                     </button>
                     <button onclick="updateStatus(${applicant.applicant_id}, '${applicant.status}')"
                             class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1 rounded-lg text-sm"
-                            title="อัปเดตสถานะ">
+                            title="${i18n.updateStatus}">
                         <i class="fas fa-edit"></i>
                     </button>
                 </div>
@@ -323,11 +339,11 @@ function createApplicantRow(applicant) {
 // Get status badge
 function getStatusBadge(status) {
     const badges = {
-        'Pending': '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">รอการพิจารณา</span>',
-        'Screening': '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">กำลังพิจารณา</span>',
-        'Interview': '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">นัดสัมภาษณ์</span>',
-        'Passed': '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">ผ่านการคัดเลือก</span>',
-        'Rejected': '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">ไม่ผ่านการคัดเลือก</span>'
+        'Pending': `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">${i18n.statusPending}</span>`,
+        'Screening': `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${i18n.statusScreening}</span>`,
+        'Interview': `<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">${i18n.statusInterview}</span>`,
+        'Passed': `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${i18n.statusPassed}</span>`,
+        'Rejected': `<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">${i18n.statusRejected}</span>`
     };
     return badges[status] || status;
 }
@@ -383,15 +399,15 @@ async function handleStatusUpdate(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('อัปเดตสถานะเรียบร้อยแล้ว', 'success');
+            showMessage(i18n.updateSuccess, 'success');
             closeStatusModal();
             loadApplicants();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || i18n.updateError, 'error');
         }
     } catch (error) {
         console.error('Error updating status:', error);
-        showMessage('เกิดข้อผิดพลาดในการอัปเดตสถานะ', 'error');
+        showMessage(i18n.updateError, 'error');
     }
 }
 

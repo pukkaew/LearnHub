@@ -1,6 +1,7 @@
 const Article = require('../models/Article');
 const Comment = require('../models/Comment');
 const ActivityLog = require('../models/ActivityLog');
+const { t } = require('../utils/languages');
 
 const articleController = {
     async getAllArticles(req, res) {
@@ -40,7 +41,7 @@ const articleController = {
             console.error('Get all articles error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายการบทความ'
+                message: req.t('errorLoadingArticleList')
             });
         }
     },
@@ -54,7 +55,7 @@ const articleController = {
             if (!article) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบบทความที่ต้องการ'
+                    message: req.t('articleNotFound')
                 });
             }
 
@@ -63,7 +64,7 @@ const articleController = {
                 if (!['Admin', 'Instructor'].includes(userRole)) {
                     return res.status(403).json({
                         success: false,
-                        message: 'ไม่มีสิทธิ์เข้าถึงบทความนี้'
+                        message: req.t('noPermissionAccessArticle')
                     });
                 }
             }
@@ -99,7 +100,7 @@ const articleController = {
             console.error('Get article by id error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลบทความ'
+                message: req.t('errorLoadingArticleData')
             });
         }
     },
@@ -112,7 +113,7 @@ const articleController = {
             if (!['Admin', 'Instructor', 'Learner'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์สร้างบทความ'
+                    message: req.t('noPermissionCreateArticle')
                 });
             }
 
@@ -143,7 +144,7 @@ const articleController = {
 
             res.status(201).json({
                 success: true,
-                message: 'สร้างบทความสำเร็จ',
+                message: req.t('articleCreatedSuccess'),
                 data: result.data
             });
 
@@ -151,7 +152,7 @@ const articleController = {
             console.error('Create article error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างบทความ'
+                message: req.t('errorCreatingArticle')
             });
         }
     },
@@ -166,14 +167,14 @@ const articleController = {
             if (!article) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบบทความที่ต้องการ'
+                    message: req.t('articleNotFound')
                 });
             }
 
             if (article.author_id !== userId && !['Admin'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์แก้ไขบทความนี้'
+                    message: req.t('noPermissionEditThisArticle')
                 });
             }
 
@@ -200,7 +201,7 @@ const articleController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทบทความสำเร็จ',
+                message: req.t('articleUpdatedSuccess'),
                 data: result.data
             });
 
@@ -208,7 +209,7 @@ const articleController = {
             console.error('Update article error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทบทความ'
+                message: req.t('errorUpdatingArticle')
             });
         }
     },
@@ -223,14 +224,14 @@ const articleController = {
             if (!article) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบบทความที่ต้องการ'
+                    message: req.t('articleNotFound')
                 });
             }
 
             if (article.author_id !== userId && userRole !== 'Admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ลบบทความนี้'
+                    message: req.t('noPermissionDeleteArticle')
                 });
             }
 
@@ -255,14 +256,14 @@ const articleController = {
 
             res.json({
                 success: true,
-                message: 'ลบบทความสำเร็จ'
+                message: req.t('articleDeletedSuccess')
             });
 
         } catch (error) {
             console.error('Delete article error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการลบบทความ'
+                message: req.t('errorDeletingArticle')
             });
         }
     },
@@ -276,7 +277,7 @@ const articleController = {
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์เผยแพร่บทความ'
+                    message: req.t('noPermissionPublishArticle')
                 });
             }
 
@@ -284,14 +285,14 @@ const articleController = {
             if (!article) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบบทความที่ต้องการ'
+                    message: req.t('articleNotFound')
                 });
             }
 
             if (article.status === 'Published') {
                 return res.status(400).json({
                     success: false,
-                    message: 'บทความนี้เผยแพร่แล้ว'
+                    message: req.t('articleAlreadyPublished')
                 });
             }
 
@@ -316,7 +317,7 @@ const articleController = {
 
             res.json({
                 success: true,
-                message: 'เผยแพร่บทความสำเร็จ',
+                message: req.t('articlePublishedSuccess'),
                 data: result.data
             });
 
@@ -324,7 +325,7 @@ const articleController = {
             console.error('Publish article error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเผยแพร่บทความ'
+                message: req.t('errorPublishingArticle')
             });
         }
     },
@@ -338,7 +339,7 @@ const articleController = {
             if (!rating || rating < 1 || rating > 5) {
                 return res.status(400).json({
                     success: false,
-                    message: 'คะแนนต้องอยู่ระหว่าง 1-5'
+                    message: req.t('ratingMustBeBetween1And5')
                 });
             }
 
@@ -346,14 +347,14 @@ const articleController = {
             if (!article) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบบทความที่ต้องการ'
+                    message: req.t('articleNotFound')
                 });
             }
 
             if (article.author_id === userId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'ไม่สามารถให้คะแนนบทความของตัวเองได้'
+                    message: req.t('cannotRateOwnArticle')
                 });
             }
 
@@ -378,7 +379,7 @@ const articleController = {
 
             res.json({
                 success: true,
-                message: 'ให้คะแนนบทความสำเร็จ',
+                message: req.t('articleRatedSuccess'),
                 data: result.data
             });
 
@@ -386,7 +387,7 @@ const articleController = {
             console.error('Rate article error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการให้คะแนนบทความ'
+                message: req.t('errorRatingArticle')
             });
         }
     },
@@ -400,7 +401,7 @@ const articleController = {
             if (!comment_text || comment_text.trim().length === 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกความคิดเห็น'
+                    message: req.t('pleaseEnterComment')
                 });
             }
 
@@ -408,7 +409,7 @@ const articleController = {
             if (!article) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบบทความที่ต้องการ'
+                    message: req.t('articleNotFound')
                 });
             }
 
@@ -440,7 +441,7 @@ const articleController = {
 
             res.status(201).json({
                 success: true,
-                message: 'เพิ่มความคิดเห็นสำเร็จ',
+                message: req.t('commentAddedSuccess'),
                 data: result.data
             });
 
@@ -448,7 +449,7 @@ const articleController = {
             console.error('Add comment error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเพิ่มความคิดเห็น'
+                message: req.t('errorAddingComment')
             });
         }
     },
@@ -481,7 +482,7 @@ const articleController = {
             console.error('Get my articles error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดบทความของฉัน'
+                message: req.t('errorLoadingMyArticles')
             });
         }
     },
@@ -501,7 +502,7 @@ const articleController = {
             console.error('Get popular articles error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดบทความยอดนิยม'
+                message: req.t('errorLoadingPopularArticles')
             });
         }
     },
@@ -519,7 +520,7 @@ const articleController = {
             console.error('Get article categories error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดหมวดหมู่บทความ'
+                message: req.t('errorLoadingArticleCategories')
             });
         }
     },
@@ -536,7 +537,7 @@ const articleController = {
             console.error('Render articles list error:', error);
             res.render('error/500', {
                 title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้ารายการบทความได้',
+                message: req.t('cannotLoadArticleListPage'),
                 user: req.session.user,
                 error: error
             });
@@ -569,7 +570,7 @@ const articleController = {
             console.error('Render article detail error:', error);
             res.render('error/500', {
                 title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดข้อมูลบทความได้',
+                message: req.t('cannotLoadArticleData'),
                 user: req.session.user,
                 error: error
             });
@@ -597,7 +598,7 @@ const articleController = {
             console.error('Render create article error:', error);
             res.render('error/500', {
                 title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าสร้างบทความได้',
+                message: req.t('cannotLoadCreateArticlePage'),
                 user: req.session.user,
                 error: error
             });

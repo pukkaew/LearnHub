@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeWizard() {
-    initializeTranslations();  // โหลดคำแปลก่อนอื่น
     updateStepDisplay();
     setupEventListeners();
     setupRichTextEditor();
@@ -100,15 +99,6 @@ function validateStep1() {
             return false;
         }
     }
-
-    // Validate course name length (minimum 10 characters)
-    const courseName = document.getElementById('course_name');
-    if (courseName && courseName.value.trim().length < 10) {
-        showError('ชื่อหลักสูตรต้องมีความยาวอย่างน้อย 10 ตัวอักษร');
-        courseName.focus();
-        return false;
-    }
-
     // instructor_name is optional, so we don't validate it
     return true;
 }
@@ -169,43 +159,7 @@ function validateStep3() {
 }
 
 function validateStep4() {
-    // Check if creating new test
-    const assessmentType = document.querySelector('input[name="assessment_type"]:checked');
-    if (assessmentType && assessmentType.value === 'create_new') {
-        // Validate test duration
-        const testDuration = document.getElementById('new_test_duration');
-        if (testDuration && testDuration.value) {
-            const duration = parseFloat(testDuration.value);
-            if (duration < 5 || duration > 480) {
-                showError('ระยะเวลาข้อสอบต้องอยู่ระหว่าง 5-480 นาที');
-                testDuration.focus();
-                return false;
-            }
-        }
-
-        // Validate passing score
-        const passingScore = document.getElementById('new_passing_score');
-        if (passingScore && passingScore.value !== '') {
-            const score = parseFloat(passingScore.value);
-            if (isNaN(score) || score < 0 || score > 100) {
-                showError('เกณฑ์การผ่านต้องอยู่ระหว่าง 0-100');
-                passingScore.focus();
-                return false;
-            }
-        }
-
-        // Validate max attempts
-        const maxAttempts = document.getElementById('new_max_attempts');
-        if (maxAttempts && maxAttempts.value !== '') {
-            const attempts = parseInt(maxAttempts.value);
-            if (isNaN(attempts) || attempts < 0) {
-                showError('จำนวนครั้งที่สอบได้ต้องเป็นจำนวนเต็มบวกหรือ 0 (ไม่จำกัด)');
-                maxAttempts.focus();
-                return false;
-            }
-        }
-    }
-
+    // Assessment validation is optional
     return true;
 }
 
@@ -355,7 +309,7 @@ function addLesson() {
         </div>
 
         <!-- เอกสารประกอบบทเรียน -->
-        <div class="bg-white rounded-md border border-gray-200 p-3">
+        <div class="bg-white rounded-md border border-gray-200 p-3 mb-3">
             <label class="block text-sm font-medium text-gray-700 mb-2">
                 <i class="fas fa-file-pdf mr-1 text-red-600"></i>เอกสารประกอบ
             </label>
@@ -374,67 +328,44 @@ function addLesson() {
             </div>
         </div>
 
-        <!-- แบบทดสอบย่อย (Knowledge Check) -->
-        <div class="bg-amber-50 rounded-md border border-amber-200 p-3 mt-3">
-            <div class="flex items-center justify-between mb-2">
-                <label class="flex items-center text-sm font-medium text-gray-700">
-                    <input type="checkbox" name="lesson_has_quiz[]" class="rounded border-gray-300 text-ruxchai-primary mr-2" onchange="toggleLessonQuiz(this)">
-                    <i class="fas fa-clipboard-check mr-1 text-amber-600"></i>เพิ่มแบบทดสอบย่อยท้ายบทเรียน
-                </label>
-            </div>
-            <div class="lesson-quiz-options" style="display: none;">
-                <p class="text-xs text-gray-600 mb-2">
-                    <i class="fas fa-info-circle mr-1"></i>แบบทดสอบย่อยจะเปิดให้ทำอัตโนมัติเมื่อผู้เรียนดูบทเรียนจบ
-                </p>
+        <!-- ข้อสอบท้ายบท (Knowledge Check) -->
+        <div class="bg-blue-50 rounded-md border border-blue-200 p-3">
+            <label class="flex items-center mb-2">
+                <input type="checkbox" name="lesson_has_quiz[]" value="1"
+                       class="mr-2 rounded text-ruxchai-primary focus:ring-ruxchai-primary lesson-quiz-toggle"
+                       onchange="toggleLessonQuiz(this)">
+                <span class="text-sm font-medium text-gray-700">
+                    <i class="fas fa-clipboard-check mr-1 text-blue-600"></i>มีแบบทดสอบท้ายบท (Knowledge Check)
+                </span>
+            </label>
+
+            <div class="lesson-quiz-options hidden mt-2 ml-6 space-y-2">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อข้อสอบ</label>
+                    <input type="text" name="lesson_quiz_names[]"
+                           class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                           placeholder="เช่น แบบทดสอบท้ายบทที่ ${lessonNumber}">
+                </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-xs text-gray-600">จำนวนข้อ</label>
-                        <input type="number" name="lesson_quiz_questions[]" min="1" value="5"
-                               class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                               placeholder="5">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">เกณฑ์ผ่าน (%)</label>
+                        <input type="number" name="lesson_quiz_passing_scores[]" min="0" max="100" value="70"
+                               class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-600">เวลาทำ (นาที)</label>
-                        <input type="number" name="lesson_quiz_duration[]" min="1" value="10"
-                               class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                               placeholder="10">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-600">คะแนนผ่าน (%)</label>
-                        <input type="number" name="lesson_quiz_passing[]" min="0" max="100" value="60"
-                               class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                               placeholder="60">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-600">ทำได้กี่ครั้ง</label>
-                        <input type="number" name="lesson_quiz_attempts[]" min="1" value="3"
-                               class="w-full text-sm rounded border-gray-300 focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                               placeholder="3">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">จำนวนครั้งที่ทำได้</label>
+                        <input type="number" name="lesson_quiz_max_attempts[]" min="1" value="3"
+                               class="w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                     </div>
                 </div>
-                <div class="mt-2 flex items-center gap-3">
-                    <label class="flex items-center text-xs text-gray-600">
-                        <input type="checkbox" name="lesson_quiz_required[]" class="rounded border-gray-300 text-ruxchai-primary mr-1">
-                        ต้องทำก่อนไปบทถัดไป
-                    </label>
-                    <label class="flex items-center text-xs text-gray-600">
-                        <input type="checkbox" name="lesson_quiz_graded[]" class="rounded border-gray-300 text-ruxchai-primary mr-1">
-                        นับคะแนนรวม
-                    </label>
-                </div>
+                <p class="text-xs text-blue-700">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    คำถามสามารถเพิ่มได้ภายหลังที่เมนู "ข้อสอบ"
+                </p>
             </div>
         </div>
     `;
     container.appendChild(div);
-}
-
-// Toggle lesson quiz options
-function toggleLessonQuiz(checkbox) {
-    const lessonItem = checkbox.closest('.lesson-item');
-    const quizOptions = lessonItem.querySelector('.lesson-quiz-options');
-    if (quizOptions) {
-        quizOptions.style.display = checkbox.checked ? 'block' : 'none';
-    }
 }
 
 function removeLesson(button) {
@@ -595,7 +526,7 @@ async function loadAvailableTests() {
                 result.data.forEach(test => {
                     const option = document.createElement('option');
                     option.value = test.test_id;
-                    option.textContent = test.title || test.test_name;  // Support both field names
+                    option.textContent = test.test_name;
                     option.dataset.detail = JSON.stringify(test);
                     select.appendChild(option);
                 });
@@ -608,26 +539,18 @@ async function loadAvailableTests() {
 
                     if (selectedOption.dataset.detail && infoDiv && detailP) {
                         const test = JSON.parse(selectedOption.dataset.detail);
-                        let details = `${test.title || test.test_name}`;
+                        let details = `${test.test_name}`;
                         if (test.total_questions) {
                             details += ` - ${test.total_questions} ข้อ`;
                         }
                         if (test.passing_score) {
                             details += `, เกณฑ์ผ่าน ${test.passing_score}%`;
                         }
-                        const duration = test.time_limit || test.duration_minutes;  // Support both field names
-                        if (duration) {
-                            details += `, เวลา ${duration} นาที`;
+                        if (test.duration_minutes) {
+                            details += `, เวลา ${test.duration_minutes} นาที`;
                         }
-                        if (test.test_type) {
-                            const typeNames = {
-                                'final_exam': 'สอบปลายภาค',
-                                'practice_test': 'แบบฝึกหัด',
-                                'chapter_quiz': 'แบบทดสอบรายบท',
-                                'lesson_quiz': 'แบบทดสอบรายบท',
-                                'standalone_test': 'ข้อสอบอิสระ'
-                            };
-                            details += ` (${typeNames[test.test_type] || test.test_type})`;
+                        if (test.course_name) {
+                            details += ` (ใช้ในหลักสูตร: ${test.course_name})`;
                         }
 
                         detailP.textContent = details;
@@ -797,35 +720,6 @@ function setupDateTimePickers() {
         }
     });
 
-    // Initialize Flatpickr for test available_from date
-    flatpickr("#new_available_from", {
-        enableTime: true,
-        dateFormat: "d/m/Y H:i",
-        time_24hr: true,
-        minDate: "today",
-        locale: {
-            firstDayOfWeek: 1
-        },
-        onChange: function(selectedDates, dateStr, instance) {
-            // Update minDate for available_until
-            const untilPicker = document.getElementById('new_available_until')._flatpickr;
-            if (untilPicker && selectedDates.length > 0) {
-                untilPicker.set('minDate', selectedDates[0]);
-            }
-        }
-    });
-
-    // Initialize Flatpickr for test available_until date
-    flatpickr("#new_available_until", {
-        enableTime: true,
-        dateFormat: "d/m/Y H:i",
-        time_24hr: true,
-        minDate: "today",
-        locale: {
-            firstDayOfWeek: 1
-        }
-    });
-
     console.log('✅ DateTime pickers initialized');
 }
 
@@ -857,199 +751,6 @@ async function loadCategories() {
         }
     } catch (error) {
         console.error('Error loading categories:', error);
-    }
-}
-
-// Test Type Configurations - คุณสมบัติของแต่ละประเภท (8 แบบ - เหมาะสมกับระบบอบรม)
-// ชื่อและคำอธิบายจะดึงจาก window.testTypeTranslations ที่ set จาก EJS
-const TEST_TYPE_CONFIG = {
-    // ก่อน-หลังอบรม
-    'pre_training_assessment': {
-        title: '', // Will be set from translations
-        detail: '', // Will be set from translations
-        tags: [
-            { icon: 'times-circle', text: 'ไม่นับคะแนน', color: 'gray' },
-            { icon: 'info-circle', text: 'ไม่บังคับ', color: 'gray' },
-            { icon: 'redo', text: 'ทำได้ 1 ครั้ง', color: 'gray' }
-        ],
-        defaults: { is_graded: false, is_required: false, is_passing_required: false, max_attempts: 1, score_weight: 0, show_answer: 'immediately' }
-    },
-    'post_training_assessment': {
-        title: 'แบบทดสอบหลังอบรม (Post-training Assessment)',
-        detail: 'ทดสอบหลังอบรมจบ เปรียบเทียบกับก่อนอบรม เพื่อวัดความก้าวหน้า',
-        tags: [
-            { icon: 'check-circle', text: 'นับคะแนน', color: 'blue' },
-            { icon: 'info-circle', text: 'ควรทำ', color: 'blue' },
-            { icon: 'redo', text: 'ทำซ้ำได้ 2 ครั้ง', color: 'blue' }
-        ],
-        defaults: { is_graded: true, is_required: true, is_passing_required: false, max_attempts: 2, score_weight: 20, show_answer: 'after_close' }
-    },
-
-    // ระหว่างอบรม
-    'knowledge_check': {
-        title: 'แบบทดสอบย่อย (Knowledge Check)',
-        detail: 'ทดสอบย่อยระหว่างอบรม เช็คความเข้าใจแต่ละหัวข้อ นับคะแนน 10-15%',
-        tags: [
-            { icon: 'check-circle', text: 'นับคะแนน', color: 'blue' },
-            { icon: 'info-circle', text: 'ควรทำ', color: 'blue' },
-            { icon: 'redo', text: 'ทำซ้ำได้ 2-3 ครั้ง', color: 'blue' }
-        ],
-        defaults: { is_graded: true, is_required: true, is_passing_required: false, max_attempts: 3, score_weight: 10, show_answer: 'immediately' }
-    },
-    'progress_assessment': {
-        title: 'แบบประเมินความก้าวหน้า (Progress Assessment)',
-        detail: 'ประเมินความก้าวหน้าต่อเนื่องระหว่างอบรม เช็คจุดที่เข้าใจและควรทบทวน',
-        tags: [
-            { icon: 'check-circle', text: 'นับคะแนน', color: 'blue' },
-            { icon: 'exclamation-circle', text: 'ต้องทำ', color: 'orange' },
-            { icon: 'redo', text: 'ทำซ้ำได้ 2 ครั้ง', color: 'blue' }
-        ],
-        defaults: { is_graded: true, is_required: true, is_passing_required: false, max_attempts: 2, score_weight: 15, show_answer: 'immediately' }
-    },
-
-    // หลัก
-    'midcourse_assessment': {
-        title: 'แบบทดสอบกลางหลักสูตร (Mid-course Assessment)',
-        detail: 'ทดสอบกลางหลักสูตร สำหรับหลักสูตรยาว นับคะแนน 30-40%',
-        tags: [
-            { icon: 'check-circle', text: 'นับคะแนน', color: 'blue' },
-            { icon: 'exclamation-circle', text: 'ต้องทำ', color: 'orange' },
-            { icon: 'redo', text: 'ทำได้ 1 ครั้ง', color: 'red' }
-        ],
-        defaults: { is_graded: true, is_required: true, is_passing_required: true, max_attempts: 1, score_weight: 30, show_answer: 'after_close' }
-    },
-    'final_assessment': {
-        title: 'แบบทดสอบท้ายหลักสูตร (Final Assessment)',
-        detail: 'ทดสอบหลักเพื่อจบหลักสูตร นับคะแนน 40-50% ต้องผ่านถึงจะได้ Certificate',
-        tags: [
-            { icon: 'check-circle', text: 'นับคะแนน', color: 'blue' },
-            { icon: 'exclamation-circle', text: 'ต้องทำ', color: 'orange' },
-            { icon: 'redo', text: 'ทำได้ 1 ครั้ง', color: 'red' }
-        ],
-        defaults: { is_graded: true, is_required: true, is_passing_required: true, max_attempts: 1, score_weight: 50, show_answer: 'after_close' }
-    },
-    'certification_assessment': {
-        title: 'แบบทดสอบรับใบประกาศนียบัตร (Certification Assessment)',
-        detail: 'ทดสอบเพื่อรับ Certificate อย่างเป็นทางการ เข้มงวดสูงสุด',
-        tags: [
-            { icon: 'check-circle', text: 'นับคะแนน', color: 'blue' },
-            { icon: 'exclamation-circle', text: 'ต้องทำ', color: 'orange' },
-            { icon: 'redo', text: 'ทำได้ 1 ครั้ง', color: 'red' }
-        ],
-        defaults: { is_graded: true, is_required: true, is_passing_required: true, max_attempts: 1, score_weight: 100, show_answer: 'never' }
-    },
-
-    // ฝึกหัด
-    'practice_exercise': {
-        title: 'แบบฝึกหัด (Practice Exercise)',
-        detail: 'ฝึกทำได้ไม่จำกัด ไม่นับคะแนน เหมาะสำหรับฝึกฝนและทบทวน',
-        tags: [
-            { icon: 'times-circle', text: 'ไม่นับคะแนน', color: 'gray' },
-            { icon: 'info-circle', text: 'ไม่บังคับ', color: 'gray' },
-            { icon: 'redo', text: 'ทำซ้ำได้ไม่จำกัด', color: 'green' }
-        ],
-        defaults: { is_graded: false, is_required: false, is_passing_required: false, max_attempts: null, score_weight: 0, show_answer: 'immediately' }
-    }
-};
-
-// Initialize translations from server-side - โหลดคำแปลจากเซิร์ฟเวอร์
-function initializeTranslations() {
-    if (window.testTypeTranslations) {
-        Object.keys(TEST_TYPE_CONFIG).forEach(key => {
-            if (window.testTypeTranslations.testTypes[key]) {
-                TEST_TYPE_CONFIG[key].title = window.testTypeTranslations.testTypes[key];
-            }
-            if (window.testTypeTranslations.testTypeDescriptions[key]) {
-                TEST_TYPE_CONFIG[key].detail = window.testTypeTranslations.testTypeDescriptions[key];
-            }
-        });
-        console.log('✅ Initialized test type translations');
-    } else {
-        console.warn('⚠️  testTypeTranslations not found');
-    }
-}
-
-// Handle test type change - เมื่อเปลี่ยนประเภทข้อสอบ
-function handleTestTypeChange() {
-    const selectElement = document.getElementById('new_test_type');
-    const testType = selectElement.value;
-    const config = TEST_TYPE_CONFIG[testType];
-
-    if (!config) return;
-
-    // Update description
-    document.getElementById('test-type-title').textContent = config.title;
-    document.getElementById('test-type-detail').textContent = config.detail;
-
-    // Update tags
-    const tagsContainer = document.getElementById('test-type-tags');
-    tagsContainer.innerHTML = config.tags.map(tag => {
-        const colorClass = tag.color === 'blue' ? 'bg-blue-100 text-blue-800' :
-                          tag.color === 'orange' ? 'bg-orange-100 text-orange-800' :
-                          tag.color === 'red' ? 'bg-red-100 text-red-800' :
-                          tag.color === 'green' ? 'bg-green-100 text-green-800' :
-                          'bg-gray-100 text-gray-800';
-        return `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClass}">
-            <i class="fas fa-${tag.icon} mr-1"></i> ${tag.text}
-        </span>`;
-    }).join('');
-
-    // Apply defaults
-    const defaults = config.defaults;
-
-    // Checkboxes
-    document.getElementById('new_is_graded').checked = defaults.is_graded;
-    document.getElementById('new_is_required').checked = defaults.is_required;
-    document.getElementById('new_is_passing_required').checked = defaults.is_passing_required;
-
-    // Max attempts (null = unlimited)
-    const maxAttemptsInput = document.getElementById('new_max_attempts');
-    if (defaults.max_attempts === null) {
-        maxAttemptsInput.value = '';
-        maxAttemptsInput.placeholder = 'ไม่จำกัด';
-    } else {
-        maxAttemptsInput.value = defaults.max_attempts;
-        maxAttemptsInput.placeholder = `เช่น ${defaults.max_attempts}`;
-    }
-
-    // Score weight
-    document.getElementById('new_score_weight').value = defaults.score_weight || '';
-
-    // Show answer
-    document.getElementById('new_show_answer').value = defaults.show_answer;
-
-    // Show/hide available dates based on test type
-    const availableDatesSection = document.querySelector('#step-4 .space-y-6 > div:has(#new_available_from)');
-    if (availableDatesSection) {
-        // Test types that require scheduled dates
-        const scheduledTypes = [
-            'pre_training_assessment',
-            'post_training_assessment',
-            'midcourse_assessment',
-            'final_assessment',
-            'certification_assessment'
-        ];
-
-        if (scheduledTypes.includes(testType)) {
-            availableDatesSection.style.display = 'block';
-        } else {
-            availableDatesSection.style.display = 'none';
-            // Clear date values when hidden
-            document.getElementById('new_available_from').value = '';
-            document.getElementById('new_available_until').value = '';
-        }
-    }
-
-    console.log(`✅ Changed test type to: ${config.title}`);
-}
-
-// Toggle proctoring options visibility
-function toggleProctoringOptions() {
-    const checkbox = document.getElementById('new_enable_proctoring');
-    const options = document.getElementById('proctoring-options');
-
-    if (checkbox && options) {
-        options.style.display = checkbox.checked ? 'block' : 'none';
     }
 }
 
@@ -1136,7 +837,7 @@ async function loadPrerequisites() {
             result.data.forEach(course => {
                 const option = document.createElement('option');
                 option.value = course.course_id;
-                option.textContent = `${course.course_code} - ${course.course_name}`;
+                option.textContent = `${course.course_code} - ${course.title || course.course_name || 'Untitled'}`;
                 select.appendChild(option);
             });
         }
@@ -1205,7 +906,7 @@ async function submitCourse() {
             coursePassingScore = testData.passing_score;
             courseMaxAttempts = testData.max_attempts;
 
-            const testResponse = await fetch('/courses/api/tests/create', {
+            const testResponse = await fetch('/tests/api/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(testData)
@@ -1233,35 +934,20 @@ async function submitCourse() {
         formData.test_id = testId;
         formData.assessment_type = assessmentType;
 
-        // Set passing_score and max_attempts from test settings
-        const passingScoreValue = document.getElementById('new_passing_score')?.value;
-        const maxAttemptsValue = document.getElementById('new_max_attempts')?.value;
-
+        // Set passing_score and max_attempts from test settings only if provided
+        // Don't use default values - if not provided, will be null
         formData.passing_score = coursePassingScore ||
-                                 (passingScoreValue ? parseInt(passingScoreValue) : null);
+                                 parseInt(document.getElementById('new_passing_score')?.value) ||
+                                 null;
         formData.max_attempts = courseMaxAttempts ||
-                                (maxAttemptsValue ? parseInt(maxAttemptsValue) : null);
-
-        // Ensure max_students is set (may be null if not specified)
-        if (formData.max_enrollments) {
-            formData.max_students = parseInt(formData.max_enrollments) || null;
-        } else if (!formData.max_students) {
-            formData.max_students = null;  // Ensure it's null, not undefined
-        }
+                                parseInt(document.getElementById('new_max_attempts')?.value) ||
+                                null;
 
         // Add course image path if uploaded
         if (courseImagePath) {
             formData.thumbnail = courseImagePath;
             formData.course_image = courseImagePath;
         }
-
-        // Log data AFTER all processing
-        console.log('🔍 FINAL DATA TO SEND:');
-        console.log('  passing_score:', formData.passing_score);
-        console.log('  max_attempts:', formData.max_attempts);
-        console.log('  max_students:', formData.max_students);
-        console.log('  target_departments:', formData.target_departments);
-        console.log('  target_positions:', formData.target_positions);
 
         // Step 4: Create course
         const response = await fetch('/courses/api/create', {
@@ -1277,14 +963,23 @@ async function submitCourse() {
         if (result.success) {
             const courseId = result.data.course_id;
 
+            // Validate courseId is a single integer (prevent duplicated IDs like "214,214")
+            const parsedCourseId = parseInt(courseId, 10);
+            if (isNaN(parsedCourseId) || parsedCourseId <= 0 || String(parsedCourseId) !== String(courseId)) {
+                console.error('Invalid course_id received:', courseId);
+                hideLoading();
+                showError('เกิดข้อผิดพลาด: รหัสหลักสูตรไม่ถูกต้อง');
+                return;
+            }
+
             // Step 5: Upload materials if any
             showLoading('กำลังอัปโหลดเอกสารประกอบการเรียน...');
-            await uploadMaterials(courseId);
+            await uploadMaterials(parsedCourseId);
 
             hideLoading();
             showSuccess('สร้างหลักสูตรเรียบร้อยแล้ว');
             setTimeout(() => {
-                window.location.href = `/courses/${courseId}`;
+                window.location.href = `/courses/${parsedCourseId}`;
             }, 1500);
         } else {
             hideLoading();
@@ -1468,38 +1163,41 @@ function collectFormData() {
         .filter(value => value);
     data.learning_objectives = objectives;
 
-    // Multi-select fields - manually collect selected values
-    const targetDepartments = document.getElementById('target_departments');
-    if (targetDepartments) {
-        data.target_departments = Array.from(targetDepartments.selectedOptions)
-            .map(option => option.value)
-            .filter(value => value);
-    }
-
-    const targetPositions = document.getElementById('target_positions');
-    if (targetPositions) {
-        data.target_positions = Array.from(targetPositions.selectedOptions)
-            .map(option => option.value)
-            .filter(value => value);
-    }
-
-    // Lessons
+    // Lessons with Quiz data
     const lessons = [];
-    const lessonTitles = document.querySelectorAll('input[name="lesson_titles[]"]');
-    const lessonDurations = document.querySelectorAll('input[name="lesson_durations[]"]');
-    const lessonDescriptions = document.querySelectorAll('textarea[name="lesson_descriptions[]"]');
-    const lessonVideoUrls = document.querySelectorAll('input[name="lesson_video_urls[]"]');
+    const lessonItems = document.querySelectorAll('.lesson-item');
 
-    for (let i = 0; i < lessonTitles.length; i++) {
-        if (lessonTitles[i].value.trim()) {
-            lessons.push({
-                title: lessonTitles[i].value.trim(),
-                duration: parseInt(lessonDurations[i].value) || 0,
-                description: lessonDescriptions[i].value.trim(),
-                video_url: lessonVideoUrls[i] ? lessonVideoUrls[i].value.trim() : null
-            });
+    lessonItems.forEach((lessonItem, i) => {
+        const titleInput = lessonItem.querySelector('input[name="lesson_titles[]"]');
+        const durationInput = lessonItem.querySelector('input[name="lesson_durations[]"]');
+        const descriptionInput = lessonItem.querySelector('textarea[name="lesson_descriptions[]"]');
+        const videoUrlInput = lessonItem.querySelector('input[name="lesson_video_urls[]"]');
+        const quizCheckbox = lessonItem.querySelector('input[name="lesson_has_quiz[]"]');
+        const quizNameInput = lessonItem.querySelector('input[name="lesson_quiz_names[]"]');
+        const quizPassingScoreInput = lessonItem.querySelector('input[name="lesson_quiz_passing_scores[]"]');
+        const quizMaxAttemptsInput = lessonItem.querySelector('input[name="lesson_quiz_max_attempts[]"]');
+
+        if (titleInput && titleInput.value.trim()) {
+            const lessonData = {
+                title: titleInput.value.trim(),
+                duration: parseInt(durationInput?.value) || 0,
+                description: descriptionInput?.value.trim() || '',
+                video_url: videoUrlInput?.value.trim() || null
+            };
+
+            // Add quiz data if checkbox is checked
+            if (quizCheckbox && quizCheckbox.checked) {
+                lessonData.has_quiz = true;
+                lessonData.quiz_name = quizNameInput?.value.trim() || `แบบทดสอบท้ายบทที่ ${i + 1}`;
+                lessonData.quiz_passing_score = parseInt(quizPassingScoreInput?.value) || 70;
+                lessonData.quiz_max_attempts = parseInt(quizMaxAttemptsInput?.value) || 3;
+            } else {
+                lessonData.has_quiz = false;
+            }
+
+            lessons.push(lessonData);
         }
-    }
+    });
     data.lessons = lessons;
 
     // External links
@@ -1508,23 +1206,19 @@ function collectFormData() {
         .filter(value => value);
     data.external_links = links;
 
-    // Test-related checkboxes (explicitly handle unchecked states)
-    data.new_randomize_questions = document.getElementById('new_randomize_questions')?.checked || false;
-    data.new_randomize_choices = document.getElementById('new_randomize_choices')?.checked || false;
-    data.new_show_results_immediately = document.getElementById('new_show_results_immediately')?.checked || false;
-    data.new_enable_proctoring = document.getElementById('new_enable_proctoring')?.checked || false;
+    // Target audiences (multi-select) - explicitly collect as arrays
+    const deptSelect = document.getElementById('target_departments');
+    const posSelect = document.getElementById('target_positions');
 
-    // New test properties checkboxes
-    data.new_is_graded = document.getElementById('new_is_graded')?.checked || false;
-    data.new_is_required = document.getElementById('new_is_required')?.checked || false;
-    data.new_is_passing_required = document.getElementById('new_is_passing_required')?.checked || false;
-    data.new_show_score_breakdown = document.getElementById('new_show_score_breakdown')?.checked || false;
+    if (deptSelect) {
+        const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => opt.value);
+        data.target_departments = selectedDepts.length > 0 ? selectedDepts : undefined;
+    }
 
-    // Convert duration_hours + duration_minutes to single value
-    const hours = parseInt(data.duration_hours) || 0;
-    const minutes = parseInt(data.duration_minutes) || 0;
-    data.duration_hours = hours + (minutes / 60);
-    delete data.duration_minutes;
+    if (posSelect) {
+        const selectedPos = Array.from(posSelect.selectedOptions).map(opt => opt.value);
+        data.target_positions = selectedPos.length > 0 ? selectedPos : undefined;
+    }
 
     // Convert Thai date format to ISO
     if (data.enrollment_start) {
@@ -1535,9 +1229,13 @@ function collectFormData() {
     }
 
     // Map field names to match backend expectations
-    data.title = data.course_name;  // Backend expects 'title' not 'course_name'
-    data.max_students = data.max_enrollments ? parseInt(data.max_enrollments) : null;
+    data.max_students = data.max_enrollments || data.max_students;
     delete data.max_enrollments;
+
+    // Map course_name to title (required by validation)
+    if (data.course_name && !data.title) {
+        data.title = data.course_name;
+    }
 
     // Map certificate validity from dropdown values to days
     const certValidityMap = {
@@ -1549,6 +1247,21 @@ function collectFormData() {
     if (data.certificate_validity && certValidityMap[data.certificate_validity] !== undefined) {
         data.certificate_validity = certValidityMap[data.certificate_validity];
     }
+
+    // Detailed logging before sending to server
+    console.log('🔍 CLIENT-SIDE DATA COLLECTED:');
+    console.log('  course_code:', data.course_code);
+    console.log('  course_type:', data.course_type);
+    console.log('  language:', data.language);
+    console.log('  learning_objectives:', data.learning_objectives);
+    console.log('  target_positions:', data.target_positions);
+    console.log('  target_departments:', data.target_departments);
+    console.log('  lessons:', data.lessons);
+    console.log('  passing_score:', data.passing_score);
+    console.log('  max_attempts:', data.max_attempts);
+    console.log('  max_students:', data.max_students);
+    console.log('  certificate_validity:', data.certificate_validity);
+    console.log('Full data object:', data);
 
     return data;
 }
@@ -1755,5 +1468,23 @@ function hideLoading() {
     if (loadingOverlay) {
         loadingOverlay.remove();
         loadingOverlay = null;
+    }
+}
+
+// Toggle lesson quiz options
+function toggleLessonQuiz(checkbox) {
+    const lessonItem = checkbox.closest('.lesson-item');
+    const quizOptions = lessonItem.querySelector('.lesson-quiz-options');
+
+    if (checkbox.checked) {
+        quizOptions.classList.remove('hidden');
+        // Auto-fill quiz name based on lesson number
+        const lessonNumber = lessonItem.getAttribute('data-lesson');
+        const quizNameInput = quizOptions.querySelector('input[name="lesson_quiz_names[]"]');
+        if (!quizNameInput.value) {
+            quizNameInput.value = `แบบทดสอบท้ายบทที่ ${lessonNumber}`;
+        }
+    } else {
+        quizOptions.classList.add('hidden');
     }
 }

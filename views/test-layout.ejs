@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="<%= currentLanguage || 'th' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <% const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub'; %>
-    <title><%= title || siteName + ' - ระบบสอบออนไลน์' %></title>
+    <%
+        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
+        const isEnglish = currentLang === 'en';
+        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteName = isEnglish ? siteNameEn : siteNameTh;
+    %>
+    <title><%= title || siteName + ' - ' + (typeof t === 'function' ? t('onlineExamSystem') : 'Online Exam System') %></title>
 
     <!-- Prevent caching for security -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -116,8 +122,8 @@
     <div id="security-warning" class="security-overlay hidden">
         <div class="text-center">
             <i class="fas fa-shield-alt text-6xl mb-4"></i>
-            <div class="text-2xl mb-2">ตรวจพบการกระทำที่ไม่เหมาะสม</div>
-            <div class="text-lg">กรุณาปฏิบัติตามกฎการสอบ</div>
+            <div class="text-2xl mb-2" id="security-warning-title"><%= typeof t === 'function' ? t('securityViolationDetected') : 'Security Violation Detected' %></div>
+            <div class="text-lg" id="security-warning-message"><%= typeof t === 'function' ? t('pleaseFollowExamRules') : 'Please follow exam rules' %></div>
         </div>
     </div>
 
@@ -126,6 +132,15 @@
 
     <!-- Global JavaScript -->
     <script>
+        // Translation constants
+        const i18n = {
+            tabSwitchDetected: '<%= typeof t === "function" ? t("tabSwitchDetected") : "Tab switch detected" %>',
+            windowBlurDetected: '<%= typeof t === "function" ? t("windowBlurDetected") : "Window blur detected" %>',
+            multipleViolations: '<%= typeof t === "function" ? t("multipleSecurityViolations") : "Multiple security violations detected" %>',
+            enterFullscreen: '<%= typeof t === "function" ? t("pleaseEnterFullscreen") : "Please enter fullscreen mode" %>',
+            confirmExitExam: '<%= typeof t === "function" ? t("confirmExitExam") : "Are you sure you want to exit the exam? Your progress will be saved." %>'
+        };
+
         // Global security monitoring
         let securityViolations = 0;
         let isTestActive = false;
@@ -167,7 +182,7 @@
             if (document.hidden && isTestActive) {
                 tabSwitchCount++;
                 logSecurityViolation('tab_switch', `Tab switch #${tabSwitchCount}`);
-                showSecurityWarning('ตรวจพบการเปลี่ยนแท็บ');
+                showSecurityWarning(i18n.tabSwitchDetected);
             }
         });
 
@@ -176,7 +191,7 @@
             if (isTestActive) {
                 windowBlurCount++;
                 logSecurityViolation('window_blur', `Window blur #${windowBlurCount}`);
-                showSecurityWarning('ตรวจพบการออกจากหน้าต่างการสอบ');
+                showSecurityWarning(i18n.windowBlurDetected);
             }
         });
 
@@ -227,7 +242,7 @@
 
             // Show warning after multiple violations
             if (securityViolations >= 3) {
-                showSecurityWarning('ตรวจพบการกระทำที่ไม่เหมาะสมหลายครั้ง');
+                showSecurityWarning(i18n.multipleViolations);
             }
         }
 
@@ -269,7 +284,7 @@
         document.addEventListener('fullscreenchange', function() {
             if (!document.fullscreenElement && isTestActive) {
                 logSecurityViolation('exit_fullscreen', 'Exited fullscreen mode');
-                showSecurityWarning('กรุณาเข้าสู่โหมดเต็มจอ');
+                showSecurityWarning(i18n.enterFullscreen);
             }
         });
 
@@ -307,9 +322,8 @@
         // Prevent page unload during test
         window.addEventListener('beforeunload', function(e) {
             if (isTestActive) {
-                const message = 'คุณแน่ใจหรือไม่ที่จะออกจากการสอบ? ความคืบหน้าจะถูกบันทึกไว้';
-                e.returnValue = message;
-                return message;
+                e.returnValue = i18n.confirmExitExam;
+                return i18n.confirmExitExam;
             }
         });
 

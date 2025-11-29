@@ -29,4 +29,11 @@ router.get('/api/:test_id/results', testController.getTestResults);
 // Test statistics (using existing functions)
 router.get('/api/:test_id/statistics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.getTestStatistics);
 
+// Chapter and Lesson APIs for dynamic loading
+router.get('/api/courses/:course_id/chapters', testController.getChaptersByCourse);
+router.get('/api/chapters/:chapter_id/lessons', testController.getLessonsByChapter);
+
+// Get tests by course ID (for assessment structure display)
+router.get('/api/courses/:course_id/tests', testController.getTestsByCourse);
+
 module.exports = router;

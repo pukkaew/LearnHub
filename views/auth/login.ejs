@@ -465,6 +465,7 @@
                         id="employee_id"
                         name="employee_id"
                         class="input"
+                        data-testid="login-employee-id"
                         data-th-placeholder="กรอกรหัสพนักงาน"
                         data-en-placeholder="Enter employee ID"
                         placeholder="<%= currentLanguage === 'en' ? 'Enter employee ID' : 'กรอกรหัสพนักงาน' %>"
@@ -482,6 +483,7 @@
                         id="password"
                         name="password"
                         class="input"
+                        data-testid="login-password"
                         data-th-placeholder="กรอกรหัสผ่าน"
                         data-en-placeholder="Enter password"
                         placeholder="<%= currentLanguage === 'en' ? 'Enter password' : 'กรอกรหัสผ่าน' %>"
@@ -498,7 +500,7 @@
                 <a href="/auth/forgot-password" class="forgot-link" data-th="ลืมรหัสผ่าน?" data-en="Forgot password?"><%= t('forgotPassword') %></a>
             </div>
 
-            <button type="submit" class="submit-btn" id="submit-btn">
+            <button type="submit" class="submit-btn" id="submit-btn" data-testid="login-submit">
                 <span id="btn-text" data-th="เข้าสู่ระบบ" data-en="Sign In"><%= t('signIn') %></span>
                 <span id="btn-loading" style="display: none;">
                     <div class="loading-spinner"></div>

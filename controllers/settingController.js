@@ -1,6 +1,7 @@
 const Setting = require('../models/Setting');
 const logger = require('../utils/logger');
 const { clearSettingsCache } = require('../middleware/settingsMiddleware');
+const { t } = require('../utils/languages');
 
 /**
  * Settings Controller
@@ -21,7 +22,7 @@ exports.getSystemSettingsPage = async (req, res) => {
     try {
         // Check admin permission
         if (!req.session || !req.session.user) {
-            req.flash('error_msg', 'กรุณาเข้าสู่ระบบก่อนใช้งาน');
+            req.flash('error_msg', req.t('pleaseLoginFirst'));
             return res.redirect('/auth/login');
         }
 
@@ -38,7 +39,7 @@ exports.getSystemSettingsPage = async (req, res) => {
 
         if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
             logger.warn(`Access denied for user ${req.session.user.username} with role: ${userRole}`);
-            req.flash('error_msg', `คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (ต้องเป็น Admin หรือ Super Admin) - Role ของคุณคือ: ${userRole}`);
+            req.flash('error_msg', req.t('noPermissionAccessPage'));
             return res.redirect('/dashboard');
         }
 
@@ -63,7 +64,7 @@ exports.getSystemSettingsPage = async (req, res) => {
         }
 
         res.render('settings/system', {
-            title: 'การตั้งค่าระบบ',
+            title: req.t('systemSettings'),
             categories,
             settings: allSettings,
             activeTab: req.query.tab || 'general',
@@ -75,7 +76,7 @@ exports.getSystemSettingsPage = async (req, res) => {
     } catch (error) {
         logger.error('Error loading system settings page:', error);
         logger.error('Error stack:', error.stack);
-        req.flash('error_msg', `เกิดข้อผิดพลาดในการโหลดหน้าการตั้งค่า: ${error.message}`);
+        req.flash('error_msg', req.t('errorLoadingSettingsPage'));
         res.redirect('/dashboard');
     }
 };
@@ -97,7 +98,7 @@ exports.getSettingsByCategory = async (req, res) => {
         logger.error('Error fetching settings by category:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+            message: req.t('errorFetchingData')
         });
     }
 };
@@ -114,7 +115,7 @@ exports.getSettingByKey = async (req, res) => {
         if (!setting) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบการตั้งค่าที่ระบุ'
+                message: req.t('settingNotFound')
             });
         }
 
@@ -126,7 +127,7 @@ exports.getSettingByKey = async (req, res) => {
         logger.error('Error fetching setting by key:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+            message: req.t('errorFetchingData')
         });
     }
 };
@@ -142,7 +143,7 @@ exports.updateSetting = async (req, res) => {
         if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์ในการแก้ไขการตั้งค่า'
+                message: req.t('noPermissionEditSettings')
             });
         }
 
@@ -154,7 +155,7 @@ exports.updateSetting = async (req, res) => {
         if (!setting) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบการตั้งค่าที่ระบุ'
+                message: req.t('settingNotFound')
             });
         }
 
@@ -163,7 +164,7 @@ exports.updateSetting = async (req, res) => {
         if (!validation.valid) {
             return res.status(400).json({
                 success: false,
-                message: 'ข้อมูลไม่ถูกต้อง',
+                message: req.t('invalidData'),
                 errors: validation.errors
             });
         }
@@ -186,19 +187,19 @@ exports.updateSetting = async (req, res) => {
 
             res.json({
                 success: true,
-                message: 'อัพเดทการตั้งค่าเรียบร้อยแล้ว'
+                message: req.t('settingsUpdatedSuccess')
             });
         } else {
             res.status(400).json({
                 success: false,
-                message: result.message || 'ไม่สามารถอัพเดทการตั้งค่าได้'
+                message: result.message || req.t('cannotUpdateSettings')
             });
         }
     } catch (error) {
         logger.error('Error updating setting:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการอัพเดทการตั้งค่า'
+            message: req.t('errorUpdatingSettings')
         });
     }
 };
@@ -213,7 +214,7 @@ exports.batchUpdateSettings = async (req, res) => {
         if (!req.session || !req.session.user) {
             return res.status(401).json({
                 success: false,
-                message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน'
+                message: req.t('pleaseLoginFirst')
             });
         }
 
@@ -222,7 +223,7 @@ exports.batchUpdateSettings = async (req, res) => {
         if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์ในการแก้ไขการตั้งค่า'
+                message: req.t('noPermissionEditSettings')
             });
         }
 
@@ -276,7 +277,7 @@ exports.batchUpdateSettings = async (req, res) => {
             logger.warn('Invalid settings data in batch update request', { settings });
             return res.status(400).json({
                 success: false,
-                message: 'ข้อมูลไม่ถูกต้อง'
+                message: req.t('invalidData')
             });
         }
 
@@ -287,7 +288,7 @@ exports.batchUpdateSettings = async (req, res) => {
             if (!setting) {
                 validationErrors.push({
                     key: item.key,
-                    error: 'ไม่พบการตั้งค่า'
+                    error: req.t('settingNotFound')
                 });
                 continue;
             }
@@ -305,7 +306,7 @@ exports.batchUpdateSettings = async (req, res) => {
             logger.warn('Validation errors in batch update', { validationErrors });
             return res.status(400).json({
                 success: false,
-                message: 'มีข้อมูลบางส่วนไม่ถูกต้อง',
+                message: req.t('someDataInvalid'),
                 errors: validationErrors
             });
         }
@@ -334,20 +335,20 @@ exports.batchUpdateSettings = async (req, res) => {
 
             res.json({
                 success: true,
-                message: 'อัพเดทการตั้งค่าทั้งหมดเรียบร้อยแล้ว'
+                message: req.t('allSettingsUpdatedSuccess')
             });
         } else {
             logger.error('❌ Batch update failed:', result);
             res.status(400).json({
                 success: false,
-                message: 'ไม่สามารถอัพเดทการตั้งค่าได้'
+                message: req.t('cannotUpdateSettings')
             });
         }
     } catch (error) {
         logger.error('Error batch updating settings:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการอัพเดทการตั้งค่า'
+            message: req.t('errorUpdatingSettings')
         });
     }
 };
@@ -368,14 +369,14 @@ exports.getUserSettingsPage = async (req, res) => {
         const currentLanguage = req.session.language || 'th';
 
         res.render('settings/user', {
-            title: currentLanguage === 'en' ? 'Personal Settings' : 'การตั้งค่าส่วนตัว',
+            title: req.t('userSettings'),
             settings: userSettings,
             user: req.session.user,
             currentLanguage: currentLanguage
         });
     } catch (error) {
         logger.error('Error loading user settings page:', error);
-        req.flash('error_msg', 'เกิดข้อผิดพลาดในการโหลดหน้าการตั้งค่า');
+        req.flash('error_msg', req.t('errorLoadingSettingsPage'));
         res.redirect('/dashboard');
     }
 };
@@ -396,7 +397,7 @@ exports.getAllUserSettings = async (req, res) => {
         logger.error('Error fetching user settings:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+            message: req.t('errorFetchingData')
         });
     }
 };
@@ -413,7 +414,7 @@ exports.getUserSetting = async (req, res) => {
         if (!setting) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบการตั้งค่าที่ระบุ'
+                message: req.t('settingNotFound')
             });
         }
 
@@ -425,7 +426,7 @@ exports.getUserSetting = async (req, res) => {
         logger.error('Error fetching user setting:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+            message: req.t('errorFetchingData')
         });
     }
 };
@@ -441,7 +442,7 @@ exports.saveUserSetting = async (req, res) => {
         if (!key || value === undefined) {
             return res.status(400).json({
                 success: false,
-                message: 'ข้อมูลไม่ครบถ้วน'
+                message: req.t('incompleteData')
             });
         }
 
@@ -454,19 +455,19 @@ exports.saveUserSetting = async (req, res) => {
         if (result.success) {
             res.json({
                 success: true,
-                message: 'บันทึกการตั้งค่าเรียบร้อยแล้ว'
+                message: req.t('settingsSavedSuccess')
             });
         } else {
             res.status(400).json({
                 success: false,
-                message: result.message || 'ไม่สามารถบันทึกการตั้งค่าได้'
+                message: result.message || req.t('cannotSaveSettings')
             });
         }
     } catch (error) {
         logger.error('Error saving user setting:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการบันทึกการตั้งค่า'
+            message: req.t('errorSavingSettings')
         });
     }
 };
@@ -482,7 +483,7 @@ exports.batchSaveUserSettings = async (req, res) => {
         if (!settings || typeof settings !== 'object') {
             return res.status(400).json({
                 success: false,
-                message: 'ข้อมูลไม่ถูกต้อง'
+                message: req.t('invalidData')
             });
         }
 
@@ -494,19 +495,19 @@ exports.batchSaveUserSettings = async (req, res) => {
         if (result.success) {
             res.json({
                 success: true,
-                message: 'บันทึกการตั้งค่าทั้งหมดเรียบร้อยแล้ว'
+                message: req.t('allSettingsUpdatedSuccess')
             });
         } else {
             res.status(400).json({
                 success: false,
-                message: 'ไม่สามารถบันทึกการตั้งค่าได้'
+                message: req.t('cannotSaveSettings')
             });
         }
     } catch (error) {
         logger.error('Error batch saving user settings:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการบันทึกการตั้งค่า'
+            message: req.t('errorSavingSettings')
         });
     }
 };
@@ -523,19 +524,19 @@ exports.deleteUserSetting = async (req, res) => {
         if (result.success) {
             res.json({
                 success: true,
-                message: 'ลบการตั้งค่าเรียบร้อยแล้ว'
+                message: req.t('settingDeletedSuccess')
             });
         } else {
             res.status(404).json({
                 success: false,
-                message: result.message || 'ไม่พบการตั้งค่าที่ระบุ'
+                message: result.message || req.t('settingNotFound')
             });
         }
     } catch (error) {
         logger.error('Error deleting user setting:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการลบการตั้งค่า'
+            message: req.t('errorDeletingSetting')
         });
     }
 };
@@ -564,7 +565,7 @@ exports.getDepartmentSettings = async (req, res) => {
         if (!isAdmin && !isDepartmentManager) {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์เข้าถึงการตั้งค่าแผนกนี้'
+                message: req.t('noPermissionAccessDepartmentSettings')
             });
         }
 
@@ -578,7 +579,7 @@ exports.getDepartmentSettings = async (req, res) => {
         logger.error('Error fetching department settings:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+            message: req.t('errorFetchingData')
         });
     }
 };
@@ -602,14 +603,14 @@ exports.saveDepartmentSetting = async (req, res) => {
         if (!isAdmin && !isDepartmentManager) {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์แก้ไขการตั้งค่าแผนกนี้'
+                message: req.t('noPermissionEditDepartmentSettings')
             });
         }
 
         if (!key || value === undefined) {
             return res.status(400).json({
                 success: false,
-                message: 'ข้อมูลไม่ครบถ้วน'
+                message: req.t('incompleteData')
             });
         }
 
@@ -623,19 +624,19 @@ exports.saveDepartmentSetting = async (req, res) => {
         if (result.success) {
             res.json({
                 success: true,
-                message: 'บันทึกการตั้งค่าแผนกเรียบร้อยแล้ว'
+                message: req.t('departmentSettingsSavedSuccess')
             });
         } else {
             res.status(400).json({
                 success: false,
-                message: result.message || 'ไม่สามารถบันทึกการตั้งค่าได้'
+                message: result.message || req.t('cannotSaveSettings')
             });
         }
     } catch (error) {
         logger.error('Error saving department setting:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการบันทึกการตั้งค่า'
+            message: req.t('errorSavingSettings')
         });
     }
 };
@@ -657,7 +658,7 @@ exports.getAuditLog = async (req, res) => {
         if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
             return res.status(403).json({
                 success: false,
-                message: 'คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้'
+                message: req.t('noPermissionAccessData')
             });
         }
 
@@ -677,7 +678,7 @@ exports.getAuditLog = async (req, res) => {
             });
         } else {
             res.render('settings/audit-log', {
-                title: 'ประวัติการเปลี่ยนแปลงการตั้งค่า',
+                title: req.t('settingsChangeHistory'),
                 auditLog,
                 filters,
                 user: req.session.user
@@ -689,10 +690,10 @@ exports.getAuditLog = async (req, res) => {
         if (req.xhr || req.headers.accept.indexOf('json') > -1) {
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+                message: req.t('errorFetchingData')
             });
         } else {
-            req.flash('error_msg', 'เกิดข้อผิดพลาดในการดึงข้อมูล');
+            req.flash('error_msg', req.t('errorFetchingData'));
             res.redirect('/settings');
         }
     }
@@ -724,7 +725,7 @@ exports.validateSetting = async (req, res) => {
         if (!setting) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบการตั้งค่าที่ระบุ'
+                message: req.t('settingNotFound')
             });
         }
 
@@ -739,7 +740,7 @@ exports.validateSetting = async (req, res) => {
         logger.error('Error validating setting:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการตรวจสอบข้อมูล'
+            message: req.t('errorValidatingData')
         });
     }
 };
@@ -759,7 +760,7 @@ exports.getEffectiveSetting = async (req, res) => {
         if (!effectiveSetting) {
             return res.status(404).json({
                 success: false,
-                message: 'ไม่พบการตั้งค่าที่ระบุ'
+                message: req.t('settingNotFound')
             });
         }
 
@@ -771,7 +772,7 @@ exports.getEffectiveSetting = async (req, res) => {
         logger.error('Error fetching effective setting:', error);
         res.status(500).json({
             success: false,
-            message: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+            message: req.t('errorFetchingData')
         });
     }
 };

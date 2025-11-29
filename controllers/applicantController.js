@@ -3,6 +3,7 @@ const JobPosition = require('../models/JobPosition');
 const Test = require('../models/Test');
 const Question = require('../models/Question');
 const ActivityLog = require('../models/ActivityLog');
+const { t } = require('../utils/languages');
 
 const applicantController = {
     async registerApplicant(req, res) {
@@ -20,7 +21,7 @@ const applicantController = {
             if (!national_id || national_id.length !== 13) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกเลขบัตรประชาชน 13 หลัก'
+                    message: req.t('pleaseEnterIdCard13Digits')
                 });
             }
 
@@ -28,7 +29,7 @@ const applicantController = {
             if (!position || !position.is_active) {
                 return res.status(400).json({
                     success: false,
-                    message: 'ไม่พบตำแหน่งงานที่เปิดรับสมัคร'
+                    message: req.t('positionNotFound')
                 });
             }
 
@@ -36,7 +37,7 @@ const applicantController = {
             if (existingApplicant) {
                 return res.status(400).json({
                     success: false,
-                    message: 'คุณได้สมัครตำแหน่งนี้แล้ว'
+                    message: req.t('alreadyAppliedForPosition')
                 });
             }
 
@@ -73,7 +74,7 @@ const applicantController = {
 
             res.status(201).json({
                 success: true,
-                message: 'ลงทะเบียนสมัครงานสำเร็จ',
+                message: req.t('applicationSuccess'),
                 data: {
                     applicant_id: result.data.applicant_id,
                     test_code: result.data.test_code
@@ -84,7 +85,7 @@ const applicantController = {
             console.error('Register applicant error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการลงทะเบียน'
+                message: req.t('errorEnrolling')
             });
         }
     },
@@ -97,7 +98,7 @@ const applicantController = {
             if (!applicant) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบรหัสการทดสอบนี้'
+                    message: req.t('testCodeNotFound')
                 });
             }
 
@@ -123,7 +124,7 @@ const applicantController = {
             console.error('Get applicant by test code error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการค้นหาข้อมูล'
+                message: req.t('errorSearchingData')
             });
         }
     },
@@ -136,21 +137,21 @@ const applicantController = {
             if (!applicant) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบรหัสการทดสอบนี้'
+                    message: req.t('testCodeNotFound')
                 });
             }
 
             if (applicant.test_completed) {
                 return res.status(400).json({
                     success: false,
-                    message: 'คุณได้ทำการทดสอบเสร็จสิ้นแล้ว'
+                    message: req.t('testAlreadyCompleted')
                 });
             }
 
             if (applicant.status !== 'Pending') {
                 return res.status(400).json({
                     success: false,
-                    message: 'สถานะการสมัครไม่อนุญาตให้ทำการทดสอบ'
+                    message: req.t('applicationStatusNotAllowTest')
                 });
             }
 
@@ -158,7 +159,7 @@ const applicantController = {
             if (!tests || tests.length === 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'ไม่พบการทดสอบสำหรับตำแหน่งนี้'
+                    message: req.t('testNotFoundForPosition')
                 });
             }
 
@@ -169,7 +170,7 @@ const applicantController = {
                 const questions = await Question.findByTestId(activeAttempt.test_id);
                 return res.json({
                     success: true,
-                    message: 'พบการทดสอบที่ยังไม่เสร็จสิ้น',
+                    message: req.t('foundIncompleteTest'),
                     data: {
                         attempt: activeAttempt,
                         test: activeAttempt.test_info,
@@ -214,7 +215,7 @@ const applicantController = {
 
             res.json({
                 success: true,
-                message: 'เริ่มการทดสอบสำเร็จ',
+                message: req.t('testStartedSuccessfully'),
                 data: {
                     attempt: attemptResult.data,
                     test: test,
@@ -231,7 +232,7 @@ const applicantController = {
             console.error('Start applicant test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการเริ่มการทดสอบ'
+                message: req.t('errorStartingTest')
             });
         }
     },
@@ -245,7 +246,7 @@ const applicantController = {
             if (!applicant) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบรหัสการทดสอบนี้'
+                    message: req.t('testCodeNotFound')
                 });
             }
 
@@ -253,14 +254,14 @@ const applicantController = {
             if (!attempt || attempt.applicant_id !== applicant.applicant_id) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบการทดสอบที่ต้องการ'
+                    message: req.t('testAttemptNotFound')
                 });
             }
 
             if (attempt.status !== 'In_Progress') {
                 return res.status(400).json({
                     success: false,
-                    message: 'การทดสอบนี้เสร็จสิ้นแล้ว'
+                    message: req.t('testAlreadyFinished')
                 });
             }
 
@@ -292,7 +293,7 @@ const applicantController = {
 
             res.json({
                 success: true,
-                message: 'ส่งการทดสอบสำเร็จ',
+                message: req.t('testSubmittedSuccessfully'),
                 data: {
                     score: result.data.total_score,
                     status: result.data.status,
@@ -304,7 +305,7 @@ const applicantController = {
             console.error('Submit applicant test error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการส่งการทดสอบ'
+                message: req.t('errorSubmittingTest')
             });
         }
     },
@@ -316,7 +317,7 @@ const applicantController = {
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์เข้าถึงข้อมูลนี้'
+                    message: req.t('noPermissionToAccessThisData')
                 });
             }
 
@@ -367,7 +368,7 @@ const applicantController = {
             console.error('Get all applicants error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายชื่อผู้สมัคร'
+                message: req.t('errorLoadingApplicantList')
             });
         }
     },
@@ -380,7 +381,7 @@ const applicantController = {
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์เข้าถึงข้อมูลนี้'
+                    message: req.t('noPermissionToAccessThisData')
                 });
             }
 
@@ -388,7 +389,7 @@ const applicantController = {
             if (!applicant) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้สมัคร'
+                    message: req.t('applicantNotFound')
                 });
             }
 
@@ -406,7 +407,7 @@ const applicantController = {
             console.error('Get applicant by id error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลผู้สมัคร'
+                message: req.t('errorLoadingApplicantData')
             });
         }
     },
@@ -421,7 +422,7 @@ const applicantController = {
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์อัพเดทสถานะผู้สมัคร'
+                    message: req.t('noPermissionToUpdateApplicantStatus')
                 });
             }
 
@@ -429,7 +430,7 @@ const applicantController = {
             if (!applicant) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบข้อมูลผู้สมัคร'
+                    message: req.t('applicantNotFound')
                 });
             }
 
@@ -457,7 +458,7 @@ const applicantController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทสถานะผู้สมัครสำเร็จ',
+                message: req.t('applicantStatusUpdatedSuccessfully'),
                 data: result.data
             });
 
@@ -465,7 +466,7 @@ const applicantController = {
             console.error('Update applicant status error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทสถานะผู้สมัคร'
+                message: req.t('errorUpdatingApplicantStatus')
             });
         }
     },
@@ -478,7 +479,7 @@ const applicantController = {
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดูสถิติ'
+                    message: req.t('noPermissionToViewStatistics')
                 });
             }
 
@@ -498,7 +499,7 @@ const applicantController = {
             console.error('Get applicant statistics error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดสถิติ'
+                message: req.t('errorLoadingStatistics')
             });
         }
     },
@@ -506,15 +507,15 @@ const applicantController = {
     async renderTestLogin(req, res) {
         try {
             res.render('applicants/test-login', {
-                title: 'เข้าสู่ระบบทดสอบ - Rukchai Hongyen LearnHub',
+                title: req.t('loginToTestSystem') + ' - Rukchai Hongyen LearnHub',
                 layout: false
             });
 
         } catch (error) {
             console.error('Render test login error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าเข้าสู่ระบบได้',
+                title: req.t('errorOccurred') + ' - Rukchai Hongyen LearnHub',
+                message: req.t('cannotLoadLoginPage'),
                 layout: false,
                 error: error
             });
@@ -528,13 +529,13 @@ const applicantController = {
             const applicant = await Applicant.findByTestCode(test_code);
             if (!applicant) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    title: req.t('pageNotFound') + ' - Rukchai Hongyen LearnHub',
                     layout: false
                 });
             }
 
             res.render('applicants/test-interface', {
-                title: 'ระบบทดสอบ - Rukchai Hongyen LearnHub',
+                title: req.t('testingSystem') + ' - Rukchai Hongyen LearnHub',
                 layout: false,
                 applicant: {
                     first_name: applicant.first_name,
@@ -547,8 +548,8 @@ const applicantController = {
         } catch (error) {
             console.error('Render test interface error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดระบบทดสอบได้',
+                title: req.t('errorOccurred') + ' - Rukchai Hongyen LearnHub',
+                message: req.t('cannotLoadTestSystem'),
                 layout: false,
                 error: error
             });
@@ -561,7 +562,7 @@ const applicantController = {
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
+                    title: req.t('noPermissionToAccess') + ' - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -569,7 +570,7 @@ const applicantController = {
             const positions = await JobPosition.findAll({ is_active: true });
 
             res.render('applicants/management', {
-                title: 'จัดการผู้สมัครงาน - Rukchai Hongyen LearnHub',
+                title: req.t('manageJobApplicants') + ' - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: userRole,
                 positions: positions
@@ -578,8 +579,8 @@ const applicantController = {
         } catch (error) {
             console.error('Render applicant management error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าจัดการผู้สมัครงานได้',
+                title: req.t('errorOccurred') + ' - Rukchai Hongyen LearnHub',
+                message: req.t('cannotLoadApplicantManagementPage'),
                 user: req.session.user,
                 error: error
             });

@@ -787,12 +787,16 @@
                                 </a>
                                 <% } %>
                                 <div class="nav-dropdown-divider"></div>
-                                <button onclick="logout()" class="nav-dropdown-item text-red-600 hover:bg-red-50">
+                                <button onclick="logout()" id="logout-btn" data-testid="logout-button" class="nav-dropdown-item text-red-600 hover:bg-red-50">
                                     <i class="fas fa-sign-out-alt"></i>
                                     <span><%= t('logout') %></span>
                                 </button>
                             </div>
                         </div>
+                        <!-- Visible Logout Button -->
+                        <button onclick="logout()" data-testid="logout-visible" title="<%= t('logout') %>" class="nav-action-button text-red-400 hover:text-red-600 ml-2">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
                     <% } else { %>
                         <a href="/auth/login" class="nav-action-button">
                             <i class="fas fa-sign-in-alt"></i>
@@ -888,7 +892,7 @@
 
                 <!-- Mobile Language Switcher -->
                 <div class="border-t border-white/25 mt-4 pt-4 mb-4">
-                    <div class="px-4 py-2 mb-3 text-white/80 text-sm font-medium"><%= currentLanguage === 'th' ? 'เลือกภาษา' : 'Language' %></div>
+                    <div class="px-4 py-2 mb-3 text-white/80 text-sm font-medium"><%= t('selectLanguage') %></div>
                     <div class="flex gap-2">
                         <button id="mobile-lang-th-btn" class="nav-mobile-menu-item flex-1 justify-center <%= currentLanguage === 'th' ? 'active' : '' %>">
                             <span>ไทย</span>
@@ -921,7 +925,7 @@
                         <span><%= t('systemSettings') || 'การตั้งค่าระบบ' %></span>
                     </a>
                     <% } %>
-                    <button onclick="logout()" class="nav-mobile-menu-item w-full text-left" style="color: rgba(252, 165, 165, 1);">
+                    <button onclick="logout()" data-testid="logout-mobile" class="nav-mobile-menu-item w-full text-left" style="color: rgba(252, 165, 165, 1);">
                         <span class="nav-menu-icon"><i class="fas fa-sign-out-alt"></i></span>
                         <span><%= t('logout') %></span>
                     </button>
@@ -1417,7 +1421,10 @@
                         console.log('📄 Response data:', data);
                         if (data.success) {
                             // Show success message
-                            this.showNotification(`เปลี่ยนภาษาเป็น ${this.languages[lang].native} เรียบร้อยแล้ว`, 'success');
+                            const successMsg = lang === 'th' ?
+                                `เปลี่ยนภาษาเป็น ${this.languages[lang].native} เรียบร้อยแล้ว` :
+                                `Language changed to ${this.languages[lang].native} successfully`;
+                            this.showNotification(successMsg, 'success');
 
                             // Reload page to apply server-side language changes
                             setTimeout(() => {
@@ -1430,7 +1437,10 @@
                     }
                 } catch (error) {
                     console.error('❌ Error switching language:', error);
-                    this.showNotification('เกิดข้อผิดพลาดในการเปลี่ยนภาษา', 'error');
+                    const errorMsg = this.current === 'th' ?
+                        'เกิดข้อผิดพลาดในการเปลี่ยนภาษา' :
+                        'Error switching language';
+                    this.showNotification(errorMsg, 'error');
                 }
             },
 

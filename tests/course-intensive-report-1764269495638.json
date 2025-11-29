@@ -1,0 +1,483 @@
+{
+  "summary": {
+    "total": 67,
+    "passed": 58,
+    "failed": 0,
+    "skipped": 9,
+    "passRate": "86.57%",
+    "totalDuration": "459.46s"
+  },
+  "results": [
+    {
+      "testName": "LOGIN",
+      "status": "PASS",
+      "details": "URL: http://localhost:3000/dashboard",
+      "duration": "24767ms",
+      "timestamp": "2025-11-27T18:44:21.758Z"
+    },
+    {
+      "testName": "1.1 Navigate to create page",
+      "status": "PASS",
+      "details": "",
+      "duration": "2789ms",
+      "timestamp": "2025-11-27T18:44:24.548Z"
+    },
+    {
+      "testName": "1.2 Fill course name",
+      "status": "PASS",
+      "details": "Value: INTENSIVE_TEST_1764269036167",
+      "duration": "4837ms",
+      "timestamp": "2025-11-27T18:44:29.385Z"
+    },
+    {
+      "testName": "1.3 Course code auto-generated",
+      "status": "PASS",
+      "details": "Code: CRS-2025-7808",
+      "duration": "389ms",
+      "timestamp": "2025-11-27T18:44:29.774Z"
+    },
+    {
+      "testName": "1.4 Select category",
+      "status": "PASS",
+      "details": "Selected: เทคโนโลยีสารสนเทศ (10 options available)",
+      "duration": "861ms",
+      "timestamp": "2025-11-27T18:44:30.635Z"
+    },
+    {
+      "testName": "1.5 Select difficulty level",
+      "status": "PASS",
+      "details": "Selected: Beginner - เริ่มต้น",
+      "duration": "816ms",
+      "timestamp": "2025-11-27T18:44:31.451Z"
+    },
+    {
+      "testName": "1.6 Select course type",
+      "status": "PASS",
+      "details": "Selected: บังคับ",
+      "duration": "905ms",
+      "timestamp": "2025-11-27T18:44:32.356Z"
+    },
+    {
+      "testName": "1.7 Select language",
+      "status": "PASS",
+      "details": "Selected: Thai",
+      "duration": "841ms",
+      "timestamp": "2025-11-27T18:44:33.197Z"
+    },
+    {
+      "testName": "1.8 Fill instructor name",
+      "status": "PASS",
+      "details": "",
+      "duration": "2895ms",
+      "timestamp": "2025-11-27T18:44:36.092Z"
+    },
+    {
+      "testName": "1.9 Navigate to Step 2",
+      "status": "PASS",
+      "details": "",
+      "duration": "2733ms",
+      "timestamp": "2025-11-27T18:44:38.826Z"
+    },
+    {
+      "testName": "2.1 Fill description",
+      "status": "PASS",
+      "details": "Length: 100 chars",
+      "duration": "8268ms",
+      "timestamp": "2025-11-27T18:44:47.094Z"
+    },
+    {
+      "testName": "2.2 Fill learning objectives",
+      "status": "PASS",
+      "details": "Filled 3/3",
+      "duration": "4780ms",
+      "timestamp": "2025-11-27T18:44:51.874Z"
+    },
+    {
+      "testName": "2.3 Fill prerequisite knowledge",
+      "status": "PASS",
+      "details": "",
+      "duration": "3258ms",
+      "timestamp": "2025-11-27T18:44:55.133Z"
+    },
+    {
+      "testName": "2.4 Target audience fields exist",
+      "status": "PASS",
+      "details": "Positions: true, Departments: true",
+      "duration": "395ms",
+      "timestamp": "2025-11-27T18:44:55.529Z"
+    },
+    {
+      "testName": "2.5 Fill duration hours",
+      "status": "PASS",
+      "details": "Value: 10",
+      "duration": "1598ms",
+      "timestamp": "2025-11-27T18:44:57.127Z"
+    },
+    {
+      "testName": "2.6 Fill duration minutes",
+      "status": "PASS",
+      "details": "Value: 30",
+      "duration": "1638ms",
+      "timestamp": "2025-11-27T18:44:58.765Z"
+    },
+    {
+      "testName": "2.7 Fill max enrollments",
+      "status": "PASS",
+      "details": "Value: 50",
+      "duration": "1621ms",
+      "timestamp": "2025-11-27T18:45:00.386Z"
+    },
+    {
+      "testName": "2.8 Select target department",
+      "status": "PASS",
+      "details": "6 options available",
+      "duration": "653ms",
+      "timestamp": "2025-11-27T18:45:01.039Z"
+    },
+    {
+      "testName": "2.9 Select target position",
+      "status": "PASS",
+      "details": "1 options available",
+      "duration": "594ms",
+      "timestamp": "2025-11-27T18:45:01.633Z"
+    },
+    {
+      "testName": "2.10 Navigate to Step 3",
+      "status": "PASS",
+      "details": "",
+      "duration": "2746ms",
+      "timestamp": "2025-11-27T18:45:04.379Z"
+    },
+    {
+      "testName": "3.1 Image upload field exists",
+      "status": "SKIP",
+      "details": "",
+      "duration": "2007ms",
+      "timestamp": "2025-11-27T18:45:06.386Z"
+    },
+    {
+      "testName": "3.2 Fill intro video URL",
+      "status": "PASS",
+      "details": "",
+      "duration": "4845ms",
+      "timestamp": "2025-11-27T18:45:11.231Z"
+    },
+    {
+      "testName": "3.3 Lessons section exists",
+      "status": "PASS",
+      "details": "",
+      "duration": "202ms",
+      "timestamp": "2025-11-27T18:45:11.434Z"
+    },
+    {
+      "testName": "3.4 Fill lesson title (required)",
+      "status": "PASS",
+      "details": "Added lesson 1",
+      "duration": "3400ms",
+      "timestamp": "2025-11-27T18:45:14.834Z"
+    },
+    {
+      "testName": "3.5 Fill lesson duration",
+      "status": "PASS",
+      "details": "30 minutes",
+      "duration": "937ms",
+      "timestamp": "2025-11-27T18:45:15.771Z"
+    },
+    {
+      "testName": "3.6 Fill lesson description",
+      "status": "PASS",
+      "details": "",
+      "duration": "4025ms",
+      "timestamp": "2025-11-27T18:45:19.796Z"
+    },
+    {
+      "testName": "3.7 Fill external link",
+      "status": "PASS",
+      "details": "",
+      "duration": "3241ms",
+      "timestamp": "2025-11-27T18:45:23.037Z"
+    },
+    {
+      "testName": "3.8 Navigate to Step 4",
+      "status": "PASS",
+      "details": "",
+      "duration": "2763ms",
+      "timestamp": "2025-11-27T18:45:25.800Z"
+    },
+    {
+      "testName": "4.1 Fill passing score",
+      "status": "SKIP",
+      "details": "Field not found",
+      "duration": "2010ms",
+      "timestamp": "2025-11-27T18:45:27.810Z"
+    },
+    {
+      "testName": "4.2 Fill max attempts",
+      "status": "SKIP",
+      "details": "Field not found",
+      "duration": "2003ms",
+      "timestamp": "2025-11-27T18:45:29.813Z"
+    },
+    {
+      "testName": "4.3 Fill certificate validity",
+      "status": "PASS",
+      "details": "Value: 12 months",
+      "duration": "1459ms",
+      "timestamp": "2025-11-27T18:45:31.272Z"
+    },
+    {
+      "testName": "4.4 Assessment type - none",
+      "status": "PASS",
+      "details": "Found 3 options",
+      "duration": "331ms",
+      "timestamp": "2025-11-27T18:45:31.603Z"
+    },
+    {
+      "testName": "4.5 Assessment type - existing",
+      "status": "PASS",
+      "details": "Section visible: true",
+      "duration": "1222ms",
+      "timestamp": "2025-11-27T18:45:32.825Z"
+    },
+    {
+      "testName": "4.6 Assessment type - create_new",
+      "status": "PASS",
+      "details": "Section visible: true",
+      "duration": "1198ms",
+      "timestamp": "2025-11-27T18:45:34.023Z"
+    },
+    {
+      "testName": "4.7 Prerequisites multiselect",
+      "status": "PASS",
+      "details": "Found 3 options",
+      "duration": "517ms",
+      "timestamp": "2025-11-27T18:45:34.540Z"
+    },
+    {
+      "testName": "4.8 Allow certificate checkbox",
+      "status": "PASS",
+      "details": "Checked: true",
+      "duration": "158ms",
+      "timestamp": "2025-11-27T18:45:34.698Z"
+    },
+    {
+      "testName": "4.9 Certificate validity dropdown",
+      "status": "PASS",
+      "details": "Found 4 options",
+      "duration": "506ms",
+      "timestamp": "2025-11-27T18:45:35.205Z"
+    },
+    {
+      "testName": "4.10 Enrollment start date",
+      "status": "PASS",
+      "details": "Field exists",
+      "duration": "192ms",
+      "timestamp": "2025-11-27T18:45:35.397Z"
+    },
+    {
+      "testName": "4.11 Enrollment end date",
+      "status": "PASS",
+      "details": "Field exists",
+      "duration": "219ms",
+      "timestamp": "2025-11-27T18:45:35.616Z"
+    },
+    {
+      "testName": "4.12 Auto enroll checkbox",
+      "status": "PASS",
+      "details": "Checked: false",
+      "duration": "174ms",
+      "timestamp": "2025-11-27T18:45:35.791Z"
+    },
+    {
+      "testName": "4.13 Submit button visible",
+      "status": "PASS",
+      "details": "",
+      "duration": "204ms",
+      "timestamp": "2025-11-27T18:45:35.995Z"
+    },
+    {
+      "testName": "4.14 Submit course",
+      "status": "PASS",
+      "details": "URL: http://localhost:3000/courses/22, Course ID: 22",
+      "duration": "23447ms",
+      "timestamp": "2025-11-27T18:45:59.442Z"
+    },
+    {
+      "testName": "5.1 Navigate to course detail",
+      "status": "PASS",
+      "details": "URL: http://localhost:3000/courses/22/detail",
+      "duration": "3139ms",
+      "timestamp": "2025-11-27T18:46:02.582Z"
+    },
+    {
+      "testName": "5.2 Course title displayed",
+      "status": "PASS",
+      "details": "Title: ไม่พบหน้าที่ต้องการ",
+      "duration": "670ms",
+      "timestamp": "2025-11-27T18:46:03.253Z"
+    },
+    {
+      "testName": "5.3 Course description displayed",
+      "status": "SKIP",
+      "details": "",
+      "duration": "2003ms",
+      "timestamp": "2025-11-27T18:46:05.256Z"
+    },
+    {
+      "testName": "5.4 Instructor info displayed",
+      "status": "SKIP",
+      "details": "",
+      "duration": "2005ms",
+      "timestamp": "2025-11-27T18:46:07.261Z"
+    },
+    {
+      "testName": "5.5 Course statistics displayed",
+      "status": "SKIP",
+      "details": "",
+      "duration": "2007ms",
+      "timestamp": "2025-11-27T18:46:09.269Z"
+    },
+    {
+      "testName": "5.6 Edit button exists",
+      "status": "SKIP",
+      "details": "",
+      "duration": "2001ms",
+      "timestamp": "2025-11-27T18:46:11.271Z"
+    },
+    {
+      "testName": "5.7 Learning objectives displayed",
+      "status": "SKIP",
+      "details": "",
+      "duration": "2011ms",
+      "timestamp": "2025-11-27T18:46:13.282Z"
+    },
+    {
+      "testName": "5.8 Lessons list displayed",
+      "status": "SKIP",
+      "details": "",
+      "duration": "2011ms",
+      "timestamp": "2025-11-27T18:46:15.293Z"
+    },
+    {
+      "testName": "6.1 Navigate to edit page",
+      "status": "PASS",
+      "details": "URL: http://localhost:3000/courses/22/edit",
+      "duration": "2994ms",
+      "timestamp": "2025-11-27T18:49:18.302Z"
+    },
+    {
+      "testName": "6.2 Form pre-populated",
+      "status": "PASS",
+      "details": "Current name: INTENSIVE_TEST_1764269036167",
+      "duration": "670ms",
+      "timestamp": "2025-11-27T18:49:18.972Z"
+    },
+    {
+      "testName": "6.3 Modify course name",
+      "status": "PASS",
+      "details": "New name: EDITED_1764269358972",
+      "duration": "3542ms",
+      "timestamp": "2025-11-27T18:49:22.514Z"
+    },
+    {
+      "testName": "6.4 Save changes",
+      "status": "PASS",
+      "details": "Saved successfully",
+      "duration": "17142ms",
+      "timestamp": "2025-11-27T18:49:39.656Z"
+    },
+    {
+      "testName": "7.1 Empty form validation",
+      "status": "PASS",
+      "details": "Browser validation triggered",
+      "duration": "2246ms",
+      "timestamp": "2025-11-27T18:49:44.138Z"
+    },
+    {
+      "testName": "7.2 Long input handling",
+      "status": "PASS",
+      "details": "Input length: 500 (original: 500)",
+      "duration": "52569ms",
+      "timestamp": "2025-11-27T18:50:38.415Z"
+    },
+    {
+      "testName": "7.3 Thai language input",
+      "status": "PASS",
+      "details": "Stored: หลักสูตรทดสอบภาษาไทย ๑๒๓๔๕",
+      "duration": "3200ms",
+      "timestamp": "2025-11-27T18:50:41.616Z"
+    },
+    {
+      "testName": "7.4 Special characters / XSS",
+      "status": "PASS",
+      "details": "XSS prevented",
+      "duration": "7098ms",
+      "timestamp": "2025-11-27T18:50:48.714Z"
+    },
+    {
+      "testName": "7.5 SQL injection protection",
+      "status": "PASS",
+      "details": "Application handled injection safely",
+      "duration": "23907ms",
+      "timestamp": "2025-11-27T18:51:12.621Z"
+    },
+    {
+      "testName": "8.1 Navigate to courses list",
+      "status": "PASS",
+      "details": "",
+      "duration": "2855ms",
+      "timestamp": "2025-11-27T18:51:15.477Z"
+    },
+    {
+      "testName": "8.2 Search by keyword",
+      "status": "PASS",
+      "details": "Search executed",
+      "duration": "3867ms",
+      "timestamp": "2025-11-27T18:51:19.344Z"
+    },
+    {
+      "testName": "8.3 Filter by category",
+      "status": "PASS",
+      "details": "Selected: เทคโนโลยีสารสนเทศ",
+      "duration": "2641ms",
+      "timestamp": "2025-11-27T18:51:23.687Z"
+    },
+    {
+      "testName": "8.4 Filter by difficulty",
+      "status": "PASS",
+      "details": "Selected: เริ่มต้น",
+      "duration": "2392ms",
+      "timestamp": "2025-11-27T18:51:26.079Z"
+    },
+    {
+      "testName": "8.5 Filter by status",
+      "status": "PASS",
+      "details": "Selected: ยังไม่ได้เรียน",
+      "duration": "2458ms",
+      "timestamp": "2025-11-27T18:51:28.537Z"
+    },
+    {
+      "testName": "8.6 Clear filters",
+      "status": "PASS",
+      "details": "",
+      "duration": "1697ms",
+      "timestamp": "2025-11-27T18:51:30.234Z"
+    },
+    {
+      "testName": "8.7 Sort options",
+      "status": "PASS",
+      "details": "4 sort options available",
+      "duration": "2316ms",
+      "timestamp": "2025-11-27T18:51:32.550Z"
+    },
+    {
+      "testName": "8.8 View toggle",
+      "status": "PASS",
+      "details": "Grid: true, List: true",
+      "duration": "2796ms",
+      "timestamp": "2025-11-27T18:51:35.346Z"
+    }
+  ],
+  "errors": [],
+  "createdCourseId": "22"
+}

@@ -1,8 +1,8 @@
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const ActivityLog = require('../models/ActivityLog');
-const Test = require('../models/Test');
 const { poolPromise, sql } = require('../config/database');
+const validationService = require('../utils/validation');
 
 const courseController = {
     async getAllCourses(req, res) {
@@ -43,7 +43,7 @@ const courseController = {
             console.error('Get all courses error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายการหลักสูตร'
+                message: req.t('errorLoadingCourseList')
             });
         }
     },
@@ -57,7 +57,7 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
@@ -93,7 +93,7 @@ const courseController = {
             console.error('Get course by id error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลหลักสูตร'
+                message: req.t('errorLoadingCourseData')
             });
         }
     },
@@ -116,28 +116,55 @@ const courseController = {
             console.log('  learning_objectives:', req.body.learning_objectives);
             console.log('  target_positions:', req.body.target_positions);
             console.log('  target_departments:', req.body.target_departments);
-            console.log('  lessons:', req.body.lessons);
-            console.log('  passing_score:', req.body.passing_score);
-            console.log('  max_attempts:', req.body.max_attempts);
             console.log('  max_students:', req.body.max_students);
             console.log('  certificate_validity:', req.body.certificate_validity);
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์สร้างหลักสูตร'
+                    message: req.t('noPermissionCreateCourse')
                 });
             }
 
+            // === SECURITY: XSS Sanitization ===
+            // Sanitize all text input fields to prevent XSS attacks
+            const sanitizedBody = validationService.sanitizeObject(req.body, [
+                'course_name', 'description', 'learning_objectives',
+                'instructor_name', 'intro_video_url', 'cover_image_url'
+            ]);
+
+            // === VALIDATION: Duration must be positive ===
+            const durationHours = parseFloat(sanitizedBody.duration_hours);
+            if (sanitizedBody.duration_hours !== undefined && sanitizedBody.duration_hours !== '') {
+                if (isNaN(durationHours) || durationHours < 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: req.t ? req.t('durationMustBePositive') : 'ชั่วโมงเรียนต้องเป็นค่าบวก (ไม่น้อยกว่า 0)'
+                    });
+                }
+                // Convert negative to 0 as safety measure
+                sanitizedBody.duration_hours = Math.max(0, durationHours);
+            }
+
+            // Validate duration_minutes as well
+            const durationMinutes = parseFloat(sanitizedBody.duration_minutes);
+            if (sanitizedBody.duration_minutes !== undefined && sanitizedBody.duration_minutes !== '') {
+                if (isNaN(durationMinutes) || durationMinutes < 0) {
+                    sanitizedBody.duration_minutes = 0;
+                } else {
+                    sanitizedBody.duration_minutes = Math.max(0, Math.min(59, durationMinutes));
+                }
+            }
+
             const courseData = {
-                ...req.body,
+                ...sanitizedBody,
                 // Map array field names (from form with []) to model field names
-                target_positions: req.body['target_positions[]'] || req.body.target_positions,
-                target_departments: req.body['target_departments[]'] || req.body.target_departments,
+                target_positions: sanitizedBody['target_positions[]'] || sanitizedBody.target_positions,
+                target_departments: sanitizedBody['target_departments[]'] || sanitizedBody.target_departments,
                 // ถ้าไม่มี instructor_id ให้ใช้ null (ใช้ instructor_name แทน)
-                instructor_id: req.body.instructor_id || null,
+                instructor_id: sanitizedBody.instructor_id || null,
                 // ถ้าไม่มี instructor_name ก็ไม่เป็นไร (optional)
-                instructor_name: req.body.instructor_name || null,
+                instructor_name: sanitizedBody.instructor_name || null,
                 created_by: userId
             };
 
@@ -148,89 +175,8 @@ const courseController = {
                 course_name: courseData.course_name,
                 category_id: courseData.category_id,
                 target_positions: courseData.target_positions,
-                target_departments: courseData.target_departments,
-                assessment_type: req.body.assessment_type
+                target_departments: courseData.target_departments
             });
-
-            // Handle test creation if assessment_type is 'create_new'
-            if (req.body.assessment_type === 'create_new') {
-                console.log('📝 Creating new test along with course');
-                const pool = await poolPromise;
-
-                try {
-                    // Create test
-                    const testResult = await pool.request()
-                        .input('title', sql.NVarChar(200), req.body.new_test_name)
-                        .input('description', sql.NVarChar(sql.MAX), req.body.new_test_description || '')
-                        .input('testType', sql.NVarChar(50), req.body.new_test_type || 'final_exam')
-                        .input('timeLimit', sql.Int, parseInt(req.body.new_test_duration) || 60)
-                        .input('passingScore', sql.Int, req.body.new_passing_score ? parseInt(req.body.new_passing_score) : null)
-                        .input('maxAttempts', sql.Int, req.body.new_max_attempts ? parseInt(req.body.new_max_attempts) : null)
-                        .input('randomizeQuestions', sql.Bit, req.body.new_randomize_questions === true || req.body.new_randomize_questions === 'true')
-                        .input('randomizeChoices', sql.Bit, req.body.new_randomize_choices === true || req.body.new_randomize_choices === 'true')
-                        .input('showAnswer', sql.NVarChar(20), req.body.new_show_answer || 'immediately')
-                        .input('showResultsImmediately', sql.Bit, req.body.new_show_results_immediately === true || req.body.new_show_results_immediately === 'true')
-                        .input('availableFrom', sql.DateTime2, req.body.new_available_from || null)
-                        .input('availableUntil', sql.DateTime2, req.body.new_available_until || null)
-                        .input('enableProctoring', sql.Bit, req.body.new_enable_proctoring === true || req.body.new_enable_proctoring === 'true')
-                        .input('proctoringStrictness', sql.NVarChar(20), req.body.new_proctoring_strictness || 'medium')
-                        .input('isGraded', sql.Bit, req.body.new_is_graded === true || req.body.new_is_graded === 'true')
-                        .input('isRequired', sql.Bit, req.body.new_is_required === true || req.body.new_is_required === 'true')
-                        .input('isPassingRequired', sql.Bit, req.body.new_is_passing_required === true || req.body.new_is_passing_required === 'true')
-                        .input('scoreWeight', sql.Int, req.body.new_score_weight ? parseInt(req.body.new_score_weight) : null)
-                        .input('showScoreBreakdown', sql.Bit, req.body.new_show_score_breakdown === true || req.body.new_show_score_breakdown === 'true')
-                        .input('status', sql.NVarChar(20), 'active')
-                        .input('createdBy', sql.Int, userId)
-                        .query(`
-                            INSERT INTO tests (
-                                title, description, type, time_limit, passing_marks, attempts_allowed,
-                                randomize_questions, show_results, status,
-                                available_from, available_until, proctoring_enabled, proctoring_strictness,
-                                is_graded, is_required, is_passing_required, score_weight, show_score_breakdown,
-                                instructor_id, created_at, updated_at
-                            ) VALUES (
-                                @title, @description, @testType, @timeLimit, @passingScore, @maxAttempts,
-                                @randomizeQuestions, @showResultsImmediately, @status,
-                                @availableFrom, @availableUntil, @enableProctoring, @proctoringStrictness,
-                                @isGraded, @isRequired, @isPassingRequired, @scoreWeight, @showScoreBreakdown,
-                                @createdBy, GETDATE(), GETDATE()
-                            );
-                            SELECT SCOPE_IDENTITY() AS test_id;
-                        `);
-
-                    const newTestId = testResult.recordset[0].test_id;
-                    console.log(`✅ Test created successfully with ID: ${newTestId}`);
-
-                    // Add test_id to courseData
-                    courseData.test_id = newTestId;
-
-                    // Log test creation
-                    await ActivityLog.logDataChange(
-                        userId,
-                        'Create',
-                        'Tests',
-                        newTestId,
-                        null,
-                        { test_name: req.body.new_test_name, test_type: req.body.new_test_type },
-                        req.ip,
-                        req.get('User-Agent'),
-                        req.sessionID,
-                        `Created test: ${req.body.new_test_name} for course`
-                    );
-
-                } catch (testError) {
-                    console.error('❌ Test creation failed:', testError);
-                    return res.status(500).json({
-                        success: false,
-                        message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ',
-                        error: testError.message
-                    });
-                }
-            } else if (req.body.assessment_type === 'existing' && req.body.test_id) {
-                // Use existing test
-                courseData.test_id = parseInt(req.body.test_id);
-                console.log(`✅ Using existing test with ID: ${courseData.test_id}`);
-            }
 
             const result = await Course.create(courseData);
 
@@ -256,7 +202,7 @@ const courseController = {
 
             res.status(201).json({
                 success: true,
-                message: 'สร้างหลักสูตรสำเร็จ',
+                message: req.t('courseCreatedSuccess'),
                 data: result.data
             });
 
@@ -265,7 +211,7 @@ const courseController = {
             console.error('Error stack:', error.stack);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างหลักสูตร',
+                message: req.t('errorCreatingCourse'),
                 error: error.message
             });
         }
@@ -281,21 +227,21 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && course.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์แก้ไขหลักสูตรนี้'
+                    message: req.t('noPermissionEditThisCourse')
                 });
             }
 
             if (!['Admin', 'Instructor', 'HR'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์แก้ไขหลักสูตร'
+                    message: req.t('noPermissionEditCourse')
                 });
             }
 
@@ -328,7 +274,7 @@ const courseController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทหลักสูตรสำเร็จ',
+                message: req.t('courseUpdatedSuccess'),
                 data: result.data
             });
 
@@ -336,7 +282,7 @@ const courseController = {
             console.error('Update course error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทหลักสูตร'
+                message: req.t('errorUpdatingCourse')
             });
         }
     },
@@ -350,7 +296,7 @@ const courseController = {
             if (userRole !== 'Admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ลบหลักสูตร'
+                    message: req.t('noPermissionDeleteCourse')
                 });
             }
 
@@ -358,7 +304,7 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
@@ -383,14 +329,14 @@ const courseController = {
 
             res.json({
                 success: true,
-                message: 'ลบหลักสูตรสำเร็จ'
+                message: req.t('courseDeletedSuccess')
             });
 
         } catch (error) {
             console.error('Delete course error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการลบหลักสูตร'
+                message: req.t('errorDeletingCourse')
             });
         }
     },
@@ -404,14 +350,14 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
             if (!course.is_active) {
                 return res.status(400).json({
                     success: false,
-                    message: 'หลักสูตรนี้ยังไม่เปิดใช้งาน'
+                    message: req.t('courseNotActive')
                 });
             }
 
@@ -419,18 +365,17 @@ const courseController = {
             if (existingEnrollment) {
                 return res.status(400).json({
                     success: false,
-                    message: 'คุณได้ลงทะเบียนหลักสูตรนี้แล้ว'
+                    message: req.t('alreadyEnrolledInCourse')
                 });
             }
 
             const enrollmentData = {
                 user_id: userId,
-                course_id: course_id,
-                enrolled_at: new Date(),
-                status: 'Active'
+                course_id: parseInt(course_id),
+                enrollment_type: 'SELF'
             };
 
-            const result = await Enrollment.create(enrollmentData);
+            const result = await Enrollment.enroll(enrollmentData);
 
             if (!result.success) {
                 return res.status(400).json(result);
@@ -439,27 +384,29 @@ const courseController = {
             await ActivityLog.create({
                 user_id: userId,
                 action: 'Enroll_Course',
-                table_name: 'Enrollments',
-                record_id: result.data.enrollment_id,
+                table_name: 'user_courses',
+                record_id: result.enrollmentId,
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
-                description: `User enrolled in course: ${course.course_name}`,
+                description: `User enrolled in course: ${course.title || course.course_name}`,
                 severity: 'Info',
                 module: 'Course Management'
             });
 
             res.status(201).json({
                 success: true,
-                message: 'ลงทะเบียนหลักสูตรสำเร็จ',
-                data: result.data
+                message: req.t('enrollmentSuccess'),
+                data: {
+                    enrollment_id: result.enrollmentId
+                }
             });
 
         } catch (error) {
             console.error('Enroll in course error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการลงทะเบียนหลักสูตร'
+                message: req.t('errorEnrolling')
             });
         }
     },
@@ -482,7 +429,7 @@ const courseController = {
             console.error('Get my enrollments error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดการลงทะเบียน'
+                message: req.t('courseErrorLoadingEnrollments')
             });
         }
     },
@@ -496,7 +443,7 @@ const courseController = {
             if (progress_percentage < 0 || progress_percentage > 100) {
                 return res.status(400).json({
                     success: false,
-                    message: 'ค่าความคืบหน้าต้องอยู่ระหว่าง 0-100'
+                    message: req.t('courseProgressMustBeBetween0And100')
                 });
             }
 
@@ -504,20 +451,12 @@ const courseController = {
             if (!enrollment) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบการลงทะเบียนหลักสูตร'
+                    message: req.t('courseEnrollmentNotFound')
                 });
             }
 
-            const updateData = {
-                progress_percentage: progress_percentage
-            };
-
-            if (progress_percentage >= 100) {
-                updateData.completion_status = 'Completed';
-                updateData.completed_at = new Date();
-            }
-
-            const result = await Enrollment.updateProgress(enrollment.enrollment_id, updateData);
+            // Enrollment.updateProgress expects (enrollmentId, progressPercentage)
+            const result = await Enrollment.updateProgress(enrollment.enrollment_id, progress_percentage);
 
             if (!result.success) {
                 return res.status(400).json(result);
@@ -526,7 +465,7 @@ const courseController = {
             await ActivityLog.create({
                 user_id: userId,
                 action: 'Update_Progress',
-                table_name: 'Enrollments',
+                table_name: 'user_courses',
                 record_id: enrollment.enrollment_id,
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
@@ -538,15 +477,17 @@ const courseController = {
 
             res.json({
                 success: true,
-                message: 'อัพเดทความคืบหน้าสำเร็จ',
-                data: result.data
+                message: req.t('courseProgressUpdatedSuccess'),
+                data: {
+                    progress_percentage: result.progress
+                }
             });
 
         } catch (error) {
             console.error('Update progress error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทความคืบหน้า'
+                message: req.t('courseProgressUpdateError')
             });
         }
     },
@@ -561,21 +502,21 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && course.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดูสถิติหลักสูตรนี้'
+                    message: req.t('courseNoPermissionViewThisCourseStats')
                 });
             }
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดูสถิติหลักสูตร'
+                    message: req.t('courseNoPermissionViewCourseStats')
                 });
             }
 
@@ -590,7 +531,7 @@ const courseController = {
             console.error('Get course statistics error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดสถิติหลักสูตร'
+                message: req.t('courseStatsLoadError')
             });
         }
     },
@@ -603,7 +544,7 @@ const courseController = {
             const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
             res.render('courses/index', {
-                title: 'หลักสูตรทั้งหมด - Rukchai Hongyen LearnHub',
+                title: 'allCourses - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role_name,
                 t: t,
@@ -613,8 +554,8 @@ const courseController = {
         } catch (error) {
             console.error('Render courses list error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้ารายการหลักสูตรได้',
+                title: 'errorOccurred - Rukchai Hongyen LearnHub',
+                message: req.t('courseListPageLoadError'),
                 user: req.session.user,
                 error: error
             });
@@ -631,10 +572,19 @@ const courseController = {
             const currentLang = getCurrentLanguage(req);
             const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
+            // Validate course_id is a valid number (must be digits only)
+            if (!course_id || !/^\d+$/.test(course_id)) {
+                return res.render('error/404', {
+                    title: 'pageNotFound - Rukchai Hongyen LearnHub',
+                    user: req.session.user,
+                    t: t
+                });
+            }
+
             const course = await Course.findById(course_id);
             if (!course) {
                 return res.render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    title: 'pageNotFound - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
@@ -642,7 +592,7 @@ const courseController = {
             const enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
 
             res.render('courses/detail', {
-                title: `${course.title || course.course_name || 'หลักสูตร'} - Rukchai Hongyen LearnHub`,
+                title: `${course.title || course.course_name || 'course'} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role_name,
                 course: course,
@@ -657,8 +607,67 @@ const courseController = {
         } catch (error) {
             console.error('Render course detail error:', error);
             res.status(500).render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดข้อมูลหลักสูตรได้',
+                title: 'errorOccurred - Rukchai Hongyen LearnHub',
+                message: req.t('courseDataLoadError'),
+                user: req.session.user,
+                error: error,
+                layout: false
+            });
+        }
+    },
+
+    async renderCourseContent(req, res) {
+        try {
+            const { course_id } = req.params;
+            const userId = req.user.user_id;
+
+            // Import language helpers
+            const { getCurrentLanguage, getTranslation, translations } = require('../utils/languages');
+            const currentLang = getCurrentLanguage(req);
+            const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
+
+            // Validate course_id is a valid number (must be digits only)
+            if (!course_id || !/^\d+$/.test(course_id)) {
+                return res.render('error/404', {
+                    title: 'pageNotFound - Rukchai Hongyen LearnHub',
+                    user: req.session.user,
+                    t: t
+                });
+            }
+
+            const course = await Course.findById(course_id);
+            if (!course) {
+                return res.render('error/404', {
+                    title: 'pageNotFound - Rukchai Hongyen LearnHub',
+                    user: req.session.user,
+                    t: t
+                });
+            }
+
+            // Check if user is enrolled
+            const enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
+            if (!enrollment) {
+                // User not enrolled, redirect to course detail
+                return res.redirect(`/courses/${course_id}`);
+            }
+
+            res.render('courses/content', {
+                title: `${course.title || course.course_name || 'course'} - Rukchai Hongyen LearnHub`,
+                user: req.session.user,
+                userRole: req.user.role_name,
+                course: course,
+                courseId: course_id,
+                enrollment: enrollment,
+                t: t,
+                currentLang: currentLang,
+                translations: translations[currentLang] || translations.th
+            });
+
+        } catch (error) {
+            console.error('Render course content error:', error);
+            res.status(500).render('error/500', {
+                title: 'errorOccurred - Rukchai Hongyen LearnHub',
+                message: req.t ? req.t('courseContentLoadError') : 'Failed to load course content',
                 user: req.session.user,
                 error: error,
                 layout: false
@@ -674,7 +683,7 @@ const courseController = {
             const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
             res.render('courses/my-courses', {
-                title: 'หลักสูตรของฉัน - Rukchai Hongyen LearnHub',
+                title: 'myCourses - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role_name,
                 t: t,
@@ -684,8 +693,8 @@ const courseController = {
         } catch (error) {
             console.error('Render my courses error:', error);
             res.render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าหลักสูตรของฉันได้',
+                title: 'errorOccurred - Rukchai Hongyen LearnHub',
+                message: req.t('myCoursesPageLoadError'),
                 user: req.session.user,
                 error: error
             });
@@ -703,14 +712,14 @@ const courseController = {
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
-                    message: 'คุณไม่มีสิทธิ์สร้างหลักสูตร',
+                    title: 'noPermissionAccess - Rukchai Hongyen LearnHub',
+                    message: req.t('courseNoPermissionCreate'),
                     user: req.session.user
                 });
             }
 
             res.render('courses/create', {
-                title: 'สร้างหลักสูตรใหม่ - Rukchai Hongyen LearnHub',
+                title: 'createNewCourse - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role_name,
                 t: t,
@@ -720,8 +729,8 @@ const courseController = {
         } catch (error) {
             console.error('Render create course error:', error);
             res.status(500).render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าสร้างหลักสูตรได้',
+                title: 'errorOccurred - Rukchai Hongyen LearnHub',
+                message: req.t('courseCreatePageLoadError'),
                 user: req.session.user,
                 error: error
             });
@@ -742,29 +751,29 @@ const courseController = {
             const course = await Course.findById(course_id);
             if (!course) {
                 return res.status(404).render('error/404', {
-                    title: 'ไม่พบหน้าที่ต้องการ - Rukchai Hongyen LearnHub',
+                    title: 'pageNotFound - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
 
             if (userRole === 'Instructor' && course.instructor_id !== userId) {
                 return res.status(403).render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
-                    message: 'คุณไม่มีสิทธิ์แก้ไขหลักสูตรนี้',
+                    title: 'noPermissionAccess - Rukchai Hongyen LearnHub',
+                    message: req.t('noPermissionEditThisCourse'),
                     user: req.session.user
                 });
             }
 
             if (!['Admin', 'Instructor', 'HR'].includes(userRole)) {
                 return res.status(403).render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
-                    message: 'คุณไม่มีสิทธิ์แก้ไขหลักสูตร',
+                    title: 'noPermissionAccess - Rukchai Hongyen LearnHub',
+                    message: req.t('noPermissionEditCourse'),
                     user: req.session.user
                 });
             }
 
             res.render('courses/edit', {
-                title: `แก้ไขหลักสูตร: ${course.course_name} - Rukchai Hongyen LearnHub`,
+                title: `editCourse:${course.course_name} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role_name,
                 course: course,
@@ -775,8 +784,8 @@ const courseController = {
         } catch (error) {
             console.error('Render edit course error:', error);
             res.status(500).render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าแก้ไขหลักสูตรได้',
+                title: 'errorOccurred - Rukchai Hongyen LearnHub',
+                message: req.t('courseEditPageLoadError'),
                 user: req.session.user,
                 error: error
             });
@@ -796,7 +805,7 @@ const courseController = {
             console.error('Get categories error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดหมวดหมู่หลักสูตร'
+                message: req.t('errorLoadingCategoryList')
             });
         }
     },
@@ -824,81 +833,7 @@ const courseController = {
             console.error('Get instructors error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายชื่อผู้สอน'
-            });
-        }
-    },
-
-    async getAvailableTests(req, res) {
-        try {
-            const pool = await poolPromise;
-            const { type, status, course_id } = req.query;
-
-            // Build dynamic query
-            let whereConditions = ['1=1'];
-            const params = {};
-
-            // Filter by test type if provided
-            if (type && ['final_exam', 'chapter_quiz', 'lesson_quiz', 'standalone_test', 'practice_test'].includes(type)) {
-                whereConditions.push('test_type = @testType');
-                params.testType = type;
-            }
-
-            // Filter by status if provided
-            if (status && ['draft', 'active', 'inactive'].includes(status)) {
-                whereConditions.push('status = @status');
-                params.status = status;
-            } else {
-                // Default: only show active tests
-                whereConditions.push('status = @status');
-                params.status = 'active';
-            }
-
-            // Exclude tests already attached to a specific course
-            if (course_id) {
-                whereConditions.push('test_id NOT IN (SELECT test_id FROM courses WHERE course_id = @courseId AND test_id IS NOT NULL)');
-                params.courseId = parseInt(course_id);
-            }
-
-            const query = `
-                SELECT
-                    test_id,
-                    title,
-                    description,
-                    test_type,
-                    time_limit,
-                    passing_score,
-                    max_attempts,
-                    total_questions,
-                    status,
-                    created_at,
-                    updated_at
-                FROM tests
-                WHERE ${whereConditions.join(' AND ')}
-                ORDER BY created_at DESC
-            `;
-
-            const request = pool.request();
-
-            // Add parameters to request
-            if (params.testType) request.input('testType', sql.NVarChar(50), params.testType);
-            if (params.status) request.input('status', sql.NVarChar(20), params.status);
-            if (params.courseId) request.input('courseId', sql.Int, params.courseId);
-
-            const result = await request.query(query);
-
-            res.json({
-                success: true,
-                data: result.recordset,
-                count: result.recordset.length
-            });
-
-        } catch (error) {
-            console.error('Get available tests error:', error);
-            res.status(500).json({
-                success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายการข้อสอบ',
-                error: error.message
+                message: req.t('errorLoadingInstructorList')
             });
         }
     },
@@ -919,7 +854,7 @@ const courseController = {
             console.error('Get recommended courses error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดหลักสูตรที่แนะนำ'
+                message: req.t('recommendedCoursesLoadError')
             });
         }
     },
@@ -939,7 +874,7 @@ const courseController = {
             console.error('Get popular courses error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดหลักสูตรยอดนิยม'
+                message: req.t('popularCoursesLoadError')
             });
         }
     },
@@ -973,7 +908,7 @@ const courseController = {
             console.error('Get target positions error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดตำแหน่งงาน'
+                message: req.t('positionsLoadError')
             });
         }
     },
@@ -1010,7 +945,7 @@ const courseController = {
             console.error('Get target departments error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดแผนกงาน'
+                message: req.t('departmentsLoadError')
             });
         }
     },
@@ -1025,21 +960,21 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && course.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดู Analytics ของหลักสูตรนี้'
+                    message: req.t('noPermissionViewAnalytics')
                 });
             }
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดู Analytics'
+                    message: req.t('noPermissionViewAnalytics')
                 });
             }
 
@@ -1062,7 +997,7 @@ const courseController = {
             console.error('Get analytics error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลด Analytics'
+                message: req.t('courseAnalyticsLoadError')
             });
         }
     },
@@ -1078,21 +1013,21 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && course.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดูความคืบหน้าของหลักสูตรนี้'
+                    message: req.t('noPermissionViewProgress')
                 });
             }
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ดูความคืบหน้า'
+                    message: req.t('noPermissionViewProgress')
                 });
             }
 
@@ -1121,7 +1056,7 @@ const courseController = {
             console.error('Get course progress error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดความคืบหน้า'
+                message: req.t('courseProgressDataLoadError')
             });
         }
     },
@@ -1137,21 +1072,21 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && course.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ Export ความคืบหน้าของหลักสูตรนี้'
+                    message: req.t('noPermissionExport')
                 });
             }
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ Export ความคืบหน้า'
+                    message: req.t('noPermissionExport')
                 });
             }
 
@@ -1216,7 +1151,7 @@ const courseController = {
             console.error('Export progress error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการ Export ความคืบหน้า'
+                message: req.t('courseExportError')
             });
         }
     },
@@ -1232,21 +1167,21 @@ const courseController = {
             if (!course) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหลักสูตรที่ต้องการ'
+                    message: req.t('courseNotFound')
                 });
             }
 
             if (userRole === 'Instructor' && course.instructor_id !== userId) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ Export Analytics ของหลักสูตรนี้'
+                    message: req.t('noPermissionExport')
                 });
             }
 
             if (!['Admin', 'Instructor'].includes(userRole)) {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์ Export Analytics'
+                    message: req.t('noPermissionExport')
                 });
             }
 
@@ -1309,7 +1244,7 @@ const courseController = {
             console.error('Export analytics error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการ Export Analytics'
+                message: req.t('courseExportError')
             });
         }
     },
@@ -1323,8 +1258,8 @@ const courseController = {
 
             if (userRole !== 'Admin') {
                 return res.status(403).render('error/403', {
-                    title: 'ไม่มีสิทธิ์เข้าถึง - Rukchai Hongyen LearnHub',
-                    message: 'คุณไม่มีสิทธิ์จัดการหมวดหมู่หลักสูตร',
+                    title: 'noPermissionAccess - Rukchai Hongyen LearnHub',
+                    message: req.t('noPermissionManageCategory'),
                     user: req.session.user
                 });
             }
@@ -1335,7 +1270,7 @@ const courseController = {
             const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
             res.render('courses/categories', {
-                title: 'จัดการหมวดหมู่หลักสูตร - Rukchai Hongyen LearnHub',
+                title: 'manageCourseCategories - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role_name,
                 t: t,
@@ -1345,8 +1280,8 @@ const courseController = {
         } catch (error) {
             console.error('Render category management error:', error);
             res.status(500).render('error/500', {
-                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
-                message: 'ไม่สามารถโหลดหน้าจัดการหมวดหมู่ได้',
+                title: 'errorOccurred - Rukchai Hongyen LearnHub',
+                message: req.t('categoryManagementPageLoadError'),
                 user: req.session.user,
                 error: error
             });
@@ -1369,6 +1304,7 @@ const courseController = {
                         cc.category_icon,
                         cc.category_color,
                         cc.display_order,
+                        cc.is_active,
                         cc.created_at,
                         cc.updated_at,
                         u1.first_name + ' ' + u1.last_name AS created_by_name,
@@ -1378,9 +1314,10 @@ const courseController = {
                     LEFT JOIN Users u1 ON cc.created_by = u1.user_id
                     LEFT JOIN Users u2 ON cc.updated_by = u2.user_id
                     LEFT JOIN Courses c ON cc.category_name = c.category AND c.status = 'published'
+                    WHERE cc.is_active = 1
                     GROUP BY cc.category_id, cc.category_name, cc.category_name_en,
                              cc.description, cc.category_icon, cc.category_color,
-                             cc.display_order, cc.created_at, cc.updated_at,
+                             cc.display_order, cc.is_active, cc.created_at, cc.updated_at,
                              cc.created_by, cc.updated_by,
                              u1.first_name, u1.last_name, u2.first_name, u2.last_name
                     ORDER BY cc.display_order, cc.category_name
@@ -1395,7 +1332,7 @@ const courseController = {
             console.error('Get all categories admin error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดหมวดหมู่'
+                message: req.t('categoryLoadError')
             });
         }
     },
@@ -1440,7 +1377,7 @@ const courseController = {
             if (result.recordset.length === 0) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหมวดหมู่ที่ต้องการ'
+                    message: req.t('categoryNotFound')
                 });
             }
 
@@ -1453,7 +1390,7 @@ const courseController = {
             console.error('Get category by id admin error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลหมวดหมู่'
+                message: req.t('categoryLoadError')
             });
         }
     },
@@ -1475,7 +1412,7 @@ const courseController = {
             if (!category_name) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณากรอกชื่อหมวดหมู่'
+                    message: req.t('categoryNameRequired')
                 });
             }
 
@@ -1520,7 +1457,7 @@ const courseController = {
 
             res.status(201).json({
                 success: true,
-                message: 'สร้างหมวดหมู่สำเร็จ',
+                message: req.t('categoryCreatedSuccess'),
                 data: result.recordset[0]
             });
 
@@ -1528,7 +1465,7 @@ const courseController = {
             console.error('Create category error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างหมวดหมู่'
+                message: req.t('categoryCreateError')
             });
         }
     },
@@ -1537,7 +1474,7 @@ const courseController = {
     async updateCategoryAdmin(req, res) {
         try {
             const { category_id } = req.params;
-            const userId = req.user.user_id;
+            const userId = req.session?.user?.user_id || req.user?.user_id;
             const {
                 category_name,
                 category_name_en,
@@ -1551,7 +1488,7 @@ const courseController = {
             const { poolPromise } = require('../config/database');
             const pool = await poolPromise;
 
-            // Get old data for activity log
+            // Get old data for activity log and partial update support
             const oldData = await pool.request()
                 .input('category_id', category_id)
                 .query('SELECT * FROM CourseCategories WHERE category_id = @category_id');
@@ -1559,19 +1496,31 @@ const courseController = {
             if (oldData.recordset.length === 0) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหมวดหมู่ที่ต้องการ'
+                    message: req.t('categoryNotFound')
                 });
             }
 
-            const result = await pool.request()
+            const existing = oldData.recordset[0];
+
+            // Support partial update - use existing values if not provided
+            const updatedName = category_name !== undefined ? category_name : existing.category_name;
+            const updatedNameEn = category_name_en !== undefined ? category_name_en : existing.category_name_en;
+            const updatedDescription = description !== undefined ? description : existing.description;
+            const updatedIcon = category_icon !== undefined ? category_icon : existing.category_icon;
+            const updatedColor = category_color !== undefined ? category_color : existing.category_color;
+            const updatedOrder = display_order !== undefined ? display_order : existing.display_order;
+            const updatedActive = is_active !== undefined ? is_active : existing.is_active;
+
+            // Update without OUTPUT clause (triggers conflict)
+            await pool.request()
                 .input('category_id', category_id)
-                .input('category_name', category_name)
-                .input('category_name_en', category_name_en || null)
-                .input('description', description || null)
-                .input('category_icon', category_icon || null)
-                .input('category_color', category_color || '#64748b')
-                .input('display_order', display_order || 0)
-                .input('is_active', is_active !== undefined ? is_active : true)
+                .input('category_name', updatedName)
+                .input('category_name_en', updatedNameEn || null)
+                .input('description', updatedDescription || null)
+                .input('category_icon', updatedIcon || null)
+                .input('category_color', updatedColor || '#64748b')
+                .input('display_order', updatedOrder || 0)
+                .input('is_active', updatedActive)
                 .input('updated_by', userId)
                 .query(`
                     UPDATE CourseCategories
@@ -1585,9 +1534,13 @@ const courseController = {
                         is_active = @is_active,
                         updated_by = @updated_by,
                         updated_at = GETDATE()
-                    OUTPUT INSERTED.*
                     WHERE category_id = @category_id
                 `);
+
+            // Fetch updated data separately
+            const result = await pool.request()
+                .input('category_id', category_id)
+                .query('SELECT * FROM CourseCategories WHERE category_id = @category_id');
 
             await ActivityLog.logDataChange(
                 userId,
@@ -1599,12 +1552,12 @@ const courseController = {
                 req.ip,
                 req.get('User-Agent'),
                 req.sessionID,
-                `Updated category: ${category_name}`
+                `Updated category: ${updatedName}`
             );
 
             res.json({
                 success: true,
-                message: 'อัพเดทหมวดหมู่สำเร็จ',
+                message: req.t('categoryUpdatedSuccess'),
                 data: result.recordset[0]
             });
 
@@ -1612,7 +1565,7 @@ const courseController = {
             console.error('Update category error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทหมวดหมู่'
+                message: req.t('categoryUpdateError')
             });
         }
     },
@@ -1621,7 +1574,7 @@ const courseController = {
     async deleteCategoryAdmin(req, res) {
         try {
             const { category_id } = req.params;
-            const userId = req.user.user_id;
+            const userId = req.session?.user?.user_id || req.user?.user_id;
             const { poolPromise } = require('../config/database');
             const pool = await poolPromise;
 
@@ -1633,19 +1586,19 @@ const courseController = {
             if (categoryData.recordset.length === 0) {
                 return res.status(404).json({
                     success: false,
-                    message: 'ไม่พบหมวดหมู่ที่ต้องการ'
+                    message: req.t('categoryNotFound')
                 });
             }
 
             // Check if category has courses
             const courseCount = await pool.request()
                 .input('category_id', category_id)
-                .query('SELECT COUNT(*) as count FROM Courses WHERE category_id = @category_id AND is_active = 1');
+                .query('SELECT COUNT(*) as count FROM Courses WHERE category = @category_id AND is_active = 1');
 
             if (courseCount.recordset[0].count > 0) {
                 return res.status(400).json({
                     success: false,
-                    message: `ไม่สามารถลบได้ เนื่องจากมี ${courseCount.recordset[0].count} หลักสูตรอยู่ในหมวดหมู่นี้`
+                    message: req.t('courseCannotDeleteCategoryHasCourses', { count: courseCount.recordset[0].count })
                 });
             }
 
@@ -1674,145 +1627,14 @@ const courseController = {
 
             res.json({
                 success: true,
-                message: 'ลบหมวดหมู่สำเร็จ'
+                message: req.t('categoryDeletedSuccess')
             });
 
         } catch (error) {
             console.error('Delete category error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการลบหมวดหมู่'
-            });
-        }
-    },
-
-    // Get all available tests for course creation
-    async getAvailableTests(req, res) {
-        try {
-            const { poolPromise } = require('../config/database');
-            const pool = await poolPromise;
-
-            const result = await pool.request().query(`
-                SELECT
-                    t.test_id,
-                    t.title as test_name,
-                    t.description as test_description,
-                    (
-                        SELECT COUNT(*)
-                        FROM Questions WHERE test_id = t.test_id AND is_active = 1
-                    ) + (
-                        SELECT COUNT(*)
-                        FROM TestQuestions tq
-                        WHERE tq.test_id = t.test_id
-                    ) as total_questions,
-                    t.passing_marks as passing_score,
-                    t.time_limit as duration_minutes,
-                    t.attempts_allowed as max_attempts,
-                    c.title as course_name,
-                    CONCAT(u.first_name, ' ', u.last_name) as creator_name
-                FROM Tests t
-                LEFT JOIN Courses c ON t.course_id = c.course_id
-                LEFT JOIN Users u ON t.instructor_id = u.user_id
-                WHERE t.status IN ('Active', 'Published')
-                ORDER BY t.created_at DESC
-            `);
-
-            res.json({
-                success: true,
-                data: result.recordset
-            });
-
-        } catch (error) {
-            console.error('Get available tests error:', error);
-            res.status(500).json({
-                success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดรายการข้อสอบ'
-            });
-        }
-    },
-
-    // Create test for course
-    async createTestForCourse(req, res) {
-        try {
-            const userId = req.user.user_id;
-            const {
-                test_name,
-                test_description,
-                course_id,
-                passing_score,
-                max_attempts,
-                duration_minutes,
-                randomize_questions,
-                randomize_answers,
-                show_results_immediately
-            } = req.body;
-
-            if (!test_name) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'กรุณากรอกชื่อข้อสอบ'
-                });
-            }
-
-            const { poolPromise } = require('../config/database');
-            const pool = await poolPromise;
-
-            const result = await pool.request()
-                .input('title', test_name)
-                .input('description', test_description || null)
-                .input('course_id', course_id || null)
-                .input('instructor_id', userId)
-                .input('passing_marks', passing_score || 70)
-                .input('attempts_allowed', max_attempts || 3)
-                .input('time_limit', duration_minutes || 60)
-                .input('randomize_questions', randomize_questions !== false)
-                .input('show_results', show_results_immediately !== false)
-                .input('status', 'Active')
-                .input('type', 'assessment')
-                .query(`
-                    INSERT INTO Tests (
-                        title, description, course_id, instructor_id,
-                        passing_marks, attempts_allowed, time_limit,
-                        randomize_questions, show_results,
-                        status, type, created_at
-                    )
-                    OUTPUT INSERTED.test_id
-                    VALUES (
-                        @title, @description, @course_id, @instructor_id,
-                        @passing_marks, @attempts_allowed, @time_limit,
-                        @randomize_questions, @show_results,
-                        @status, @type, GETDATE()
-                    )
-                `);
-
-            const testId = result.recordset[0].test_id;
-
-            await ActivityLog.create({
-                user_id: userId,
-                action: 'Create',
-                table_name: 'Tests',
-                record_id: testId,
-                ip_address: req.ip,
-                user_agent: req.get('User-Agent'),
-                session_id: req.sessionID,
-                description: `Created test: ${test_name}`,
-                severity: 'Info',
-                module: 'Assessment'
-            });
-
-            res.status(201).json({
-                success: true,
-                message: 'สร้างข้อสอบสำเร็จ',
-                data: {
-                    test_id: testId
-                }
-            });
-
-        } catch (error) {
-            console.error('Create test for course error:', error);
-            res.status(500).json({
-                success: false,
-                message: 'เกิดข้อผิดพลาดในการสร้างข้อสอบ'
+                message: req.t('categoryDeleteError')
             });
         }
     },
@@ -1828,14 +1650,14 @@ const courseController = {
                     console.error('Upload error:', err);
                     return res.status(400).json({
                         success: false,
-                        message: err.message || 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ'
+                        message: err.message || 'courseImageUploadError'
                     });
                 }
 
                 if (!req.file) {
                     return res.status(400).json({
                         success: false,
-                        message: 'กรุณาเลือกไฟล์รูปภาพ'
+                        message: req.t('noFileSelected')
                     });
                 }
 
@@ -1844,7 +1666,7 @@ const courseController = {
 
                 res.json({
                     success: true,
-                    message: 'อัปโหลดรูปภาพสำเร็จ',
+                    message: req.t('imageUploadedSuccess'),
                     data: {
                         filename: req.file.filename,
                         path: filePath,
@@ -1858,7 +1680,7 @@ const courseController = {
             console.error('Upload course image error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ',
+                message: req.t('courseImageUploadError'),
                 error: error.message
             });
         }
@@ -1883,7 +1705,7 @@ const courseController = {
 
             // Group by sections if needed
             const curriculum = [{
-                title: 'เนื้อหาหลักสูตร',
+                title: 'courseContent',
                 description: '',
                 lessons: result.recordset.map(m => ({
                     id: m.material_id,
@@ -1944,6 +1766,7 @@ const courseController = {
             const multer = require('multer');
             const path = require('path');
             const fs = require('fs');
+const { t } = require('../utils/languages');
 
             // Setup multer for file upload
             const storage = multer.diskStorage({
@@ -1965,11 +1788,11 @@ const courseController = {
             upload(req, res, async function (err) {
                 if (err) {
                     console.error('Upload error:', err);
-                    return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
+                    return res.status(500).json({ success: false, message: req.t('uploadError') });
                 }
 
                 if (!req.files || req.files.length === 0) {
-                    return res.status(400).json({ success: false, message: 'ไม่พบไฟล์ที่ต้องการอัปโหลด' });
+                    return res.status(400).json({ success: false, message: req.t('noFilesSelected') });
                 }
 
                 try {
@@ -2007,13 +1830,13 @@ const courseController = {
 
                     res.json({
                         success: true,
-                        message: `อัปโหลดเอกสารประกอบ ${req.files.length} ไฟล์เรียบร้อยแล้ว`,
+                        message: req.t('courseDocumentsUploadedSuccess', { count: req.files.length }),
                         data: { count: req.files.length }
                     });
 
                 } catch (dbError) {
                     console.error('Database error:', dbError);
-                    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+                    res.status(500).json({ success: false, message: req.t('databaseError') });
                 }
             });
 
@@ -2098,7 +1921,7 @@ const courseController = {
             if (!rating || rating < 1 || rating > 5) {
                 return res.status(400).json({
                     success: false,
-                    message: 'กรุณาให้คะแนนระหว่าง 1-5 ดาว'
+                    message: req.t('coursePleaseRateBetween1And5Stars')
                 });
             }
 
@@ -2109,7 +1932,7 @@ const courseController = {
                 .input('userId', sql.Int, userId)
                 .input('courseId', sql.Int, parseInt(course_id))
                 .query(`
-                    SELECT enrollment_id, completion_status
+                    SELECT enrollment_id, status
                     FROM user_courses
                     WHERE user_id = @userId AND course_id = @courseId
                 `);
@@ -2117,7 +1940,7 @@ const courseController = {
             if (enrollment.recordset.length === 0) {
                 return res.status(403).json({
                     success: false,
-                    message: 'คุณต้องลงทะเบียนเรียนก่อนจึงจะให้คะแนนได้'
+                    message: req.t('mustEnrollToRate')
                 });
             }
 
@@ -2127,11 +1950,10 @@ const courseController = {
                 .input('userId', sql.Int, userId)
                 .input('courseId', sql.Int, parseInt(course_id))
                 .input('rating', sql.Int, rating)
-                .input('review', sql.NVarChar(sql.MAX), review || null)
                 .query(`
                     UPDATE user_courses
                     SET grade = @rating * 20,  -- Convert 5-star to 100 scale temporarily
-                        updated_at = GETDATE()
+                        last_access_date = GETDATE()
                     WHERE user_id = @userId AND course_id = @courseId
                 `);
 
@@ -2151,14 +1973,50 @@ const courseController = {
 
             res.json({
                 success: true,
-                message: 'ส่งคะแนนสำเร็จ ขอบคุณสำหรับความคิดเห็น!'
+                message: req.t('ratingSuccess')
             });
 
         } catch (error) {
             console.error('Rate course error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการส่งคะแนน'
+                message: req.t('ratingError')
+            });
+        }
+    },
+
+    async getAvailableTests(req, res) {
+        try {
+            const { poolPromise } = require('../config/database');
+            const pool = await poolPromise;
+
+            // Get all active tests that are not linked to any course (standalone tests)
+            const result = await pool.request().query(`
+                SELECT
+                    test_id,
+                    title,
+                    type,
+                    description,
+                    passing_marks,
+                    attempts_allowed,
+                    created_at
+                FROM tests
+                WHERE status = 'Active'
+                    AND (course_id IS NULL OR course_id = 0)
+                ORDER BY created_at DESC
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+
+        } catch (error) {
+            console.error('Get available tests error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingTests') || 'Error loading available tests',
+                data: []
             });
         }
     }

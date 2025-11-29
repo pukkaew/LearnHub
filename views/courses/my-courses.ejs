@@ -1,0 +1,263 @@
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="page-header bg-white shadow-sm rounded-lg mb-8 p-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900"><%= t('myCourses') %></h1>
+                <p class="text-gray-600 mt-1"><%= t('trackYourLearningProgress') %></p>
+            </div>
+            <a href="/courses" class="btn-ruxchai-secondary">
+                <i class="fas fa-arrow-left mr-2"></i><%= t('backToCourses') %>
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('search') %></label>
+                <input type="text" id="search" placeholder="<%= t('searchMyCourses') %>"
+                       class="form-input-ruxchai">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('status') %></label>
+                <select id="status-filter" class="form-select-ruxchai">
+                    <option value=""><%= t('allStatuses') %></option>
+                    <option value="active"><%= t('inProgress') %></option>
+                    <option value="completed"><%= t('completedStatus') %></option>
+                    <option value="not_started"><%= t('notStarted') %></option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('sortBy') %></label>
+                <select id="sort" class="form-select-ruxchai">
+                    <option value="enrollment_date"><%= t('enrollmentDate') %></option>
+                    <option value="last_access"><%= t('lastAccessed') %></option>
+                    <option value="progress"><%= t('progress') %></option>
+                    <option value="title"><%= t('courseTitle') %></option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <i class="fas fa-book text-blue-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500"><%= t('totalEnrolled') %></p>
+                    <p id="total-enrolled" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-yellow-100 rounded-full">
+                    <i class="fas fa-spinner text-yellow-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500"><%= t('inProgress') %></p>
+                    <p id="in-progress-count" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-full">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500"><%= t('completedStatus') %></p>
+                    <p id="completed-count" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-purple-100 rounded-full">
+                    <i class="fas fa-certificate text-purple-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500"><%= t('certificates') %></p>
+                    <p id="certificates-count" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course List -->
+    <div id="my-courses-container" class="space-y-4">
+        <!-- Loading State -->
+        <div id="loading" class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-ruxchai-primary"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-12 bg-white rounded-lg shadow-sm">
+            <i class="fas fa-book-open text-gray-300 text-6xl mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-900 mb-2"><%= t('noEnrolledCourses') %></h3>
+            <p class="text-gray-500 mb-6"><%= t('startLearningToday') %></p>
+            <a href="/courses" class="btn-ruxchai-primary">
+                <i class="fas fa-search mr-2"></i><%= t('browseCourses') %>
+            </a>
+        </div>
+
+        <!-- Course Cards -->
+        <div id="courses-list" class="space-y-4">
+            <!-- Courses will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="mt-8 flex justify-center">
+        <!-- Pagination will be loaded here -->
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingEl = document.getElementById('loading');
+    const emptyStateEl = document.getElementById('empty-state');
+    const coursesListEl = document.getElementById('courses-list');
+
+    async function loadMyCourses() {
+        try {
+            const statusFilter = document.getElementById('status-filter').value;
+            const search = document.getElementById('search').value;
+            const sort = document.getElementById('sort').value;
+
+            let url = '/courses/api/my-courses?';
+            if (statusFilter) url += `status=${statusFilter}&`;
+            if (search) url += `search=${encodeURIComponent(search)}&`;
+            if (sort) url += `sort=${sort}&`;
+
+            const response = await fetch(url);
+            const result = await response.json();
+
+            loadingEl.classList.add('hidden');
+
+            if (!result.success || !result.data || result.data.length === 0) {
+                emptyStateEl.classList.remove('hidden');
+                coursesListEl.innerHTML = '';
+                updateStats({ total: 0, inProgress: 0, completed: 0, certificates: 0 });
+                return;
+            }
+
+            emptyStateEl.classList.add('hidden');
+
+            // Calculate stats
+            const stats = {
+                total: result.data.length,
+                inProgress: result.data.filter(c => c.status === 'active' || c.status === 'in_progress').length,
+                completed: result.data.filter(c => c.status === 'completed').length,
+                certificates: result.data.filter(c => c.certificate_issued).length
+            };
+            updateStats(stats);
+
+            // Render courses
+            coursesListEl.innerHTML = result.data.map(course => renderCourseCard(course)).join('');
+
+        } catch (error) {
+            console.error('Error loading courses:', error);
+            loadingEl.classList.add('hidden');
+            emptyStateEl.classList.remove('hidden');
+        }
+    }
+
+    function updateStats(stats) {
+        document.getElementById('total-enrolled').textContent = stats.total;
+        document.getElementById('in-progress-count').textContent = stats.inProgress;
+        document.getElementById('completed-count').textContent = stats.completed;
+        document.getElementById('certificates-count').textContent = stats.certificates;
+    }
+
+    function renderCourseCard(course) {
+        const progress = course.progress || course.progress_percentage || 0;
+        const statusBadge = getStatusBadge(course.status);
+
+        return `
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-32 h-24 bg-gray-200 rounded-lg overflow-hidden">
+                        <img src="${course.thumbnail || '/images/course-default.svg'}"
+                             alt="${course.title || course.course_name}"
+                             class="w-full h-full object-cover"
+                             onerror="this.src='/images/course-default.svg'">
+                    </div>
+                    <div class="ml-6 flex-1">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 hover:text-ruxchai-primary">
+                                    <a href="/courses/${course.course_id}">${course.title || course.course_name}</a>
+                                </h3>
+                                <p class="text-sm text-gray-500 mt-1">${course.instructor_name || '<%= t("unknownInstructor") %>'}</p>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600"><%= t('progress') %></span>
+                                <span class="font-medium text-gray-900">${progress}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-ruxchai-primary h-2 rounded-full transition-all" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-clock mr-1"></i>
+                                ${course.duration_hours || 0} <%= t('hours') %>
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-calendar mr-1"></i>
+                                ${formatDate(course.enrollment_date)}
+                            </div>
+                            <a href="/courses/${course.course_id}" class="btn-ruxchai-primary btn-sm">
+                                ${progress > 0 ? '<%= t("continue") %>' : '<%= t("start") %>'}
+                                <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function getStatusBadge(status) {
+        const badges = {
+            'active': '<span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"><%= t("inProgress") %></span>',
+            'in_progress': '<span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"><%= t("inProgress") %></span>',
+            'completed': '<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full"><%= t("completedStatus") %></span>',
+            'not_started': '<span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full"><%= t("notStarted") %></span>'
+        };
+        return badges[status] || badges['not_started'];
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('<%= currentLanguage === "th" ? "th-TH" : "en-US" %>', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    // Event listeners
+    document.getElementById('status-filter').addEventListener('change', loadMyCourses);
+    document.getElementById('sort').addEventListener('change', loadMyCourses);
+
+    let searchTimeout;
+    document.getElementById('search').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadMyCourses, 500);
+    });
+
+    // Initial load
+    loadMyCourses();
+});
+</script>

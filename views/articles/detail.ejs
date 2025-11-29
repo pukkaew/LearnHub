@@ -2,7 +2,7 @@
         <!-- Back button -->
         <div class="mb-6">
             <a href="/articles" class="inline-flex items-center text-ruxchai-primary hover:text-ruxchai-primary/80 transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>กลับไปหน้าบทความ
+                <i class="fas fa-arrow-left mr-2"></i><%= t('backToArticles') %>
             </a>
         </div>
 
@@ -38,29 +38,29 @@
                         <div class="flex items-center space-x-6">
                             <div class="text-center">
                                 <p id="viewCount" class="text-2xl font-bold text-gray-900">0</p>
-                                <p class="text-sm text-gray-500">การดู</p>
+                                <p class="text-sm text-gray-500"><%= t('views') %></p>
                             </div>
                             <div class="text-center">
                                 <p id="likeCount" class="text-2xl font-bold text-gray-900">0</p>
-                                <p class="text-sm text-gray-500">ไลค์</p>
+                                <p class="text-sm text-gray-500"><%= t('likes') %></p>
                             </div>
                             <div class="text-center">
                                 <p id="commentCount" class="text-2xl font-bold text-gray-900">0</p>
-                                <p class="text-sm text-gray-500">ความคิดเห็น</p>
+                                <p class="text-sm text-gray-500"><%= t('comments') %></p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-3">
                             <button id="likeBtn" class="flex items-center space-x-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
                                 <i class="far fa-heart"></i>
-                                <span>ถูกใจ</span>
+                                <span><%= t('like') %></span>
                             </button>
                             <button id="shareBtn" class="flex items-center space-x-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
                                 <i class="fas fa-share"></i>
-                                <span>แชร์</span>
+                                <span><%= t('share') %></span>
                             </button>
                             <button id="saveBtn" class="flex items-center space-x-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
                                 <i class="far fa-bookmark"></i>
-                                <span>บันทึก</span>
+                                <span><%= t('save') %></span>
                             </button>
                         </div>
                     </div>
@@ -74,25 +74,25 @@
 
                 <!-- Tags -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">แท็ก</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('tags') %></h3>
                     <div id="articleTags" class="flex flex-wrap gap-2"></div>
                 </div>
 
                 <!-- Author Info -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">เกี่ยวกับผู้เขียน</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('aboutAuthor') %></h3>
                     <div class="flex items-start space-x-4">
                         <img id="authorInfoAvatar" src="/images/default-avatar.png" alt="" class="w-16 h-16 rounded-full">
                         <div class="flex-1">
                             <h4 id="authorInfoName" class="text-xl font-bold text-gray-900 mb-2"></h4>
                             <p id="authorBio" class="text-gray-600 mb-4"></p>
                             <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                <span id="authorArticles">บทความ: 0</span>
-                                <span id="authorFollowers">ผู้ติดตาม: 0</span>
+                                <span id="authorArticles"><%= t('articlesLabel') %>0</span>
+                                <span id="authorFollowers"><%= t('followersLabel') %>0</span>
                             </div>
                         </div>
                         <button id="followBtn" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
-                            ติดตาม
+                            <%= t('follow') %>
                         </button>
                     </div>
                 </div>
@@ -100,22 +100,22 @@
                 <!-- Comments Section -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold text-gray-900">ความคิดเห็น</h3>
+                        <h3 class="text-lg font-bold text-gray-900"><%= t('comments') %></h3>
                         <button id="sortComments" class="text-sm text-ruxchai-primary hover:text-ruxchai-primary/80">
-                            เรียงตาม: ใหม่ที่สุด <i class="fas fa-chevron-down ml-1"></i>
+                            <%= t('sortByNewest') %> <i class="fas fa-chevron-down ml-1"></i>
                         </button>
                     </div>
 
                     <!-- Comment Form -->
                     <div class="mb-8">
-                        <textarea id="commentText" rows="3" placeholder="แสดงความคิดเห็น..."
+                        <textarea id="commentText" rows="3" placeholder="<%= t('addCommentPlaceholder') %>"
                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent resize-none"></textarea>
                         <div class="flex justify-between items-center mt-3">
                             <div class="text-sm text-gray-500">
-                                <span id="commentCharCount">0</span>/1000 ตัวอักษร
+                                <span id="commentCharCount">0</span>/1000 <%= t('characters') %>
                             </div>
                             <button id="submitComment" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                                ส่งความคิดเห็น
+                                <%= t('submitComment') %>
                             </button>
                         </div>
                     </div>
@@ -128,7 +128,7 @@
                     <!-- Load More Comments -->
                     <div class="text-center mt-6">
                         <button id="loadMoreComments" class="px-6 py-2 text-ruxchai-primary border border-ruxchai-primary rounded-lg hover:bg-ruxchai-primary hover:text-white transition-colors hidden">
-                            โหลดความคิดเห็นเพิ่มเติม
+                            <%= t('loadMoreComments') %>
                         </button>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
             <div class="lg:col-span-1">
                 <!-- Table of Contents -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 sticky top-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">สารบัญ</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('tableOfContents') %></h3>
                     <div id="tableOfContents" class="space-y-2 text-sm">
                         <!-- TOC will be generated here -->
                     </div>
@@ -146,7 +146,7 @@
 
                 <!-- Related Articles -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">บทความที่เกี่ยวข้อง</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('relatedArticles') %></h3>
                     <div id="relatedArticles" class="space-y-4">
                         <!-- Related articles will be loaded here -->
                     </div>
@@ -154,7 +154,7 @@
 
                 <!-- Popular Tags -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">แท็กยอดนิยม</h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('popularTags') %></h3>
                     <div id="popularTags" class="flex flex-wrap gap-2">
                         <!-- Popular tags will be loaded here -->
                     </div>
@@ -168,7 +168,7 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">แชร์บทความ</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('shareArticle') %></h3>
                 <button id="closeShareModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -178,23 +178,23 @@
                     <button class="w-full flex items-center space-x-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             onclick="shareToFacebook()">
                         <i class="fab fa-facebook-f"></i>
-                        <span>แชร์ไปยัง Facebook</span>
+                        <span><%= t('shareToFacebook') %></span>
                     </button>
                     <button class="w-full flex items-center space-x-3 px-4 py-3 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
                             onclick="shareToTwitter()">
                         <i class="fab fa-twitter"></i>
-                        <span>แชร์ไปยัง Twitter</span>
+                        <span><%= t('shareToTwitter') %></span>
                     </button>
                     <button class="w-full flex items-center space-x-3 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                             onclick="shareToLine()">
                         <i class="fab fa-line"></i>
-                        <span>แชร์ไปยัง LINE</span>
+                        <span><%= t('shareToLine') %></span>
                     </button>
                     <div class="relative">
                         <input type="text" id="articleUrl" readonly
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
                         <button onclick="copyUrl()" class="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-ruxchai-primary text-white text-sm rounded">
-                            คัดลอก
+                            <%= t('copy') %>
                         </button>
                     </div>
                 </div>
@@ -261,11 +261,11 @@ async function loadArticle() {
             displayArticle(data.article);
             generateTableOfContents();
         } else {
-            showMessage('ไม่พบบทความที่ต้องการ', 'error');
+            showMessage('<%= t('articleNotFound') %>', 'error');
         }
     } catch (error) {
         console.error('Error loading article:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดบทความ', 'error');
+        showMessage('<%= t('errorLoadingArticle') %>', 'error');
     }
 }
 
@@ -283,7 +283,7 @@ function displayArticle(article) {
     document.getElementById('authorAvatar').src = article.author_avatar || '/images/default-avatar.png';
     document.getElementById('authorName').textContent = article.author_name;
     document.getElementById('publishDate').textContent = formatDate(article.created_at);
-    document.getElementById('readTime').textContent = `${article.read_time || 5} นาที`;
+    document.getElementById('readTime').textContent = `${article.read_time || 5} <%= t('minutes') %>`;
 
     document.getElementById('viewCount').textContent = article.views || 0;
     document.getElementById('likeCount').textContent = article.likes || 0;
@@ -304,15 +304,15 @@ function displayArticle(article) {
             `<span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 cursor-pointer">${tag}</span>`
         ).join('');
     } else {
-        tagsContainer.innerHTML = '<span class="text-gray-500">ไม่มีแท็ก</span>';
+        tagsContainer.innerHTML = '<span class="text-gray-500"><%= t('noTags') %></span>';
     }
 
     // Author info
     document.getElementById('authorInfoAvatar').src = article.author_avatar || '/images/default-avatar.png';
     document.getElementById('authorInfoName').textContent = article.author_name;
-    document.getElementById('authorBio').textContent = article.author_bio || 'ยังไม่มีข้อมูลประวัติ';
-    document.getElementById('authorArticles').textContent = `บทความ: ${article.author_articles || 0}`;
-    document.getElementById('authorFollowers').textContent = `ผู้ติดตาม: ${article.author_followers || 0}`;
+    document.getElementById('authorBio').textContent = article.author_bio || '<%= t('noBioYet') %>';
+    document.getElementById('authorArticles').textContent = `<%= t('articlesLabel') %>${article.author_articles || 0}`;
+    document.getElementById('authorFollowers').textContent = `<%= t('followersLabel') %>${article.author_followers || 0}`;
 
     // Update button states
     updateLikeButton(article.is_liked);
@@ -330,7 +330,7 @@ function generateTableOfContents() {
     const tocContainer = document.getElementById('tableOfContents');
 
     if (headings.length === 0) {
-        tocContainer.innerHTML = '<p class="text-gray-500">ไม่มีหัวข้อ</p>';
+        tocContainer.innerHTML = '<p class="text-gray-500"><%= t('noHeadings') %></p>';
         return;
     }
 
@@ -382,7 +382,7 @@ function displayComments() {
     const container = document.getElementById('commentsList');
 
     if (comments.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-center py-8">ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความคิดเห็น!</p>';
+        container.innerHTML = '<p class="text-gray-500 text-center py-8"><%= t('noCommentsYetBeFirst') %></p>';
         return;
     }
 
@@ -405,19 +405,19 @@ function createCommentItem(comment) {
                 </div>
                 <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                     <button class="hover:text-ruxchai-primary transition-colors">
-                        <i class="far fa-heart mr-1"></i>ถูกใจ (${comment.likes || 0})
+                        <i class="far fa-heart mr-1"></i><%= t('like') %> (${comment.likes || 0})
                     </button>
                     <button class="hover:text-ruxchai-primary transition-colors">
-                        <i class="far fa-comment mr-1"></i>ตอบกลับ
+                        <i class="far fa-comment mr-1"></i><%= t('reply') %>
                     </button>
                     ${comment.can_edit ? `
                         <button onclick="editComment(${comment.comment_id})" class="hover:text-blue-600 transition-colors">
-                            <i class="fas fa-edit mr-1"></i>แก้ไข
+                            <i class="fas fa-edit mr-1"></i><%= t('edit') %>
                         </button>
                     ` : ''}
                     ${comment.can_delete ? `
                         <button onclick="deleteComment(${comment.comment_id})" class="hover:text-red-600 transition-colors">
-                            <i class="fas fa-trash mr-1"></i>ลบ
+                            <i class="fas fa-trash mr-1"></i><%= t('delete') %>
                         </button>
                     ` : ''}
                 </div>
@@ -495,17 +495,17 @@ async function submitComment() {
             updateCharCount();
             commentsPage = 1;
             loadComments();
-            showMessage('เพิ่มความคิดเห็นเรียบร้อยแล้ว', 'success');
+            showMessage('<%= t('commentAddedSuccessfully') %>', 'success');
 
             // Update comment count
             const currentCount = parseInt(document.getElementById('commentCount').textContent);
             document.getElementById('commentCount').textContent = currentCount + 1;
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || '<%= t('errorOccurred') %>', 'error');
         }
     } catch (error) {
         console.error('Error submitting comment:', error);
-        showMessage('เกิดข้อผิดพลาดในการส่งความคิดเห็น', 'error');
+        showMessage('<%= t('errorSubmittingComment') %>', 'error');
     }
 }
 
@@ -521,11 +521,11 @@ async function toggleLike() {
         if (data.success) {
             updateLikeButton(data.is_liked);
             document.getElementById('likeCount').textContent = data.like_count;
-            showMessage(data.is_liked ? 'เพิ่มในรายการถูกใจแล้ว' : 'ยกเลิกการถูกใจแล้ว', 'success');
+            showMessage(data.is_liked ? '<%= t('addedToLiked') %>' : '<%= t('unliked') %>', 'success');
         }
     } catch (error) {
         console.error('Error toggling like:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage('<%= t('errorOccurred') %>', 'error');
     }
 }
 
@@ -540,11 +540,11 @@ async function toggleSave() {
 
         if (data.success) {
             updateSaveButton(data.is_saved);
-            showMessage(data.is_saved ? 'บันทึกบทความแล้ว' : 'ยกเลิกการบันทึกแล้ว', 'success');
+            showMessage(data.is_saved ? '<%= t('articleSavedToBookmarks') %>' : '<%= t('articleUnsaved') %>', 'success');
         }
     } catch (error) {
         console.error('Error toggling save:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage('<%= t('errorOccurred') %>', 'error');
     }
 }
 
@@ -562,11 +562,11 @@ async function toggleFollow() {
 
         if (data.success) {
             updateFollowButton(data.is_following);
-            showMessage(data.is_following ? 'ติดตามผู้เขียนแล้ว' : 'ยกเลิกการติดตามแล้ว', 'success');
+            showMessage(data.is_following ? '<%= t('nowFollowingAuthor') %>' : '<%= t('unfollowedAuthor') %>', 'success');
         }
     } catch (error) {
         console.error('Error toggling follow:', error);
-        showMessage('เกิดข้อผิดพลาด', 'error');
+        showMessage('<%= t('errorOccurred') %>', 'error');
     }
 }
 
@@ -609,11 +609,11 @@ function updateFollowButton(isFollowing) {
     const btn = document.getElementById('followBtn');
 
     if (isFollowing) {
-        btn.textContent = 'กำลังติดตาม';
+        btn.textContent = '<%= t('following') %>';
         btn.classList.remove('bg-ruxchai-primary');
         btn.classList.add('bg-gray-600');
     } else {
-        btn.textContent = 'ติดตาม';
+        btn.textContent = '<%= t('follow') %>';
         btn.classList.remove('bg-gray-600');
         btn.classList.add('bg-ruxchai-primary');
     }
@@ -648,7 +648,7 @@ async function loadRelatedArticles() {
                 </div>
             `).join('');
         } else {
-            document.getElementById('relatedArticles').innerHTML = '<p class="text-gray-500">ไม่มีบทความที่เกี่ยวข้อง</p>';
+            document.getElementById('relatedArticles').innerHTML = '<p class="text-gray-500"><%= t('noRelatedArticles') %></p>';
         }
     } catch (error) {
         console.error('Error loading related articles:', error);
@@ -670,7 +670,7 @@ async function loadPopularTags() {
                 </a>
             `).join('');
         } else {
-            document.getElementById('popularTags').innerHTML = '<p class="text-gray-500">ไม่มีแท็กยอดนิยม</p>';
+            document.getElementById('popularTags').innerHTML = '<p class="text-gray-500"><%= t('noPopularTags') %></p>';
         }
     } catch (error) {
         console.error('Error loading popular tags:', error);
@@ -708,29 +708,29 @@ function copyUrl() {
     const urlInput = document.getElementById('articleUrl');
     urlInput.select();
     document.execCommand('copy');
-    showMessage('คัดลอกลิงก์เรียบร้อยแล้ว', 'success');
+    showMessage('<%= t('linkCopiedSuccessfully') %>', 'success');
 }
 
 // Utility functions
 function getCategoryName(category) {
     const categories = {
-        technology: 'เทคโนโลยี',
-        business: 'ธุรกิจ',
-        management: 'การจัดการ',
-        development: 'การพัฒนา',
-        design: 'ดีไซน์',
-        marketing: 'การตลาด',
-        finance: 'การเงิน',
-        other: 'อื่นๆ'
+        technology: '<%= t('technology') %>',
+        business: '<%= t('business') %>',
+        management: '<%= t('management') %>',
+        development: '<%= t('development') %>',
+        design: '<%= t('design') %>',
+        marketing: '<%= t('marketing') %>',
+        finance: '<%= t('finance') %>',
+        other: '<%= t('other') %>'
     };
     return categories[category] || category;
 }
 
 function getStatusName(status) {
     const statuses = {
-        published: 'เผยแพร่แล้ว',
-        draft: 'ร่าง',
-        pending: 'รอการอนุมัติ'
+        published: '<%= t('publishedStatus') %>',
+        draft: '<%= t('draft') %>',
+        pending: '<%= t('pending') %>'
     };
     return statuses[status] || status;
 }

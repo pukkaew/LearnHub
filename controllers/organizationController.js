@@ -22,14 +22,14 @@ const organizationController = {
             const levels = await OrganizationUnit.getLevels();
 
             res.render('organization/index', {
-                title: t(req, 'organizationManagement') + ' - Rukchai Hongyen LearnHub',
+                title: req.t('organizationManagement') + ' - Rukchai Hongyen LearnHub',
                 units,
                 levels,
                 user: req.session.user
             });
         } catch (error) {
             console.error('Error loading organization units:', error);
-            req.flash('error_msg', t(req, 'errorLoadingUnits'));
+            req.flash('error_msg', req.t('errorLoadingUnits'));
             res.redirect('/dashboard');
         }
     },
@@ -49,7 +49,7 @@ const organizationController = {
             console.error('Error getting organization levels:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingLevels')
+                message: req.t('errorLoadingLevels')
             });
         }
     },
@@ -70,7 +70,7 @@ const organizationController = {
             console.error('Error getting organization units:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingUnits')
+                message: req.t('errorLoadingUnits')
             });
         }
     },
@@ -91,7 +91,7 @@ const organizationController = {
             console.error('Error getting organization tree:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingTree')
+                message: req.t('errorLoadingTree')
             });
         }
     },
@@ -107,7 +107,7 @@ const organizationController = {
             if (!unit) {
                 return res.status(404).json({
                     success: false,
-                    message: t(req, 'unitNotFound')
+                    message: req.t('unitNotFound')
                 });
             }
 
@@ -119,7 +119,7 @@ const organizationController = {
             console.error('Error getting unit by ID:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingUnits')
+                message: req.t('errorLoadingUnits')
             });
         }
     },
@@ -140,7 +140,7 @@ const organizationController = {
             console.error('Error getting hierarchy path:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingData')
+                message: req.t('errorLoadingData')
             });
         }
     },
@@ -161,7 +161,7 @@ const organizationController = {
             console.error('Error getting children units:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingData')
+                message: req.t('errorLoadingData')
             });
         }
     },
@@ -182,7 +182,7 @@ const organizationController = {
             console.error('Error getting units by level:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingData')
+                message: req.t('errorLoadingData')
             });
         }
     },
@@ -207,7 +207,7 @@ const organizationController = {
             const managers = mgrResult.recordset;
 
             res.render('organization/create', {
-                title: t(req, 'createUnit') + ' - Rukchai Hongyen LearnHub',
+                title: req.t('createUnit') + ' - Rukchai Hongyen LearnHub',
                 levels,
                 units,
                 managers,
@@ -215,7 +215,7 @@ const organizationController = {
             });
         } catch (error) {
             console.error('Error loading create form:', error);
-            req.flash('error_msg', t(req, 'errorLoadingForm'));
+            req.flash('error_msg', req.t('errorLoadingForm'));
             res.redirect('/organization');
         }
     },
@@ -256,11 +256,11 @@ const organizationController = {
                 if (isJsonRequest) {
                     return res.json({
                         success: true,
-                        message: t(req, 'unitCreatedSuccess'),
+                        message: req.t('unitCreatedSuccess'),
                         data: { unit_id: result.unitId }
                     });
                 } else {
-                    req.flash('success_msg', t(req, 'unitCreatedSuccess'));
+                    req.flash('success_msg', req.t('unitCreatedSuccess'));
                     return res.redirect('/organization');
                 }
             }
@@ -274,10 +274,10 @@ const organizationController = {
             if (isJsonRequest) {
                 return res.status(400).json({
                     success: false,
-                    message: error.message || t(req, 'errorCreatingUnit')
+                    message: error.message || req.t('errorCreatingUnit')
                 });
             } else {
-                req.flash('error_msg', error.message || t(req, 'errorCreatingUnit'));
+                req.flash('error_msg', error.message || req.t('errorCreatingUnit'));
                 return res.redirect('/organization/create');
             }
         }
@@ -292,7 +292,7 @@ const organizationController = {
             const unit = await OrganizationUnit.findById(unitId);
 
             if (!unit) {
-                req.flash('error_msg', t(req, 'unitNotFound'));
+                req.flash('error_msg', req.t('unitNotFound'));
                 return res.redirect('/organization');
             }
 
@@ -316,7 +316,7 @@ const organizationController = {
             const employees = empResult.recordset;
 
             res.render('organization/view', {
-                title: t(req, 'unitDetails') + ': ' + unit.unit_name_th + ' - Rukchai Hongyen LearnHub',
+                title: req.t('unitDetails') + ': ' + unit.unit_name_th + ' - Rukchai Hongyen LearnHub',
                 unit,
                 hierarchyPath,
                 children,
@@ -325,7 +325,7 @@ const organizationController = {
             });
         } catch (error) {
             console.error('Error loading unit details:', error);
-            req.flash('error_msg', t(req, 'errorLoadingData'));
+            req.flash('error_msg', req.t('errorLoadingData'));
             res.redirect('/organization');
         }
     },
@@ -339,7 +339,7 @@ const organizationController = {
             const unit = await OrganizationUnit.findById(unitId);
 
             if (!unit) {
-                req.flash('error_msg', t(req, 'unitNotFound'));
+                req.flash('error_msg', req.t('unitNotFound'));
                 return res.redirect('/organization');
             }
 
@@ -358,7 +358,7 @@ const organizationController = {
             const managers = mgrResult.recordset;
 
             res.render('organization/edit', {
-                title: t(req, 'editUnit') + ' - Rukchai Hongyen LearnHub',
+                title: req.t('editUnit') + ' - Rukchai Hongyen LearnHub',
                 unit,
                 levels,
                 units,
@@ -367,7 +367,7 @@ const organizationController = {
             });
         } catch (error) {
             console.error('Error loading edit form:', error);
-            req.flash('error_msg', t(req, 'errorLoadingForm'));
+            req.flash('error_msg', req.t('errorLoadingForm'));
             res.redirect('/organization');
         }
     },
@@ -403,10 +403,10 @@ const organizationController = {
                 if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
                     return res.json({
                         success: true,
-                        message: t(req, 'unitUpdatedSuccess')
+                        message: req.t('unitUpdatedSuccess')
                     });
                 } else {
-                    req.flash('success_msg', t(req, 'unitUpdatedSuccess'));
+                    req.flash('success_msg', req.t('unitUpdatedSuccess'));
                     return res.redirect('/organization');
                 }
             } else {
@@ -418,10 +418,10 @@ const organizationController = {
             if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
                 return res.status(400).json({
                     success: false,
-                    message: error.message || t(req, 'errorUpdatingUnit')
+                    message: error.message || req.t('errorUpdatingUnit')
                 });
             } else {
-                req.flash('error_msg', error.message || t(req, 'errorUpdatingUnit'));
+                req.flash('error_msg', error.message || req.t('errorUpdatingUnit'));
                 return res.redirect(`/organization/${req.params.id}/edit`);
             }
         }
@@ -438,7 +438,7 @@ const organizationController = {
             if (!unit) {
                 return res.status(404).json({
                     success: false,
-                    message: t(req, 'unitNotFound')
+                    message: req.t('unitNotFound')
                 });
             }
 
@@ -455,7 +455,7 @@ const organizationController = {
 
                 return res.json({
                     success: true,
-                    message: t(req, 'unitDeletedSuccess')
+                    message: req.t('unitDeletedSuccess')
                 });
             } else {
                 return res.status(400).json({
@@ -467,7 +467,7 @@ const organizationController = {
             console.error('Error deleting organization unit:', error);
             return res.status(500).json({
                 success: false,
-                message: error.message || t(req, 'errorDeletingUnit')
+                message: error.message || req.t('errorDeletingUnit')
             });
         }
     },
@@ -493,7 +493,7 @@ const organizationController = {
             console.log('📊 Statistics for positions page:', statistics);
 
             res.render('organization/positions', {
-                title: t(req, 'positionManagement') + ' - Rukchai Hongyen LearnHub',
+                title: req.t('positionManagement') + ' - Rukchai Hongyen LearnHub',
                 positions,
                 units,
                 statistics,
@@ -504,7 +504,7 @@ const organizationController = {
             });
         } catch (error) {
             console.error('Error loading positions:', error);
-            req.flash('error_msg', t(req, 'errorLoadingPositions'));
+            req.flash('error_msg', req.t('errorLoadingPositions'));
             res.redirect('/dashboard');
         }
     },
@@ -531,7 +531,7 @@ const organizationController = {
             console.error('Error getting positions:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingPositions')
+                message: req.t('errorLoadingPositions')
             });
         }
     },
@@ -552,7 +552,7 @@ const organizationController = {
             console.error('Error getting employee positions:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingData')
+                message: req.t('errorLoadingData')
             });
         }
     },
@@ -572,7 +572,7 @@ const organizationController = {
             console.error('Error getting applicant positions:', error);
             res.status(500).json({
                 success: false,
-                message: t(req, 'errorLoadingData')
+                message: req.t('errorLoadingData')
             });
         }
     },
@@ -585,13 +585,13 @@ const organizationController = {
             const units = await OrganizationUnit.getAll(false);
 
             res.render('organization/create-position', {
-                title: t(req, 'createNewPosition') + ' - Rukchai Hongyen LearnHub',
+                title: req.t('createNewPosition') + ' - Rukchai Hongyen LearnHub',
                 units,
                 user: req.session.user
             });
         } catch (error) {
             console.error('Error loading create position form:', error);
-            req.flash('error_msg', t(req, 'errorLoadingForm'));
+            req.flash('error_msg', req.t('errorLoadingForm'));
             res.redirect('/organization/positions');
         }
     },
@@ -608,14 +608,14 @@ const organizationController = {
             if (!positionName) {
                 return res.status(400).json({
                     success: false,
-                    message: t(req, 'pleaseEnterPositionName')
+                    message: req.t('pleaseEnterPositionName')
                 });
             }
 
             if (!unitIds || unitIds.length === 0) {
                 return res.status(400).json({
                     success: false,
-                    message: t(req, 'pleaseSelectUnit')
+                    message: req.t('pleaseSelectUnit')
                 });
             }
 
@@ -661,8 +661,8 @@ const organizationController = {
 
             if (results.length > 0) {
                 const message = errors.length > 0
-                    ? t(req, 'positionCreatedPartial').replace('{success}', results.length).replace('{failed}', errors.length)
-                    : t(req, 'positionCreatedInUnits').replace('{count}', results.length);
+                    ? req.t('positionCreatedPartial').replace('{success}', results.length).replace('{failed}', errors.length)
+                    : req.t('positionCreatedInUnits').replace('{count}', results.length);
 
                 if (isJsonRequest) {
                     return res.json({
@@ -675,7 +675,7 @@ const organizationController = {
                     return res.redirect('/organization/positions');
                 }
             } else {
-                throw new Error(t(req, 'cannotCreatePosition'));
+                throw new Error(req.t('cannotCreatePosition'));
             }
         } catch (error) {
             console.error('Error creating position:', error);
@@ -687,10 +687,10 @@ const organizationController = {
             if (isJsonRequest) {
                 return res.status(400).json({
                     success: false,
-                    message: error.message || t(req, 'errorCreatingPosition')
+                    message: error.message || req.t('errorCreatingPosition')
                 });
             } else {
-                req.flash('error_msg', error.message || t(req, 'errorCreatingPosition'));
+                req.flash('error_msg', error.message || req.t('errorCreatingPosition'));
                 return res.redirect('/organization/positions/create');
             }
         }
@@ -705,7 +705,7 @@ const organizationController = {
             const position = await Position.findById(positionId);
 
             if (!position) {
-                req.flash('error_msg', t(req, 'positionNotFound'));
+                req.flash('error_msg', req.t('positionNotFound'));
                 return res.redirect('/organization/positions');
             }
 
@@ -730,14 +730,14 @@ const organizationController = {
             console.log('Employees from query:', employees.length);
 
             res.render('organization/view-position', {
-                title: t(req, 'positionDetails') + ': ' + position.position_name + ' - Rukchai Hongyen LearnHub',
+                title: req.t('positionDetails') + ': ' + position.position_name + ' - Rukchai Hongyen LearnHub',
                 position,
                 employees,
                 user: req.session.user
             });
         } catch (error) {
             console.error('Error loading position details:', error);
-            req.flash('error_msg', t(req, 'errorLoadingData'));
+            req.flash('error_msg', req.t('errorLoadingData'));
             res.redirect('/organization/positions');
         }
     },
@@ -751,14 +751,14 @@ const organizationController = {
             const position = await Position.findById(positionId);
 
             if (!position) {
-                req.flash('error_msg', t(req, 'positionNotFound'));
+                req.flash('error_msg', req.t('positionNotFound'));
                 return res.redirect('/organization/positions');
             }
 
             const units = await OrganizationUnit.getAll(false);
 
             res.render('organization/edit-position', {
-                title: t(req, 'editPosition') + ' - Rukchai Hongyen LearnHub',
+                title: req.t('editPosition') + ' - Rukchai Hongyen LearnHub',
                 position,
                 units,
                 user: req.session.user,
@@ -767,7 +767,7 @@ const organizationController = {
             });
         } catch (error) {
             console.error('Error loading edit position form:', error);
-            req.flash('error_msg', t(req, 'errorLoadingForm'));
+            req.flash('error_msg', req.t('errorLoadingForm'));
             res.redirect('/organization/positions');
         }
     },
@@ -810,10 +810,10 @@ const organizationController = {
                 if (isJsonRequest) {
                     return res.json({
                         success: true,
-                        message: t(req, 'positionUpdatedSuccess')
+                        message: req.t('positionUpdatedSuccess')
                     });
                 } else {
-                    req.flash('success_msg', t(req, 'positionUpdatedSuccess'));
+                    req.flash('success_msg', req.t('positionUpdatedSuccess'));
                     return res.redirect('/organization/positions');
                 }
             } else {
@@ -829,10 +829,10 @@ const organizationController = {
             if (isJsonRequest) {
                 return res.status(400).json({
                     success: false,
-                    message: error.message || t(req, 'errorUpdatingPosition')
+                    message: error.message || req.t('errorUpdatingPosition')
                 });
             } else {
-                req.flash('error_msg', error.message || t(req, 'errorUpdatingPosition'));
+                req.flash('error_msg', error.message || req.t('errorUpdatingPosition'));
                 return res.redirect(`/organization/positions/${req.params.id}/edit`);
             }
         }
@@ -849,7 +849,7 @@ const organizationController = {
             if (!position) {
                 return res.status(404).json({
                     success: false,
-                    message: t(req, 'positionNotFound')
+                    message: req.t('positionNotFound')
                 });
             }
 
@@ -866,7 +866,7 @@ const organizationController = {
 
                 return res.json({
                     success: true,
-                    message: t(req, 'positionDeletedSuccess')
+                    message: req.t('positionDeletedSuccess')
                 });
             } else {
                 return res.status(400).json({
@@ -878,7 +878,7 @@ const organizationController = {
             console.error('Error deleting position:', error);
             return res.status(500).json({
                 success: false,
-                message: error.message || t(req, 'errorDeletingPosition')
+                message: error.message || req.t('errorDeletingPosition')
             });
         }
     },

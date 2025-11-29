@@ -3,10 +3,10 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div class="mb-4 md:mb-0">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Knowledge Sharing Hub</h1>
-                <p class="text-gray-600">ศูนย์รวมความรู้และประสบการณ์จากผู้เชี่ยวชาญ</p>
+                <p class="text-gray-600"><%= t('knowledgeSharingHubDesc') %></p>
             </div>
             <button id="createArticleBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
-                <i class="fas fa-plus mr-2"></i>เขียนบทความใหม่
+                <i class="fas fa-plus mr-2"></i><%= t('writeNewArticle') %>
             </button>
         </div>
 
@@ -18,7 +18,7 @@
                         <i class="fas fa-newspaper text-blue-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">บทความทั้งหมด</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('allArticles') %></h3>
                         <p id="totalArticles" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -29,7 +29,7 @@
                         <i class="fas fa-eye text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">การดูทั้งหมด</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('totalViews') %></h3>
                         <p id="totalViews" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                         <i class="fas fa-heart text-purple-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ยอดไลค์ทั้งหมด</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('totalLikes') %></h3>
                         <p id="totalLikes" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                         <i class="fas fa-comments text-orange-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">ความคิดเห็น</h3>
+                        <h3 class="text-sm font-medium text-gray-500"><%= t('comments') %></h3>
                         <p id="totalComments" class="text-2xl font-bold text-gray-900">0</p>
                     </div>
                 </div>
@@ -63,32 +63,32 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchArticles" placeholder="ค้นหาบทความ..."
+                    <input type="text" id="searchArticles" placeholder="<%= t('searchArticlesPlaceholder') %>"
                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">หมวดหมู่ทั้งหมด</option>
-                    <option value="technology">เทคโนโลยี</option>
-                    <option value="business">ธุรกิจ</option>
-                    <option value="management">การจัดการ</option>
-                    <option value="development">การพัฒนา</option>
-                    <option value="design">ดีไซน์</option>
-                    <option value="marketing">การตลาด</option>
-                    <option value="finance">การเงิน</option>
-                    <option value="other">อื่นๆ</option>
+                    <option value=""><%= t('allCategories') %></option>
+                    <option value="technology"><%= t('technology') %></option>
+                    <option value="business"><%= t('business') %></option>
+                    <option value="management"><%= t('management') %></option>
+                    <option value="development"><%= t('development') %></option>
+                    <option value="design"><%= t('design') %></option>
+                    <option value="marketing"><%= t('marketing') %></option>
+                    <option value="finance"><%= t('finance') %></option>
+                    <option value="other"><%= t('other') %></option>
                 </select>
                 <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="latest">ล่าสุด</option>
-                    <option value="popular">ยอดนิยม</option>
-                    <option value="most_viewed">ดูมากที่สุด</option>
-                    <option value="most_liked">ไลค์มากที่สุด</option>
-                    <option value="oldest">เก่าที่สุด</option>
+                    <option value="latest"><%= t('latest') %></option>
+                    <option value="popular"><%= t('popular') %></option>
+                    <option value="most_viewed"><%= t('mostViewed') %></option>
+                    <option value="most_liked"><%= t('mostLiked') %></option>
+                    <option value="oldest"><%= t('oldest') %></option>
                 </select>
                 <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="">สถานะทั้งหมด</option>
-                    <option value="published">เผยแพร่แล้ว</option>
-                    <option value="draft">ร่าง</option>
-                    <option value="pending">รอการอนุมัติ</option>
+                    <option value=""><%= t('allStatuses') %></option>
+                    <option value="published"><%= t('publishedStatus') %></option>
+                    <option value="draft"><%= t('draft') %></option>
+                    <option value="pending"><%= t('pending') %></option>
                 </select>
             </div>
         </div>
@@ -97,14 +97,14 @@
         <div class="flex justify-between items-center mb-6">
             <div class="flex space-x-2">
                 <button id="gridViewBtn" class="view-toggle-btn active px-4 py-2 rounded-lg transition-colors">
-                    <i class="fas fa-th mr-2"></i>มุมมอง Grid
+                    <i class="fas fa-th mr-2"></i><%= t('gridView') %>
                 </button>
                 <button id="listViewBtn" class="view-toggle-btn px-4 py-2 rounded-lg transition-colors">
-                    <i class="fas fa-list mr-2"></i>มุมมอง List
+                    <i class="fas fa-list mr-2"></i><%= t('listView') %>
                 </button>
             </div>
             <div class="text-sm text-gray-500">
-                แสดง <span id="articlesCount">0</span> บทความ
+                <%= t('showing') %><span id="articlesCount">0</span> <%= t('articlesText') %>
             </div>
         </div>
 
@@ -124,51 +124,51 @@
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900">เขียนบทความใหม่</h3>
+                <h3 class="text-xl font-bold text-gray-900"><%= t('writeNewArticle') %></h3>
                 <button id="closeCreateModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             <form id="createArticleForm" class="p-6 space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">หัวข้อบทความ *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('articleTitle') %> *</label>
                     <input type="text" name="title" required
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่ *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('category') %> *</label>
                     <select name="category" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="">เลือกหมวดหมู่</option>
-                        <option value="technology">เทคโนโลยี</option>
-                        <option value="business">ธุรกิจ</option>
-                        <option value="management">การจัดการ</option>
-                        <option value="development">การพัฒนา</option>
-                        <option value="design">ดีไซน์</option>
-                        <option value="marketing">การตลาด</option>
-                        <option value="finance">การเงิน</option>
-                        <option value="other">อื่นๆ</option>
+                        <option value=""><%= t('selectCategory') %></option>
+                        <option value="technology"><%= t('technology') %></option>
+                        <option value="business"><%= t('business') %></option>
+                        <option value="management"><%= t('management') %></option>
+                        <option value="development"><%= t('development') %></option>
+                        <option value="design"><%= t('design') %></option>
+                        <option value="marketing"><%= t('marketing') %></option>
+                        <option value="finance"><%= t('finance') %></option>
+                        <option value="other"><%= t('other') %></option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">สรุปเนื้อหา</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('summary') %></label>
                     <textarea name="summary" rows="3"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="สรุปสั้นๆ ของบทความ..."></textarea>
+                              placeholder="<%= t('briefSummaryArticle') %>"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">เนื้อหาบทความ *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('articleContent') %> *</label>
                     <div id="articleEditor" class="border border-gray-300 rounded-lg" style="height: 300px;"></div>
                     <input type="hidden" name="content" id="articleContent">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">แท็ก</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('tags') %></label>
                     <input type="text" name="tags"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                           placeholder="แยกแท็กด้วยเครื่องหมายจุลภาค เช่น javascript, programming, tutorial">
+                           placeholder="<%= t('separateTagsWithCommaExample') %>">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">รูปปก</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('featuredImage') %></label>
                     <input type="file" name="featured_image" accept="image/*"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                 </div>
@@ -176,19 +176,19 @@
                     <div class="flex space-x-4">
                         <label class="flex items-center">
                             <input type="radio" name="status" value="draft" checked class="mr-2">
-                            <span class="text-sm text-gray-700">บันทึกเป็นร่าง</span>
+                            <span class="text-sm text-gray-700"><%= t('saveAsDraft') %></span>
                         </label>
                         <label class="flex items-center">
                             <input type="radio" name="status" value="published" class="mr-2">
-                            <span class="text-sm text-gray-700">เผยแพร่ทันที</span>
+                            <span class="text-sm text-gray-700"><%= t('publishNow') %></span>
                         </label>
                     </div>
                     <div class="flex space-x-3">
                         <button type="button" id="cancelCreate" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                            ยกเลิก
+                            <%= t('cancel') %>
                         </button>
                         <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                            บันทึกบทความ
+                            <%= t('saveArticle') %>
                         </button>
                     </div>
                 </div>
@@ -284,7 +284,7 @@ async function loadArticles() {
         }
     } catch (error) {
         console.error('Error loading articles:', error);
-        showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+        showMessage('<%= t('errorLoadingData') %>', 'error');
     }
 }
 
@@ -428,9 +428,9 @@ function createArticleListItem(article) {
 // Status badge
 function getStatusBadge(status) {
     const badges = {
-        published: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">เผยแพร่แล้ว</span>',
-        draft: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">ร่าง</span>',
-        pending: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">รอการอนุมัติ</span>'
+        published: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><%= t('publishedStatus') %></span>',
+        draft: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"><%= t('draft') %></span>',
+        pending: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full"><%= t('pending') %></span>'
     };
     return badges[status] || '';
 }
@@ -438,14 +438,14 @@ function getStatusBadge(status) {
 // Category badge
 function getCategoryBadge(category) {
     const badges = {
-        technology: '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">เทคโนโลยี</span>',
-        business: '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">ธุรกิจ</span>',
-        management: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">การจัดการ</span>',
-        development: '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">การพัฒนา</span>',
-        design: '<span class="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded-full">ดีไซน์</span>',
-        marketing: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">การตลาด</span>',
-        finance: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">การเงิน</span>',
-        other: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">อื่นๆ</span>'
+        technology: '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"><%= t('technology') %></span>',
+        business: '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"><%= t('business') %></span>',
+        management: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><%= t('management') %></span>',
+        development: '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full"><%= t('development') %></span>',
+        design: '<span class="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded-full"><%= t('design') %></span>',
+        marketing: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"><%= t('marketing') %></span>',
+        finance: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full"><%= t('finance') %></span>',
+        other: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"><%= t('other') %></span>'
     };
     return badges[category] || '';
 }
@@ -483,15 +483,15 @@ async function handleCreateArticle(e) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('บันทึกบทความเรียบร้อยแล้ว', 'success');
+            showMessage('<%= t('articleSavedSuccessfully') %>', 'success');
             closeCreateModal();
             loadArticles();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || '<%= t('errorOccurred') %>', 'error');
         }
     } catch (error) {
         console.error('Error creating article:', error);
-        showMessage('เกิดข้อผิดพลาดในการบันทึก', 'error');
+        showMessage('<%= t('errorSaving') %>', 'error');
     }
 }
 
@@ -511,7 +511,7 @@ function editArticle(articleId) {
 
 // Delete article
 async function deleteArticle(articleId) {
-    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบบทความนี้?')) return;
+    if (!confirm('<%= t('confirmDeleteArticle') %>')) return;
 
     try {
         const response = await fetch(`/articles/${articleId}`, {
@@ -521,14 +521,14 @@ async function deleteArticle(articleId) {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('ลบบทความเรียบร้อยแล้ว', 'success');
+            showMessage('<%= t('articleDeletedSuccessfully') %>', 'success');
             loadArticles();
         } else {
-            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+            showMessage(data.message || '<%= t('errorOccurred') %>', 'error');
         }
     } catch (error) {
         console.error('Error deleting article:', error);
-        showMessage('เกิดข้อผิดพลาดในการลบ', 'error');
+        showMessage('<%= t('errorDeleting') %>', 'error');
     }
 }
 

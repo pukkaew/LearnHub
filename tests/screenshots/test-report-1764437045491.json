@@ -1,0 +1,18 @@
+{
+  "passed": [],
+  "failed": [
+    {
+      "name": "Login",
+      "error": "Unexpected redirect to http://localhost:3000/auth/login",
+      "time": "2025-11-29T17:24:05.347Z"
+    },
+    {
+      "name": "Test Runner",
+      "error": "Error: Failed to login - cannot proceed with tests",
+      "time": "2025-11-29T17:24:05.348Z"
+    }
+  ],
+  "warnings": [],
+  "startTime": "2025-11-29T17:23:59.455Z",
+  "endTime": "2025-11-29T17:24:05.491Z"
+}

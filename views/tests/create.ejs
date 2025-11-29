@@ -6,12 +6,12 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">
-                    <i class="fas fa-plus-circle mr-3 text-ruxchai-primary"></i>สร้างข้อสอบใหม่
+                    <i class="fas fa-plus-circle mr-3 text-ruxchai-primary"></i><%= t('createNewTest') %>
                 </h1>
-                <p class="mt-2 text-gray-600">สร้างข้อสอบและแบบทดสอบสำหรับประเมินความรู้</p>
+                <p class="mt-2 text-gray-600"><%= t('createTestAndAssessment') %></p>
             </div>
             <a href="/tests" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                <i class="fas fa-arrow-left mr-2"></i>กลับไปรายการข้อสอบ
+                <i class="fas fa-arrow-left mr-2"></i><%= t('backToTestList') %>
             </a>
         </div>
     </div>
@@ -30,7 +30,7 @@
                             <div class="relative w-8 h-8 flex items-center justify-center bg-ruxchai-primary rounded-full">
                                 <span class="text-white text-sm font-medium">1</span>
                             </div>
-                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-900">ข้อมูลพื้นฐาน</span>
+                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-900"><%= t('basicInformation') %></span>
                         </li>
 
                         <li class="relative pr-8 sm:pr-20">
@@ -40,14 +40,14 @@
                             <div class="relative w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full">
                                 <span class="text-gray-500 text-sm font-medium">2</span>
                             </div>
-                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-500">การตั้งค่า</span>
+                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-500"><%= t('settings') %></span>
                         </li>
 
                         <li class="relative">
                             <div class="relative w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full">
                                 <span class="text-gray-500 text-sm font-medium">3</span>
                             </div>
-                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-500">คำถาม</span>
+                            <span class="absolute top-10 left-0 text-xs font-medium text-gray-500"><%= t('questions') %></span>
                         </li>
                     </ol>
                 </nav>
@@ -57,44 +57,46 @@
                 <!-- Step 1: Basic Information -->
                 <div id="step-1" class="step-content">
                     <h3 class="text-lg font-medium text-gray-900 mb-6">
-                        <i class="fas fa-info-circle mr-2 text-ruxchai-primary"></i>ข้อมูลพื้นฐานของข้อสอบ
+                        <i class="fas fa-info-circle mr-2 text-ruxchai-primary"></i><%= t('basicTestInfo') %>
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">
-                            <label for="test_name" class="block text-sm font-medium text-gray-700 mb-2">ชื่อข้อสอบ <span class="text-red-500">*</span></label>
+                            <label for="test_name" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testName') %> <span class="text-red-500">*</span></label>
                             <input type="text" id="test_name" name="test_name" required
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                   placeholder="ระบุชื่อข้อสอบ">
+                                   placeholder="<%= t('testName') %>">
                         </div>
 
                         <div>
-                            <label for="test_code" class="block text-sm font-medium text-gray-700 mb-2">รหัสข้อสอบ <span class="text-red-500">*</span></label>
+                            <label for="test_code" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testCode') %> <span class="text-red-500">*</span></label>
                             <input type="text" id="test_code" name="test_code" required
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                   placeholder="เช่น TEST-001">
+                                   placeholder="TEST-001">
                         </div>
 
                         <div>
-                            <label for="test_type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทข้อสอบ <span class="text-red-500">*</span></label>
+                            <label for="test_type" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testType') %> <span class="text-red-500">*</span></label>
                             <select id="test_type" name="type" required
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value="">เลือกประเภทข้อสอบ</option>
-                                <option value="assessment">แบบประเมิน (Assessment)</option>
-                                <option value="quiz">แบบทดสอบย่อย (Quiz)</option>
-                                <option value="exam">สอบปลายภาค (Exam)</option>
-                                <option value="midterm">สอบกลางภาค (Midterm)</option>
-                                <option value="final">สอบไล่ (Final Exam)</option>
-                                <option value="certification">สอบใบรับรอง (Certification)</option>
-                                <option value="practice">แบบฝึกหัด (Practice)</option>
+                                <option value=""><%= t('selectTestType') %></option>
+                                <option value="pre_training_assessment"><%= t('preTrainingAssessment') %></option>
+                                <option value="assessment"><%= t('assessment') %></option>
+                                <option value="knowledge_check"><%= t('knowledgeCheck') %></option>
+                                <option value="practice_exercise"><%= t('practiceExercise') %></option>
+                                <option value="progress_assessment"><%= t('progressAssessment') %></option>
+                                <option value="midcourse_assessment"><%= t('midcourseAssessment') %></option>
+                                <option value="post_training_assessment"><%= t('postTrainingAssessment') %></option>
+                                <option value="final_assessment"><%= t('finalAssessment') %></option>
+                                <option value="certification_assessment"><%= t('certificationAssessment') %></option>
                             </select>
                         </div>
 
                         <div>
-                            <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">หลักสูตรที่เกี่ยวข้อง</label>
-                            <select id="course_id" name="course_id"
+                            <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('relatedCourse') %></label>
+                            <select id="course_id" name="course_id" onchange="handleCourseChange()"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value="">ไม่เกี่ยวข้องกับหลักสูตร</option>
+                                <option value=""><%= t('notRelatedToCourse') %></option>
                                 <% if (courses && courses.length > 0) { %>
                                     <% courses.forEach(course => { %>
                                         <option value="<%= course.course_id %>">
@@ -105,35 +107,73 @@
                             </select>
                         </div>
 
+                        <!-- Course Assessment Structure Display -->
+                        <div id="course-assessment-structure" class="md:col-span-2 hidden">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
+                                    <i class="fas fa-clipboard-list mr-2"></i>
+                                    <%= t('courseAssessmentStructure') || 'Course Assessment Structure' %>
+                                </h4>
+                                <div id="assessment-structure-content">
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
+                                        <p class="text-sm text-gray-600 mt-2"><%= t('loading') || 'Loading...' %></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
-                            <label for="difficulty_level" class="block text-sm font-medium text-gray-700 mb-2">ระดับความยาก</label>
+                            <label for="chapter_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                <%= t('selectChapter') %> <span class="text-gray-500 text-xs">(<%= t('selectCourseFirst') || 'เลือก Course ก่อน' %>)</span>
+                            </label>
+                            <select id="chapter_id" name="chapter_id" onchange="loadLessons()"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                    disabled>
+                                <option value=""><%= t('selectCourseToLoadChapters') || 'เลือก Course เพื่อโหลดบทเรียน' %></option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="lesson_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                <%= t('selectLesson') %> <span class="text-gray-500 text-xs">(<%= t('selectChapterFirst') || 'เลือกบทก่อน' %>)</span>
+                            </label>
+                            <select id="lesson_id" name="lesson_id"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                    disabled>
+                                <option value=""><%= t('selectChapterToLoadLessons') || 'เลือกบทเพื่อโหลดบทเรียน' %></option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="difficulty_level" class="block text-sm font-medium text-gray-700 mb-2"><%= t('difficultyLevel') %></label>
                             <select id="difficulty_level" name="difficulty_level"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value="Easy">ง่าย</option>
-                                <option value="Medium" selected>ปานกลาง</option>
-                                <option value="Hard">ยาก</option>
+                                <option value="Easy"><%= t('easy') %></option>
+                                <option value="Medium" selected><%= t('medium') %></option>
+                                <option value="Hard"><%= t('hard') %></option>
                             </select>
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายข้อสอบ</label>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testDescription') %></label>
                             <textarea id="description" name="description" rows="4"
                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                      placeholder="อธิบายรายละเอียดและจุดประสงค์ของข้อสอบ"></textarea>
+                                      placeholder="<%= t('describeTestDetails') %>"></textarea>
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="instructions" class="block text-sm font-medium text-gray-700 mb-2">คำแนะนำสำหรับผู้สอบ</label>
+                            <label for="instructions" class="block text-sm font-medium text-gray-700 mb-2"><%= t('instructionsForTest') %></label>
                             <textarea id="instructions" name="instructions" rows="3"
                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                      placeholder="คำแนะนำและเงื่อนไขสำหรับการทำข้อสอบ"></textarea>
+                                      placeholder="<%= t('testConditions') %>"></textarea>
                         </div>
                     </div>
 
                     <div class="flex justify-end mt-8">
                         <button type="button" onclick="nextStep()"
                                 class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                            ถัดไป <i class="fas fa-arrow-right ml-2"></i>
+                            <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
@@ -141,29 +181,29 @@
                 <!-- Step 2: Test Settings -->
                 <div id="step-2" class="step-content hidden">
                     <h3 class="text-lg font-medium text-gray-900 mb-6">
-                        <i class="fas fa-cogs mr-2 text-ruxchai-primary"></i>การตั้งค่าข้อสอบ
+                        <i class="fas fa-cogs mr-2 text-ruxchai-primary"></i><%= t('testSettings') %>
                     </h3>
 
                     <div class="space-y-8">
                         <!-- Time Settings -->
                         <div class="border-b border-gray-200 pb-6">
-                            <h4 class="text-md font-medium text-gray-900 mb-4">การตั้งค่าเวลา</h4>
+                            <h4 class="text-md font-medium text-gray-900 mb-4"><%= t('timeSettings') %></h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
-                                    <label for="time_limit" class="block text-sm font-medium text-gray-700 mb-2">เวลาในการทำข้อสอบ (นาที)</label>
+                                    <label for="time_limit" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testDuration') %></label>
                                     <input type="number" id="time_limit" name="time_limit" min="1" max="300"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                           placeholder="เช่น 60">
+                                           placeholder="60">
                                 </div>
 
                                 <div>
-                                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">วันเริ่มสอบ</label>
+                                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2"><%= t('startDate') %></label>
                                     <input type="datetime-local" id="start_date" name="start_date"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 </div>
 
                                 <div>
-                                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">วันสิ้นสุดการสอบ</label>
+                                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2"><%= t('endDate') %></label>
                                     <input type="datetime-local" id="end_date" name="end_date"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 </div>
@@ -172,26 +212,26 @@
 
                         <!-- Attempt Settings -->
                         <div class="border-b border-gray-200 pb-6">
-                            <h4 class="text-md font-medium text-gray-900 mb-4">การตั้งค่าการทำข้อสอบ</h4>
+                            <h4 class="text-md font-medium text-gray-900 mb-4"><%= t('attemptSettings') %></h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
-                                    <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2">จำนวนครั้งที่ทำได้</label>
+                                    <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2"><%= t('maxAttempts') %></label>
                                     <input type="number" id="max_attempts" name="max_attempts" min="1" max="10" value="1"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 </div>
 
                                 <div>
-                                    <label for="passing_score" class="block text-sm font-medium text-gray-700 mb-2">คะแนนผ่าน (%)</label>
+                                    <label for="passing_score" class="block text-sm font-medium text-gray-700 mb-2"><%= t('passingScore') %></label>
                                     <input type="number" id="passing_score" name="passing_score" min="0" max="100" value="70"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 </div>
 
                                 <div>
-                                    <label for="question_order" class="block text-sm font-medium text-gray-700 mb-2">ลำดับคำถาม</label>
+                                    <label for="question_order" class="block text-sm font-medium text-gray-700 mb-2"><%= t('questionOrder') %></label>
                                     <select id="question_order" name="question_order"
                                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <option value="fixed">ลำดับคงที่</option>
-                                        <option value="random">สุ่มลำดับ</option>
+                                        <option value="fixed"><%= t('fixedOrder') %></option>
+                                        <option value="random"><%= t('randomOrder') %></option>
                                     </select>
                                 </div>
                             </div>
@@ -199,25 +239,25 @@
 
                         <!-- Display Settings -->
                         <div class="border-b border-gray-200 pb-6">
-                            <h4 class="text-md font-medium text-gray-900 mb-4">การตั้งค่าการแสดงผล</h4>
+                            <h4 class="text-md font-medium text-gray-900 mb-4"><%= t('displaySettings') %></h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-4">
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" id="show_score_immediately" name="show_score_immediately"
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="ml-2 text-sm text-gray-700">แสดงคะแนนทันทีหลังทำเสร็จ</span>
+                                        <span class="ml-2 text-sm text-gray-700"><%= t('showScoreImmediately') %></span>
                                     </label>
 
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" id="show_correct_answers" name="show_correct_answers"
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="ml-2 text-sm text-gray-700">แสดงเฉลยหลังทำเสร็จ</span>
+                                        <span class="ml-2 text-sm text-gray-700"><%= t('showCorrectAnswers') %></span>
                                     </label>
 
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" id="allow_review" name="allow_review"
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="ml-2 text-sm text-gray-700">อนุญาตให้ทบทวนคำตอบ</span>
+                                        <span class="ml-2 text-sm text-gray-700"><%= t('allowReview') %></span>
                                     </label>
                                 </div>
 
@@ -225,19 +265,19 @@
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" id="require_camera" name="require_camera"
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="ml-2 text-sm text-gray-700">บังคับใช้กล้อง (Anti-cheating)</span>
+                                        <span class="ml-2 text-sm text-gray-700"><%= t('requireCamera') %></span>
                                     </label>
 
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" id="prevent_copy_paste" name="prevent_copy_paste" checked
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="ml-2 text-sm text-gray-700">ป้องกันการคัดลอก-วาง</span>
+                                        <span class="ml-2 text-sm text-gray-700"><%= t('preventCopyPaste') %></span>
                                     </label>
 
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" id="track_tab_switching" name="track_tab_switching" checked
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="ml-2 text-sm text-gray-700">ติดตามการเปลี่ยนแท็บ</span>
+                                        <span class="ml-2 text-sm text-gray-700"><%= t('trackTabSwitching') %></span>
                                     </label>
                                 </div>
                             </div>
@@ -245,22 +285,22 @@
 
                         <!-- Access Control -->
                         <div>
-                            <h4 class="text-md font-medium text-gray-900 mb-4">การควบคุมการเข้าถึง</h4>
+                            <h4 class="text-md font-medium text-gray-900 mb-4"><%= t('accessControl') %></h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="access_code" class="block text-sm font-medium text-gray-700 mb-2">รหัสเข้าสอบ (ไม่บังคับ)</label>
+                                    <label for="access_code" class="block text-sm font-medium text-gray-700 mb-2"><%= t('accessCode') %></label>
                                     <input type="text" id="access_code" name="access_code"
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                           placeholder="ระบุรหัสสำหรับเข้าทำข้อสอบ">
+                                           placeholder="<%= t('enterAccessCode') %>">
                                 </div>
 
                                 <div>
-                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">สถานะ</label>
+                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2"><%= t('status') %></label>
                                     <select id="status" name="status"
                                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <option value="Draft">ร่าง</option>
-                                        <option value="Published">เผยแพร่</option>
-                                        <option value="Archived">เก็บถาวร</option>
+                                        <option value="Draft"><%= t('draft') %></option>
+                                        <option value="Published"><%= t('published') %></option>
+                                        <option value="Archived"><%= t('archived') %></option>
                                     </select>
                                 </div>
                             </div>
@@ -270,11 +310,11 @@
                     <div class="flex justify-between mt-8">
                         <button type="button" onclick="previousStep()"
                                 class="px-6 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            <i class="fas fa-arrow-left mr-2"></i>ก่อนหน้า
+                            <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
                         </button>
                         <button type="button" onclick="nextStep()"
                                 class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                            ถัดไป <i class="fas fa-arrow-right ml-2"></i>
+                            <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
@@ -282,20 +322,20 @@
                 <!-- Step 3: Questions -->
                 <div id="step-3" class="step-content hidden">
                     <h3 class="text-lg font-medium text-gray-900 mb-6">
-                        <i class="fas fa-question-circle mr-2 text-ruxchai-primary"></i>จัดการคำถาม
+                        <i class="fas fa-question-circle mr-2 text-ruxchai-primary"></i><%= t('manageQuestions') %>
                     </h3>
 
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h4 class="text-md font-medium text-gray-900">รายการคำถาม</h4>
+                            <h4 class="text-md font-medium text-gray-900"><%= t('questionList') %></h4>
                             <div class="flex space-x-3">
                                 <button type="button" onclick="importQuestions()"
                                         class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-upload mr-2"></i>นำเข้าจาก Question Bank
+                                    <i class="fas fa-upload mr-2"></i><%= t('importFromQuestionBank') %>
                                 </button>
                                 <button type="button" onclick="addQuestion()"
                                         class="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                                    <i class="fas fa-plus mr-2"></i>เพิ่มคำถาม
+                                    <i class="fas fa-plus mr-2"></i><%= t('addQuestion') %>
                                 </button>
                             </div>
                         </div>
@@ -306,24 +346,24 @@
 
                         <div id="no-questions" class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                             <i class="fas fa-question-circle text-gray-400 text-4xl mb-4"></i>
-                            <p class="text-gray-500">ยังไม่มีคำถาม</p>
-                            <p class="text-sm text-gray-400 mt-2">เริ่มต้นด้วยการเพิ่มคำถามแรก</p>
+                            <p class="text-gray-500"><%= t('noQuestions') %></p>
+                            <p class="text-sm text-gray-400 mt-2"><%= t('startWithFirstQuestion') %></p>
                         </div>
                     </div>
 
                     <div class="flex justify-between mt-8">
                         <button type="button" onclick="previousStep()"
                                 class="px-6 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            <i class="fas fa-arrow-left mr-2"></i>ก่อนหน้า
+                            <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
                         </button>
                         <div class="flex space-x-3">
                             <button type="button" onclick="saveDraft()"
                                     class="px-6 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                <i class="fas fa-save mr-2"></i>บันทึกร่าง
+                                <i class="fas fa-save mr-2"></i><%= t('saveDraft') %>
                             </button>
                             <button type="submit"
                                     class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
-                                <i class="fas fa-check mr-2"></i>สร้างข้อสอบ
+                                <i class="fas fa-check mr-2"></i><%= t('createTest') %>
                             </button>
                         </div>
                     </div>
@@ -339,7 +379,7 @@
         <div class="mt-3">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-medium text-gray-900">
-                    <i class="fas fa-question-circle mr-2 text-ruxchai-primary"></i>เพิ่ม/แก้ไขคำถาม
+                    <i class="fas fa-question-circle mr-2 text-ruxchai-primary"></i><%= t('addEditQuestion') %>
                 </h3>
                 <button onclick="closeQuestionModal()" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
@@ -350,26 +390,26 @@
                 <input type="hidden" id="question-index">
 
                 <div>
-                    <label for="question-type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทคำถาม</label>
+                    <label for="question-type" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testType') %></label>
                     <select id="question-type" name="question_type" onchange="changeQuestionType()"
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                        <option value="multiple_choice">คำถามแบบตัวเลือก</option>
-                        <option value="true_false">ถูก/ผิด</option>
-                        <option value="essay">คำถามแบบเขียนตอบ</option>
-                        <option value="fill_blank">เติมคำในช่องว่าง</option>
+                        <option value="multiple_choice"><%= t('multipleChoice') %></option>
+                        <option value="true_false"><%= t('trueFalse') %></option>
+                        <option value="essay"><%= t('essay') %></option>
+                        <option value="fill_blank"><%= t('fillBlank') %></option>
                     </select>
                 </div>
 
                 <div>
-                    <label for="question-text" class="block text-sm font-medium text-gray-700 mb-2">คำถาม <span class="text-red-500">*</span></label>
+                    <label for="question-text" class="block text-sm font-medium text-gray-700 mb-2"><%= t('question') %> <span class="text-red-500">*</span></label>
                     <textarea id="question-text" name="question_text" rows="3" required
                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                              placeholder="ระบุคำถาม"></textarea>
+                              placeholder="<%= t('enterQuestion') %>"></textarea>
                 </div>
 
                 <div>
                     <label for="question-image" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-image mr-1"></i>รูปภาพประกอบคำถาม (ไม่บังคับ)
+                        <i class="fas fa-image mr-1"></i><%= t('questionImage') %>
                     </label>
                     <div class="flex items-center space-x-3">
                         <input type="file" id="question-image" name="question_image" accept="image/*"
@@ -377,81 +417,81 @@
                                class="hidden">
                         <label for="question-image"
                                class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            <i class="fas fa-upload mr-2"></i>เลือกรูปภาพ
+                            <i class="fas fa-upload mr-2"></i><%= t('selectImage') %>
                         </label>
-                        <span id="question-image-name" class="text-sm text-gray-500">ไม่มีรูปภาพ</span>
+                        <span id="question-image-name" class="text-sm text-gray-500"><%= t('noImage') %></span>
                     </div>
                     <div id="question-image-preview" class="mt-2 hidden">
                         <img src="" alt="Preview" class="max-w-xs rounded border border-gray-300">
                         <button type="button" onclick="removeQuestionImage()"
                                 class="mt-2 text-sm text-red-600 hover:text-red-800">
-                            <i class="fas fa-times mr-1"></i>ลบรูปภาพ
+                            <i class="fas fa-times mr-1"></i><%= t('removeImage') %>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">รองรับ JPG, PNG, GIF (ขนาดไม่เกิน 5MB)</p>
+                    <p class="text-xs text-gray-500 mt-1"><%= t('supportsImageFormat') %></p>
                 </div>
 
                 <div>
-                    <label for="question-points" class="block text-sm font-medium text-gray-700 mb-2">คะแนน</label>
+                    <label for="question-points" class="block text-sm font-medium text-gray-700 mb-2"><%= t('points') %></label>
                     <input type="number" id="question-points" name="points" min="1" max="100" value="1"
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                 </div>
 
                 <!-- Answer Options (for multiple choice) -->
                 <div id="answer-options" class="space-y-3">
-                    <label class="block text-sm font-medium text-gray-700">ตัวเลือก</label>
+                    <label class="block text-sm font-medium text-gray-700"><%= t('options') %></label>
                     <div id="options-container"></div>
                     <button type="button" onclick="addOption()" class="text-sm text-ruxchai-primary hover:text-blue-700">
-                        <i class="fas fa-plus mr-1"></i>เพิ่มตัวเลือก
+                        <i class="fas fa-plus mr-1"></i><%= t('addOption') %>
                     </button>
                 </div>
 
                 <!-- True/False Options -->
                 <div id="true-false-options" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">คำตอบที่ถูกต้อง</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('trueFalseCorrectAnswer') %></label>
                     <div class="space-y-2">
                         <label class="inline-flex items-center">
                             <input type="radio" name="correct_answer" value="true" class="form-radio">
-                            <span class="ml-2">ถูก</span>
+                            <span class="ml-2"><%= t('true') %></span>
                         </label>
                         <label class="inline-flex items-center">
                             <input type="radio" name="correct_answer" value="false" class="form-radio">
-                            <span class="ml-2">ผิด</span>
+                            <span class="ml-2"><%= t('false') %></span>
                         </label>
                     </div>
                 </div>
 
                 <!-- Essay Answer -->
                 <div id="essay-answer" class="hidden">
-                    <label for="essay-sample" class="block text-sm font-medium text-gray-700 mb-2">คำตอบตัวอย่าง/เกณฑ์การให้คะแนน</label>
+                    <label for="essay-sample" class="block text-sm font-medium text-gray-700 mb-2"><%= t('sampleAnswer') %></label>
                     <textarea id="essay-sample" name="sample_answer" rows="4"
                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                              placeholder="ระบุคำตอบตัวอย่างหรือเกณฑ์การให้คะแนน"></textarea>
+                              placeholder="<%= t('sampleAnswerPlaceholder') %>"></textarea>
                 </div>
 
                 <!-- Fill Blank Answer -->
                 <div id="fill-blank-answer" class="hidden">
-                    <label for="blank-answers" class="block text-sm font-medium text-gray-700 mb-2">คำตอบที่ถูกต้อง (คั่นด้วยเครื่องหมายจุลภาค)</label>
+                    <label for="blank-answers" class="block text-sm font-medium text-gray-700 mb-2"><%= t('correctAnswersComma') %></label>
                     <input type="text" id="blank-answers" name="blank_answers"
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                           placeholder="เช่น คำตอบ1, คำตอบ2, คำตอบ3">
+                           placeholder="<%= t('correctAnswerExample') %>">
                 </div>
 
                 <div>
-                    <label for="question-explanation" class="block text-sm font-medium text-gray-700 mb-2">คำอธิบายเพิ่มเติม</label>
+                    <label for="question-explanation" class="block text-sm font-medium text-gray-700 mb-2"><%= t('additionalExplanation') %></label>
                     <textarea id="question-explanation" name="explanation" rows="2"
                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                              placeholder="คำอธิบายเหตุผลของคำตอบที่ถูกต้อง"></textarea>
+                              placeholder="<%= t('explainCorrectAnswer') %>"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeQuestionModal()"
                             class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        ยกเลิก
+                        <%= t('cancel') %>
                     </button>
                     <button type="submit"
                             class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                        <i class="fas fa-save mr-2"></i>บันทึกคำถาม
+                        <i class="fas fa-save mr-2"></i><%= t('saveQuestion') %>
                     </button>
                 </div>
             </form>
@@ -460,14 +500,51 @@
 </div>
 
 <script>
+// i18n translations
+const i18n = {
+    questionNumber: '<%= t("questionNumber") %>',
+    points: '<%= t("points") %>',
+    multipleChoice: '<%= t("questionTypeLabel") %>',
+    trueFalse: '<%= t("trueFalseType") %>',
+    essay: '<%= t("essayType") %>',
+    fillBlank: '<%= t("fillBlankType") %>',
+    edit: '<%= t("edit") %>',
+    delete: '<%= t("delete") %>',
+    answer: '<%= t("answer") %>',
+    true: '<%= t("true") %>',
+    false: '<%= t("false") %>',
+    confirmDeleteQuestion: '<%= t("confirmDeleteQuestion") %>',
+    noImage: '<%= t("noImage") %>',
+    questionSaved: '<%= t("questionSaved") %>',
+    min2Options: '<%= t("min2Options") %>',
+    selectCorrectAnswer: '<%= t("selectCorrectAnswer") %>',
+    enterCorrectAnswer: '<%= t("enterCorrectAnswer") %>',
+    optionN: '<%= t("optionN") %>',
+    addOptionImage: '<%= t("addOptionImage") %>',
+    removeOptionImage: '<%= t("removeOptionImage") %>',
+    testCreatedSuccess: '<%= t("testCreatedSuccess") %>',
+    errorCreatingTest: '<%= t("errorCreatingTest") %>',
+    connectionError: '<%= t("connectionError") %>',
+    draftSaved: '<%= t("draftSaved") %>',
+    importQuestionsFeature: '<%= t("importQuestionsFeature") %>',
+    addAtLeast1Question: '<%= t("addAtLeast1Question") %>',
+    fillInAllFields: '<%= t("fillInAllFields") %>',
+    imageSizeLimit: '<%= t("imageSizeLimit") %>',
+    selectImageOnly: '<%= t("selectImageOnly") %>'
+};
+
 let currentStep = 1;
 let questions = [];
 let editingQuestionIndex = -1;
+let autoSaveTimer = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     loadCourses();
     setupFormHandlers();
     initializeFirstQuestion();
+    loadDraftFromStorage();
+    enableAutoSave();
+    setupBeforeUnloadWarning();
 });
 
 function loadCourses() {
@@ -486,6 +563,227 @@ function loadCourses() {
             }
         })
         .catch(error => console.error('Error loading courses:', error));
+}
+
+function handleCourseChange() {
+    loadChapters();
+    loadCourseAssessmentStructure();
+}
+
+function loadCourseAssessmentStructure() {
+    const courseId = document.getElementById('course_id').value;
+    const container = document.getElementById('course-assessment-structure');
+    const contentDiv = document.getElementById('assessment-structure-content');
+
+    if (!courseId) {
+        container.classList.add('hidden');
+        return;
+    }
+
+    // Show container with loading state
+    container.classList.remove('hidden');
+    contentDiv.innerHTML = `
+        <div class="text-center py-4">
+            <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
+            <p class="text-sm text-gray-600 mt-2"><%= t('loading') || 'Loading...' %></p>
+        </div>
+    `;
+
+    // Fetch tests for this course
+    fetch(`/tests/api/courses/${courseId}/tests`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                displayAssessmentStructure(result.data || []);
+            } else {
+                contentDiv.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-exclamation-circle text-yellow-500 text-2xl"></i>
+                        <p class="text-sm text-gray-600 mt-2">${result.message || 'Failed to load tests'}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading course tests:', error);
+            contentDiv.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                    <p class="text-sm text-gray-600 mt-2">Error loading assessment structure</p>
+                </div>
+            `;
+        });
+}
+
+function displayAssessmentStructure(tests) {
+    const contentDiv = document.getElementById('assessment-structure-content');
+
+    // Define all test types with their display info
+    const testTypes = [
+        { key: 'pre_training_assessment', label: '<%= t("preTrainingAssessment") || "Pre-Training Assessment" %>', icon: 'fa-clipboard-check', color: 'blue' },
+        { key: 'knowledge_check', label: '<%= t("knowledgeCheck") || "Knowledge Check" %>', icon: 'fa-brain', color: 'purple' },
+        { key: 'progress_assessment', label: '<%= t("progressAssessment") || "Progress Assessment" %>', icon: 'fa-chart-line', color: 'indigo' },
+        { key: 'midcourse_assessment', label: '<%= t("midcourseAssessment") || "Midcourse Assessment" %>', icon: 'fa-clipboard-list', color: 'yellow' },
+        { key: 'final_assessment', label: '<%= t("finalAssessment") || "Final Assessment" %>', icon: 'fa-trophy', color: 'red', required: true },
+        { key: 'post_training_assessment', label: '<%= t("postTrainingAssessment") || "Post-Training Assessment" %>', icon: 'fa-clipboard-check', color: 'green' },
+        { key: 'certification_assessment', label: '<%= t("certificationAssessment") || "Certification Assessment" %>', icon: 'fa-certificate', color: 'yellow' },
+        { key: 'practice_exercise', label: '<%= t("practiceExercise") || "Practice Exercise" %>', icon: 'fa-pencil-alt', color: 'gray' }
+    ];
+
+    // Group tests by type
+    const testsByType = {};
+    tests.forEach(test => {
+        if (!testsByType[test.type]) {
+            testsByType[test.type] = [];
+        }
+        testsByType[test.type].push(test);
+    });
+
+    // Build HTML
+    let html = '<div class="space-y-2">';
+
+    // Show existing tests
+    let hasTests = false;
+    testTypes.forEach(type => {
+        const typeTests = testsByType[type.key] || [];
+        if (typeTests.length > 0) {
+            hasTests = true;
+            html += `
+                <div class="flex items-center justify-between p-2 bg-white rounded border border-${type.color}-200">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas ${type.icon} text-${type.color}-600"></i>
+                        <span class="text-sm font-medium text-gray-900">${type.label}</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-${type.color}-100 text-${type.color}-800">
+                            ${typeTests.length} test${typeTests.length > 1 ? 's' : ''}
+                        </span>
+                    </div>
+                    <i class="fas fa-check-circle text-green-500"></i>
+                </div>
+            `;
+        }
+    });
+
+    if (!hasTests) {
+        html += `
+            <div class="text-center py-3 bg-white rounded border border-gray-200">
+                <i class="fas fa-inbox text-gray-400 text-xl mb-2"></i>
+                <p class="text-sm text-gray-600"><%= t('noCourseTestsYet') || 'No tests created for this course yet' %></p>
+            </div>
+        `;
+    }
+
+    // Show missing required tests
+    const missingRequired = testTypes.filter(type => type.required && !testsByType[type.key]);
+    if (missingRequired.length > 0) {
+        html += `
+            <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                <h5 class="text-xs font-semibold text-yellow-900 mb-2 flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <%= t('missingRequiredTests') || 'Missing Required Tests' %>
+                </h5>
+        `;
+        missingRequired.forEach(type => {
+            html += `
+                <div class="flex items-center space-x-2 text-sm text-yellow-800 py-1">
+                    <i class="fas ${type.icon}"></i>
+                    <span>${type.label}</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+
+    // Show suggested tests
+    const missingOptional = testTypes.filter(type => !type.required && !testsByType[type.key]);
+    if (missingOptional.length > 0 && hasTests) {
+        html += `
+            <div class="mt-2">
+                <p class="text-xs font-medium text-gray-700 mb-2">
+                    <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>
+                    <%= t('suggestedTests') || 'Consider adding' %>:
+                </p>
+                <div class="flex flex-wrap gap-2">
+        `;
+        missingOptional.slice(0, 4).forEach(type => {
+            html += `
+                <span class="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                    <i class="fas ${type.icon} mr-1"></i>
+                    ${type.label}
+                </span>
+            `;
+        });
+        html += '</div></div>';
+    }
+
+    html += '</div>';
+    contentDiv.innerHTML = html;
+}
+
+function loadChapters() {
+    const courseId = document.getElementById('course_id').value;
+    const chapterSelect = document.getElementById('chapter_id');
+    const lessonSelect = document.getElementById('lesson_id');
+
+    // Reset chapters and lessons
+    chapterSelect.innerHTML = '<option value=""><%= t("selectCourseToLoadChapters") || "เลือก Course เพื่อโหลดบทเรียน" %></option>';
+    lessonSelect.innerHTML = '<option value=""><%= t("selectChapterToLoadLessons") || "เลือกบทเพื่อโหลดบทเรียน" %></option>';
+    chapterSelect.disabled = true;
+    lessonSelect.disabled = true;
+
+    if (!courseId) {
+        return;
+    }
+
+    // Load chapters for selected course
+    fetch(`/tests/api/courses/${courseId}/chapters`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success && result.data.length > 0) {
+                chapterSelect.innerHTML = '<option value=""><%= t("noChapterSelected") || "ไม่ระบุบท" %></option>';
+                chapterSelect.disabled = false;
+                result.data.forEach(chapter => {
+                    const option = document.createElement('option');
+                    option.value = chapter.chapter_id;
+                    option.textContent = chapter.title;
+                    chapterSelect.appendChild(option);
+                });
+            } else {
+                chapterSelect.innerHTML = '<option value=""><%= t("noCourseChapters") || "Course นี้ยังไม่มีบท" %></option>';
+            }
+        })
+        .catch(error => console.error('Error loading chapters:', error));
+}
+
+function loadLessons() {
+    const chapterId = document.getElementById('chapter_id').value;
+    const lessonSelect = document.getElementById('lesson_id');
+
+    // Reset lessons
+    lessonSelect.innerHTML = '<option value=""><%= t("selectChapterToLoadLessons") || "เลือกบทเพื่อโหลดบทเรียน" %></option>';
+    lessonSelect.disabled = true;
+
+    if (!chapterId) {
+        return;
+    }
+
+    // Load lessons for selected chapter
+    fetch(`/tests/api/chapters/${chapterId}/lessons`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success && result.data.length > 0) {
+                lessonSelect.innerHTML = '<option value=""><%= t("noLessonSelected") || "ไม่ระบุบทเรียน" %></option>';
+                lessonSelect.disabled = false;
+                result.data.forEach(lesson => {
+                    const option = document.createElement('option');
+                    option.value = lesson.lesson_id;
+                    option.textContent = lesson.title;
+                    lessonSelect.appendChild(option);
+                });
+            } else {
+                lessonSelect.innerHTML = '<option value=""><%= t("noChapterLessons") || "บทนี้ยังไม่มีบทเรียน" %></option>';
+            }
+        })
+        .catch(error => console.error('Error loading lessons:', error));
 }
 
 function setupFormHandlers() {
@@ -565,7 +863,7 @@ function validateCurrentStep() {
     });
 
     if (!isValid) {
-        showError('กรุณากรอกข้อมูลให้ครบถ้วน');
+        showError(i18n.fillInAllFields);
     }
 
     return isValid;
@@ -576,11 +874,196 @@ function initializeFirstQuestion() {
     updateQuestionsDisplay();
 }
 
+// ========================================
+// AUTO-SAVE FUNCTIONALITY
+// ========================================
+
+function enableAutoSave() {
+    // Auto-save every 30 seconds
+    autoSaveTimer = setInterval(() => {
+        saveToLocalStorage();
+    }, 30000);
+    console.log('✅ Auto-save enabled (every 30 seconds)');
+}
+
+function saveToLocalStorage() {
+    if (questions.length === 0 && currentStep === 1) {
+        // Don't save empty state
+        return;
+    }
+
+    const testDraft = {
+        currentStep: currentStep,
+        formData: collectFormData(),
+        questions: questions,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        localStorage.setItem('test_draft', JSON.stringify(testDraft));
+        console.log('💾 Auto-saved at', new Date().toLocaleTimeString());
+
+        // Show brief success indicator
+        const indicator = document.createElement('div');
+        indicator.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg text-sm z-50';
+        indicator.innerHTML = '<i class="fas fa-check mr-2"></i>Draft saved';
+        document.body.appendChild(indicator);
+
+        setTimeout(() => {
+            indicator.remove();
+        }, 2000);
+    } catch (error) {
+        console.error('Failed to save draft:', error);
+    }
+}
+
+function loadDraftFromStorage() {
+    const draft = localStorage.getItem('test_draft');
+
+    if (draft) {
+        try {
+            const testDraft = JSON.parse(draft);
+            const draftTime = new Date(testDraft.timestamp);
+            const timeDiff = Date.now() - draftTime.getTime();
+            const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+            // Only show prompt if draft is less than 24 hours old
+            if (hoursDiff < 24) {
+                const timeAgo = hoursDiff < 1
+                    ? Math.round(timeDiff / (1000 * 60)) + ' minutes ago'
+                    : Math.round(hoursDiff) + ' hours ago';
+
+                if (confirm(`Found a saved draft from ${timeAgo}.\n\nDo you want to restore it?`)) {
+                    restoreDraft(testDraft);
+                    showSuccess('Draft restored successfully');
+                }
+            } else {
+                // Clear old draft
+                localStorage.removeItem('test_draft');
+            }
+        } catch (error) {
+            console.error('Failed to load draft:', error);
+        }
+    }
+}
+
+function restoreDraft(testDraft) {
+    // Restore form data
+    const formData = testDraft.formData;
+    Object.keys(formData).forEach(key => {
+        const element = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
+        if (element) {
+            if (element.type === 'checkbox') {
+                element.checked = formData[key];
+            } else {
+                element.value = formData[key];
+            }
+        }
+    });
+
+    // Restore questions
+    questions = testDraft.questions || [];
+    updateQuestionsDisplay();
+
+    // Restore step
+    if (testDraft.currentStep > 1) {
+        hideStep(currentStep);
+        currentStep = testDraft.currentStep;
+        showStep(currentStep);
+        updateProgressSteps();
+    }
+}
+
+function collectFormData() {
+    return {
+        test_name: document.getElementById('test_name')?.value || '',
+        test_code: document.getElementById('test_code')?.value || '',
+        description: document.getElementById('description')?.value || '',
+        instructions: document.getElementById('instructions')?.value || '',
+        type: document.getElementById('test_type')?.value || '',
+        course_id: document.getElementById('course_id')?.value || '',
+        chapter_id: document.getElementById('chapter_id')?.value || '',
+        lesson_id: document.getElementById('lesson_id')?.value || '',
+        difficulty_level: document.getElementById('difficulty_level')?.value || '',
+        time_limit: document.getElementById('time_limit')?.value || '',
+        start_date: document.getElementById('start_date')?.value || '',
+        end_date: document.getElementById('end_date')?.value || '',
+        max_attempts: document.getElementById('max_attempts')?.value || '',
+        passing_score: document.getElementById('passing_score')?.value || '',
+        question_order: document.getElementById('question_order')?.value || '',
+        show_score_immediately: document.getElementById('show_score_immediately')?.checked || false,
+        show_correct_answers: document.getElementById('show_correct_answers')?.checked || false,
+        allow_review: document.getElementById('allow_review')?.checked || false,
+        require_camera: document.getElementById('require_camera')?.checked || false,
+        prevent_copy_paste: document.getElementById('prevent_copy_paste')?.checked || false,
+        track_tab_switching: document.getElementById('track_tab_switching')?.checked || false,
+        access_code: document.getElementById('access_code')?.value || '',
+        status: document.getElementById('status')?.value || ''
+    };
+}
+
+function setupBeforeUnloadWarning() {
+    window.addEventListener('beforeunload', (e) => {
+        if (questions.length > 0 || document.getElementById('test_name')?.value) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            return e.returnValue;
+        }
+    });
+}
+
+function clearDraft() {
+    localStorage.removeItem('test_draft');
+    console.log('Draft cleared');
+}
+
 function addQuestion() {
     editingQuestionIndex = -1;
     resetQuestionForm();
     changeQuestionType(); // Set up initial question type
     document.getElementById('question-modal').classList.remove('hidden');
+}
+
+function duplicateQuestion(index) {
+    if (index < 0 || index >= questions.length) {
+        showError('Invalid question index');
+        return;
+    }
+
+    try {
+        // Deep clone the question (without File objects)
+        const original = questions[index];
+        const duplicate = {
+            question_type: original.question_type,
+            question_text: original.question_text + ' (Copy)',
+            points: original.points,
+            explanation: original.explanation,
+            question_image: null, // Images can't be easily cloned
+        };
+
+        // Clone type-specific data
+        if (original.question_type === 'multiple_choice' && original.options) {
+            duplicate.options = original.options.map(opt => ({
+                text: opt.text,
+                is_correct: opt.is_correct,
+                image: null // Images can't be easily cloned
+            }));
+        } else if (original.question_type === 'true_false') {
+            duplicate.correct_answer = original.correct_answer;
+        } else if (original.question_type === 'essay') {
+            duplicate.sample_answer = original.sample_answer;
+        } else if (original.question_type === 'fill_blank') {
+            duplicate.correct_answers = [...(original.correct_answers || [])];
+        }
+
+        // Insert after the original question
+        questions.splice(index + 1, 0, duplicate);
+        updateQuestionsDisplay();
+        showSuccess('Question duplicated successfully! (Note: Images are not copied)');
+    } catch (error) {
+        console.error('Error duplicating question:', error);
+        showError('Failed to duplicate question');
+    }
 }
 
 function editQuestion(index) {
@@ -591,7 +1074,7 @@ function editQuestion(index) {
 }
 
 function deleteQuestion(index) {
-    if (confirm('คุณต้องการลบคำถามนี้หรือไม่?')) {
+    if (confirm(i18n.confirmDeleteQuestion)) {
         questions.splice(index, 1);
         updateQuestionsDisplay();
     }
@@ -606,7 +1089,7 @@ function resetQuestionForm() {
     const questionImagePreview = document.getElementById('question-image-preview');
     const questionImageName = document.getElementById('question-image-name');
     questionImagePreview.classList.add('hidden');
-    questionImageName.textContent = 'ไม่มีรูปภาพ';
+    questionImageName.textContent = i18n.noImage;
 
     // Clear options container
     const optionsContainer = document.getElementById('options-container');
@@ -691,9 +1174,10 @@ function changeQuestionType() {
     // Show relevant section
     if (type === 'multiple_choice') {
         document.getElementById('answer-options').classList.remove('hidden');
-        // Always add default options for multiple choice
-        addOption('', false);
-        addOption('', false);
+        // ✅ Add 4 default options (A, B, C, D) for better UX
+        ['A', 'B', 'C', 'D'].forEach((letter, index) => {
+            addOption(`Option ${letter}`, index === 0); // First option selected by default
+        });
     } else if (type === 'true_false') {
         document.getElementById('true-false-options').classList.remove('hidden');
     } else if (type === 'essay') {
@@ -715,7 +1199,7 @@ function addOption(text = '', isCorrect = false, imageUrl = '') {
                    class="form-radio">
             <input type="text" name="option_text_${optionIndex}" value="${text}" required
                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                   placeholder="ตัวเลือกที่ ${optionIndex + 1}">
+                   placeholder="${i18n.optionN} ${optionIndex + 1}">
             <button type="button" onclick="removeOption(this)" class="text-red-600 hover:text-red-800">
                 <i class="fas fa-times"></i>
             </button>
@@ -726,7 +1210,7 @@ function addOption(text = '', isCorrect = false, imageUrl = '') {
                    class="hidden">
             <label for="option_image_${optionIndex}"
                    class="cursor-pointer inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-50">
-                <i class="fas fa-image mr-1"></i>เพิ่มรูปภาพ
+                <i class="fas fa-image mr-1"></i>${i18n.addOptionImage}
             </label>
             <span id="option_image_name_${optionIndex}" class="text-xs text-gray-500"></span>
         </div>
@@ -734,7 +1218,7 @@ function addOption(text = '', isCorrect = false, imageUrl = '') {
             <img src="${imageUrl}" alt="Option preview" class="max-w-xs max-h-32 rounded border border-gray-300">
             <button type="button" onclick="removeOptionImage(${optionIndex})"
                     class="mt-1 text-xs text-red-600 hover:text-red-800">
-                <i class="fas fa-times mr-1"></i>ลบรูป
+                <i class="fas fa-times mr-1"></i>${i18n.removeOptionImage}
             </button>
         </div>
     `;
@@ -754,7 +1238,7 @@ function removeOption(button) {
 
             radio.value = index;
             text.name = `option_text_${index}`;
-            placeholder.placeholder = `ตัวเลือกที่ ${index + 1}`;
+            placeholder.placeholder = `${i18n.optionN} ${index + 1}`;
         });
     }
 }
@@ -790,12 +1274,12 @@ function saveQuestion() {
         });
 
         if (options.length < 2) {
-            showError('คำถามแบบตัวเลือกต้องมีอย่างน้อย 2 ตัวเลือก');
+            showError(i18n.min2Options);
             return;
         }
 
         if (correctIndex === undefined || correctIndex < 0) {
-            showError('กรุณาเลือกคำตอบที่ถูกต้อง');
+            showError(i18n.selectCorrectAnswer);
             return;
         }
 
@@ -803,7 +1287,7 @@ function saveQuestion() {
     } else if (questionType === 'true_false') {
         question.correct_answer = formData.get('correct_answer');
         if (!question.correct_answer) {
-            showError('กรุณาเลือกคำตอบที่ถูกต้อง');
+            showError(i18n.selectCorrectAnswer);
             return;
         }
     } else if (questionType === 'essay') {
@@ -811,7 +1295,7 @@ function saveQuestion() {
     } else if (questionType === 'fill_blank') {
         const answers = formData.get('blank_answers');
         if (!answers || !answers.trim()) {
-            showError('กรุณาระบุคำตอบที่ถูกต้อง');
+            showError(i18n.enterCorrectAnswer);
             return;
         }
         question.correct_answers = answers.split(',').map(a => a.trim()).filter(a => a);
@@ -826,7 +1310,7 @@ function saveQuestion() {
 
     updateQuestionsDisplay();
     closeQuestionModal();
-    showSuccess('บันทึกคำถามเรียบร้อยแล้ว');
+    showSuccess(i18n.questionSaved);
 }
 
 function updateQuestionsDisplay() {
@@ -856,21 +1340,24 @@ function updateQuestionsDisplay() {
             <div class="flex items-start justify-between">
                 <div class="flex-1">
                     <div class="flex items-center space-x-3 mb-2">
-                        <span class="text-sm font-medium text-gray-900">คำถามที่ ${index + 1}</span>
+                        <span class="text-sm font-medium text-gray-900">${i18n.questionNumber} ${index + 1}</span>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getQuestionTypeColor(question.question_type)}">
                             ${getQuestionTypeText(question.question_type)}
                         </span>
-                        <span class="text-xs text-gray-500">${question.points} คะแนน</span>
+                        <span class="text-xs text-gray-500">${question.points} ${i18n.points}</span>
                     </div>
                     <p class="text-sm text-gray-700 mb-2">${question.question_text}</p>
                     <div class="question-image-placeholder"></div>
                     <div class="question-preview-placeholder"></div>
                 </div>
                 <div class="flex space-x-2 ml-4">
-                    <button onclick="editQuestion(${index})" class="text-blue-600 hover:text-blue-800 text-sm">
+                    <button onclick="duplicateQuestion(${index})" class="text-purple-600 hover:text-purple-800 text-sm" title="Duplicate question">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button onclick="editQuestion(${index})" class="text-blue-600 hover:text-blue-800 text-sm" title="Edit question">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button onclick="deleteQuestion(${index})" class="text-red-600 hover:text-red-800 text-sm">
+                    <button onclick="deleteQuestion(${index})" class="text-red-600 hover:text-red-800 text-sm" title="Delete question">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -931,9 +1418,9 @@ function updateQuestionsDisplay() {
 
             previewPlaceholder.appendChild(optionsDiv);
         } else if (question.question_type === 'true_false') {
-            previewPlaceholder.innerHTML = `<p class="text-sm text-green-600 font-medium">คำตอบ: ${question.correct_answer === 'true' ? 'ถูก' : 'ผิด'}</p>`;
+            previewPlaceholder.innerHTML = `<p class="text-sm text-green-600 font-medium">${i18n.answer}: ${question.correct_answer === 'true' ? i18n.true : i18n.false}</p>`;
         } else if (question.question_type === 'fill_blank') {
-            previewPlaceholder.innerHTML = `<p class="text-sm text-green-600 font-medium">คำตอบ: ${question.correct_answers.join(', ')}</p>`;
+            previewPlaceholder.innerHTML = `<p class="text-sm text-green-600 font-medium">${i18n.answer}: ${question.correct_answers.join(', ')}</p>`;
         }
     });
 }
@@ -950,10 +1437,10 @@ function getQuestionTypeColor(type) {
 
 function getQuestionTypeText(type) {
     const types = {
-        'multiple_choice': 'ตัวเลือก',
-        'true_false': 'ถูก/ผิด',
-        'essay': 'เขียนตอบ',
-        'fill_blank': 'เติมคำ'
+        'multiple_choice': i18n.multipleChoice,
+        'true_false': i18n.trueFalse,
+        'essay': i18n.essay,
+        'fill_blank': i18n.fillBlank
     };
     return types[type] || type;
 }
@@ -965,12 +1452,12 @@ function closeQuestionModal() {
 
 function importQuestions() {
     // Implementation for importing questions from question bank
-    showSuccess('ฟีเจอร์นำเข้าคำถามจะเปิดใช้งานเร็วๆ นี้');
+    showSuccess(i18n.importQuestionsFeature);
 }
 
 async function submitTest() {
     if (questions.length === 0) {
-        showError('กรุณาเพิ่มคำถามอย่างน้อย 1 ข้อ');
+        showError(i18n.addAtLeast1Question);
         return;
     }
 
@@ -1029,21 +1516,21 @@ async function submitTest() {
         const result = await response.json();
 
         if (result.success) {
-            showSuccess('สร้างข้อสอบเรียบร้อยแล้ว');
+            showSuccess(i18n.testCreatedSuccess);
             setTimeout(() => {
                 window.location.href = `/tests/${result.data.test_id}`;
             }, 1500);
         } else {
-            showError(result.message || 'เกิดข้อผิดพลาดในการสร้างข้อสอบ');
+            showError(result.message || i18n.errorCreatingTest);
         }
     } catch (error) {
-        showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        showError(i18n.connectionError);
     }
 }
 
 async function saveDraft() {
     // Implementation for saving draft
-    showSuccess('บันทึกร่างเรียบร้อยแล้ว');
+    showSuccess(i18n.draftSaved);
 }
 
 // Image handling functions
@@ -1052,14 +1539,14 @@ function previewQuestionImage(input) {
     if (file) {
         // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
-            showError('ขนาดไฟล์รูปภาพต้องไม่เกิน 5MB');
+            showError(i18n.imageSizeLimit);
             input.value = '';
             return;
         }
 
         // Validate file type
         if (!file.type.startsWith('image/')) {
-            showError('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+            showError(i18n.selectImageOnly);
             input.value = '';
             return;
         }
@@ -1081,7 +1568,7 @@ function previewQuestionImage(input) {
 
 function removeQuestionImage() {
     document.getElementById('question-image').value = '';
-    document.getElementById('question-image-name').textContent = 'ไม่มีรูปภาพ';
+    document.getElementById('question-image-name').textContent = i18n.noImage;
     document.getElementById('question-image-preview').classList.add('hidden');
 }
 
@@ -1090,14 +1577,14 @@ function previewOptionImage(input, optionIndex) {
     if (file) {
         // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
-            showError('ขนาดไฟล์รูปภาพต้องไม่เกิน 5MB');
+            showError(i18n.imageSizeLimit);
             input.value = '';
             return;
         }
 
         // Validate file type
         if (!file.type.startsWith('image/')) {
-            showError('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+            showError(i18n.selectImageOnly);
             input.value = '';
             return;
         }

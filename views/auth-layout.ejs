@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="<%= currentLanguage || 'th' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%
-        const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
-        const siteDescription = typeof getSetting === 'function' ? getSetting('site_description', 'ระบบจัดการการเรียนรู้') : 'ระบบจัดการการเรียนรู้';
+        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
+        const isEnglish = currentLang === 'en';
+        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteName = isEnglish ? siteNameEn : siteNameTh;
+        const siteDescTh = typeof getSetting === 'function' ? getSetting('site_description', 'ระบบจัดการการเรียนรู้') : 'ระบบจัดการการเรียนรู้';
+        const siteDescEn = typeof getSetting === 'function' ? getSetting('site_description_en', 'Learning Management System') : 'Learning Management System';
+        const siteDescription = isEnglish ? siteDescEn : siteDescTh;
     %>
     <title><%= title || siteName %> - <%= siteDescription %></title>
     <link rel="icon" href="<%= typeof getSetting === 'function' ? getSetting('favicon_url', '/favicon.ico') : '/favicon.ico' %>" type="image/x-icon">

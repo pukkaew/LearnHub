@@ -41,7 +41,7 @@ const dashboardController = {
             console.error('Dashboard error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดแดชบอร์ด'
+                message: req.t('errorLoadingDashboard')
             });
         }
     },
@@ -66,7 +66,7 @@ const dashboardController = {
                     title: 'แดשบอร์ด - Rukchai Hongyen LearnHub',
                     user: user,
                     userRole: userRole,
-                    error: 'ไม่สามารถโหลดข้อมูลแดชบอร์ดได้',
+                    error: req.t('cannotLoadDashboardData'),
                     t: t,
                     language: currentLang
                 });
@@ -74,20 +74,20 @@ const dashboardController = {
 
             const dashboardData = dashboardResult.data;
 
-            let pageTitle = 'แดชบอร์ด';
+            let pageTitle = req.t('dashboard');
 
             switch (userRole) {
                 case 'Admin':
-                    pageTitle = 'แดชบอร์ดผู้ดูแลระบบ';
+                    pageTitle = req.t('adminDashboard');
                     break;
                 case 'HR':
-                    pageTitle = 'แดชบอร์ดฝ่ายทรัพยากรบุคคล';
+                    pageTitle = req.t('hrDashboard');
                     break;
                 case 'Instructor':
-                    pageTitle = 'แดชบอร์ดผู้สอน';
+                    pageTitle = req.t('instructorDashboard');
                     break;
                 case 'Learner':
-                    pageTitle = 'แดชบอร์ดผู้เรียน';
+                    pageTitle = req.t('learnerDashboard');
                     break;
             }
 
@@ -121,7 +121,7 @@ const dashboardController = {
                 title: 'แดชบอร์ด - Rukchai Hongyen LearnHub',
                 user: req.session.user,
                 userRole: req.user.role,
-                error: 'เกิดข้อผิดพลาดในการโหลดแดชบอร์ด',
+                error: req.t('errorLoadingDashboard'),
                 t: t,
                 language: currentLang
             });
@@ -172,7 +172,7 @@ const dashboardController = {
             console.error('Quick stats error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลสถิติ'
+                message: req.t('errorLoadingStatisticsData')
             });
         }
     },
@@ -201,7 +201,7 @@ const dashboardController = {
             console.error('Get notifications error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดการแจ้งเตือน'
+                message: req.t('errorLoadingNotifications')
             });
         }
     },
@@ -219,14 +219,14 @@ const dashboardController = {
 
             res.json({
                 success: true,
-                message: 'อ่านการแจ้งเตือนแล้ว'
+                message: req.t('notificationRead')
             });
 
         } catch (error) {
             console.error('Mark notification as read error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทการแจ้งเตือน'
+                message: req.t('errorUpdatingNotification')
             });
         }
     },
@@ -243,7 +243,7 @@ const dashboardController = {
 
             res.json({
                 success: true,
-                message: 'อ่านการแจ้งเตือนทั้งหมดแล้ว',
+                message: req.t('allNotificationsRead'),
                 affected_rows: result.affected_rows
             });
 
@@ -251,7 +251,7 @@ const dashboardController = {
             console.error('Mark all notifications as read error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการอัพเดทการแจ้งเตือน'
+                message: req.t('errorUpdatingNotification')
             });
         }
     },
@@ -284,7 +284,7 @@ const dashboardController = {
             console.error('Get activity logs error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดประวัติกิจกรรม'
+                message: req.t('errorLoadingActivityHistory')
             });
         }
     },
@@ -308,7 +308,7 @@ const dashboardController = {
             console.error('Get user stats error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดสถิติผู้ใช้'
+                message: req.t('errorLoadingUserStats')
             });
         }
     },
@@ -320,7 +320,7 @@ const dashboardController = {
             if (userRole !== 'Admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'ไม่มีสิทธิ์เข้าถึงข้อมูลนี้'
+                    message: req.t('noPermissionAccessData')
                 });
             }
 
@@ -356,7 +356,7 @@ const dashboardController = {
             console.error('Get system health error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลสุขภาพระบบ'
+                message: req.t('errorLoadingSystemHealth')
             });
         }
     },
@@ -389,7 +389,7 @@ const dashboardController = {
             console.error('Get real-time data error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลแบบเรียลไทม์'
+                message: req.t('errorLoadingRealtimeData')
             });
         }
     },
@@ -426,14 +426,14 @@ const dashboardController = {
 
             res.json({
                 success: true,
-                message: 'บันทึกกิจกรรมเรียบร้อย'
+                message: req.t('activitySavedSuccess')
             });
 
         } catch (error) {
             console.error('Track user activity error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการบันทึกกิจกรรม'
+                message: req.t('errorSavingActivity')
             });
         }
     },
@@ -490,7 +490,7 @@ const dashboardController = {
             console.error('Get leaderboard error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดลีดเดอร์บอร์ด'
+                message: req.t('errorLoadingLeaderboard')
             });
         }
     },
@@ -553,7 +553,7 @@ const dashboardController = {
             console.error('Get upcoming events error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดกิจกรรมที่กำลังจะมาถึง'
+                message: req.t('errorLoadingUpcomingEvents')
             });
         }
     },
@@ -590,7 +590,7 @@ const dashboardController = {
             console.error('Get recent courses error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดคอร์สล่าสุด'
+                message: req.t('errorLoadingRecentCourses')
             });
         }
     },
@@ -615,7 +615,7 @@ const dashboardController = {
             console.error('Get progress error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดความคืบหน้า'
+                message: req.t('errorLoadingProgress')
             });
         }
     },
@@ -651,7 +651,7 @@ const dashboardController = {
             console.error('Get recent articles error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดบทความล่าสุด'
+                message: req.t('errorLoadingRecentArticles')
             });
         }
     },
@@ -675,7 +675,7 @@ const dashboardController = {
             console.error('Get my badges error:', error);
             res.status(500).json({
                 success: false,
-                message: 'เกิดข้อผิดพลาดในการโหลดเหรียญรางวัล'
+                message: req.t('errorLoadingBadges')
             });
         }
     }

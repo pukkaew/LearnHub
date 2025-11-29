@@ -159,13 +159,17 @@ class ValidationService {
     }
 
     min(value, minValue) {
-        if (!value) {return true;}
+        // Allow null/undefined/empty string as valid (for optional fields)
+        // But 0 should be validated as a numeric value
+        if (value === null || value === undefined || value === '') {return true;}
         const numValue = parseFloat(value);
         return !isNaN(numValue) && numValue >= minValue;
     }
 
     max(value, maxValue) {
-        if (!value) {return true;}
+        // Allow null/undefined/empty string as valid (for optional fields)
+        // But 0 should be validated as a numeric value
+        if (value === null || value === undefined || value === '') {return true;}
         const numValue = parseFloat(value);
         return !isNaN(numValue) && numValue <= maxValue;
     }
@@ -436,6 +440,67 @@ class ValidationService {
 
     stripTags(str) {
         return str.replace(/<[^>]*>/g, '');
+    }
+
+    // XSS Sanitization - ลบ script tags และ event handlers ที่อันตราย
+    sanitizeXSS(str) {
+        if (!str || typeof str !== 'string') return str;
+
+        // Remove script tags and content
+        let sanitized = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+        // Remove other dangerous tags
+        sanitized = sanitized.replace(/<(iframe|object|embed|form|input|button|textarea|select|style|link|meta|base)[^>]*>/gi, '');
+
+        // Remove event handlers (onclick, onerror, etc.)
+        sanitized = sanitized.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '');
+        sanitized = sanitized.replace(/\bon\w+\s*=\s*[^\s>]*/gi, '');
+
+        // Remove javascript: protocol
+        sanitized = sanitized.replace(/javascript\s*:/gi, '');
+
+        // Remove data: protocol (can be used for XSS)
+        sanitized = sanitized.replace(/data\s*:\s*text\/html/gi, '');
+
+        // Encode dangerous characters
+        sanitized = sanitized
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        return sanitized;
+    }
+
+    // Sanitize object - apply XSS sanitization to all string fields
+    sanitizeObject(obj, fieldsToSanitize = []) {
+        if (!obj || typeof obj !== 'object') return obj;
+
+        const sanitized = { ...obj };
+
+        for (const key of Object.keys(sanitized)) {
+            if (typeof sanitized[key] === 'string') {
+                // If fieldsToSanitize is empty, sanitize all strings
+                // Otherwise, only sanitize specified fields
+                if (fieldsToSanitize.length === 0 || fieldsToSanitize.includes(key)) {
+                    sanitized[key] = this.sanitizeXSS(sanitized[key]);
+                }
+            }
+        }
+
+        return sanitized;
+    }
+
+    // Validate positive number (no negative)
+    positiveNumber(value) {
+        if (value === null || value === undefined || value === '') return true;
+        const num = parseFloat(value);
+        return !isNaN(num) && num >= 0;
+    }
+
+    // Validate positive integer greater than zero
+    positiveIntegerGreaterThanZero(value) {
+        if (value === null || value === undefined || value === '') return true;
+        const num = parseInt(value);
+        return !isNaN(num) && num > 0;
     }
 
     toBoolean(value) {
