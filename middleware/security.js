@@ -411,6 +411,44 @@ class SecurityMiddleware {
         };
     }
 
+    // Path traversal protection
+    pathTraversalProtection() {
+        return (req, res, next) => {
+            const decodedPath = decodeURIComponent(req.path);
+
+            // Check for path traversal patterns
+            const pathTraversalPatterns = [
+                /\.\./g,           // ..
+                /%2e%2e/gi,        // URL encoded ..
+                /%252e%252e/gi,    // Double URL encoded ..
+                /\.%2e/gi,         // Mixed encoding
+                /%2e\./gi,         // Mixed encoding
+                /etc\/passwd/gi,   // Common target
+                /etc\/shadow/gi,   // Common target
+                /windows\/system/gi // Windows target
+            ];
+
+            const hasPathTraversal = pathTraversalPatterns.some(pattern =>
+                pattern.test(req.path) || pattern.test(decodedPath)
+            );
+
+            if (hasPathTraversal) {
+                logger.logSecurityEvent('path_traversal_attempt', {
+                    path: req.path,
+                    decoded_path: decodedPath,
+                    ip: req.ip
+                }, req);
+
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid request path.'
+                });
+            }
+
+            next();
+        };
+    }
+
     // Detect suspicious patterns
     detectXSS(obj) {
         const xssPatterns = [

@@ -89,12 +89,12 @@ class User {
         try {
             const pool = await poolPromise;
             const result = await pool.request()
-                .input('employeeId', sql.NVarChar(20), employeeId)
+                .input('employeeId', sql.NVarChar(50), employeeId)
                 .query(`
                     SELECT u.*, r.role_name
                     FROM Users u
                     JOIN Roles r ON u.role_id = r.role_id
-                    WHERE u.employee_id = @employeeId AND u.is_active = 1
+                    WHERE (u.employee_id = @employeeId OR u.username = @employeeId) AND u.is_active = 1
                 `);
 
             return result.recordset[0] || null;

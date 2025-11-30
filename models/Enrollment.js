@@ -205,8 +205,15 @@ class Enrollment {
             }
 
             const result = await request.query(`
-                SELECT e.*,
-                       c.course_id,
+                SELECT e.enrollment_id,
+                       e.user_id,
+                       e.course_id,
+                       e.enrollment_date,
+                       e.progress,
+                       e.status,
+                       e.completion_date,
+                       e.certificate_issued,
+                       e.last_access_date,
                        c.title as course_name,
                        c.title,
                        c.thumbnail,
@@ -218,7 +225,7 @@ class Enrollment {
                        (SELECT COUNT(*) FROM course_materials WHERE course_id = c.course_id) as total_lessons,
                        0 as completed_lessons,
                        e.status as enrollment_status,
-                       0 as progress_percentage
+                       ISNULL(e.progress, 0) as progress_percentage
                 FROM user_courses e
                 JOIN courses c ON e.course_id = c.course_id
                 LEFT JOIN users i ON c.instructor_id = i.user_id

@@ -544,7 +544,7 @@ const courseController = {
             const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
             res.render('courses/index', {
-                title: 'allCourses - Rukchai Hongyen LearnHub',
+                title: `${t('allCourses')} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role_name,
                 t: t,
@@ -683,7 +683,7 @@ const courseController = {
             const t = res.locals.t || ((key, defaultValue = key) => getTranslation(currentLang, key) || defaultValue);
 
             res.render('courses/my-courses', {
-                title: 'myCourses - Rukchai Hongyen LearnHub',
+                title: `${t('myCourses')} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role_name,
                 t: t,
@@ -1723,32 +1723,37 @@ const courseController = {
         }
     },
 
-    // Get course materials
+    // Get course materials (all types for content page)
     async getCourseMaterials(req, res) {
         try {
             const { course_id } = req.params;
             const pool = await poolPromise;
 
+            // Get all materials for content page using SELECT *
             const result = await pool.request()
                 .input('courseId', sql.Int, parseInt(course_id))
                 .query(`
-                    SELECT material_id, title, type, content, file_path, file_size,
-                           order_index, duration_minutes, mime_type, is_downloadable
+                    SELECT *
                     FROM course_materials
                     WHERE course_id = @courseId
-                    AND type IN ('document', 'pdf', 'file')
                     ORDER BY order_index
                 `);
 
             const materials = result.recordset.map(m => ({
                 material_id: m.material_id,
                 title: m.title,
-                description: m.content || '',
-                file_type: m.type,
-                file_url: m.file_path || m.content,
+                description: m.description || m.content || '',
+                content: m.content || '',
+                material_type: m.type || m.material_type || 'text',
+                file_type: m.type || m.material_type || 'text',
+                file_url: m.file_path || m.video_url || m.file_url || '',
+                video_url: m.video_url || m.file_path || m.file_url || '',
                 file_size: m.file_size || 0,
-                mime_type: m.mime_type,
-                is_downloadable: m.is_downloadable !== false
+                mime_type: m.mime_type || '',
+                duration: m.duration_minutes ? `${m.duration_minutes} นาที` : (m.duration || ''),
+                is_downloadable: m.is_downloadable !== false,
+                is_completed: false,
+                progress_percentage: 0
             }));
 
             res.json({ success: true, data: materials });

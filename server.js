@@ -103,6 +103,9 @@ app.use(securityMiddleware.basicSecurity());
 // Request size limiting
 app.use(securityMiddleware.requestSizeLimit());
 
+// Path traversal protection
+app.use(securityMiddleware.pathTraversalProtection());
+
 // User agent validation
 app.use(securityMiddleware.validateUserAgent());
 

@@ -1,0 +1,1596 @@
+{
+  "summary": {
+    "total": 196,
+    "passed": 122,
+    "failed": 2,
+    "warnings": 61,
+    "skipped": 11,
+    "passRate": "62.2%",
+    "duration": "144.06s",
+    "timestamp": "2025-11-29T23:03:58.969Z"
+  },
+  "suites": {
+    "Auth": {
+      "passed": 19,
+      "failed": 0,
+      "warnings": 1,
+      "skipped": 0
+    },
+    "CourseCRUD": {
+      "passed": 103,
+      "failed": 2,
+      "warnings": 60,
+      "skipped": 11
+    }
+  },
+  "details": [
+    {
+      "suite": "Auth",
+      "id": "1.1",
+      "name": "Login page loads",
+      "status": "pass",
+      "detail": "เข้าสู่ระบบ - Rukchai Hongyen LearnHub",
+      "time": "2025-11-29T23:01:36.584Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.2",
+      "name": "Login form elements",
+      "status": "pass",
+      "detail": "empId:true pwd:true submit:true",
+      "time": "2025-11-29T23:01:36.616Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.3",
+      "name": "Input placeholders exist",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:36.647Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.4",
+      "name": "Empty form blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:37.734Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.5",
+      "name": "Invalid credentials show error",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:40.949Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.6",
+      "name": "SQL Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:42.962Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.7",
+      "name": "XSS Attack blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:44.866Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.8",
+      "name": "LDAP Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:46.812Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.9",
+      "name": "Command Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:48.744Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.10",
+      "name": "Buffer Overflow blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:50.684Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.11",
+      "name": "Valid login successful",
+      "status": "pass",
+      "detail": "http://localhost:3000/dashboard",
+      "time": "2025-11-29T23:01:55.330Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.12",
+      "name": "Session persists across pages",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:56.015Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.13",
+      "name": "User info displayed",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:56.031Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.14",
+      "name": "Admin can access create page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:56.727Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.15",
+      "name": "Admin can access users page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:57.412Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.16",
+      "name": "Admin can access settings",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:58.157Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.17",
+      "name": "Logout link exists",
+      "status": "warn",
+      "detail": "Not found",
+      "time": "2025-11-29T23:01:58.209Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.18",
+      "name": "Logout redirects to login",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:59.364Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.19",
+      "name": "Protected route after logout",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:01:59.947Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.20",
+      "name": "No cached protected pages",
+      "status": "pass",
+      "detail": "Manual verification needed",
+      "time": "2025-11-29T23:01:59.947Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.1",
+      "name": "Course list page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:08.044Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.2",
+      "name": "Page title correct",
+      "status": "pass",
+      "detail": "allCourses - Rukchai Hongyen LearnHub - ระบบจัดการการเรียนรู้",
+      "time": "2025-11-29T23:02:08.072Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.3",
+      "name": "Navigation visible",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:08.103Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.4",
+      "name": "Search input exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:08.415Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.5",
+      "name": "Category filter exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:08.524Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.6",
+      "name": "Difficulty filter exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:08.540Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.7",
+      "name": "Course type filter exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:08.572Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.8",
+      "name": "Create course button exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:08.602Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.9",
+      "name": "Course cards displayed",
+      "status": "pass",
+      "detail": "Cards: 0, Links: 4",
+      "time": "2025-11-29T23:02:08.633Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.10",
+      "name": "Search functionality works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:10.779Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.11",
+      "name": "Category filter works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:13.673Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.12",
+      "name": "Pagination exists",
+      "status": "pass",
+      "detail": "May not exist if few courses",
+      "time": "2025-11-29T23:02:13.701Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.13",
+      "name": "Sort options exist",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:13.732Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.14",
+      "name": "Tablet responsive layout",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:14.455Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "A.15",
+      "name": "Mobile responsive layout",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:15.210Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.1",
+      "name": "Create page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:17.179Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.2",
+      "name": "Wizard steps visible",
+      "status": "pass",
+      "detail": "4 steps",
+      "time": "2025-11-29T23:02:17.614Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.3",
+      "name": "Course name input exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:17.786Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.4",
+      "name": "Course code input exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:17.864Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.5",
+      "name": "Category dropdown with options",
+      "status": "pass",
+      "detail": "11 options",
+      "time": "2025-11-29T23:02:18.280Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.6",
+      "name": "Difficulty dropdown exists",
+      "status": "pass",
+      "detail": ", Beginner, Intermediate, Advanced",
+      "time": "2025-11-29T23:02:18.621Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.7",
+      "name": "Course type dropdown exists",
+      "status": "pass",
+      "detail": ", mandatory, elective, recommended",
+      "time": "2025-11-29T23:02:18.950Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.8",
+      "name": "Language dropdown exists",
+      "status": "pass",
+      "detail": ", th, en, th-en",
+      "time": "2025-11-29T23:02:19.235Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.9",
+      "name": "Course name validation (empty)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:19.788Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.10",
+      "name": "Course name filled",
+      "status": "pass",
+      "detail": "QA Comprehensive Test 1764457339789",
+      "time": "2025-11-29T23:02:22.063Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.11",
+      "name": "Course code filled",
+      "status": "pass",
+      "detail": "QA-339789",
+      "time": "2025-11-29T23:02:22.870Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.12",
+      "name": "Category selected",
+      "status": "pass",
+      "detail": "เทคโนโลยีสารสนเทศ",
+      "time": "2025-11-29T23:02:23.464Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.13",
+      "name": "Difficulty selected",
+      "status": "pass",
+      "detail": "Beginner",
+      "time": "2025-11-29T23:02:23.730Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.14",
+      "name": "Course type selected",
+      "status": "pass",
+      "detail": "elective",
+      "time": "2025-11-29T23:02:23.995Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "B.15",
+      "name": "Language selected",
+      "status": "pass",
+      "detail": "Thai",
+      "time": "2025-11-29T23:02:24.277Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.1",
+      "name": "Navigate to Step 2",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:25.763Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.2",
+      "name": "Step 2 indicator active",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:25.788Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.3",
+      "name": "Description field exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:25.868Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.4",
+      "name": "Duration field exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:25.945Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.5",
+      "name": "Learning objectives section exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:25.976Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.6",
+      "name": "Target audience field exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.008Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.7",
+      "name": "Prerequisites field exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.115Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.8",
+      "name": "Description filled (≥50 chars)",
+      "status": "pass",
+      "detail": "129 chars",
+      "time": "2025-11-29T23:02:26.146Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.9",
+      "name": "Duration filled",
+      "status": "pass",
+      "detail": "10 hours",
+      "time": "2025-11-29T23:02:26.177Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.10",
+      "name": "Objective 1 filled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.207Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.11",
+      "name": "Objective 2 filled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.207Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.12",
+      "name": "Objective 3 filled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.207Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.13",
+      "name": "Target audience filled",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.238Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.14",
+      "name": "Add objective button works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.578Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "C.15",
+      "name": "Back button exists in Step 2",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:26.609Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.1",
+      "name": "Navigate to Step 3",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:28.183Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.2",
+      "name": "Content section visible",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:28.213Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.3",
+      "name": "Lesson title input exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:28.322Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.4",
+      "name": "Add lesson button exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:28.354Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.5",
+      "name": "Lesson 1 title filled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:28.385Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.6",
+      "name": "Lesson duration filled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:28.416Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.7",
+      "name": "Add lesson button works",
+      "status": "pass",
+      "detail": "2 lessons",
+      "time": "2025-11-29T23:02:29.222Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.8",
+      "name": "Lesson 2 title filled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:29.252Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.9",
+      "name": "Remove lesson button exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:29.284Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "D.10",
+      "name": "Lesson reorder available",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:29.315Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.1",
+      "name": "Navigate to Step 4",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:30.898Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.2",
+      "name": "Assessment section visible",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:30.926Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.3",
+      "name": "Passing score filled",
+      "status": "warn",
+      "detail": "Field not found",
+      "time": "2025-11-29T23:02:30.957Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.4",
+      "name": "Certificate option exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:30.973Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.5",
+      "name": "Course summary visible",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:31.005Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.6",
+      "name": "Submit button exists",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:31.036Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.7",
+      "name": "Course created successfully",
+      "status": "warn",
+      "detail": "Still on create page",
+      "time": "2025-11-29T23:02:34.358Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.8",
+      "name": "Created course in list",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:35.507Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.9",
+      "name": "Success message displayed",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:35.538Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "E.10",
+      "name": "Redirect after creation",
+      "status": "pass",
+      "detail": "http://localhost:3000/courses",
+      "time": "2025-11-29T23:02:35.538Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "F.1",
+      "name": "Course detail page loads",
+      "status": "skip",
+      "detail": "No courses available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.1",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.2",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.3",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.4",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.5",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.6",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.7",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.8",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.9",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "G.10",
+      "name": "Course edit test",
+      "status": "skip",
+      "detail": "No course available",
+      "time": "2025-11-29T23:02:37.321Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.1",
+      "name": "My Courses page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:38.728Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.2",
+      "name": "Page structure correct",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:38.757Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.3",
+      "name": "Content displayed",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:38.788Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.4",
+      "name": "Progress indicator exists",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:38.820Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.5",
+      "name": "Continue learning button",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:38.851Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.6",
+      "name": "Filter enrolled courses",
+      "status": "warn",
+      "detail": "UI dependent",
+      "time": "2025-11-29T23:02:38.851Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.7",
+      "name": "Sort enrolled courses",
+      "status": "warn",
+      "detail": "UI dependent",
+      "time": "2025-11-29T23:02:38.851Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.8",
+      "name": "Course completion status",
+      "status": "warn",
+      "detail": "Data dependent",
+      "time": "2025-11-29T23:02:38.851Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.9",
+      "name": "Certificate download",
+      "status": "warn",
+      "detail": "Feature dependent",
+      "time": "2025-11-29T23:02:38.851Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "H.10",
+      "name": "Unenroll option",
+      "status": "warn",
+      "detail": "Feature dependent",
+      "time": "2025-11-29T23:02:38.851Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "I.1",
+      "name": "Step indicators exist",
+      "status": "pass",
+      "detail": "4 indicators",
+      "time": "2025-11-29T23:02:40.443Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "I.2",
+      "name": "Current step highlighted",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:40.473Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "I.3",
+      "name": "Next button works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:41.036Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "I.4",
+      "name": "Back button works",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:02:41.570Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "I.5",
+      "name": "Step click navigation",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:42.101Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.1",
+      "name": "Empty course name blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:02:44.494Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.2",
+      "name": "Course name max length",
+      "status": "warn",
+      "detail": "300 chars",
+      "time": "2025-11-29T23:03:01.000Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.3",
+      "name": "Special chars escaped in name",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:03:03.196Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.4",
+      "name": "SQL Injection in course name",
+      "status": "pass",
+      "detail": "Input accepted (backend should sanitize)",
+      "time": "2025-11-29T23:03:04.792Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.5",
+      "name": "Description min length check",
+      "status": "pass",
+      "detail": "0 chars",
+      "time": "2025-11-29T23:03:09.828Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.6",
+      "name": "Duration negative value",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:03:09.859Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.7",
+      "name": "Duration zero value",
+      "status": "pass",
+      "detail": "Should be blocked",
+      "time": "2025-11-29T23:03:09.891Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.8",
+      "name": "Duration max value",
+      "status": "pass",
+      "detail": "99999",
+      "time": "2025-11-29T23:03:09.922Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.9",
+      "name": "Empty objectives check",
+      "status": "pass",
+      "detail": "3 fields",
+      "time": "2025-11-29T23:03:09.952Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.10",
+      "name": "Objective max length",
+      "status": "pass",
+      "detail": "500 chars",
+      "time": "2025-11-29T23:03:09.982Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.11",
+      "name": "Category required validation",
+      "status": "pass",
+      "detail": "Dropdown default",
+      "time": "2025-11-29T23:03:10.314Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.12",
+      "name": "Difficulty required validation",
+      "status": "pass",
+      "detail": "Dropdown default",
+      "time": "2025-11-29T23:03:10.314Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.13",
+      "name": "Course type required validation",
+      "status": "pass",
+      "detail": "Dropdown default",
+      "time": "2025-11-29T23:03:10.314Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.14",
+      "name": "Language required validation",
+      "status": "pass",
+      "detail": "Dropdown default",
+      "time": "2025-11-29T23:03:10.314Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.15",
+      "name": "Duplicate course code entry",
+      "status": "pass",
+      "detail": "Backend should validate",
+      "time": "2025-11-29T23:03:11.963Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.16",
+      "name": "Course name 1 char",
+      "status": "warn",
+      "detail": "Should be blocked",
+      "time": "2025-11-29T23:03:11.963Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.17",
+      "name": "Course name 255 chars",
+      "status": "pass",
+      "detail": "Max allowed",
+      "time": "2025-11-29T23:03:11.963Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.18",
+      "name": "Description 49 chars",
+      "status": "warn",
+      "detail": "Below minimum",
+      "time": "2025-11-29T23:03:11.963Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.19",
+      "name": "Description 50 chars",
+      "status": "pass",
+      "detail": "Exact minimum",
+      "time": "2025-11-29T23:03:11.963Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "J.20",
+      "name": "Duration 1000 hours",
+      "status": "warn",
+      "detail": "Boundary check",
+      "time": "2025-11-29T23:03:11.963Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.1",
+      "name": "XSS prevention in course list",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T23:03:12.619Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.2",
+      "name": "CSRF token present",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:13.323Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.3",
+      "name": "SQL Injection in search blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:14.404Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.4",
+      "name": "Path traversal blocked",
+      "status": "fail",
+      "detail": "",
+      "time": "2025-11-29T23:03:15.169Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.5",
+      "name": "Invalid course ID handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:15.823Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.6",
+      "name": "Negative course ID handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:16.479Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.7",
+      "name": "Non-numeric course ID handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:17.119Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.8",
+      "name": "Unauthorized edit blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:22.717Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.9",
+      "name": "Unauthorized create blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:34.860Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.10",
+      "name": "Session timeout handling",
+      "status": "warn",
+      "detail": "Manual verification",
+      "time": "2025-11-29T23:03:41.471Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.11",
+      "name": "Concurrent session handling",
+      "status": "warn",
+      "detail": "Manual verification",
+      "time": "2025-11-29T23:03:41.472Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.12",
+      "name": "Sensitive data exposure",
+      "status": "pass",
+      "detail": "No passwords in HTML",
+      "time": "2025-11-29T23:03:41.472Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.13",
+      "name": "Error message information leak",
+      "status": "warn",
+      "detail": "Check error pages",
+      "time": "2025-11-29T23:03:41.472Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.14",
+      "name": "File upload validation",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:41.472Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "K.15",
+      "name": "HTTPS enforcement",
+      "status": "warn",
+      "detail": "Development mode",
+      "time": "2025-11-29T23:03:41.472Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.1",
+      "name": "Categories API works",
+      "status": "pass",
+      "detail": "Status: 200",
+      "time": "2025-11-29T23:03:41.798Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.2",
+      "name": "Categories API returns data",
+      "status": "pass",
+      "detail": "10 categories",
+      "time": "2025-11-29T23:03:41.860Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.3",
+      "name": "Courses list API",
+      "status": "pass",
+      "detail": "Status: 200",
+      "time": "2025-11-29T23:03:41.939Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.4",
+      "name": "Course detail API",
+      "status": "pass",
+      "detail": "Status: 404",
+      "time": "2025-11-29T23:03:42.003Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.5",
+      "name": "API error handling",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:42.066Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.6",
+      "name": "API returns JSON",
+      "status": "pass",
+      "detail": "application/json; charset=utf-8",
+      "time": "2025-11-29T23:03:42.130Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.7",
+      "name": "API response time",
+      "status": "pass",
+      "detail": "44ms",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.8",
+      "name": "API pagination",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.9",
+      "name": "API filtering",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.10",
+      "name": "API sorting",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.11",
+      "name": "API rate limiting",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.12",
+      "name": "API authentication",
+      "status": "warn",
+      "detail": "Session-based",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.13",
+      "name": "API CORS headers",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.14",
+      "name": "API error format",
+      "status": "pass",
+      "detail": "JSON errors",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "L.15",
+      "name": "API versioning",
+      "status": "warn",
+      "detail": "Not implemented",
+      "time": "2025-11-29T23:03:42.191Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.1",
+      "name": "Course list load time",
+      "status": "pass",
+      "detail": "97ms",
+      "time": "2025-11-29T23:03:42.512Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.2",
+      "name": "Create page load time",
+      "status": "pass",
+      "detail": "199ms",
+      "time": "2025-11-29T23:03:42.712Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.3",
+      "name": "My courses load time",
+      "status": "pass",
+      "detail": "124ms",
+      "time": "2025-11-29T23:03:42.836Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.4",
+      "name": "Search response time",
+      "status": "pass",
+      "detail": "2374ms",
+      "time": "2025-11-29T23:03:46.124Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.5",
+      "name": "DOM element count",
+      "status": "pass",
+      "detail": "382 elements",
+      "time": "2025-11-29T23:03:46.155Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.6",
+      "name": "Image optimization",
+      "status": "warn",
+      "detail": "Check manually",
+      "time": "2025-11-29T23:03:46.155Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.7",
+      "name": "CSS minification",
+      "status": "warn",
+      "detail": "Check manually",
+      "time": "2025-11-29T23:03:46.155Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.8",
+      "name": "JS minification",
+      "status": "warn",
+      "detail": "Check manually",
+      "time": "2025-11-29T23:03:46.155Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.9",
+      "name": "Gzip compression",
+      "status": "warn",
+      "detail": "Check manually",
+      "time": "2025-11-29T23:03:46.155Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "M.10",
+      "name": "Browser caching",
+      "status": "warn",
+      "detail": "Check headers",
+      "time": "2025-11-29T23:03:46.155Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.1",
+      "name": "404 error page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:47.058Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.2",
+      "name": "Empty search results handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:47.748Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.3",
+      "name": "Double submission prevention",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:48.410Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.4",
+      "name": "Unicode characters handled",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:50.066Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.5",
+      "name": "Empty form initial state",
+      "status": "pass",
+      "detail": "15 empty fields",
+      "time": "2025-11-29T23:03:50.736Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.6",
+      "name": "Browser back button works",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.7",
+      "name": "Browser refresh handling",
+      "status": "pass",
+      "detail": "Page reloads correctly",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.8",
+      "name": "Session expired handling",
+      "status": "warn",
+      "detail": "Manual verification",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.9",
+      "name": "Network error handling",
+      "status": "warn",
+      "detail": "Manual verification",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.10",
+      "name": "Large file upload",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.11",
+      "name": "Slow network simulation",
+      "status": "warn",
+      "detail": "Manual verification",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.12",
+      "name": "Concurrent editing",
+      "status": "warn",
+      "detail": "Manual verification",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.13",
+      "name": "Timezone handling",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.14",
+      "name": "Locale/language switch",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "N.15",
+      "name": "Print functionality",
+      "status": "warn",
+      "detail": "If applicable",
+      "time": "2025-11-29T23:03:52.167Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.1",
+      "name": "Consistent CSS framework",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:03:53.035Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.2",
+      "name": "Loading indicators exist",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T23:03:53.052Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.3",
+      "name": "Alert/message styling",
+      "status": "pass",
+      "detail": "Bootstrap alerts available",
+      "time": "2025-11-29T23:03:53.070Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.4",
+      "name": "Form labels present",
+      "status": "pass",
+      "detail": "54/59 labeled",
+      "time": "2025-11-29T23:03:53.730Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.5",
+      "name": "Focus states visible",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T23:03:53.752Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.6",
+      "name": "Color contrast",
+      "status": "warn",
+      "detail": "Manual verification",
+      "time": "2025-11-29T23:03:53.752Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.7",
+      "name": "Font readability",
+      "status": "pass",
+      "detail": "Standard fonts used",
+      "time": "2025-11-29T23:03:53.752Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.8",
+      "name": "Button hover states",
+      "status": "pass",
+      "detail": "Bootstrap buttons",
+      "time": "2025-11-29T23:03:53.752Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.9",
+      "name": "Mobile touch targets",
+      "status": "warn",
+      "detail": "Check button sizes",
+      "time": "2025-11-29T23:03:53.752Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "O.10",
+      "name": "Keyboard navigation",
+      "status": "warn",
+      "detail": "Tab order check",
+      "time": "2025-11-29T23:03:53.752Z"
+    }
+  ]
+}

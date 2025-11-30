@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900 hover:text-ruxchai-primary">
-                                    <a href="/courses/${course.course_id}">${course.title || course.course_name}</a>
+                                    <a href="/courses/${course.course_id}/content">${course.title || course.course_name}</a>
                                 </h3>
                                 <p class="text-sm text-gray-500 mt-1">${course.instructor_name || '<%= t("unknownInstructor") %>'}</p>
                             </div>
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <i class="fas fa-calendar mr-1"></i>
                                 ${formatDate(course.enrollment_date)}
                             </div>
-                            <a href="/courses/${course.course_id}" class="btn-ruxchai-primary btn-sm">
+                            <a href="/courses/${course.course_id}/content" class="btn-ruxchai-primary btn-sm">
                                 ${progress > 0 ? '<%= t("continue") %>' : '<%= t("start") %>'}
                                 <i class="fas fa-arrow-right ml-1"></i>
                             </a>

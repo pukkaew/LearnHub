@@ -95,7 +95,8 @@
       "Bash(cmd.exe /c \"dir D:\\App\\LearnHub\\tests\\*.js\")",
       "Bash(cmd.exe /c \"timeout /t 30 /nobreak >nul\")",
       "Bash(cmd.exe /c \"timeout /t 60 /nobreak >nul\")",
-      "Bash(cmd.exe /c:*)"
+      "Bash(cmd.exe /c:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

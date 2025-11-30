@@ -1,0 +1,420 @@
+{
+  "summary": {
+    "total": 49,
+    "passed": 43,
+    "failed": 0,
+    "warnings": 5,
+    "skipped": 1,
+    "passRate": "87.8%",
+    "duration": "61.63s",
+    "timestamp": "2025-11-29T22:40:49.994Z"
+  },
+  "suites": {
+    "Auth": {
+      "passed": 19,
+      "failed": 0,
+      "warnings": 1,
+      "skipped": 0
+    },
+    "CourseCRUD": {
+      "passed": 24,
+      "failed": 0,
+      "warnings": 4,
+      "skipped": 1
+    }
+  },
+  "details": [
+    {
+      "suite": "Auth",
+      "id": "1.1",
+      "name": "Login page loads",
+      "status": "pass",
+      "detail": "เข้าสู่ระบบ - Rukchai Hongyen LearnHub",
+      "time": "2025-11-29T22:39:50.154Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.2",
+      "name": "Login form elements",
+      "status": "pass",
+      "detail": "empId:true pwd:true submit:true",
+      "time": "2025-11-29T22:39:50.185Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.3",
+      "name": "Input placeholders exist",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:39:50.216Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.4",
+      "name": "Empty form blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:39:51.346Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.5",
+      "name": "Invalid credentials show error",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:39:54.535Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.6",
+      "name": "SQL Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:39:56.483Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.7",
+      "name": "XSS Attack blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:39:58.420Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.8",
+      "name": "LDAP Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:00.325Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.9",
+      "name": "Command Injection blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:02.133Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.10",
+      "name": "Buffer Overflow blocked",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:04.107Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.11",
+      "name": "Valid login successful",
+      "status": "pass",
+      "detail": "http://localhost:3000/dashboard",
+      "time": "2025-11-29T22:40:08.667Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.12",
+      "name": "Session persists across pages",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:09.291Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.13",
+      "name": "User info displayed",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:09.322Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.14",
+      "name": "Admin can access create page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:09.998Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.15",
+      "name": "Admin can access users page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:10.642Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.16",
+      "name": "Admin can access settings",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:11.396Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.17",
+      "name": "Logout link exists",
+      "status": "warn",
+      "detail": "Not found",
+      "time": "2025-11-29T22:40:11.450Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.18",
+      "name": "Logout redirects to login",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:12.587Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.19",
+      "name": "Protected route after logout",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:13.168Z"
+    },
+    {
+      "suite": "Auth",
+      "id": "1.20",
+      "name": "No cached protected pages",
+      "status": "pass",
+      "detail": "Manual verification needed",
+      "time": "2025-11-29T22:40:13.168Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.1",
+      "name": "Course list page loads",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:21.103Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.2",
+      "name": "List page elements",
+      "status": "pass",
+      "detail": "search:true cat:true create:true",
+      "time": "2025-11-29T22:40:21.133Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.3",
+      "name": "Courses displayed",
+      "status": "pass",
+      "detail": "0 courses",
+      "time": "2025-11-29T22:40:21.646Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.4",
+      "name": "Search functionality",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:23.036Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.5",
+      "name": "Filter dropdowns",
+      "status": "pass",
+      "detail": "4 filters",
+      "time": "2025-11-29T22:40:24.064Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.6",
+      "name": "Create page loads",
+      "status": "pass",
+      "detail": "http://localhost:3000/courses/create",
+      "time": "2025-11-29T22:40:25.523Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.7",
+      "name": "Course name input",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:27.361Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.8",
+      "name": "Category dropdown",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:27.533Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.9",
+      "name": "Difficulty dropdown",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:27.672Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.10",
+      "name": "Course type dropdown",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:27.781Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.11",
+      "name": "Language dropdown",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:27.923Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.12",
+      "name": "Step 1 form filled",
+      "status": "pass",
+      "detail": "QA Ultimate Test 1764456027923",
+      "time": "2025-11-29T22:40:30.978Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.13",
+      "name": "Navigate to Step 2",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:32.263Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.14",
+      "name": "Description field (≥50 chars)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:32.416Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.14b",
+      "name": "Learning objectives (≥3 required)",
+      "status": "pass",
+      "detail": "3 objectives",
+      "time": "2025-11-29T22:40:32.432Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.15",
+      "name": "Duration field (>0 required)",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:32.965Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.16",
+      "name": "Navigate to Step 3",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:34.303Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.17",
+      "name": "Content section visible",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:34.332Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.17b",
+      "name": "Lessons added (≥1 required)",
+      "status": "pass",
+      "detail": "1 lesson added",
+      "time": "2025-11-29T22:40:35.171Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.18",
+      "name": "Navigate to Step 4",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:36.422Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.19",
+      "name": "Assessment section visible",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:36.451Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.19b",
+      "name": "Form submission",
+      "status": "warn",
+      "detail": "Current URL: http://localhost:3000/courses/create",
+      "time": "2025-11-29T22:40:39.729Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.19c",
+      "name": "Created course in list",
+      "status": "warn",
+      "detail": "Not found - may need different search",
+      "time": "2025-11-29T22:40:40.855Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.20",
+      "name": "Back button works",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T22:40:42.040Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.21",
+      "name": "Step indicators exist",
+      "status": "pass",
+      "detail": "4 indicators",
+      "time": "2025-11-29T22:40:42.491Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.22",
+      "name": "Course detail page",
+      "status": "skip",
+      "detail": "No courses",
+      "time": "2025-11-29T22:40:43.524Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.23",
+      "name": "Edit button visible",
+      "status": "warn",
+      "detail": "",
+      "time": "2025-11-29T22:40:43.555Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.24",
+      "name": "Course detail info",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:43.587Z"
+    },
+    {
+      "suite": "CourseCRUD",
+      "id": "2.25",
+      "name": "My Courses page",
+      "status": "pass",
+      "detail": "",
+      "time": "2025-11-29T22:40:44.989Z"
+    }
+  ]
+}

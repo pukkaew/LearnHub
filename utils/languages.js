@@ -118,6 +118,15 @@ const translations = {
         popularity: 'ความนิยม',
         rating: 'คะแนน',
         myCourses: 'คอร์สของฉัน',
+        trackYourLearningProgress: 'ติดตามความคืบหน้าการเรียนของคุณ',
+        backToCourses: 'กลับไปหน้าคอร์ส',
+        searchMyCourses: 'ค้นหาคอร์สของฉัน...',
+        notStarted: 'ยังไม่เริ่ม',
+        enrollmentDate: 'วันที่ลงทะเบียน',
+        lastAccessed: 'เข้าล่าสุด',
+        totalEnrolled: 'ลงทะเบียนทั้งหมด',
+        certificates: 'ใบรับรอง',
+        noEnrolledCourses: 'คุณยังไม่ได้ลงทะเบียนคอร์สใดๆ',
         viewAll: 'ดูทั้งหมด',
         recommendedCourses: 'คอร์สแนะนำ',
         allCourses: 'คอร์สทั้งหมด',
@@ -189,6 +198,67 @@ const translations = {
         times: 'ครั้ง',
         minutes: 'นาที',
         lessons: 'บท',
+
+        // Course Content Page
+        loadingContent: 'กำลังโหลดเนื้อหา...',
+        selectContent: 'เลือกเนื้อหา',
+        previous: 'ก่อนหน้า',
+        next: 'ถัดไป',
+        fullscreen: 'เต็มจอ',
+        playbackSettings: 'ตั้งค่าการเล่น',
+        playbackSpeed: 'ความเร็วการเล่น',
+        autoplayNext: 'เล่นอัตโนมัติเมื่อจบ',
+        content: 'เนื้อหา',
+        notes: 'บันทึก',
+        discussion: 'สนทนา',
+        resources: 'ไฟล์เอกสาร',
+        selectContentFromSidebar: 'เลือกเนื้อหาจากเมนูด้านซ้าย',
+        timeSpent: 'เวลาที่ใช้',
+        markAsCompleted: 'เสร็จสิ้น',
+        yourNotes: 'บันทึกของคุณ',
+        writeNotesHere: 'เขียนบันทึกที่นี่...',
+        notSaved: 'ยังไม่บันทึก',
+        saved: 'บันทึกแล้ว',
+        pressCtrlS: 'กด Ctrl+S เพื่อบันทึก',
+        savedNotes: 'บันทึกที่บันทึกไว้',
+        shareYourThoughts: 'แบ่งปันความคิดเห็น...',
+        post: 'โพสต์',
+        noResources: 'ไม่มีไฟล์เอกสาร',
+        keyboardShortcuts: 'คีย์ลัด',
+        nextLesson: 'บทเรียนถัดไป',
+        or: 'หรือ',
+        previousLesson: 'บทเรียนก่อนหน้า',
+        playPause: 'เล่น/หยุด',
+        toggleFullscreen: 'เปิด/ปิดเต็มจอ',
+        toggleSidebar: 'เปิด/ปิดเมนูด้านข้าง',
+        saveNotes: 'บันทึกโน้ต',
+        showShortcuts: 'แสดงคีย์ลัด',
+        noContentAvailable: 'ไม่มีเนื้อหา',
+        browserNotSupportVideo: 'เบราว์เซอร์ของคุณไม่รองรับวิดีโอ',
+        comprehensionQuiz: 'แบบทดสอบความเข้าใจ',
+        toPass: 'เพื่อผ่าน',
+        video: 'วิดีโอ',
+        document: 'เอกสาร',
+        article: 'บทความ',
+        quiz: 'แบบทดสอบ',
+        audio: 'เสียง',
+        image: 'รูปภาพ',
+        noDescription: 'ไม่มีคำอธิบาย',
+        noContent: 'ไม่มีเนื้อหา',
+        contentNotAvailable: 'เนื้อหาไม่พร้อมใช้งาน',
+        videoContent: 'เนื้อหาวิดีโอ',
+        documentContent: 'เนื้อหาเอกสาร',
+        articleContent: 'เนื้อหาบทความ',
+        quizContent: 'แบบทดสอบ',
+        errorLoadingContent: 'เกิดข้อผิดพลาดในการโหลดเนื้อหา',
+        markedComplete: 'ทำเครื่องหมายเสร็จสิ้นแล้ว',
+        notesSaved: 'บันทึกโน้ตแล้ว',
+        commentPosted: 'โพสต์ความคิดเห็นแล้ว',
+        noComments: 'ยังไม่มีความคิดเห็น',
+        startQuiz: 'เริ่มทำแบบทดสอบ',
+        viewDocument: 'ดูเอกสาร',
+        downloadFile: 'ดาวน์โหลดไฟล์',
+        unsaved: 'ยังไม่บันทึก',
 
         // Course Detail - Loading States
         loadingCourseData: 'กำลังโหลดข้อมูลคอร์ส...',
@@ -2522,6 +2592,15 @@ const translations = {
         popularity: 'Popularity',
         rating: 'Rating',
         myCourses: 'My Courses',
+        trackYourLearningProgress: 'Track your learning progress',
+        backToCourses: 'Back to Courses',
+        searchMyCourses: 'Search my courses...',
+        notStarted: 'Not Started',
+        enrollmentDate: 'Enrollment Date',
+        lastAccessed: 'Last Accessed',
+        totalEnrolled: 'Total Enrolled',
+        certificates: 'Certificates',
+        noEnrolledCourses: 'You have not enrolled in any courses yet',
         viewAll: 'View All',
         recommendedCourses: 'Recommended Courses',
         allCourses: 'All Courses',
@@ -2593,6 +2672,67 @@ const translations = {
         times: 'times',
         minutes: 'minutes',
         lessons: 'lessons',
+
+        // Course Content Page
+        loadingContent: 'Loading content...',
+        selectContent: 'Select Content',
+        previous: 'Previous',
+        next: 'Next',
+        fullscreen: 'Fullscreen',
+        playbackSettings: 'Playback Settings',
+        playbackSpeed: 'Playback Speed',
+        autoplayNext: 'Autoplay Next',
+        content: 'Content',
+        notes: 'Notes',
+        discussion: 'Discussion',
+        resources: 'Resources',
+        selectContentFromSidebar: 'Select content from the sidebar',
+        timeSpent: 'Time Spent',
+        markAsCompleted: 'Mark as Completed',
+        yourNotes: 'Your Notes',
+        writeNotesHere: 'Write your notes here...',
+        notSaved: 'Not Saved',
+        saved: 'Saved',
+        pressCtrlS: 'Press Ctrl+S to save',
+        savedNotes: 'Saved Notes',
+        shareYourThoughts: 'Share your thoughts...',
+        post: 'Post',
+        noResources: 'No resources available',
+        keyboardShortcuts: 'Keyboard Shortcuts',
+        nextLesson: 'Next Lesson',
+        or: 'or',
+        previousLesson: 'Previous Lesson',
+        playPause: 'Play/Pause',
+        toggleFullscreen: 'Toggle Fullscreen',
+        toggleSidebar: 'Toggle Sidebar',
+        saveNotes: 'Save Notes',
+        showShortcuts: 'Show Shortcuts',
+        noContentAvailable: 'No content available',
+        browserNotSupportVideo: 'Your browser does not support video',
+        comprehensionQuiz: 'Comprehension Quiz',
+        toPass: 'to pass',
+        video: 'Video',
+        document: 'Document',
+        article: 'Article',
+        quiz: 'Quiz',
+        audio: 'Audio',
+        image: 'Image',
+        noDescription: 'No description',
+        noContent: 'No content',
+        contentNotAvailable: 'Content not available',
+        videoContent: 'Video Content',
+        documentContent: 'Document Content',
+        articleContent: 'Article Content',
+        quizContent: 'Quiz Content',
+        errorLoadingContent: 'Error loading content',
+        markedComplete: 'Marked as complete',
+        notesSaved: 'Notes saved',
+        commentPosted: 'Comment posted',
+        noComments: 'No comments yet',
+        startQuiz: 'Start Quiz',
+        viewDocument: 'View Document',
+        downloadFile: 'Download File',
+        unsaved: 'Unsaved',
 
         // Course Detail - Loading States
         loadingCourseData: 'Loading course data...',
@@ -4918,13 +5058,29 @@ function languageMiddleware(req, res, next) {
     res.locals.currentLanguage = currentLang;
 
     // Add translation helper to response locals
-    res.locals.t = (key, defaultValue = key) => {
-        return getTranslation(currentLang, key) || defaultValue;
+    res.locals.t = (key, params = {}) => {
+        let text = getTranslation(currentLang, key) || key;
+        // Replace placeholders like {{remaining}} with actual values
+        if (typeof params === 'object' && params !== null) {
+            Object.keys(params).forEach(paramKey => {
+                const regex = new RegExp(`\\{\\{${paramKey}\\}\\}`, 'g');
+                text = text.replace(regex, params[paramKey]);
+            });
+        }
+        return text;
     };
 
     // Add translation helper to request object (for controllers)
-    req.t = (key, defaultValue = key) => {
-        return getTranslation(currentLang, key) || defaultValue;
+    req.t = (key, params = {}) => {
+        let text = getTranslation(currentLang, key) || key;
+        // Replace placeholders like {{remaining}} with actual values
+        if (typeof params === 'object' && params !== null) {
+            Object.keys(params).forEach(paramKey => {
+                const regex = new RegExp(`\\{\\{${paramKey}\\}\\}`, 'g');
+                text = text.replace(regex, params[paramKey]);
+            });
+        }
+        return text;
     };
 
     // Add language info to locals
