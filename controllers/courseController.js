@@ -1727,6 +1727,7 @@ const courseController = {
     async getCourseMaterials(req, res) {
         try {
             const { course_id } = req.params;
+            const userId = req.user?.user_id;
             const pool = await poolPromise;
 
             // Get all materials for content page using SELECT *
@@ -1739,22 +1740,64 @@ const courseController = {
                     ORDER BY order_index
                 `);
 
-            const materials = result.recordset.map(m => ({
-                material_id: m.material_id,
-                title: m.title,
-                description: m.description || m.content || '',
-                content: m.content || '',
-                material_type: m.type || m.material_type || 'text',
-                file_type: m.type || m.material_type || 'text',
-                file_url: m.file_path || m.video_url || m.file_url || '',
-                video_url: m.video_url || m.file_path || m.file_url || '',
-                file_size: m.file_size || 0,
-                mime_type: m.mime_type || '',
-                duration: m.duration_minutes ? `${m.duration_minutes} นาที` : (m.duration || ''),
-                is_downloadable: m.is_downloadable !== false,
-                is_completed: false,
-                progress_percentage: 0
-            }));
+            // Get user's progress for all materials in this course
+            let userProgress = {};
+            if (userId) {
+                const progressResult = await pool.request()
+                    .input('userId', sql.Int, userId)
+                    .input('courseId', sql.Int, parseInt(course_id))
+                    .query(`
+                        SELECT material_id, is_completed, completed_at, time_spent_seconds
+                        FROM user_material_progress
+                        WHERE user_id = @userId AND course_id = @courseId
+                    `);
+
+                // Create a map for quick lookup
+                progressResult.recordset.forEach(p => {
+                    userProgress[p.material_id] = {
+                        is_completed: p.is_completed,
+                        completed_at: p.completed_at,
+                        time_spent_seconds: p.time_spent_seconds || 0
+                    };
+                });
+            }
+
+            // Helper function to detect YouTube URL
+            const getYoutubeInfo = (url) => {
+                if (!url) return { is_youtube: false, youtube_embed_url: '' };
+                const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+                const match = url.match(youtubeRegex);
+                if (match && match[1]) {
+                    return { is_youtube: true, youtube_embed_url: `https://www.youtube.com/embed/${match[1]}` };
+                }
+                return { is_youtube: false, youtube_embed_url: '' };
+            };
+
+            const materials = result.recordset.map(m => {
+                const videoUrl = m.video_url || m.file_path || m.file_url || '';
+                const youtubeInfo = getYoutubeInfo(videoUrl);
+                const progress = userProgress[m.material_id] || {};
+
+                return {
+                    material_id: m.material_id,
+                    title: m.title,
+                    description: m.description || m.content || '',
+                    content: m.content || '',
+                    material_type: youtubeInfo.is_youtube ? 'video' : (m.type || m.material_type || 'text'),
+                    file_type: m.type || m.material_type || 'text',
+                    file_url: m.file_path || m.video_url || m.file_url || '',
+                    video_url: videoUrl,
+                    file_size: m.file_size || 0,
+                    mime_type: m.mime_type || '',
+                    duration: m.duration_minutes ? `${m.duration_minutes} นาที` : (m.duration || ''),
+                    is_downloadable: m.is_downloadable !== false,
+                    is_completed: progress.is_completed || false,
+                    completed_at: progress.completed_at || null,
+                    time_spent_seconds: progress.time_spent_seconds || 0,
+                    is_youtube: youtubeInfo.is_youtube,
+                    youtube_embed_url: youtubeInfo.youtube_embed_url
+                };
+            });
 
             res.json({ success: true, data: materials });
         } catch (error) {
@@ -1867,11 +1910,168 @@ const { t } = require('../utils/languages');
     async getCourseReviews(req, res) {
         try {
             const { course_id } = req.params;
-            // TODO: Implement when reviews table is ready
-            res.json({ success: true, data: [] });
+            const pool = await poolPromise;
+
+            // Get reviews with user information
+            const reviewsResult = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT
+                        cr.review_id,
+                        cr.course_id,
+                        cr.user_id,
+                        cr.rating,
+                        cr.review_text,
+                        cr.created_at,
+                        cr.updated_at,
+                        cr.is_approved,
+                        u.first_name,
+                        u.last_name,
+                        u.profile_image as avatar_url
+                    FROM course_reviews cr
+                    LEFT JOIN users u ON cr.user_id = u.user_id
+                    WHERE cr.course_id = @courseId
+                    AND (cr.is_approved = 1 OR cr.is_approved IS NULL)
+                    ORDER BY cr.created_at DESC
+                `);
+
+            // Calculate stats
+            const statsResult = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT
+                        COUNT(*) as total_reviews,
+                        AVG(CAST(rating as FLOAT)) as average_rating,
+                        COUNT(CASE WHEN rating = 5 THEN 1 END) as five_star,
+                        COUNT(CASE WHEN rating = 4 THEN 1 END) as four_star,
+                        COUNT(CASE WHEN rating = 3 THEN 1 END) as three_star,
+                        COUNT(CASE WHEN rating = 2 THEN 1 END) as two_star,
+                        COUNT(CASE WHEN rating = 1 THEN 1 END) as one_star
+                    FROM course_reviews
+                    WHERE course_id = @courseId
+                    AND (is_approved = 1 OR is_approved IS NULL)
+                `);
+
+            const stats = statsResult.recordset[0];
+
+            res.json({
+                success: true,
+                data: reviewsResult.recordset,
+                stats: {
+                    total_reviews: stats.total_reviews || 0,
+                    average_rating: stats.average_rating ? parseFloat(stats.average_rating.toFixed(1)) : 0,
+                    distribution: {
+                        five_star: stats.five_star || 0,
+                        four_star: stats.four_star || 0,
+                        three_star: stats.three_star || 0,
+                        two_star: stats.two_star || 0,
+                        one_star: stats.one_star || 0
+                    }
+                }
+            });
         } catch (error) {
             console.error('Get reviews error:', error);
             res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Submit course review
+    async submitCourseReview(req, res) {
+        try {
+            const { course_id } = req.params;
+            const { rating, review_text } = req.body;
+            const userId = req.user.user_id;
+            const pool = await poolPromise;
+
+            // Validate rating
+            if (!rating || rating < 1 || rating > 5) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t ? req.t('coursePleaseRateBetween1And5Stars') : 'Please rate between 1 and 5 stars'
+                });
+            }
+
+            // Check if user is enrolled in this course
+            const enrollment = await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT enrollment_id, status
+                    FROM user_courses
+                    WHERE user_id = @userId AND course_id = @courseId
+                `);
+
+            if (enrollment.recordset.length === 0) {
+                return res.status(403).json({
+                    success: false,
+                    message: req.t ? req.t('mustEnrollToRate') : 'You must be enrolled to review this course'
+                });
+            }
+
+            // Check if user already reviewed this course
+            const existingReview = await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT review_id FROM course_reviews
+                    WHERE user_id = @userId AND course_id = @courseId
+                `);
+
+            if (existingReview.recordset.length > 0) {
+                // Update existing review
+                await pool.request()
+                    .input('reviewId', sql.Int, existingReview.recordset[0].review_id)
+                    .input('rating', sql.Int, rating)
+                    .input('reviewText', sql.NVarChar(sql.MAX), review_text || null)
+                    .query(`
+                        UPDATE course_reviews
+                        SET rating = @rating,
+                            review_text = @reviewText,
+                            updated_at = GETDATE()
+                        WHERE review_id = @reviewId
+                    `);
+
+                res.json({
+                    success: true,
+                    message: req.t ? req.t('reviewUpdated') : 'Review updated successfully'
+                });
+            } else {
+                // Insert new review
+                await pool.request()
+                    .input('courseId', sql.Int, parseInt(course_id))
+                    .input('userId', sql.Int, userId)
+                    .input('rating', sql.Int, rating)
+                    .input('reviewText', sql.NVarChar(sql.MAX), review_text || null)
+                    .query(`
+                        INSERT INTO course_reviews (course_id, user_id, rating, review_text, created_at, is_approved)
+                        VALUES (@courseId, @userId, @rating, @reviewText, GETDATE(), 1)
+                    `);
+
+                // Log activity
+                await ActivityLog.create({
+                    user_id: userId,
+                    action: 'Submit_Review',
+                    table_name: 'course_reviews',
+                    record_id: course_id,
+                    ip_address: req.ip,
+                    user_agent: req.get('User-Agent'),
+                    session_id: req.sessionID,
+                    description: `User submitted review for course ${course_id} with ${rating} stars`,
+                    severity: 'Info',
+                    module: 'Course Management'
+                });
+
+                res.json({
+                    success: true,
+                    message: req.t ? req.t('reviewSubmitted') : 'Review submitted successfully'
+                });
+            }
+        } catch (error) {
+            console.error('Submit review error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorSubmittingReview') : 'Error submitting review'
+            });
         }
     },
 

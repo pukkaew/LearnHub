@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 ${formatDate(course.enrollment_date)}
                             </div>
                             <a href="/courses/${course.course_id}/content" class="btn-ruxchai-primary btn-sm">
-                                ${progress > 0 ? '<%= t("continue") %>' : '<%= t("start") %>'}
+                                ${getButtonText(course.status, progress)}
                                 <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         </div>
@@ -237,10 +237,20 @@ document.addEventListener('DOMContentLoaded', function() {
         return badges[status] || badges['not_started'];
     }
 
+    function getButtonText(status, progress) {
+        if (status === 'completed' || progress >= 100) {
+            return '<%= t("viewCourse") %>';
+        } else if (progress > 0) {
+            return '<%= t("continue") %>';
+        } else {
+            return '<%= t("start") %>';
+        }
+    }
+
     function formatDate(dateStr) {
         if (!dateStr) return '-';
         const date = new Date(dateStr);
-        return date.toLocaleDateString('<%= currentLanguage === "th" ? "th-TH" : "en-US" %>', {
+        return date.toLocaleDateString('<%= currentLang === "th" ? "th-TH" : "en-US" %>', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'

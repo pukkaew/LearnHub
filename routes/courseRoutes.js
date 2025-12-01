@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
+const materialProgressController = require('../controllers/materialProgressController');
 const authMiddleware = require('../middleware/auth');
 const validationMiddleware = require('../middleware/validation');
 
@@ -48,8 +49,14 @@ router.get('/api/:course_id/analytics/export', authMiddleware.requireRole(['Admi
 router.get('/api/:course_id/curriculum', courseController.getCourseCurriculum);
 router.get('/api/:course_id/materials', courseController.getCourseMaterials);
 router.post('/api/:course_id/materials', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), courseController.uploadCourseMaterials);
+
+// Material progress tracking (user-specific)
+router.get('/api/:course_id/materials/progress', materialProgressController.getMaterialProgress);
+router.post('/api/:course_id/materials/:material_id/complete', materialProgressController.markMaterialComplete);
+
 router.get('/api/:course_id/discussions', courseController.getCourseDiscussions);
 router.get('/api/:course_id/reviews', courseController.getCourseReviews);
+router.post('/api/:course_id/reviews', courseController.submitCourseReview);
 router.get('/api/:course_id/related', courseController.getRelatedCourses);
 router.post('/api/:course_id/rate', courseController.rateCourse);
 

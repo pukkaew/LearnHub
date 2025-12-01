@@ -209,10 +209,23 @@ class ValidationMiddleware {
 
             // Basic course field validation
             // FIX 4.14: Allow duration_hours min:0 (with minutes validation below)
+            // FIX: Accept both title and course_name
+            const courseTitle = req.body.title || req.body.course_name;
+            if (!courseTitle) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณาระบุชื่อหลักสูตร',
+                    errors: { title: ['Course name is required'] }
+                });
+            }
+            // Temporarily set title for validation if only course_name provided
+            if (!req.body.title && req.body.course_name) {
+                req.body.title = req.body.course_name;
+            }
+
             const baseValidation = this.validationService.validate(req.body, {
-                title: 'required|minLength:10|maxLength:200',
-                course_name: 'minLength:10|maxLength:200',  // Validate course_name if provided
-                description: 'required|minLength:50',
+                title: 'minLength:3|maxLength:200',
+                description: 'minLength:10',
                 category_id: 'required|numeric',
                 instructor_id: 'numeric',
                 duration_hours: 'numeric|min:0',  // Changed from min:1 to min:0
