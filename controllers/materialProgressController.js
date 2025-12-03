@@ -55,14 +55,16 @@ const materialProgressController = {
                     `);
             }
 
-            // Calculate and update overall course progress
+            // Calculate and update overall course progress (only count required materials)
             const progressResult = await pool.request()
                 .input('userId', sql.Int, userId)
                 .input('courseId', sql.Int, parseInt(course_id))
                 .query(`
                     SELECT
-                        (SELECT COUNT(*) FROM course_materials WHERE course_id = @courseId) as total_materials,
-                        (SELECT COUNT(*) FROM user_material_progress WHERE user_id = @userId AND course_id = @courseId AND is_completed = 1) as completed_materials
+                        (SELECT COUNT(*) FROM course_materials WHERE course_id = @courseId AND is_required = 1) as total_materials,
+                        (SELECT COUNT(*) FROM user_material_progress ump
+                         INNER JOIN course_materials cm ON ump.material_id = cm.material_id
+                         WHERE ump.user_id = @userId AND ump.course_id = @courseId AND ump.is_completed = 1 AND cm.is_required = 1) as completed_materials
                 `);
 
             const { total_materials, completed_materials } = progressResult.recordset[0];

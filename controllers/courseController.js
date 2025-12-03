@@ -2009,6 +2009,9 @@ const { t } = require('../utils/languages');
                             decodedFilename = file.originalname;
                         }
 
+                        // lesson_document (attached to lesson) should NOT be required for progress
+                        const isRequired = documentType === 'lesson_document' ? false : true;
+
                         await pool.request()
                             .input('courseId', sql.Int, parseInt(course_id))
                             .input('title', sql.NVarChar(255), decodedFilename)
@@ -2019,14 +2022,15 @@ const { t } = require('../utils/languages');
                             .input('orderIndex', sql.Int, orderIndex++)
                             .input('isDownloadable', sql.Bit, true)
                             .input('parentMaterialId', sql.Int, parentMaterialId)
+                            .input('isRequired', sql.Bit, isRequired)
                             .query(`
                                 INSERT INTO course_materials (
                                     course_id, title, type, file_path, file_size,
-                                    mime_type, order_index, is_downloadable, parent_material_id, created_at, updated_at
+                                    mime_type, order_index, is_downloadable, parent_material_id, is_required, created_at, updated_at
                                 )
                                 VALUES (
                                     @courseId, @title, @type, @filePath, @fileSize,
-                                    @mimeType, @orderIndex, @isDownloadable, @parentMaterialId, GETDATE(), GETDATE()
+                                    @mimeType, @orderIndex, @isDownloadable, @parentMaterialId, @isRequired, GETDATE(), GETDATE()
                                 )
                             `);
                     }
