@@ -328,7 +328,7 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('reviewLabel') %></label>
-                <textarea id="review-text" rows="4"
+                <textarea id="rating-review-text" rows="4"
                           class="form-input-ruxchai"
                           placeholder="<%= t('reviewPlaceholder') %>"></textarea>
             </div>
@@ -375,7 +375,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         showError(t('errorNoCourseId'));
     }
     setupEventListeners();
-    initReviewForm();n});
+    initReviewForm();
+});
 
 async function loadPositionsMapping() {
     try {
@@ -556,8 +557,9 @@ function updateCourseDisplay(course) {
         document.getElementById('progress-fill').style.width = `${course.progress_percentage}%`;
     }
 
-    // Show review form if enrolled
-    showReviewFormIfEnrolled(course.enrollment_status === 'active');
+    // Show review form if enrolled (active or completed) AND not already reviewed
+    const canReview = (course.enrollment_status === 'active' || course.enrollment_status === 'completed') && !course.user_review;
+    showReviewFormIfEnrolled(canReview);
 
     // Sidebar info
     document.getElementById('sidebar-difficulty').textContent = getDifficultyText(course.difficulty_level);
@@ -632,20 +634,14 @@ function updateCourseDisplay(course) {
         introVideoSection.style.display = 'block';
 
         try {
-            // Check if it's a YouTube URL
             if (course.intro_video_url.includes('youtube.com') || course.intro_video_url.includes('youtu.be')) {
                 let videoId = '';
-
-                // Extract video ID from various YouTube URL formats
                 if (course.intro_video_url.includes('youtube.com/watch')) {
-                    // https://www.youtube.com/watch?v=VIDEO_ID
                     const urlParams = new URLSearchParams(new URL(course.intro_video_url).search);
                     videoId = urlParams.get('v');
                 } else if (course.intro_video_url.includes('youtube.com/embed/')) {
-                    // https://www.youtube.com/embed/VIDEO_ID
                     videoId = course.intro_video_url.split('youtube.com/embed/')[1].split('?')[0];
                 } else if (course.intro_video_url.includes('youtu.be/')) {
-                    // https://youtu.be/VIDEO_ID
                     videoId = course.intro_video_url.split('youtu.be/')[1].split('?')[0];
                 }
 
@@ -664,36 +660,24 @@ function updateCourseDisplay(course) {
                     introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500"><p>${t('cannotLoadVideo')}</p></div>`;
                 }
             } else if (course.intro_video_url.includes('vimeo.com')) {
-                // Extract Vimeo ID
-                let vimeoId = '';
-                if (course.intro_video_url.includes('vimeo.com/')) {
-                    vimeoId = course.intro_video_url.split('vimeo.com/')[1].split('?')[0].split('/')[0];
-                }
-
+                let vimeoId = course.intro_video_url.split('vimeo.com/')[1]?.split('?')[0]?.split('/')[0];
                 if (vimeoId) {
-                    // Embed Vimeo video using iframe (CSP now allows Vimeo)
                     introVideoPlayer.innerHTML = `
-                        <iframe
-                            style="width: 100%; height: 100%; min-height: 400px; border-radius: 0.5rem;"
+                        <iframe class="w-full h-full"
                             src="https://player.vimeo.com/video/${vimeoId}"
                             frameborder="0"
                             allow="autoplay; fullscreen; picture-in-picture"
-                            allowfullscreen
-                        ></iframe>`;
-                } else {
-                    introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500"><p>${t('cannotLoadVideo')}</p></div>`;
+                            allowfullscreen></iframe>`;
                 }
             } else {
-                // Direct video file or other sources
+                // Uploaded video file
                 introVideoPlayer.innerHTML = `
-                    <video class="w-full h-full rounded-lg" controls>
+                    <video style="width: 100%; height: 100%; display: block;" controls controlsList="nodownload">
                         <source src="${course.intro_video_url}" type="video/mp4">
-                        Your browser does not support the video tag.
                     </video>`;
             }
         } catch (error) {
             console.error('Error loading intro video:', error);
-            introVideoPlayer.innerHTML = `<div class="flex items-center justify-center h-full text-red-500"><p>${t('errorLoadingVideo')}</p></div>`;
         }
     }
 
@@ -947,6 +931,7 @@ function updateEnrollmentStatus(course) {
     } else if (course.enrollment_status === 'completed') {
         // Check if course has certificate enabled
         const hasCertificate = course.certificate_template || course.certificate_validity;
+        const hasReviewed = course.user_review !== null;
 
         container.innerHTML = `
             <div class="space-y-4">
@@ -959,9 +944,19 @@ function updateEnrollmentStatus(course) {
                         <i class="fas fa-certificate mr-2"></i>${t('downloadCertificate')}
                     </a>
                 ` : ''}
-                <button onclick="showRatingModal()" class="btn-ruxchai-outline w-full">
-                    <i class="fas fa-star mr-2"></i>${t('rateCourse')}
-                </button>
+                ${hasReviewed ? `
+                    <div class="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div class="flex justify-center text-yellow-400 mb-1">
+                            ${generateStars(course.user_review.rating)}
+                        </div>
+                        <p class="text-sm text-green-600">${t('alreadyReviewed')}</p>
+                        <p class="text-xs text-gray-500 mt-1">${t('reviewCannotBeEdited') || 'รีวิวไม่สามารถแก้ไขได้'}</p>
+                    </div>
+                ` : `
+                    <button onclick="showRatingModal()" class="btn-ruxchai-outline w-full">
+                        <i class="fas fa-star mr-2"></i>${t('rateCourse')}
+                    </button>
+                `}
                 ${canEdit ? `
                     <a href="/courses/${course.course_id}/edit" class="btn-ruxchai-outline w-full text-center block">
                         <i class="fas fa-edit mr-2"></i>${t('editCourse')}
@@ -1156,15 +1151,58 @@ async function loadMaterials() {
 function updateMaterialsDisplay(materials) {
     const container = document.getElementById('course-materials');
 
+    console.log('📄 updateMaterialsDisplay called with:', materials);
+
     if (!materials || materials.length === 0) {
         container.innerHTML = `<p class="text-gray-500">${t('noMaterials')}</p>`;
         return;
     }
 
-    container.innerHTML = materials.map(material => `
+    // Filter to show ONLY course-level documents (not lesson attachments, not videos, not lessons)
+    const isCourseDocument = (m) => {
+        const materialType = (m.material_type || m.file_type || '').toLowerCase();
+
+        // ONLY include if explicitly marked as 'document' (course-level document)
+        // Exclude: lesson_document (shown in content page), video, text, lesson
+        return materialType === 'document';
+    };
+
+    // Filter course documents only
+    const courseDocuments = materials.filter(m => isCourseDocument(m));
+
+    console.log('📄 Course documents only:', courseDocuments.length);
+
+    if (courseDocuments.length === 0) {
+        container.innerHTML = `<p class="text-gray-500">${t('noMaterials')}</p>`;
+        return;
+    }
+
+    // Helper function to render document card
+    const renderDocumentCard = (material) => {
+        const fileUrl = (material.file_url || '').toLowerCase();
+        let fileIcon = getFileIcon(material.file_type);
+
+        // Better icon detection based on file extension
+        if (fileUrl.endsWith('.pdf')) {
+            fileIcon = 'fa-file-pdf';
+        } else if (fileUrl.endsWith('.doc') || fileUrl.endsWith('.docx')) {
+            fileIcon = 'fa-file-word';
+        } else if (fileUrl.endsWith('.xls') || fileUrl.endsWith('.xlsx')) {
+            fileIcon = 'fa-file-excel';
+        } else if (fileUrl.endsWith('.ppt') || fileUrl.endsWith('.pptx')) {
+            fileIcon = 'fa-file-powerpoint';
+        } else if (fileUrl.match(/\.(jpg|jpeg|png|gif|bmp|svg|webp)$/)) {
+            fileIcon = 'fa-file-image';
+        } else if (fileUrl.match(/\.(zip|rar|7z|tar|gz)$/)) {
+            fileIcon = 'fa-file-archive';
+        } else if (fileUrl.match(/\.(txt|csv)$/)) {
+            fileIcon = 'fa-file-alt';
+        }
+
+        return `
         <div class="flex items-center justify-between p-4 border rounded-lg mb-3">
             <div class="flex items-center space-x-3">
-                <i class="fas ${getFileIcon(material.file_type)} text-ruxchai-primary"></i>
+                <i class="fas ${fileIcon} text-ruxchai-primary text-xl"></i>
                 <div>
                     <h5 class="font-medium text-gray-900">${material.title}</h5>
                     <p class="text-sm text-gray-500">${material.description || ''}</p>
@@ -1176,8 +1214,18 @@ function updateMaterialsDisplay(materials) {
                     <i class="fas fa-download mr-1"></i>${t('download')}
                 </a>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    };
+
+    let html = '';
+
+    // Render Course Documents section
+    if (courseDocuments.length > 0) {
+        html += `<h4 class="text-lg font-semibold text-gray-800 mb-3"><i class="fas fa-folder mr-2"></i>${t('courseDocuments') || 'Course Documents'}</h4>`;
+        html += courseDocuments.map(renderDocumentCard).join('');
+    }
+
+    container.innerHTML = html;
 }
 
 async function loadDiscussions() {
@@ -1529,7 +1577,13 @@ async function enrollInCourse() {
     }
 }
 
-function showRatingModal() {
+function showRatingModal(isEdit = false) {
+    // Pre-fill if editing existing review
+    if (isEdit && courseData && courseData.user_review) {
+        currentRating = courseData.user_review.rating;
+        updateStarDisplay();
+        document.getElementById('rating-review-text').value = courseData.user_review.review_text || '';
+    }
     document.getElementById('rating-modal').classList.remove('hidden');
 }
 
@@ -1537,7 +1591,7 @@ function closeRatingModal() {
     document.getElementById('rating-modal').classList.add('hidden');
     currentRating = 0;
     updateStarDisplay();
-    document.getElementById('review-text').value = '';
+    document.getElementById('rating-review-text').value = '';
 }
 
 function updateStarDisplay() {
@@ -1571,7 +1625,7 @@ async function submitRating() {
             },
             body: JSON.stringify({
                 rating: currentRating,
-                review: document.getElementById('review-text').value
+                review: document.getElementById('rating-review-text').value
             })
         });
 
@@ -1802,5 +1856,52 @@ function hideLoading() {
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Intro Video - YouTube Style */
+.intro-video-wrapper {
+    max-width: 100%;
+    margin: 0 auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.intro-video-wrapper:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+#intro-video-player {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: visible;
+}
+
+#intro-video-player video {
+    background: #000;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+#intro-video-player iframe {
+    border-radius: 8px;
+}
+
+/* Custom video controls styling */
+#intro-video-element::-webkit-media-controls-panel {
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+}
+
+#intro-video-element::-webkit-media-controls-play-button {
+    filter: brightness(1.2);
+}
+
+/* Hide download button */
+video::-webkit-media-controls-download-button {
+    display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+    overflow: hidden;
 }
 </style>

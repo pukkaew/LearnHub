@@ -34,4 +34,23 @@ router.put('/api/chapters/:chapter_id/lessons/reorder',
     lessonController.reorderLessons
 );
 
+// ============================================
+// Learning Progress Tracking APIs
+// ============================================
+
+// Get lesson progress for current user
+router.get('/api/lessons/:lesson_id/progress', lessonController.getLessonProgress);
+
+// Track time spent on lesson
+router.post('/api/lessons/:lesson_id/track-time', lessonController.trackTime);
+
+// Track video progress
+router.post('/api/lessons/:lesson_id/track-video', lessonController.trackVideoProgress);
+
+// Complete lesson (validates all requirements)
+router.post('/api/lessons/:lesson_id/complete', lessonController.completeLesson);
+
+// Get learning time summary
+router.get('/api/learning-summary', lessonController.getLearningTimeSummary);
+
 module.exports = router;

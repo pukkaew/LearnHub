@@ -26,7 +26,9 @@ const courseController = {
             if (is_active !== undefined) {filters.is_active = is_active === 'true';}
             if (search) {filters.search = search;}
 
-            const result = await Course.findAll(parseInt(page), parseInt(limit), filters);
+            // Pass user info for target_audience filtering
+            const userId = req.user ? req.user.user_id : null;
+            const result = await Course.findAll(parseInt(page), parseInt(limit), filters, userId);
 
             res.json({
                 success: true,
@@ -63,6 +65,17 @@ const courseController = {
 
             const enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
 
+            // Check if user has already reviewed this course
+            const pool = await poolPromise;
+            const userReview = await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT review_id, rating, review_text, created_at
+                    FROM course_reviews
+                    WHERE user_id = @userId AND course_id = @courseId
+                `);
+
             await ActivityLog.create({
                 user_id: userId,
                 action: 'View_Course',
@@ -81,7 +94,8 @@ const courseController = {
                 ...course,
                 enrollment_status: enrollment ? enrollment.completion_status || enrollment.status : null,
                 progress_percentage: enrollment ? (enrollment.progress_percentage || enrollment.progress || 0) : 0,
-                is_enrolled: !!enrollment
+                is_enrolled: !!enrollment,
+                user_review: userReview.recordset.length > 0 ? userReview.recordset[0] : null
             };
 
             res.json({
@@ -645,10 +659,28 @@ const courseController = {
             }
 
             // Check if user is enrolled
-            const enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
+            let enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
+
             if (!enrollment) {
-                // User not enrolled, redirect to course detail
-                return res.redirect(`/courses/${course_id}`);
+                // Check if course is mandatory - auto-enroll if so
+                if (course.course_type === 'mandatory') {
+                    // Auto-enroll for mandatory courses
+                    const pool = await poolPromise;
+                    await pool.request()
+                        .input('userId', sql.Int, userId)
+                        .input('courseId', sql.Int, parseInt(course_id))
+                        .query(`
+                            INSERT INTO user_courses (user_id, course_id, enrollment_date, status, progress)
+                            VALUES (@userId, @courseId, GETDATE(), 'active', 0)
+                        `);
+
+                    // Get the new enrollment
+                    enrollment = await Enrollment.findByUserAndCourse(userId, course_id);
+                    console.log(`Auto-enrolled user ${userId} in mandatory course ${course_id}`);
+                } else {
+                    // User not enrolled in non-mandatory course, redirect to course detail
+                    return res.redirect(`/courses/${course_id}`);
+                }
             }
 
             res.render('courses/content', {
@@ -1686,6 +1718,56 @@ const courseController = {
         }
     },
 
+    // Upload course video
+    async uploadCourseVideo(req, res) {
+        try {
+            const fileUploadService = require('../utils/fileUpload');
+
+            // Use video upload middleware (supports up to 500MB)
+            await fileUploadService.createVideoUpload(500 * 1024 * 1024)(req, res, async (err) => {
+                if (err) {
+                    console.error('Video upload error:', err);
+                    return res.status(400).json({
+                        success: false,
+                        message: err.message || req.t ? req.t('videoUploadError') : 'Video upload error'
+                    });
+                }
+
+                if (!req.file) {
+                    return res.status(400).json({
+                        success: false,
+                        message: req.t ? req.t('noFileSelected') : 'No file selected'
+                    });
+                }
+
+                // Return the uploaded file path
+                const filePath = `/uploads/videos/${req.file.filename}`;
+
+                console.log(`✅ Video uploaded: ${req.file.filename} (${(req.file.size / 1024 / 1024).toFixed(2)} MB)`);
+
+                res.json({
+                    success: true,
+                    message: req.t ? req.t('videoUploadedSuccess') : 'Video uploaded successfully',
+                    data: {
+                        filename: req.file.filename,
+                        path: filePath,
+                        url: filePath,
+                        size: req.file.size,
+                        mimetype: req.file.mimetype
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error('Upload course video error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('videoUploadError') : 'Video upload error',
+                error: error.message
+            });
+        }
+    },
+
     // Get course curriculum
     async getCourseCurriculum(req, res) {
         try {
@@ -1699,7 +1781,7 @@ const courseController = {
                            order_index, duration_minutes, is_required
                     FROM course_materials
                     WHERE course_id = @courseId
-                    AND type NOT IN ('document', 'pdf', 'file')
+                    AND type NOT IN ('document', 'lesson_document', 'pdf', 'file')
                     ORDER BY order_index
                 `);
 
@@ -1773,19 +1855,51 @@ const courseController = {
                 return { is_youtube: false, youtube_embed_url: '' };
             };
 
+            // Helper to detect video file by extension
+            const isVideoFile = (filePath) => {
+                if (!filePath) return false;
+                const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.wmv', '.flv', '.m4v', '.ogv', '.3gp'];
+                const ext = filePath.toLowerCase().split('.').pop();
+                return videoExtensions.includes('.' + ext);
+            };
+
             const materials = result.recordset.map(m => {
                 const videoUrl = m.video_url || m.file_path || m.file_url || '';
                 const youtubeInfo = getYoutubeInfo(videoUrl);
                 const progress = userProgress[m.material_id] || {};
+
+                // Determine material type: video if YouTube, Vimeo, or video file
+                let materialType = m.type || m.material_type || 'text';
+
+                // IMPORTANT: Keep 'document' and 'lesson_document' types as-is, don't convert to video
+                if (materialType === 'document' || materialType === 'lesson_document') {
+                    // Document types - do not change
+                    console.log(`📄 Material ${m.material_id}: Keeping as ${materialType} - ${m.title}`);
+                } else if (youtubeInfo.is_youtube || videoUrl.includes('vimeo.com')) {
+                    materialType = 'video';
+                } else if (isVideoFile(m.file_path) || isVideoFile(videoUrl)) {
+                    materialType = 'video';
+                } else if (materialType === 'lesson') {
+                    // Lesson type: check if it has a video URL
+                    if (m.file_path && (isVideoFile(m.file_path) || youtubeInfo.is_youtube || m.file_path.includes('vimeo.com'))) {
+                        materialType = 'video';
+                    } else if (m.content || m.description) {
+                        // Lesson with text content - show as article/text
+                        materialType = 'text';
+                    } else {
+                        // Default lesson without content - show as text
+                        materialType = 'text';
+                    }
+                }
 
                 return {
                     material_id: m.material_id,
                     title: m.title,
                     description: m.description || m.content || '',
                     content: m.content || '',
-                    material_type: youtubeInfo.is_youtube ? 'video' : (m.type || m.material_type || 'text'),
+                    material_type: materialType,
                     file_type: m.type || m.material_type || 'text',
-                    file_url: m.file_path || m.video_url || m.file_url || '',
+                    file_url: m.file_path || '',
                     video_url: videoUrl,
                     file_size: m.file_size || 0,
                     mime_type: m.mime_type || '',
@@ -1795,7 +1909,8 @@ const courseController = {
                     completed_at: progress.completed_at || null,
                     time_spent_seconds: progress.time_spent_seconds || 0,
                     is_youtube: youtubeInfo.is_youtube,
-                    youtube_embed_url: youtubeInfo.youtube_embed_url
+                    youtube_embed_url: youtubeInfo.youtube_embed_url,
+                    parent_material_id: m.parent_material_id || null
                 };
             });
 
@@ -1827,7 +1942,14 @@ const { t } = require('../utils/languages');
                 },
                 filename: function (req, file, cb) {
                     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-                    cb(null, uniqueSuffix + '-' + file.originalname);
+                    // Decode Thai/Unicode filename properly
+                    let decodedName = file.originalname;
+                    try {
+                        decodedName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+                    } catch (e) {
+                        decodedName = file.originalname;
+                    }
+                    cb(null, uniqueSuffix + '-' + decodedName);
                 }
             });
 
@@ -1844,6 +1966,28 @@ const { t } = require('../utils/languages');
                 }
 
                 try {
+                    // Check if this is a lesson document upload (has lesson_index)
+                    const lessonIndex = req.body.lesson_index;
+                    let parentMaterialId = null;
+                    let documentType = 'document'; // Default: course document
+
+                    // If lesson_index is provided, find the parent lesson's material_id
+                    if (lessonIndex !== undefined && lessonIndex !== null) {
+                        const lessonResult = await pool.request()
+                            .input('courseId', sql.Int, parseInt(course_id))
+                            .input('orderIndex', sql.Int, parseInt(lessonIndex) + 1) // lesson_index is 0-based, order_index is 1-based
+                            .query(`
+                                SELECT material_id FROM course_materials
+                                WHERE course_id = @courseId AND type = 'lesson' AND order_index = @orderIndex
+                            `);
+
+                        if (lessonResult.recordset.length > 0) {
+                            parentMaterialId = lessonResult.recordset[0].material_id;
+                            documentType = 'lesson_document'; // Mark as lesson document
+                            console.log(`📎 Linking documents to lesson (material_id: ${parentMaterialId})`);
+                        }
+                    }
+
                     // Get next order_index
                     const maxOrder = await pool.request()
                         .input('courseId', sql.Int, parseInt(course_id))
@@ -1855,23 +1999,34 @@ const { t } = require('../utils/languages');
                     for (const file of req.files) {
                         const filePath = `/uploads/materials/${file.filename}`;
 
+                        // Decode filename properly for Thai/Unicode characters
+                        let decodedFilename = file.originalname;
+                        try {
+                            // Try to decode as UTF-8 if it was incorrectly encoded as Latin-1
+                            decodedFilename = Buffer.from(file.originalname, 'latin1').toString('utf8');
+                        } catch (e) {
+                            // Keep original if decoding fails
+                            decodedFilename = file.originalname;
+                        }
+
                         await pool.request()
                             .input('courseId', sql.Int, parseInt(course_id))
-                            .input('title', sql.NVarChar(255), file.originalname)
-                            .input('type', sql.NVarChar(50), 'document')
+                            .input('title', sql.NVarChar(255), decodedFilename)
+                            .input('type', sql.NVarChar(50), documentType)
                             .input('filePath', sql.NVarChar(500), filePath)
                             .input('fileSize', sql.BigInt, file.size)
                             .input('mimeType', sql.NVarChar(100), file.mimetype)
                             .input('orderIndex', sql.Int, orderIndex++)
                             .input('isDownloadable', sql.Bit, true)
+                            .input('parentMaterialId', sql.Int, parentMaterialId)
                             .query(`
                                 INSERT INTO course_materials (
                                     course_id, title, type, file_path, file_size,
-                                    mime_type, order_index, is_downloadable, created_at, updated_at
+                                    mime_type, order_index, is_downloadable, parent_material_id, created_at, updated_at
                                 )
                                 VALUES (
                                     @courseId, @title, @type, @filePath, @fileSize,
-                                    @mimeType, @orderIndex, @isDownloadable, GETDATE(), GETDATE()
+                                    @mimeType, @orderIndex, @isDownloadable, @parentMaterialId, GETDATE(), GETDATE()
                                 )
                             `);
                     }
@@ -2018,22 +2173,10 @@ const { t } = require('../utils/languages');
                 `);
 
             if (existingReview.recordset.length > 0) {
-                // Update existing review
-                await pool.request()
-                    .input('reviewId', sql.Int, existingReview.recordset[0].review_id)
-                    .input('rating', sql.Int, rating)
-                    .input('reviewText', sql.NVarChar(sql.MAX), review_text || null)
-                    .query(`
-                        UPDATE course_reviews
-                        SET rating = @rating,
-                            review_text = @reviewText,
-                            updated_at = GETDATE()
-                        WHERE review_id = @reviewId
-                    `);
-
-                res.json({
-                    success: true,
-                    message: req.t ? req.t('reviewUpdated') : 'Review updated successfully'
+                // Prevent editing existing review
+                return res.status(400).json({
+                    success: false,
+                    message: req.t ? req.t('reviewAlreadySubmitted') : 'You have already reviewed this course. Reviews cannot be edited.'
                 });
             } else {
                 // Insert new review
@@ -2115,7 +2258,7 @@ const { t } = require('../utils/languages');
         }
     },
 
-    // Rate course - Submit rating and review
+    // Rate course - Submit rating and review to course_reviews table
     async rateCourse(req, res) {
         try {
             const { course_id } = req.params;
@@ -2149,25 +2292,47 @@ const { t } = require('../utils/languages');
                 });
             }
 
-            // For now, update enrollment with rating (temporary solution)
-            // TODO: Create course_ratings table for proper rating system
-            await pool.request()
+            // Check if user already reviewed this course
+            const existingReview = await pool.request()
                 .input('userId', sql.Int, userId)
                 .input('courseId', sql.Int, parseInt(course_id))
-                .input('rating', sql.Int, rating)
                 .query(`
-                    UPDATE user_courses
-                    SET grade = @rating * 20,  -- Convert 5-star to 100 scale temporarily
-                        last_access_date = GETDATE()
+                    SELECT review_id FROM course_reviews
                     WHERE user_id = @userId AND course_id = @courseId
                 `);
+
+            if (existingReview.recordset.length > 0) {
+                // Update existing review
+                await pool.request()
+                    .input('reviewId', sql.Int, existingReview.recordset[0].review_id)
+                    .input('rating', sql.Int, rating)
+                    .input('reviewText', sql.NVarChar(sql.MAX), review || null)
+                    .query(`
+                        UPDATE course_reviews
+                        SET rating = @rating,
+                            review_text = @reviewText,
+                            updated_at = GETDATE()
+                        WHERE review_id = @reviewId
+                    `);
+            } else {
+                // Insert new review
+                await pool.request()
+                    .input('courseId', sql.Int, parseInt(course_id))
+                    .input('userId', sql.Int, userId)
+                    .input('rating', sql.Int, rating)
+                    .input('reviewText', sql.NVarChar(sql.MAX), review || null)
+                    .query(`
+                        INSERT INTO course_reviews (course_id, user_id, rating, review_text, created_at, is_approved)
+                        VALUES (@courseId, @userId, @rating, @reviewText, GETDATE(), 1)
+                    `);
+            }
 
             // Log activity
             await ActivityLog.create({
                 user_id: userId,
                 action: 'Rate_Course',
-                table_name: 'user_courses',
-                record_id: enrollment.recordset[0].enrollment_id,
+                table_name: 'course_reviews',
+                record_id: parseInt(course_id),
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,

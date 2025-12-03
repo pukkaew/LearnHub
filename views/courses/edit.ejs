@@ -218,6 +218,46 @@
                 </div>
             </div>
 
+            <!-- Introduction Video -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-video mr-2 text-ruxchai-primary"></i><%= t('introVideo') || 'วิดีโอแนะนำหลักสูตร' %>
+                </h3>
+
+                <!-- Current Video Preview -->
+                <div id="current-video-container" class="hidden mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('currentVideo') || 'วิดีโอปัจจุบัน' %></label>
+                    <div class="relative">
+                        <div id="video-preview-wrapper" class="rounded-lg overflow-hidden border border-gray-300 bg-black" style="max-width: 480px;">
+                            <!-- Video will be embedded here -->
+                        </div>
+                        <button type="button" id="remove-video" class="mt-2 text-sm text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash mr-1"></i><%= t('removeVideo') || 'ลบวิดีโอ' %>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload or URL Input -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+                        <div>
+                            <input type="file" id="intro_video" name="intro_video" accept="video/*" class="hidden">
+                            <label for="intro_video" class="cursor-pointer inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50">
+                                <i class="fas fa-upload mr-2"></i><%= t('uploadVideo') || 'อัปโหลดวิดีโอ' %>
+                            </label>
+                            <span id="video-file-name" class="ml-2 text-sm text-gray-500"></span>
+                        </div>
+                        <span class="text-sm text-gray-600"><%= t('or') || 'หรือ' %></span>
+                        <div class="flex-1">
+                            <input type="text" id="intro_video_url" name="intro_video_url"
+                                   placeholder="<%= t('youtubeVimeoLink') || 'ใส่ลิงก์ YouTube/Vimeo' %>"
+                                   class="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2"><%= t('videoRequirements') || 'รองรับไฟล์วิดีโอไม่เกิน 500MB หรือใส่ลิงก์ YouTube/Vimeo' %></p>
+                </div>
+            </div>
+
             <!-- Course Statistics -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">
@@ -433,6 +473,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadCourseData();
 
     setupImagePreview();
+    setupVideoHandlers();
     setupFormSubmit();
 });
 
@@ -673,6 +714,13 @@ function populateForm(course) {
         document.getElementById('course-image-preview').src = '/images/default-avatar.png';
     }
 
+    // Set intro video - handle both file path and URL
+    const introVideoUrl = course.intro_video_url || course.intro_video || '';
+    if (introVideoUrl) {
+        document.getElementById('intro_video_url').value = introVideoUrl;
+        showVideoPreview(introVideoUrl);
+    }
+
     // Update page elements
     document.getElementById('course-title').textContent = course.course_name;
     document.getElementById('view-course-link').href = `/courses/${course.course_id}`;
@@ -876,7 +924,8 @@ function setupFormSubmit() {
             allow_certificate: formData.get('allow_certificate') ? true : false,
             is_public: formData.get('is_public') ? true : false,
             status: formData.get('status'),
-            instructor_id: formData.get('instructor_id')
+            instructor_id: formData.get('instructor_id'),
+            intro_video_url: formData.get('intro_video_url') || ''
         };
 
         try {
@@ -1111,6 +1160,105 @@ function filterPositionsByDepartment() {
             });
             console.log(`✅ Filtered to ${filteredPositions.length} positions for selected departments`);
         }
+    }
+}
+
+// Video preview and handling functions
+function showVideoPreview(url) {
+    if (!url) return;
+
+    const container = document.getElementById('current-video-container');
+    const wrapper = document.getElementById('video-preview-wrapper');
+
+    // Check if it's a YouTube URL
+    const youtubeMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    if (youtubeMatch) {
+        const videoId = youtubeMatch[1];
+        wrapper.innerHTML = `
+            <iframe width="480" height="270"
+                    src="https://www.youtube.com/embed/${videoId}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>`;
+        container.classList.remove('hidden');
+        return;
+    }
+
+    // Check if it's a Vimeo URL
+    const vimeoMatch = url.match(/(?:vimeo\.com\/)(\d+)/);
+    if (vimeoMatch) {
+        const videoId = vimeoMatch[1];
+        wrapper.innerHTML = `
+            <iframe width="480" height="270"
+                    src="https://player.vimeo.com/video/${videoId}"
+                    frameborder="0"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowfullscreen>
+            </iframe>`;
+        container.classList.remove('hidden');
+        return;
+    }
+
+    // Local video file
+    if (url.startsWith('/') || url.startsWith('http')) {
+        wrapper.innerHTML = `
+            <video width="480" height="270" controls>
+                <source src="${url}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>`;
+        container.classList.remove('hidden');
+    }
+}
+
+function setupVideoHandlers() {
+    // Video file upload handler
+    const videoInput = document.getElementById('intro_video');
+    if (videoInput) {
+        videoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('video-file-name').textContent = file.name;
+                // Clear URL input when file is selected
+                document.getElementById('intro_video_url').value = '';
+
+                // Show local preview
+                const url = URL.createObjectURL(file);
+                showVideoPreview(url);
+            }
+        });
+    }
+
+    // Video URL input handler
+    const videoUrlInput = document.getElementById('intro_video_url');
+    if (videoUrlInput) {
+        videoUrlInput.addEventListener('blur', function() {
+            const url = this.value.trim();
+            if (url) {
+                // Clear file input when URL is entered
+                const videoInput = document.getElementById('intro_video');
+                if (videoInput) videoInput.value = '';
+                document.getElementById('video-file-name').textContent = '';
+
+                showVideoPreview(url);
+            }
+        });
+    }
+
+    // Remove video button handler
+    const removeVideoBtn = document.getElementById('remove-video');
+    if (removeVideoBtn) {
+        removeVideoBtn.addEventListener('click', function() {
+            // Clear all video inputs
+            document.getElementById('intro_video_url').value = '';
+            const videoInput = document.getElementById('intro_video');
+            if (videoInput) videoInput.value = '';
+            document.getElementById('video-file-name').textContent = '';
+
+            // Hide preview container
+            document.getElementById('current-video-container').classList.add('hidden');
+            document.getElementById('video-preview-wrapper').innerHTML = '';
+        });
     }
 }
 </script>

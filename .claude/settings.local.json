@@ -96,7 +96,8 @@
       "Bash(cmd.exe /c \"timeout /t 30 /nobreak >nul\")",
       "Bash(cmd.exe /c \"timeout /t 60 /nobreak >nul\")",
       "Bash(cmd.exe /c:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "WebFetch(domain:www.youtube.com)"
     ],
     "deny": [],
     "ask": []

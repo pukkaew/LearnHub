@@ -513,6 +513,10 @@ class Course {
                 updateFields.push('status = @status');
                 request.input('status', sql.NVarChar(50), updateData.status);
             }
+            if (updateData.intro_video_url !== undefined) {
+                updateFields.push('intro_video_url = @introVideoUrl');
+                request.input('introVideoUrl', sql.NVarChar(500), updateData.intro_video_url || null);
+            }
 
             if (updateFields.length === 0) {
                 return { success: false, message: 'No fields to update' };
@@ -563,10 +567,25 @@ class Course {
     }
 
     // Get all courses with pagination and filters
-    static async findAll(page = 1, limit = 20, filters = {}) {
+    static async findAll(page = 1, limit = 20, filters = {}, userId = null) {
         try {
             const pool = await poolPromise;
             const offset = (page - 1) * limit;
+
+            // Get user's position and department for target_audience filtering
+            let userPositionId = null;
+            let userDepartmentId = null;
+
+            if (userId) {
+                const userResult = await pool.request()
+                    .input('userId', sql.Int, userId)
+                    .query(`SELECT position_id, department_id FROM users WHERE user_id = @userId`);
+
+                if (userResult.recordset.length > 0) {
+                    userPositionId = userResult.recordset[0].position_id;
+                    userDepartmentId = userResult.recordset[0].department_id;
+                }
+            }
 
             let whereClause = 'WHERE c.status IN (\'Active\', \'Published\')';
             const request = pool.request()
@@ -599,6 +618,26 @@ class Course {
                 request.input('search', sql.NVarChar(200), `%${filters.search}%`);
             }
 
+            // Filter by target_audience (position/department)
+            // Show course if:
+            // 1. course_type = 'mandatory' (show to everyone)
+            // 2. target_audience is NULL (open to everyone)
+            // 3. user's position_id or department_id matches target_audience
+            if (userId && (userPositionId || userDepartmentId)) {
+                request.input('userPositionId', sql.Int, userPositionId || 0);
+                request.input('userDepartmentId', sql.Int, userDepartmentId || 0);
+
+                whereClause += ` AND (
+                    c.course_type = 'mandatory'
+                    OR c.target_audience IS NULL
+                    OR c.target_audience = ''
+                    OR (
+                        (c.target_audience LIKE '%"positions":%' AND c.target_audience LIKE '%' + CAST(@userPositionId AS NVARCHAR) + '%')
+                        OR (c.target_audience LIKE '%"departments":%' AND c.target_audience LIKE '%' + CAST(@userDepartmentId AS NVARCHAR) + '%')
+                    )
+                )`;
+            }
+
             // Get total count
             const countResult = await request.query(`
                 SELECT COUNT(*) as total
@@ -620,7 +659,9 @@ class Course {
                 FROM courses c
                 LEFT JOIN users u ON c.instructor_id = u.user_id
                 ${whereClause}
-                ORDER BY c.created_at DESC
+                ORDER BY
+                    CASE WHEN c.course_type = 'mandatory' THEN 0 ELSE 1 END,
+                    c.created_at DESC
                 OFFSET @offset ROWS
                 FETCH NEXT @limit ROWS ONLY
             `);

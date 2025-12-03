@@ -200,7 +200,9 @@ const translations = <%- JSON.stringify({
     confirm: t('confirm'),
     cancel: t('cancel'),
     enrollSuccess: t('enrollSuccess'),
-    enrollError: t('enrollError')
+    enrollError: t('enrollError'),
+    mandatory: t('mandatory'),
+    startLearning: t('startLearning')
 }) %>;
 
 // Helper function to get translation
@@ -289,15 +291,30 @@ async function loadMyCourses() {
 }
 
 async function loadRecommendedCourses() {
+    const container = document.getElementById('recommended-courses');
     try {
         const response = await fetch('/courses/api/recommended?limit=4');
         const data = await response.json();
 
         if (data.success) {
             updateRecommendedCourses(data.data);
+        } else {
+            // API returned success: false
+            container.innerHTML = `
+                <div class="col-span-full text-center py-8">
+                    <p class="text-gray-500">${t('noRecommendedCourses')}</p>
+                </div>
+            `;
         }
     } catch (error) {
         console.error('Error loading recommended courses:', error);
+        // Show user-friendly error message
+        container.innerHTML = `
+            <div class="col-span-full text-center py-8">
+                <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl mb-2"></i>
+                <p class="text-gray-500">${t('errorLoadingRecommendedCourses')}</p>
+            </div>
+        `;
     }
 }
 
@@ -406,10 +423,15 @@ function createCourseCard(course, showProgress = false) {
                      alt="${course.title || 'Course'}"
                      class="w-full h-48 object-cover rounded-t-lg"
                      onerror="this.src='/images/course-default.svg'">
-                <div class="absolute top-3 left-3">
+                <div class="absolute top-3 left-3 flex flex-col gap-1">
                     <span class="badge-${getDifficultyColor(course.difficulty_level)}">
                         ${getDifficultyText(course.difficulty_level)}
                     </span>
+                    ${course.course_type === 'mandatory' ? `
+                        <span class="px-2 py-1 text-xs font-semibold bg-red-600 text-white rounded-full">
+                            <i class="fas fa-exclamation-circle mr-1"></i>${t('mandatory')}
+                        </span>
+                    ` : ''}
                 </div>
                 <div class="absolute top-3 right-3">
                     ${enrollmentStatus.badge}
@@ -545,6 +567,12 @@ function getEnrollmentStatus(course) {
         return {
             badge: `<span class="badge-primary">${t('completed')}</span>`,
             button: `<a href="/courses/${course.course_id}/content" class="btn-ruxchai-outline text-sm">${t('retake')}</a>`
+        };
+    } else if (course.course_type === 'mandatory') {
+        // Mandatory courses: direct access (auto-enroll on enter)
+        return {
+            badge: '',
+            button: `<a href="/courses/${course.course_id}/content" class="btn-ruxchai-primary text-sm">${t('startLearning')}</a>`
         };
     } else {
         return {

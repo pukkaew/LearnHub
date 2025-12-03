@@ -593,10 +593,54 @@ function setupFileHandlers() {
         courseImage.addEventListener('change', previewCourseImage);
     }
 
+    const introVideo = document.getElementById('intro_video');
+    if (introVideo) {
+        introVideo.addEventListener('change', handleIntroVideoSelect);
+    }
+
     const materials = document.getElementById('course_materials');
     if (materials) {
         materials.addEventListener('change', handleMaterialsUpload);
     }
+}
+
+// Handle intro video file selection
+function handleIntroVideoSelect(event) {
+    const input = event.target;
+    const file = input.files[0];
+
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('video/')) {
+        showError('กรุณาเลือกไฟล์วิดีโอเท่านั้น');
+        input.value = '';
+        return;
+    }
+
+    // Validate file size (500MB max)
+    const maxSize = 500 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showError('ขนาดไฟล์วิดีโอต้องไม่เกิน 500MB');
+        input.value = '';
+        return;
+    }
+
+    // Show file name next to the upload button
+    const label = input.nextElementSibling;
+    if (label) {
+        const fileInfo = document.createElement('span');
+        fileInfo.className = 'ml-3 text-sm text-green-600 intro-video-name';
+        fileInfo.innerHTML = `<i class="fas fa-check-circle mr-1"></i>${file.name} (${formatFileSize(file.size)})`;
+
+        // Remove old file info if exists
+        const oldInfo = label.parentElement.querySelector('.intro-video-name');
+        if (oldInfo) oldInfo.remove();
+
+        label.parentElement.appendChild(fileInfo);
+    }
+
+    console.log('🎬 Intro video selected:', file.name, formatFileSize(file.size));
 }
 
 function previewCourseImage(input) {
@@ -876,6 +920,25 @@ async function submitCourse() {
             }
         }
 
+        // Step 1.2: Upload intro video (if selected)
+        let introVideoPath = null;
+        const introVideoInput = document.getElementById('intro_video');
+        if (introVideoInput && introVideoInput.files.length > 0) {
+            showLoading('กำลังอัปโหลดวิดีโอแนะนำหลักสูตร...');
+            introVideoPath = await uploadLessonVideo(introVideoInput.files[0]);
+            if (!introVideoPath) {
+                hideLoading();
+                showError('เกิดข้อผิดพลาดในการอัปโหลดวิดีโอแนะนำหลักสูตร');
+                return;
+            }
+            console.log('🎬 Intro video uploaded:', introVideoPath);
+        }
+
+        // Step 1.5: Upload lesson videos (if any)
+        showLoading('กำลังอัปโหลดวิดีโอบทเรียน...');
+        const videoPaths = await uploadAllLessonVideos();
+        console.log('📹 Video paths:', videoPaths);
+
         // Step 2: Handle test creation/selection
         const assessmentType = document.querySelector('input[name="assessment_type"]:checked')?.value;
         let testId = null;
@@ -929,8 +992,8 @@ async function submitCourse() {
             }
         }
 
-        // Step 3: Collect course data
-        const formData = collectFormData();
+        // Step 3: Collect course data (with video paths)
+        const formData = collectFormData(videoPaths);
         formData.test_id = testId;
         formData.assessment_type = assessmentType;
 
@@ -947,6 +1010,14 @@ async function submitCourse() {
         if (courseImagePath) {
             formData.thumbnail = courseImagePath;
             formData.course_image = courseImagePath;
+        }
+
+        // Add intro video path if uploaded (or use URL from input)
+        const introVideoUrlInput = document.querySelector('input[name="intro_video_url"]');
+        if (introVideoPath) {
+            formData.intro_video_url = introVideoPath;
+        } else if (introVideoUrlInput && introVideoUrlInput.value.trim()) {
+            formData.intro_video_url = introVideoUrlInput.value.trim();
         }
 
         // Step 4: Create course
@@ -972,9 +1043,13 @@ async function submitCourse() {
                 return;
             }
 
-            // Step 5: Upload materials if any
-            showLoading('กำลังอัปโหลดเอกสารประกอบการเรียน...');
+            // Step 5: Upload course materials if any
+            showLoading('กำลังอัปโหลดเอกสารประกอบหลักสูตร...');
             await uploadMaterials(parsedCourseId);
+
+            // Step 6: Upload lesson documents if any
+            showLoading('กำลังอัปโหลดเอกสารประกอบบทเรียน...');
+            await uploadLessonDocuments(parsedCourseId);
 
             hideLoading();
             showSuccess('สร้างหลักสูตรเรียบร้อยแล้ว');
@@ -1018,12 +1093,71 @@ async function uploadCourseImage(file) {
     }
 }
 
+// Upload lesson video and return the path
+async function uploadLessonVideo(file) {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        console.log(`📤 Uploading video: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
+        const response = await fetch('/courses/api/upload/video', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            console.log('✅ Video uploaded successfully:', result.data.path);
+            return result.data.path;
+        } else {
+            console.error('❌ Video upload failed:', result.message);
+            return null;
+        }
+    } catch (error) {
+        console.error('❌ Upload video error:', error);
+        return null;
+    }
+}
+
+// Upload all lesson videos and return array of paths
+async function uploadAllLessonVideos() {
+    const lessonItems = document.querySelectorAll('.lesson-item');
+    const videoPaths = [];
+
+    for (let i = 0; i < lessonItems.length; i++) {
+        const lessonItem = lessonItems[i];
+        const videoInput = lessonItem.querySelector('input[name="lesson_videos[]"]');
+
+        if (videoInput && videoInput.files && videoInput.files.length > 0) {
+            const file = videoInput.files[0];
+            showLoading(`กำลังอัปโหลดวิดีโอบทที่ ${i + 1}... (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
+            const videoPath = await uploadLessonVideo(file);
+            videoPaths.push({
+                lessonIndex: i,
+                path: videoPath,
+                filename: file.name
+            });
+        } else {
+            videoPaths.push({
+                lessonIndex: i,
+                path: null,
+                filename: null
+            });
+        }
+    }
+
+    return videoPaths;
+}
+
 // Upload course materials after course creation
 async function uploadMaterials(courseId) {
     const input = document.getElementById('course_materials');
 
     if (!input || !input.files || input.files.length === 0) {
-        console.log('ℹ️ No materials to upload');
+        console.log('ℹ️ No course materials to upload');
         return;
     }
 
@@ -1035,7 +1169,7 @@ async function uploadMaterials(courseId) {
             formData.append('materials', file);
         });
 
-        console.log(`📤 Uploading ${input.files.length} material files...`);
+        console.log(`📤 Uploading ${input.files.length} course material files...`);
 
         const response = await fetch(`/courses/api/${courseId}/materials`, {
             method: 'POST',
@@ -1045,14 +1179,65 @@ async function uploadMaterials(courseId) {
         const result = await response.json();
 
         if (result.success) {
-            console.log(`✅ Uploaded ${input.files.length} materials successfully`);
+            console.log(`✅ Uploaded ${input.files.length} course materials successfully`);
         } else {
-            console.error('❌ Materials upload failed:', result.message);
-            showError('อัปโหลดเอกสารประกอบไม่สำเร็จ');
+            console.error('❌ Course materials upload failed:', result.message);
+            showError('อัปโหลดเอกสารประกอบหลักสูตรไม่สำเร็จ');
         }
     } catch (error) {
-        console.error('❌ Upload materials error:', error);
-        showError('เกิดข้อผิดพลาดในการอัปโหลดเอกสารประกอบ');
+        console.error('❌ Upload course materials error:', error);
+        showError('เกิดข้อผิดพลาดในการอัปโหลดเอกสารประกอบหลักสูตร');
+    }
+}
+
+// Upload lesson documents after course creation
+async function uploadLessonDocuments(courseId) {
+    const lessonItems = document.querySelectorAll('.lesson-item');
+    let totalDocs = 0;
+
+    for (let i = 0; i < lessonItems.length; i++) {
+        const lessonItem = lessonItems[i];
+        const docInput = lessonItem.querySelector('.lesson-documents-file');
+
+        if (!docInput || !docInput.files || docInput.files.length === 0) {
+            continue;
+        }
+
+        try {
+            const formData = new FormData();
+
+            // Append all files for this lesson
+            Array.from(docInput.files).forEach(file => {
+                formData.append('materials', file);
+            });
+
+            // Add lesson index for reference
+            formData.append('lesson_index', i);
+
+            console.log(`📤 Uploading ${docInput.files.length} document files for lesson ${i + 1}...`);
+
+            const response = await fetch(`/courses/api/${courseId}/materials`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                totalDocs += docInput.files.length;
+                console.log(`✅ Uploaded ${docInput.files.length} documents for lesson ${i + 1}`);
+            } else {
+                console.error(`❌ Lesson ${i + 1} documents upload failed:`, result.message);
+            }
+        } catch (error) {
+            console.error(`❌ Upload lesson ${i + 1} documents error:`, error);
+        }
+    }
+
+    if (totalDocs > 0) {
+        console.log(`✅ Total ${totalDocs} lesson documents uploaded`);
+    } else {
+        console.log('ℹ️ No lesson documents to upload');
     }
 }
 
@@ -1133,7 +1318,7 @@ function convertThaiDateToISO(dateString) {
     }
 }
 
-function collectFormData() {
+function collectFormData(videoPaths = []) {
     const form = document.getElementById('create-course-form');
     const formData = new FormData(form);
     const data = {};
@@ -1163,7 +1348,7 @@ function collectFormData() {
         .filter(value => value);
     data.learning_objectives = objectives;
 
-    // Lessons with Quiz data
+    // Lessons with Quiz data and Video paths
     const lessons = [];
     const lessonItems = document.querySelectorAll('.lesson-item');
 
@@ -1178,11 +1363,18 @@ function collectFormData() {
         const quizMaxAttemptsInput = lessonItem.querySelector('input[name="lesson_quiz_max_attempts[]"]');
 
         if (titleInput && titleInput.value.trim()) {
+            // Get video path from uploaded videos (if any)
+            const videoPathData = videoPaths.find(v => v.lessonIndex === i);
+            const uploadedVideoPath = videoPathData?.path || null;
+
+            // Use uploaded video path OR manual URL
+            const videoUrl = uploadedVideoPath || videoUrlInput?.value.trim() || null;
+
             const lessonData = {
                 title: titleInput.value.trim(),
                 duration: parseInt(durationInput?.value) || 0,
                 description: descriptionInput?.value.trim() || '',
-                video_url: videoUrlInput?.value.trim() || null
+                video_url: videoUrl
             };
 
             // Add quiz data if checkbox is checked

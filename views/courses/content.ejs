@@ -101,11 +101,21 @@
     border-radius: 12px;
     overflow: hidden;
     position: relative;
+    aspect-ratio: 4 / 3;
+    max-width: 100%;
 }
 
 .video-container video {
     width: 100%;
+    height: 100%;
+    object-fit: contain;
     display: block;
+}
+
+/* Hide playback speed controls in video player */
+video::-webkit-media-controls-playback-rate-menu,
+video::-webkit-media-controls-playback-rate-button {
+    display: none !important;
 }
 
 .video-controls-overlay {
@@ -353,15 +363,13 @@
                         <div class="p-4 space-y-4">
                             <div>
                                 <label class="text-sm text-gray-600 block mb-2"><%= t('playbackSpeed') %></label>
-                                <div class="flex space-x-1">
-                                    <% ['0.5', '0.75', '1', '1.25', '1.5', '2'].forEach(function(speed) { %>
-                                        <button onclick="setPlaybackSpeed(<%= speed %>)"
-                                                class="speed-btn flex-1 py-1 px-2 text-xs rounded <%= speed === '1' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200' %>"
-                                                data-speed="<%= speed %>">
-                                            <%= speed %>x
-                                        </button>
-                                    <% }); %>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm font-medium text-gray-900">1x</span>
+                                    <span class="text-xs text-gray-500 bg-yellow-100 px-2 py-1 rounded">
+                                        <i class="fas fa-lock mr-1"></i><%= t('speedLocked') || 'ล็อคความเร็ว' %>
+                                    </span>
                                 </div>
+                                <p class="text-xs text-gray-400 mt-1"><%= t('speedLockedInfo') || 'ไม่สามารถเปลี่ยนความเร็วได้เพื่อให้เรียนรู้อย่างครบถ้วน' %></p>
                             </div>
                             <div>
                                 <label class="flex items-center">
@@ -561,6 +569,7 @@ const i18n = {
 // State
 let courseId = '<%= courseId %>';
 let materials = [];
+let allMaterials = []; // Keep all materials including documents for Resources tab
 let currentIndex = 0;
 let currentMaterial = null;
 let playbackSpeed = 1;
@@ -594,7 +603,16 @@ async function loadMaterials() {
         const result = await response.json();
 
         if (result.success && result.data) {
-            materials = result.data;
+            // Keep all materials for Resources tab
+            allMaterials = result.data;
+
+            // Filter out document types - documents are for Resources tab only, not course content navigation
+            materials = result.data.filter(m => {
+                const type = (m.material_type || m.file_type || '').toLowerCase();
+                // Only show lessons/videos/text content, not documents
+                // Exclude both 'document' (course docs) and 'lesson_document' (lesson attachments)
+                return type !== 'document' && type !== 'lesson_document';
+            });
             buildNavigation();
             updateProgress();
         }
@@ -659,6 +677,65 @@ function getContentIcon(type) {
     return icons[type] || 'fa-file';
 }
 
+// Get YouTube embed URL from various YouTube URL formats
+function getYoutubeEmbedUrl(url) {
+    if (!url) return '';
+
+    let videoId = '';
+
+    // Handle various YouTube URL formats
+    if (url.includes('youtube.com/watch')) {
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        videoId = urlParams.get('v');
+    } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1].split('?')[0].split('/')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+        videoId = url.split('embed/')[1].split('?')[0].split('/')[0];
+    } else if (url.includes('youtube.com/v/')) {
+        videoId = url.split('/v/')[1].split('?')[0].split('/')[0];
+    }
+
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
+}
+
+// Get Vimeo embed URL from Vimeo URL
+function getVimeoEmbedUrl(url) {
+    if (!url) return '';
+
+    let videoId = '';
+
+    // Handle various Vimeo URL formats
+    if (url.includes('vimeo.com/')) {
+        const parts = url.split('vimeo.com/')[1].split('/')[0].split('?')[0];
+        videoId = parts.replace(/\D/g, ''); // Extract numeric ID
+    } else if (url.includes('player.vimeo.com/video/')) {
+        videoId = url.split('player.vimeo.com/video/')[1].split('?')[0].split('/')[0];
+    }
+
+    return videoId ? `https://player.vimeo.com/video/${videoId}?api=1` : url;
+}
+
+// Get video MIME type from URL
+function getVideoMimeType(url) {
+    if (!url) return 'video/mp4';
+
+    const ext = url.split('.').pop().toLowerCase().split('?')[0];
+    const mimeTypes = {
+        'mp4': 'video/mp4',
+        'webm': 'video/webm',
+        'ogg': 'video/ogg',
+        'ogv': 'video/ogg',
+        'mov': 'video/quicktime',
+        'avi': 'video/x-msvideo',
+        'wmv': 'video/x-ms-wmv',
+        'flv': 'video/x-flv',
+        'm4v': 'video/mp4',
+        '3gp': 'video/3gpp'
+    };
+
+    return mimeTypes[ext] || 'video/mp4';
+}
+
 function getContentTypeLabel(type) {
     const labels = {
         'video': '<%= t("video") %>',
@@ -672,8 +749,11 @@ function getContentTypeLabel(type) {
 }
 
 // Load Content
-function loadContent(index) {
+async function loadContent(index) {
     if (index < 0 || index >= materials.length) return;
+
+    // Cleanup previous YouTube player
+    cleanupYoutubePlayer();
 
     currentIndex = index;
     currentMaterial = materials[index];
@@ -692,8 +772,32 @@ function loadContent(index) {
     document.getElementById('prev-btn').disabled = index === 0;
     document.getElementById('next-btn').disabled = index === materials.length - 1;
 
+    // Load saved progress BEFORE rendering content
+    await loadLessonProgress();
+
+    // Set lastYtProgress from saved progress (prevent reset to 0)
+    if (lessonProgress && lessonProgress.video_progress_percent) {
+        lastYtProgress = lessonProgress.video_progress_percent;
+        savedVideoProgress = lessonProgress.video_progress_percent;
+        highestProgressInSession = lessonProgress.video_progress_percent; // Start from saved
+        // Reset max watched time - will be initialized properly when player is ready
+        maxYtWatchedTime = 0;
+        maxVimeoWatchedTime = 0;
+    } else {
+        lastYtProgress = 0;
+        savedVideoProgress = 0;
+        highestProgressInSession = 0;
+        maxYtWatchedTime = 0;
+        maxVimeoWatchedTime = 0;
+    }
+
     // Load content viewer
     renderContent(currentMaterial);
+
+    // Update video progress UI with saved progress
+    if (savedVideoProgress > 0) {
+        updateVideoProgressUI(savedVideoProgress);
+    }
 
     // Update URL
     const url = new URL(window.location);
@@ -702,6 +806,10 @@ function loadContent(index) {
 
     // Load notes for this content
     loadNotes();
+
+    // Reset time tracking for new content
+    sessionStartTime = Date.now();
+    lastReportedTime = 0;
 
     // Close sidebar on mobile
     if (window.innerWidth < 1024) {
@@ -712,14 +820,33 @@ function loadContent(index) {
 function renderContent(material) {
     const viewer = document.getElementById('content-viewer');
 
+    console.log('📄 renderContent called with:', {
+        title: material.title,
+        material_type: material.material_type,
+        file_type: material.file_type,
+        file_url: material.file_url
+    });
+
     switch (material.material_type) {
         case 'video':
-            // Check if it's a YouTube video
-            if (material.is_youtube && material.youtube_embed_url) {
+            // Check for video source type
+            const videoUrl = material.file_url || material.video_url || '';
+            const isYoutube = material.is_youtube || videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
+            const isVimeo = videoUrl.includes('vimeo.com');
+
+            // YouTube video
+            if (isYoutube && (material.youtube_embed_url || videoUrl)) {
+                // Get embed URL and add enablejsapi=1 for YouTube IFrame API
+                const baseYtUrl = material.youtube_embed_url || getYoutubeEmbedUrl(videoUrl);
+                // Note: Don't add origin parameter - YouTube will auto-detect it
+                const ytEmbedUrl = baseYtUrl +
+                    (baseYtUrl.includes('?') ? '&' : '?') +
+                    'enablejsapi=1&rel=0&modestbranding=1';
+
                 viewer.innerHTML = `
-                    <div class="video-container rounded-xl overflow-hidden bg-black" style="position: relative; padding-bottom: 56.25%; height: 0;">
+                    <div class="video-container rounded-xl overflow-hidden bg-black" style="position: relative; padding-bottom: 75%; height: 0;">
                         <iframe id="youtube-player"
-                                src="${material.youtube_embed_url}?rel=0&modestbranding=1"
+                                src="${ytEmbedUrl}"
                                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
                                 frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -728,16 +855,15 @@ function renderContent(material) {
                         </iframe>
                     </div>
                     <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center text-gray-600">
-                                <i class="fab fa-youtube text-red-600 text-xl mr-2"></i>
-                                <span><%= t('youtubeVideo') || 'วิดีโอ YouTube' %></span>
+                        <!-- Video Progress Bar -->
+                        <div class="video-progress-container">
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-1">
+                                <span><%= t('videoProgress') || 'ความคืบหน้าวิดีโอ' %></span>
+                                <span id="video-progress-text">0%</span>
                             </div>
-                            <a href="${material.file_url}" target="_blank"
-                               class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
-                                <i class="fab fa-youtube mr-2"></i>
-                                <%= t('watchOnYoutube') || 'ดูบน YouTube' %>
-                            </a>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="video-progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="mt-6">
@@ -748,16 +874,64 @@ function renderContent(material) {
                     </div>
                 `;
                 setupYoutubePlayer();
+            } else if (isVimeo) {
+                // Vimeo video
+                const vimeoEmbedUrl = getVimeoEmbedUrl(videoUrl);
+
+                viewer.innerHTML = `
+                    <div class="video-container rounded-xl overflow-hidden bg-black" style="position: relative; padding-bottom: 75%; height: 0;">
+                        <iframe id="vimeo-player"
+                                src="${vimeoEmbedUrl}"
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                                frameborder="0"
+                                allow="autoplay; fullscreen; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <!-- Video Progress Bar -->
+                        <div class="video-progress-container">
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-1">
+                                <span><%= t('videoProgress') || 'ความคืบหน้าวิดีโอ' %></span>
+                                <span id="video-progress-text">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="video-progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-3">${material.title}</h2>
+                        <div class="prose max-w-none text-gray-600">
+                            ${material.description || '<%= t("noDescription") %>'}
+                        </div>
+                    </div>
+                `;
+                setupVimeoPlayer();
             } else {
-                // Regular video file
+                // Regular video file (MP4, WebM, etc.)
                 viewer.innerHTML = `
                     <div class="video-container rounded-xl overflow-hidden">
                         <video id="video-player" class="w-full" controls playsinline
+                               controlsList="nodownload noplaybackrate"
+                               disablePictureInPicture
                                poster="${material.thumbnail || ''}"
                                data-material-id="${material.material_id}">
-                            <source src="${material.file_url || material.video_url || ''}" type="video/mp4">
+                            <source src="${videoUrl}" type="${getVideoMimeType(videoUrl)}">
                             <%= t('browserNotSupportVideo') %>
                         </video>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <!-- Video Progress Bar for regular videos -->
+                        <div class="video-progress-container">
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-1">
+                                <span><%= t('videoProgress') || 'ความคืบหน้าวิดีโอ' %></span>
+                                <span id="video-progress-text">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="video-progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="mt-6">
                         <h2 class="text-xl font-semibold text-gray-900 mb-3">${material.title}</h2>
@@ -845,39 +1019,672 @@ function renderContent(material) {
     }
 }
 
-// Video Player Setup
+// Video Player Setup with Progress Tracking and Anti-Skip Protection
+let videoProgressInterval = null;
+
 function setupVideoPlayer() {
     const video = document.getElementById('video-player');
     if (!video) return;
 
-    video.playbackRate = playbackSpeed;
+    console.log('🎬 Setting up video player with anti-skip protection');
 
-    video.addEventListener('ended', () => {
-        markAsComplete();
+    // Clear any existing interval
+    if (videoProgressInterval) {
+        clearInterval(videoProgressInterval);
+        videoProgressInterval = null;
+    }
+
+    // Force playback speed to 1x
+    video.playbackRate = 1.0;
+    let lastVideoProgress = savedVideoProgress;
+    let maxWatchedTime = 0;
+    let isSeeking = false;
+    let lastValidTime = 0;
+    const jumpThreshold = 2;
+
+    // Function to block skip
+    function blockSkip(currentTime, allowedTime, source) {
+        if (isSeeking) return;
+        isSeeking = true;
+        console.log(`⛔ Skip blocked (${source})! current=${currentTime.toFixed(1)}s, allowed=${allowedTime.toFixed(1)}s`);
+        video.pause();
+        video.currentTime = allowedTime;
+        showToast('ไม่สามารถข้ามไปข้างหน้าได้ กรุณาดูวิดีโอตามลำดับ', 'error');
+        setTimeout(() => {
+            isSeeking = false;
+            video.play().catch(() => {});
+        }, 500);
+    }
+
+    // Initialize maxWatchedTime from saved progress
+    video.addEventListener('loadedmetadata', () => {
+        if (savedVideoProgress > 0 && video.duration) {
+            maxWatchedTime = (savedVideoProgress / 100) * video.duration;
+            lastValidTime = maxWatchedTime;
+            console.log(`✅ Max watched: ${maxWatchedTime.toFixed(1)}s (${savedVideoProgress}%)`);
+        }
+    });
+
+    // Prevent speed change
+    video.addEventListener('ratechange', () => {
+        if (video.playbackRate !== 1.0) {
+            video.playbackRate = 1.0;
+            showToast('ไม่สามารถเปลี่ยนความเร็วการเล่นได้', 'warning');
+        }
+    });
+
+    // Anti-skip: seeking event
+    video.addEventListener('seeking', () => {
+        const currentTime = video.currentTime;
+        const allowedTime = Math.max(maxWatchedTime, lastValidTime, 0);
+        console.log(`🔍 Seeking: ${currentTime.toFixed(1)}s → allowed: ${allowedTime.toFixed(1)}s`);
+
+        if (currentTime > allowedTime + jumpThreshold) {
+            blockSkip(currentTime, allowedTime, 'seeking');
+        }
+    });
+
+    // Anti-skip: seeked event
+    video.addEventListener('seeked', () => {
+        const currentTime = video.currentTime;
+        const allowedTime = Math.max(maxWatchedTime, lastValidTime, 0);
+
+        if (currentTime > allowedTime + jumpThreshold) {
+            blockSkip(currentTime, allowedTime, 'seeked');
+        }
+    });
+
+    // Start continuous monitoring immediately (check even when paused)
+    videoProgressInterval = setInterval(() => {
+        if (!video || isSeeking) return;
+
+        const currentTime = video.currentTime;
+        const allowedTime = Math.max(maxWatchedTime, lastValidTime, 0);
+
+        // Detect skip: current time jumped ahead of allowed (even when paused)
+        if (currentTime > allowedTime + jumpThreshold) {
+            blockSkip(currentTime, allowedTime, 'interval');
+            return;
+        }
+
+        // Update progress normally only when playing AND only small increments
+        if (!video.paused) {
+            // Only allow 1 second increment max per check
+            if (currentTime > maxWatchedTime && currentTime <= maxWatchedTime + 1) {
+                maxWatchedTime = currentTime;
+                lastValidTime = currentTime;
+            } else if (currentTime <= allowedTime) {
+                lastValidTime = currentTime;
+            }
+        }
+
+    }, 200); // Check every 200ms
+
+    video.addEventListener('ended', async () => {
+        maxWatchedTime = video.duration;
+        lastValidTime = video.duration;
+        updateVideoProgressUI(100);
+        await trackVideoProgress(100, video.duration);
+        await loadLessonProgress();
+
+        if (lessonProgress?.canComplete) {
+            markAsComplete();
+        }
+
         if (autoplayEnabled && currentIndex < materials.length - 1) {
             setTimeout(() => navigateNext(), 1500);
         }
     });
 
-    video.addEventListener('timeupdate', () => {
-        const progress = (video.currentTime / video.duration) * 100;
-        if (progress > 80 && !currentMaterial.is_completed) {
-            markAsComplete();
+    video.addEventListener('timeupdate', async () => {
+        if (isSeeking) return;
+
+        const currentTime = video.currentTime;
+        const duration = video.duration;
+
+        // Skip if duration is not valid
+        if (!duration || isNaN(duration) || duration <= 0) return;
+
+        const allowedTime = Math.max(maxWatchedTime, lastValidTime, 0);
+
+        // IMPORTANT: Only update maxWatchedTime if current time is valid (not a skip)
+        // Allow small increments only (max 1 second jump)
+        if (currentTime > maxWatchedTime && currentTime <= maxWatchedTime + 1) {
+            maxWatchedTime = currentTime;
+            lastValidTime = currentTime;
+        } else if (currentTime <= allowedTime) {
+            // Seeking backwards is OK, just update lastValidTime
+            lastValidTime = currentTime;
+        }
+        // If currentTime > maxWatchedTime + 1, it's a skip - don't update!
+
+        const progress = Math.min(100, Math.max(0, Math.round((currentTime / duration) * 100)));
+        updateVideoProgressUI(progress);
+
+        if (progress >= lastVideoProgress + 10) {
+            lastVideoProgress = progress;
+            await trackVideoProgress(progress, currentTime);
+            await loadLessonProgress();
         }
     });
+
+    console.log('✅ Anti-skip protection active (interval running)');
 }
 
-// YouTube Player Setup
-function setupYoutubePlayer() {
-    // For YouTube iframe, we track viewing time
-    console.log('YouTube player initialized for:', currentMaterial?.title);
+// Vimeo Player Setup
+let vimeoPlayer = null;
 
-    // Auto mark complete after 30 seconds of viewing
-    setTimeout(() => {
-        if (currentMaterial && !currentMaterial.is_completed) {
-            console.log('YouTube video viewed - ready to mark complete');
+function setupVimeoPlayer() {
+    console.log('Setting up Vimeo player for:', currentMaterial?.title);
+
+    // Clean up previous tracking interval (but keep progress values)
+    if (ytProgressInterval) {
+        clearInterval(ytProgressInterval);
+        ytProgressInterval = null;
+    }
+    // Note: lastYtProgress is set in loadContent() from saved progress
+
+    // Load Vimeo Player SDK if not already loaded
+    if (!window.Vimeo) {
+        const script = document.createElement('script');
+        script.src = 'https://player.vimeo.com/api/player.js';
+        script.onload = initVimeoPlayer;
+        document.head.appendChild(script);
+    } else {
+        initVimeoPlayer();
+    }
+}
+
+function initVimeoPlayer() {
+    const iframe = document.getElementById('vimeo-player');
+    if (!iframe || !window.Vimeo) {
+        // Fallback to time-based tracking
+        setupYoutubeFallbackTracking();
+        return;
+    }
+
+    try {
+        vimeoPlayer = new Vimeo.Player(iframe);
+
+        // Initialize maxVimeoWatchedTime from saved progress
+        vimeoPlayer.getDuration().then(duration => {
+            if (savedVideoProgress > 0 && duration > 0) {
+                maxVimeoWatchedTime = (savedVideoProgress / 100) * duration;
+                console.log(`Vimeo max watched time initialized: ${maxVimeoWatchedTime}s (${savedVideoProgress}%)`);
+            }
+        }).catch(() => {});
+
+        // Listen for seek events to prevent skipping forward
+        vimeoPlayer.on('seeked', async (data) => {
+            const currentTime = data.seconds;
+            const allowedTime = Math.max(maxVimeoWatchedTime, 0);
+            const jumpThreshold = 2; // Stricter threshold
+
+            if (currentTime > allowedTime + jumpThreshold) {
+                console.log(`Vimeo skip detected! Current: ${currentTime}s, Allowed: ${allowedTime}s`);
+                vimeoPlayer.setCurrentTime(allowedTime);
+                vimeoPlayer.pause(); // Pause to make it obvious
+                showToast('ไม่สามารถข้ามไปข้างหน้าได้ กรุณาดูวิดีโอตามลำดับ', 'error');
+                setTimeout(() => vimeoPlayer.play(), 300);
+            }
+        });
+
+        // Prevent playback rate changes
+        vimeoPlayer.on('playbackratechange', (data) => {
+            if (data.playbackRate !== 1.0) {
+                vimeoPlayer.setPlaybackRate(1.0).catch(() => {});
+                showToast('ไม่สามารถเปลี่ยนความเร็วการเล่นได้', 'warning');
+            }
+        });
+
+        vimeoPlayer.on('play', () => {
+            startVimeoProgressTracking();
+        });
+
+        vimeoPlayer.on('pause', () => {
+            stopYoutubeProgressTracking(); // Reuse the same interval cleaner
+        });
+
+        vimeoPlayer.on('ended', async () => {
+            updateVideoProgressUI(100);
+            await trackVideoProgress(100, 0);
+            await loadLessonProgress();
+
+            if (lessonProgress?.canComplete) {
+                markAsComplete();
+            }
+
+            if (autoplayEnabled && currentIndex < materials.length - 1) {
+                setTimeout(() => navigateNext(), 1500);
+            }
+        });
+
+        // Force playback rate to 1x
+        vimeoPlayer.setPlaybackRate(1.0).catch(() => {
+            console.log('Vimeo playback rate not supported for this video');
+        });
+
+    } catch (error) {
+        console.log('Vimeo API error, using fallback tracking');
+        setupYoutubeFallbackTracking();
+    }
+}
+
+function startVimeoProgressTracking() {
+    if (ytProgressInterval) return;
+
+    ytProgressInterval = setInterval(async () => {
+        if (!vimeoPlayer) return;
+
+        try {
+            const [currentTime, duration] = await Promise.all([
+                vimeoPlayer.getCurrentTime(),
+                vimeoPlayer.getDuration()
+            ]);
+
+            if (duration > 0) {
+                // Update max watched time for anti-skip
+                if (currentTime > maxVimeoWatchedTime) {
+                    maxVimeoWatchedTime = currentTime;
+                }
+
+                const progress = Math.round((currentTime / duration) * 100);
+
+                // Update UI
+                updateVideoProgressUI(progress);
+
+                // Report every 10%
+                if (progress >= lastYtProgress + 10) {
+                    lastYtProgress = progress;
+                    await trackVideoProgress(progress, currentTime);
+                    await loadLessonProgress();
+                }
+            }
+        } catch (error) {
+            console.log('Vimeo progress tracking error:', error);
         }
-    }, 30000);
+    }, 2000);
+}
+
+// Track video progress to API (only if higher than saved)
+async function trackVideoProgress(progressPercent, currentPosition) {
+    if (!currentMaterial) return;
+
+    // Only track if progress is higher than saved (prevent going backwards)
+    if (progressPercent <= savedVideoProgress) {
+        console.log(`Skipping track: current ${progressPercent}% <= saved ${savedVideoProgress}%`);
+        return;
+    }
+
+    try {
+        const response = await fetch(`/courses/api/${courseId}/materials/${currentMaterial.material_id}/track-video`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                progress_percent: progressPercent,
+                current_position: Math.floor(currentPosition)
+            })
+        });
+
+        const result = await response.json();
+        if (result.success && result.data) {
+            // Update saved progress from server response
+            savedVideoProgress = result.data.video_progress_percent || progressPercent;
+        }
+
+        console.log(`Tracked video progress: ${progressPercent}%`);
+    } catch (error) {
+        console.error('Error tracking video progress:', error);
+    }
+}
+
+// YouTube Player Setup with IFrame API
+let ytPlayer = null;
+let ytProgressInterval = null;
+let lastYtProgress = 0;
+let savedVideoProgress = 0; // Progress saved from database
+let maxYtWatchedTime = 0; // Maximum time watched for YouTube (anti-skip)
+let maxVimeoWatchedTime = 0; // Maximum time watched for Vimeo (anti-skip)
+let highestProgressInSession = 0; // Highest progress reached in current session (never decrease)
+
+function setupYoutubePlayer() {
+    console.log('Setting up YouTube player for:', currentMaterial?.title);
+
+    // Clean up previous interval (but keep progress values)
+    if (ytProgressInterval) {
+        clearInterval(ytProgressInterval);
+        ytProgressInterval = null;
+    }
+    // Note: lastYtProgress is set in loadContent() from saved progress
+
+    // Try to load YouTube IFrame API, but use fallback if it fails
+    const loadTimeout = setTimeout(() => {
+        console.log('YouTube API load timeout, using fallback');
+        setupYoutubeFallbackTracking();
+    }, 5000);
+
+    // Load YouTube IFrame API if not already loaded
+    if (!window.YT || !window.YT.Player) {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        tag.onerror = () => {
+            clearTimeout(loadTimeout);
+            console.log('YouTube API failed to load, using fallback');
+            setupYoutubeFallbackTracking();
+        };
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Wait for API to load
+        window.onYouTubeIframeAPIReady = () => {
+            clearTimeout(loadTimeout);
+            initYoutubePlayer();
+        };
+    } else {
+        clearTimeout(loadTimeout);
+        initYoutubePlayer();
+    }
+}
+
+function initYoutubePlayer() {
+    const iframe = document.getElementById('youtube-player');
+    if (!iframe) return;
+
+    // Extract video ID from the iframe src
+    const src = iframe.src;
+    let videoId = '';
+
+    // Handle different YouTube URL formats
+    if (src.includes('embed/')) {
+        videoId = src.split('embed/')[1].split('?')[0].split('/')[0];
+    } else if (src.includes('v=')) {
+        videoId = new URLSearchParams(src.split('?')[1]).get('v');
+    }
+
+    if (!videoId) {
+        console.log('Could not extract YouTube video ID');
+        setupYoutubeFallbackTracking();
+        return;
+    }
+
+    // Replace iframe with YouTube API player
+    const newId = 'youtube-player-' + Date.now();
+    iframe.id = newId;
+
+    try {
+        ytPlayer = new YT.Player(newId, {
+            events: {
+                'onReady': onYtPlayerReady,
+                'onStateChange': onYtPlayerStateChange,
+                'onError': onYtPlayerError
+            }
+        });
+    } catch (error) {
+        console.log('YouTube player init error:', error);
+        setupYoutubeFallbackTracking();
+    }
+}
+
+function onYtPlayerError(event) {
+    const errorCodes = {
+        2: 'Invalid video ID - รหัสวิดีโอไม่ถูกต้อง',
+        5: 'HTML5 player error - ข้อผิดพลาดโปรแกรมเล่น',
+        100: 'Video not found - ไม่พบวิดีโอ หรือวิดีโอเป็นส่วนตัว',
+        101: 'Embedding disabled - เจ้าของวิดีโอปิดการ embed',
+        150: 'Embedding disabled - เจ้าของวิดีโอปิดการ embed',
+        153: 'Playback restricted - วิดีโอถูกจำกัดการเล่น'
+    };
+    const errorMessage = errorCodes[event.data] || `YouTube Error ${event.data}`;
+    console.error('YouTube Player Error:', event.data, errorMessage);
+
+    // Show error to user with Thai message
+    const thaiMessage = errorCodes[event.data]?.split(' - ')[1] || `ข้อผิดพลาด YouTube ${event.data}`;
+    showToast(`ไม่สามารถเล่นวิดีโอได้: ${thaiMessage}`, 'error');
+
+    // Replace video container with error message and YouTube link
+    const viewer = document.getElementById('content-viewer');
+    const youtubeUrl = currentMaterial?.video_url || currentMaterial?.file_url || '';
+
+    if (viewer) {
+        viewer.innerHTML = `
+            <div class="bg-gray-900 rounded-xl overflow-hidden" style="aspect-ratio: 16/9;">
+                <div class="w-full h-full flex flex-col items-center justify-center text-white p-8">
+                    <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center mb-4">
+                        <i class="fab fa-youtube text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">ไม่สามารถเล่นวิดีโอได้</h3>
+                    <p class="text-gray-400 mb-1">Error ${event.data}: ${thaiMessage}</p>
+                    <p class="text-gray-500 text-sm mb-6">วิดีโอนี้ถูกจำกัดการ embed โดยเจ้าของเนื้อหา</p>
+                    ${youtubeUrl ? `
+                        <a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+                            <i class="fab fa-youtube mr-2"></i>ดูวิดีโอบน YouTube
+                        </a>
+                        <p class="text-gray-500 text-xs mt-3">คลิกเพื่อเปิดวิดีโอในหน้าต่างใหม่</p>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="mt-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">${currentMaterial?.title || ''}</h2>
+                <div class="prose max-w-none text-gray-600">
+                    ${currentMaterial?.description || ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // Use fallback tracking
+    setupYoutubeFallbackTracking();
+}
+
+function onYtPlayerReady(event) {
+    console.log('YouTube player ready');
+
+    // Force playback speed to 1x (prevent fast-forward)
+    if (ytPlayer && ytPlayer.setPlaybackRate) {
+        ytPlayer.setPlaybackRate(1.0);
+    }
+
+    // Initialize maxYtWatchedTime from saved progress
+    if (savedVideoProgress > 0 && ytPlayer.getDuration) {
+        try {
+            const duration = ytPlayer.getDuration();
+            if (duration > 0) {
+                maxYtWatchedTime = (savedVideoProgress / 100) * duration;
+                console.log(`YouTube max watched time initialized: ${maxYtWatchedTime}s (${savedVideoProgress}%)`);
+            }
+        } catch (e) {
+            console.log('Could not initialize max watched time');
+        }
+    }
+
+    // Start progress tracking
+    startYoutubeProgressTracking();
+}
+
+function onYtPlayerStateChange(event) {
+    // YT.PlayerState: UNSTARTED (-1), ENDED (0), PLAYING (1), PAUSED (2), BUFFERING (3), CUED (5)
+    if (event.data === YT.PlayerState.ENDED) {
+        // Video ended - track 100%
+        trackVideoProgress(100, ytPlayer.getDuration());
+        loadLessonProgress().then(() => {
+            if (lessonProgress?.canComplete) {
+                markAsComplete();
+            }
+
+            // Autoplay next
+            if (autoplayEnabled && currentIndex < materials.length - 1) {
+                setTimeout(() => navigateNext(), 1500);
+            }
+        });
+    } else if (event.data === YT.PlayerState.PLAYING) {
+        startYoutubeProgressTracking();
+    } else if (event.data === YT.PlayerState.PAUSED) {
+        stopYoutubeProgressTracking();
+    }
+}
+
+function startYoutubeProgressTracking() {
+    if (ytProgressInterval) return;
+
+    let lastCheckedTime = 0;
+    let isResettingPosition = false;
+    let lastReportProgress = lastYtProgress;
+
+    ytProgressInterval = setInterval(async () => {
+        if (!ytPlayer || !ytPlayer.getCurrentTime || !ytPlayer.getDuration) return;
+
+        try {
+            const currentTime = ytPlayer.getCurrentTime();
+            const duration = ytPlayer.getDuration();
+
+            if (duration > 0) {
+                // Force playback speed to 1x (check every interval)
+                if (ytPlayer.getPlaybackRate && ytPlayer.getPlaybackRate() !== 1.0) {
+                    ytPlayer.setPlaybackRate(1.0);
+                    showToast('ไม่สามารถเปลี่ยนความเร็วการเล่นได้', 'warning');
+                }
+
+                // Anti-skip: Detect if user jumped forward beyond watched content
+                const allowedTime = Math.max(maxYtWatchedTime, 0);
+                const jumpThreshold = 2; // 2 seconds buffer (stricter)
+
+                // Check if user skipped forward (current time jumped too much)
+                if (!isResettingPosition && currentTime > allowedTime + jumpThreshold) {
+                    console.log(`Skip detected! Current: ${currentTime}s, Allowed: ${allowedTime}s`);
+                    isResettingPosition = true;
+
+                    // Seek back to allowed position
+                    ytPlayer.seekTo(allowedTime, true);
+                    ytPlayer.pauseVideo(); // Pause to make it more obvious
+                    showToast('ไม่สามารถข้ามไปข้างหน้าได้ กรุณาดูวิดีโอตามลำดับ', 'error');
+
+                    setTimeout(() => {
+                        isResettingPosition = false;
+                        ytPlayer.playVideo(); // Resume playing
+                    }, 300);
+                    return;
+                }
+
+                // Update max watched time (only if playing normally, not after a reset)
+                if (!isResettingPosition && currentTime > maxYtWatchedTime) {
+                    maxYtWatchedTime = currentTime;
+                }
+
+                lastCheckedTime = currentTime;
+                const progress = Math.round((currentTime / duration) * 100);
+
+                // Update progress bar UI
+                updateVideoProgressUI(progress);
+
+                // Report every 10% progress
+                if (progress >= lastReportProgress + 10) {
+                    lastReportProgress = progress;
+                    lastYtProgress = progress;
+                    await trackVideoProgress(progress, currentTime);
+                    await loadLessonProgress();
+                }
+            }
+        } catch (error) {
+            console.log('YouTube progress tracking error:', error);
+        }
+    }, 250); // Check every 250ms for faster skip detection
+}
+
+// Update video progress bar UI (never show less than highest progress)
+function updateVideoProgressUI(progress) {
+    const progressBar = document.getElementById('video-progress-bar');
+    const progressText = document.getElementById('video-progress-text');
+
+    // Update highest progress in session (never decrease)
+    if (progress > highestProgressInSession) {
+        highestProgressInSession = progress;
+    }
+
+    // Use the highest value between current, saved, and session highest
+    const displayProgress = Math.max(progress, savedVideoProgress, highestProgressInSession);
+
+    if (progressBar) {
+        progressBar.style.width = displayProgress + '%';
+
+        // Change color based on progress
+        if (displayProgress >= 80) {
+            progressBar.classList.remove('bg-blue-500', 'bg-yellow-500');
+            progressBar.classList.add('bg-green-500');
+        } else if (displayProgress >= 50) {
+            progressBar.classList.remove('bg-blue-500', 'bg-green-500');
+            progressBar.classList.add('bg-yellow-500');
+        } else {
+            progressBar.classList.remove('bg-green-500', 'bg-yellow-500');
+            progressBar.classList.add('bg-blue-500');
+        }
+    }
+
+    if (progressText) {
+        progressText.textContent = displayProgress + '%';
+    }
+}
+
+function stopYoutubeProgressTracking() {
+    if (ytProgressInterval) {
+        clearInterval(ytProgressInterval);
+        ytProgressInterval = null;
+    }
+}
+
+function cleanupYoutubePlayer() {
+    stopYoutubeProgressTracking();
+
+    // Cleanup YouTube player
+    if (ytPlayer) {
+        try {
+            ytPlayer.destroy();
+        } catch (e) {
+            // Player might already be destroyed
+        }
+        ytPlayer = null;
+    }
+
+    // Cleanup Vimeo player
+    if (vimeoPlayer) {
+        try {
+            vimeoPlayer.destroy();
+        } catch (e) {
+            // Player might already be destroyed
+        }
+        vimeoPlayer = null;
+    }
+
+    // Note: Don't reset lastYtProgress and savedVideoProgress here
+    // They will be set properly when loadContent loads the saved progress
+}
+
+// Fallback tracking for YouTube when API doesn't work
+function setupYoutubeFallbackTracking() {
+    console.log('Using fallback YouTube tracking (time-based)');
+
+    let watchTime = 0;
+    const estimatedDuration = currentMaterial?.duration_seconds || 600; // Default 10 min
+
+    ytProgressInterval = setInterval(async () => {
+        watchTime += 2;
+        const progress = Math.min(100, Math.round((watchTime / estimatedDuration) * 100));
+
+        // Update UI
+        updateVideoProgressUI(progress);
+
+        if (progress >= lastYtProgress + 10) {
+            lastYtProgress = progress;
+            await trackVideoProgress(progress, watchTime);
+            await loadLessonProgress();
+        }
+
+        // Max tracking at 100%
+        if (progress >= 100) {
+            clearInterval(ytProgressInterval);
+            ytProgressInterval = null;
+        }
+    }, 2000);
 }
 
 // Navigation
@@ -913,32 +1720,118 @@ async function markAsComplete() {
     if (!currentMaterial || currentMaterial.is_completed) return;
 
     try {
+        // Use material complete API
         const response = await fetch(`/courses/api/${courseId}/materials/${currentMaterial.material_id}/complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
 
-        if (response.ok) {
+        const result = await response.json();
+
+        if (result.success) {
             currentMaterial.is_completed = true;
             materials[currentIndex].is_completed = true;
             buildNavigation();
             updateProgress();
+            await loadLessonProgress();
             showToast(i18n.markedComplete, 'success');
+        } else {
+            // Show error message if requirements not met
+            showToast(result.message || 'ยังไม่ผ่านเงื่อนไข', 'error');
+            await loadLessonProgress();
         }
     } catch (error) {
         console.error('Error marking complete:', error);
+        showToast('เกิดข้อผิดพลาด', 'error');
     }
 }
 
-// Time Tracker
+// Time Tracker - Track and report to API
+let lastReportedTime = 0;
+let lessonProgress = null;
+
 function startTimeTracker() {
-    timeTrackerInterval = setInterval(() => {
+    timeTrackerInterval = setInterval(async () => {
         const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
         const minutes = Math.floor(elapsed / 60);
         const seconds = elapsed % 60;
         document.getElementById('time-spent').textContent =
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // Report time to API every 30 seconds
+        if (currentMaterial && elapsed - lastReportedTime >= 30) {
+            const timeToReport = elapsed - lastReportedTime;
+            lastReportedTime = elapsed;
+
+            try {
+                await fetch(`/courses/api/${courseId}/materials/${currentMaterial.material_id}/track-time`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ seconds: timeToReport })
+                });
+                console.log(`Tracked ${timeToReport}s of learning time`);
+                // Refresh material progress
+                await loadLessonProgress();
+            } catch (error) {
+                console.error('Error tracking time:', error);
+            }
+        }
     }, 1000);
+}
+
+// Load material progress and requirements
+async function loadLessonProgress() {
+    if (!currentMaterial) return;
+
+    try {
+        const response = await fetch(`/courses/api/${courseId}/materials/${currentMaterial.material_id}/progress`);
+        const result = await response.json();
+
+        if (result.success) {
+            lessonProgress = result.data;
+            updateCompletionButton();
+        }
+    } catch (error) {
+        console.error('Error loading material progress:', error);
+    }
+}
+
+// Update completion button based on requirements
+function updateCompletionButton() {
+    const btn = document.getElementById('mark-complete-btn');
+    if (!btn || !lessonProgress) return;
+
+    const { requirements, canComplete, is_completed } = lessonProgress;
+
+    if (is_completed) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i><%= t("completed") || "เสร็จแล้ว" %>';
+        btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+        btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+        return;
+    }
+
+    if (canComplete) {
+        btn.disabled = false;
+        btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        btn.classList.add('bg-green-500', 'hover:bg-green-600');
+    } else {
+        btn.disabled = true;
+        btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+        btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+
+        // Show requirements status
+        let statusHtml = '<i class="fas fa-lock mr-2"></i>';
+        if (requirements.time.required && !requirements.time.met) {
+            const remaining = Math.ceil((requirements.time.minimum - requirements.time.current) / 60);
+            statusHtml += `ต้องเรียนอีก ${remaining} นาที`;
+        } else if (requirements.video.required && !requirements.video.met) {
+            statusHtml += `ต้องดูวิดีโออีก ${Math.ceil(requirements.video.minimum - requirements.video.current)}%`;
+        } else if (requirements.quiz.required && !requirements.quiz.met) {
+            statusHtml += 'ต้องทำ Quiz ให้ผ่าน';
+        }
+        btn.innerHTML = statusHtml;
+    }
 }
 
 // Tabs
@@ -951,6 +1844,89 @@ function switchTab(tabName) {
     });
 
     if (tabName === 'discussion') loadComments();
+    if (tabName === 'resources') loadResources();
+}
+
+// Resources - Load document attachments for this course
+function loadResources() {
+    const container = document.getElementById('resources-list');
+
+    // Filter documents from allMaterials array (not filtered materials)
+    // Include both 'document' (course docs) and 'lesson_document' (lesson attachments)
+    const documents = allMaterials.filter(m => {
+        const type = (m.material_type || m.file_type || '').toLowerCase();
+        return type === 'document' || type === 'lesson_document';
+    });
+
+    if (documents.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-folder-open text-gray-300 text-4xl mb-3"></i>
+                <p><%= t('noResources') %></p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = documents.map(doc => {
+        const fileSize = doc.file_size ? formatFileSize(doc.file_size) : '';
+        const fileIcon = getFileIcon(doc.file_url || doc.title);
+
+        return `
+            <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                <div class="w-12 h-12 ${fileIcon.bgColor} rounded-lg flex items-center justify-center mr-4">
+                    <i class="${fileIcon.icon} ${fileIcon.color} text-xl"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-medium text-gray-900 truncate">${doc.title}</h4>
+                    <p class="text-sm text-gray-500">${fileSize}</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.open('${doc.file_url}', '_blank')"
+                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="<%= t('view') %>">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <a href="${doc.file_url}" download
+                       class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="<%= t('download') %>">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Helper: Format file size
+function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return '';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// Helper: Get file icon based on extension
+function getFileIcon(filename) {
+    if (!filename) return { icon: 'fas fa-file', color: 'text-gray-500', bgColor: 'bg-gray-100' };
+
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+        'pdf': { icon: 'fas fa-file-pdf', color: 'text-red-500', bgColor: 'bg-red-100' },
+        'doc': { icon: 'fas fa-file-word', color: 'text-blue-500', bgColor: 'bg-blue-100' },
+        'docx': { icon: 'fas fa-file-word', color: 'text-blue-500', bgColor: 'bg-blue-100' },
+        'xls': { icon: 'fas fa-file-excel', color: 'text-green-500', bgColor: 'bg-green-100' },
+        'xlsx': { icon: 'fas fa-file-excel', color: 'text-green-500', bgColor: 'bg-green-100' },
+        'ppt': { icon: 'fas fa-file-powerpoint', color: 'text-orange-500', bgColor: 'bg-orange-100' },
+        'pptx': { icon: 'fas fa-file-powerpoint', color: 'text-orange-500', bgColor: 'bg-orange-100' },
+        'zip': { icon: 'fas fa-file-archive', color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
+        'rar': { icon: 'fas fa-file-archive', color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
+        'jpg': { icon: 'fas fa-file-image', color: 'text-purple-500', bgColor: 'bg-purple-100' },
+        'jpeg': { icon: 'fas fa-file-image', color: 'text-purple-500', bgColor: 'bg-purple-100' },
+        'png': { icon: 'fas fa-file-image', color: 'text-purple-500', bgColor: 'bg-purple-100' },
+        'txt': { icon: 'fas fa-file-alt', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+    };
+
+    return icons[ext] || { icon: 'fas fa-file', color: 'text-gray-500', bgColor: 'bg-gray-100' };
 }
 
 // Notes
@@ -1006,16 +1982,35 @@ function toggleSettings() {
     document.getElementById('settings-menu').classList.toggle('hidden');
 }
 
+// Playback speed is locked to 1x - this function prevents any speed changes
 function setPlaybackSpeed(speed) {
-    playbackSpeed = parseFloat(speed);
-    const video = document.getElementById('video-player');
-    if (video) video.playbackRate = playbackSpeed;
+    // Always force 1x playback speed - no speed changes allowed
+    playbackSpeed = 1.0;
 
-    document.querySelectorAll('.speed-btn').forEach(btn => {
-        btn.classList.toggle('bg-blue-500', btn.dataset.speed == speed);
-        btn.classList.toggle('text-white', btn.dataset.speed == speed);
-        btn.classList.toggle('bg-gray-100', btn.dataset.speed != speed);
-    });
+    // Force regular video player to 1x
+    const video = document.getElementById('video-player');
+    if (video) video.playbackRate = 1.0;
+
+    // Force YouTube player to 1x
+    if (ytPlayer && ytPlayer.setPlaybackRate) {
+        try {
+            ytPlayer.setPlaybackRate(1.0);
+        } catch (e) {
+            console.log('Could not set YouTube playback speed');
+        }
+    }
+
+    // Force Vimeo player to 1x
+    if (vimeoPlayer && vimeoPlayer.setPlaybackRate) {
+        vimeoPlayer.setPlaybackRate(1.0).catch(() => {
+            console.log('Could not set Vimeo playback speed');
+        });
+    }
+
+    // Show warning if user tried to change speed
+    if (parseFloat(speed) !== 1.0) {
+        showToast('ไม่สามารถเปลี่ยนความเร็วการเล่นได้', 'warning');
+    }
 }
 
 // Sidebar
@@ -1174,5 +2169,6 @@ function showToast(message, type = 'info') {
 // Cleanup
 window.addEventListener('beforeunload', () => {
     if (timeTrackerInterval) clearInterval(timeTrackerInterval);
+    cleanupYoutubePlayer();
 });
 </script>

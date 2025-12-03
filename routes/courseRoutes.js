@@ -39,6 +39,7 @@ router.post('/api/:course_id/enroll', courseController.enrollInCourse);
 router.put('/api/:course_id/progress', courseController.updateProgress);
 
 // Course statistics (using existing functions)
+router.get('/api/:course_id/stats', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), courseController.getCourseStatistics);
 router.get('/api/:course_id/statistics', authMiddleware.requireRole(['Admin', 'Instructor']), courseController.getCourseStatistics);
 
 // Course analytics
@@ -52,7 +53,10 @@ router.post('/api/:course_id/materials', authMiddleware.requireRole(['Admin', 'I
 
 // Material progress tracking (user-specific)
 router.get('/api/:course_id/materials/progress', materialProgressController.getMaterialProgress);
+router.get('/api/:course_id/materials/:material_id/progress', materialProgressController.getSingleMaterialProgress);
 router.post('/api/:course_id/materials/:material_id/complete', materialProgressController.markMaterialComplete);
+router.post('/api/:course_id/materials/:material_id/track-time', materialProgressController.trackTime);
+router.post('/api/:course_id/materials/:material_id/track-video', materialProgressController.trackVideoProgress);
 
 router.get('/api/:course_id/discussions', courseController.getCourseDiscussions);
 router.get('/api/:course_id/reviews', courseController.getCourseReviews);
@@ -76,5 +80,6 @@ router.get('/api/tests/available', courseController.getAvailableTests);
 
 // File Upload for Courses
 router.post('/api/upload/image', authMiddleware.requireRole(['Admin', 'Instructor']), courseController.uploadCourseImage);
+router.post('/api/upload/video', authMiddleware.requireRole(['Admin', 'Instructor']), courseController.uploadCourseVideo);
 
 module.exports = router;
