@@ -77,18 +77,28 @@
 
                         <div>
                             <label for="test_type" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testType') %> <span class="text-red-500">*</span></label>
-                            <select id="test_type" name="type" required
+                            <select id="test_type" name="type" required onchange="handleTestTypeChange()"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 <option value=""><%= t('selectTestType') %></option>
-                                <option value="pre_training_assessment"><%= t('preTrainingAssessment') %></option>
-                                <option value="assessment"><%= t('assessment') %></option>
-                                <option value="knowledge_check"><%= t('knowledgeCheck') %></option>
-                                <option value="practice_exercise"><%= t('practiceExercise') %></option>
-                                <option value="progress_assessment"><%= t('progressAssessment') %></option>
-                                <option value="midcourse_assessment"><%= t('midcourseAssessment') %></option>
-                                <option value="post_training_assessment"><%= t('postTrainingAssessment') %></option>
-                                <option value="final_assessment"><%= t('finalAssessment') %></option>
-                                <option value="certification_assessment"><%= t('certificationAssessment') %></option>
+                                <optgroup label="<%= t('courseAssessments') || 'Course Assessments' %>">
+                                    <option value="chapter_test"><%= t('chapterTest') %></option>
+                                    <option value="lesson_test"><%= t('lessonTest') %></option>
+                                </optgroup>
+                                <optgroup label="<%= t('trainingAssessments') || 'Training Assessments' %>">
+                                    <option value="pre_training_assessment"><%= t('preTrainingAssessment') %></option>
+                                    <option value="post_training_assessment"><%= t('postTrainingAssessment') %></option>
+                                </optgroup>
+                                <optgroup label="<%= t('evaluationAssessments') || 'Evaluation Assessments' %>">
+                                    <option value="knowledge_check"><%= t('knowledgeCheck') %></option>
+                                    <option value="progress_assessment"><%= t('progressAssessment') %></option>
+                                    <option value="midcourse_assessment"><%= t('midcourseAssessment') %></option>
+                                    <option value="final_assessment"><%= t('finalAssessment') %></option>
+                                </optgroup>
+                                <optgroup label="<%= t('otherAssessments') || 'Other' %>">
+                                    <option value="assessment"><%= t('assessment') %></option>
+                                    <option value="practice_exercise"><%= t('practiceExercise') %></option>
+                                    <option value="certification_assessment"><%= t('certificationAssessment') %></option>
+                                </optgroup>
                             </select>
                         </div>
 
@@ -112,12 +122,12 @@
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 <h4 class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
                                     <i class="fas fa-clipboard-list mr-2"></i>
-                                    <%= t('courseAssessmentStructure') || 'Course Assessment Structure' %>
+                                    <%= t('courseAssessmentStructure') %>
                                 </h4>
                                 <div id="assessment-structure-content">
                                     <div class="text-center py-4">
                                         <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
-                                        <p class="text-sm text-gray-600 mt-2"><%= t('loading') || 'Loading...' %></p>
+                                        <p class="text-sm text-gray-600 mt-2"><%= t('loading') %></p>
                                     </div>
                                 </div>
                             </div>
@@ -125,23 +135,23 @@
 
                         <div>
                             <label for="chapter_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <%= t('selectChapter') %> <span class="text-gray-500 text-xs">(<%= t('selectCourseFirst') || 'เลือก Course ก่อน' %>)</span>
+                                <%= t('selectChapter') %> <span class="text-gray-500 text-xs">(<%= t('selectCourseFirst') %>)</span>
                             </label>
                             <select id="chapter_id" name="chapter_id" onchange="loadLessons()"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                     disabled>
-                                <option value=""><%= t('selectCourseToLoadChapters') || 'เลือก Course เพื่อโหลดบทเรียน' %></option>
+                                <option value=""><%= t('selectCourseToLoadChapters') %></option>
                             </select>
                         </div>
 
                         <div>
                             <label for="lesson_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <%= t('selectLesson') %> <span class="text-gray-500 text-xs">(<%= t('selectChapterFirst') || 'เลือกบทก่อน' %>)</span>
+                                <%= t('selectLesson') %> <span class="text-gray-500 text-xs">(<%= t('selectChapterFirst') %>)</span>
                             </label>
                             <select id="lesson_id" name="lesson_id"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
                                     disabled>
-                                <option value=""><%= t('selectChapterToLoadLessons') || 'เลือกบทเพื่อโหลดบทเรียน' %></option>
+                                <option value=""><%= t('selectChapterToLoadLessons') %></option>
                             </select>
                         </div>
 
@@ -152,6 +162,17 @@
                                 <option value="Easy"><%= t('easy') %></option>
                                 <option value="Medium" selected><%= t('medium') %></option>
                                 <option value="Hard"><%= t('hard') %></option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="language" class="block text-sm font-medium text-gray-700 mb-2"><%= t('teachingLanguageLabel') %> <span class="text-red-500">*</span></label>
+                            <select id="language" name="language" required
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <option value=""><%= t('selectLanguage') %></option>
+                                <option value="th"><%= t('thai') %></option>
+                                <option value="en"><%= t('english') %></option>
+                                <option value="th-en"><%= t('thaiEnglish') %></option>
                             </select>
                         </div>
 
@@ -539,7 +560,8 @@ let editingQuestionIndex = -1;
 let autoSaveTimer = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    loadCourses();
+    // Note: Courses are already loaded server-side via EJS template
+    // No need to call loadCourses() which would create duplicate options
     setupFormHandlers();
     initializeFirstQuestion();
     loadDraftFromStorage();
@@ -547,27 +569,124 @@ document.addEventListener('DOMContentLoaded', function() {
     setupBeforeUnloadWarning();
 });
 
-function loadCourses() {
-    // Load courses for selection
-    fetch('/courses/api/list')
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                const select = document.getElementById('course_id');
-                result.data.forEach(course => {
-                    const option = document.createElement('option');
-                    option.value = course.course_id;
-                    option.textContent = `${course.course_code} - ${course.course_name}`;
-                    select.appendChild(option);
-                });
-            }
-        })
-        .catch(error => console.error('Error loading courses:', error));
-}
-
 function handleCourseChange() {
     loadChapters();
     loadCourseAssessmentStructure();
+    updateRequiredFields();
+}
+
+// Handle test type change - enforce course/chapter selection for chapter_test/lesson_test
+function handleTestTypeChange() {
+    const testType = document.getElementById('test_type').value;
+    const courseSelect = document.getElementById('course_id');
+    const chapterSelect = document.getElementById('chapter_id');
+    const lessonSelect = document.getElementById('lesson_id');
+
+    const courseLabel = document.querySelector('label[for="course_id"]');
+    const chapterLabel = document.querySelector('label[for="chapter_id"]');
+    const lessonLabel = document.querySelector('label[for="lesson_id"]');
+
+    // Reset required indicators
+    const resetRequired = (label) => {
+        const requiredSpan = label.querySelector('.text-red-500');
+        if (requiredSpan) requiredSpan.remove();
+    };
+
+    const addRequired = (label) => {
+        if (!label.querySelector('.text-red-500')) {
+            const span = document.createElement('span');
+            span.className = 'text-red-500';
+            span.textContent = ' *';
+            label.appendChild(span);
+        }
+    };
+
+    // Reset all
+    resetRequired(courseLabel);
+    resetRequired(chapterLabel);
+    resetRequired(lessonLabel);
+    courseSelect.removeAttribute('required');
+    chapterSelect.removeAttribute('required');
+    lessonSelect.removeAttribute('required');
+
+    if (testType === 'chapter_test') {
+        // Chapter test requires course and chapter
+        addRequired(courseLabel);
+        addRequired(chapterLabel);
+        courseSelect.setAttribute('required', 'required');
+        chapterSelect.setAttribute('required', 'required');
+
+        // Show info message
+        showTestTypeInfo('chapterTestInfo');
+    } else if (testType === 'lesson_test') {
+        // Lesson test requires course, chapter, and lesson
+        addRequired(courseLabel);
+        addRequired(chapterLabel);
+        addRequired(lessonLabel);
+        courseSelect.setAttribute('required', 'required');
+        chapterSelect.setAttribute('required', 'required');
+        lessonSelect.setAttribute('required', 'required');
+
+        showTestTypeInfo('lessonTestInfo');
+    } else {
+        hideTestTypeInfo();
+    }
+
+    updateRequiredFields();
+}
+
+function showTestTypeInfo(infoType) {
+    // Remove existing info
+    hideTestTypeInfo();
+
+    const testTypeDiv = document.getElementById('test_type').parentElement;
+    const infoDiv = document.createElement('div');
+    infoDiv.id = 'test-type-info';
+    infoDiv.className = 'mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md';
+
+    if (infoType === 'chapterTestInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong><%= t('chapterTestNote') || 'Chapter Test' %>:</strong>
+                <%= t('chapterTestDescription') || 'This test will appear at the end of the selected chapter. Please select a course and chapter.' %>
+            </p>
+        `;
+    } else if (infoType === 'lessonTestInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                <strong><%= t('lessonTestNote') || 'Lesson Test' %>:</strong>
+                <%= t('lessonTestDescription') || 'This test will appear at the end of the selected lesson. Please select a course, chapter, and lesson.' %>
+            </p>
+        `;
+    }
+
+    testTypeDiv.appendChild(infoDiv);
+}
+
+function hideTestTypeInfo() {
+    const existingInfo = document.getElementById('test-type-info');
+    if (existingInfo) existingInfo.remove();
+}
+
+function updateRequiredFields() {
+    const testType = document.getElementById('test_type').value;
+    const chapterLabel = document.querySelector('label[for="chapter_id"]');
+    const lessonLabel = document.querySelector('label[for="lesson_id"]');
+
+    // Update label text based on test type
+    if (testType === 'chapter_test' || testType === 'lesson_test') {
+        chapterLabel.innerHTML = '<%= t("selectChapterRequired") || "Select Chapter" %> <span class="text-red-500">*</span>';
+        if (testType === 'lesson_test') {
+            lessonLabel.innerHTML = '<%= t("selectLessonRequired") || "Select Lesson" %> <span class="text-red-500">*</span>';
+        } else {
+            lessonLabel.innerHTML = '<%= t("selectLesson") %> <span class="text-gray-500 text-xs">(<%= t("selectChapterFirst") %>)</span>';
+        }
+    } else {
+        chapterLabel.innerHTML = '<%= t("selectChapter") %> <span class="text-gray-500 text-xs">(<%= t("selectCourseFirst") %>)</span>';
+        lessonLabel.innerHTML = '<%= t("selectLesson") %> <span class="text-gray-500 text-xs">(<%= t("selectChapterFirst") %>)</span>';
+    }
 }
 
 function loadCourseAssessmentStructure() {
@@ -585,7 +704,7 @@ function loadCourseAssessmentStructure() {
     contentDiv.innerHTML = `
         <div class="text-center py-4">
             <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
-            <p class="text-sm text-gray-600 mt-2"><%= t('loading') || 'Loading...' %></p>
+            <p class="text-sm text-gray-600 mt-2"><%= t('loading') %></p>
         </div>
     `;
 
@@ -599,7 +718,7 @@ function loadCourseAssessmentStructure() {
                 contentDiv.innerHTML = `
                     <div class="text-center py-4">
                         <i class="fas fa-exclamation-circle text-yellow-500 text-2xl"></i>
-                        <p class="text-sm text-gray-600 mt-2">${result.message || 'Failed to load tests'}</p>
+                        <p class="text-sm text-gray-600 mt-2">${result.message || '<%= t("failedToLoadTests") %>'}</p>
                     </div>
                 `;
             }
@@ -609,7 +728,7 @@ function loadCourseAssessmentStructure() {
             contentDiv.innerHTML = `
                 <div class="text-center py-4">
                     <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
-                    <p class="text-sm text-gray-600 mt-2">Error loading assessment structure</p>
+                    <p class="text-sm text-gray-600 mt-2"><%= t("failedToLoadTests") %></p>
                 </div>
             `;
         });
@@ -620,14 +739,14 @@ function displayAssessmentStructure(tests) {
 
     // Define all test types with their display info
     const testTypes = [
-        { key: 'pre_training_assessment', label: '<%= t("preTrainingAssessment") || "Pre-Training Assessment" %>', icon: 'fa-clipboard-check', color: 'blue' },
-        { key: 'knowledge_check', label: '<%= t("knowledgeCheck") || "Knowledge Check" %>', icon: 'fa-brain', color: 'purple' },
-        { key: 'progress_assessment', label: '<%= t("progressAssessment") || "Progress Assessment" %>', icon: 'fa-chart-line', color: 'indigo' },
-        { key: 'midcourse_assessment', label: '<%= t("midcourseAssessment") || "Midcourse Assessment" %>', icon: 'fa-clipboard-list', color: 'yellow' },
-        { key: 'final_assessment', label: '<%= t("finalAssessment") || "Final Assessment" %>', icon: 'fa-trophy', color: 'red', required: true },
-        { key: 'post_training_assessment', label: '<%= t("postTrainingAssessment") || "Post-Training Assessment" %>', icon: 'fa-clipboard-check', color: 'green' },
-        { key: 'certification_assessment', label: '<%= t("certificationAssessment") || "Certification Assessment" %>', icon: 'fa-certificate', color: 'yellow' },
-        { key: 'practice_exercise', label: '<%= t("practiceExercise") || "Practice Exercise" %>', icon: 'fa-pencil-alt', color: 'gray' }
+        { key: 'pre_training_assessment', label: '<%= t("preTrainingAssessment") %>', icon: 'fa-clipboard-check', color: 'blue' },
+        { key: 'knowledge_check', label: '<%= t("knowledgeCheck") %>', icon: 'fa-brain', color: 'purple' },
+        { key: 'progress_assessment', label: '<%= t("progressAssessment") %>', icon: 'fa-chart-line', color: 'indigo' },
+        { key: 'midcourse_assessment', label: '<%= t("midcourseAssessment") %>', icon: 'fa-clipboard-list', color: 'yellow' },
+        { key: 'final_assessment', label: '<%= t("finalAssessment") %>', icon: 'fa-trophy', color: 'red', required: true },
+        { key: 'post_training_assessment', label: '<%= t("postTrainingAssessment") %>', icon: 'fa-clipboard-check', color: 'green' },
+        { key: 'certification_assessment', label: '<%= t("certificationAssessment") %>', icon: 'fa-certificate', color: 'yellow' },
+        { key: 'practice_exercise', label: '<%= t("practiceExercise") %>', icon: 'fa-pencil-alt', color: 'gray' }
     ];
 
     // Group tests by type
@@ -667,7 +786,7 @@ function displayAssessmentStructure(tests) {
         html += `
             <div class="text-center py-3 bg-white rounded border border-gray-200">
                 <i class="fas fa-inbox text-gray-400 text-xl mb-2"></i>
-                <p class="text-sm text-gray-600"><%= t('noCourseTestsYet') || 'No tests created for this course yet' %></p>
+                <p class="text-sm text-gray-600"><%= t('noCourseTestsYet') %></p>
             </div>
         `;
     }
@@ -679,7 +798,7 @@ function displayAssessmentStructure(tests) {
             <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
                 <h5 class="text-xs font-semibold text-yellow-900 mb-2 flex items-center">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
-                    <%= t('missingRequiredTests') || 'Missing Required Tests' %>
+                    <%= t('missingRequiredTests') %>
                 </h5>
         `;
         missingRequired.forEach(type => {
@@ -700,7 +819,7 @@ function displayAssessmentStructure(tests) {
             <div class="mt-2">
                 <p class="text-xs font-medium text-gray-700 mb-2">
                     <i class="fas fa-lightbulb mr-1 text-yellow-500"></i>
-                    <%= t('suggestedTests') || 'Consider adding' %>:
+                    <%= t('suggestedTests') %>:
                 </p>
                 <div class="flex flex-wrap gap-2">
         `;
@@ -719,16 +838,20 @@ function displayAssessmentStructure(tests) {
     contentDiv.innerHTML = html;
 }
 
+// Track data source for chapters (chapters table or course_materials)
+let chaptersSource = 'chapters';
+
 function loadChapters() {
     const courseId = document.getElementById('course_id').value;
     const chapterSelect = document.getElementById('chapter_id');
     const lessonSelect = document.getElementById('lesson_id');
 
     // Reset chapters and lessons
-    chapterSelect.innerHTML = '<option value=""><%= t("selectCourseToLoadChapters") || "เลือก Course เพื่อโหลดบทเรียน" %></option>';
-    lessonSelect.innerHTML = '<option value=""><%= t("selectChapterToLoadLessons") || "เลือกบทเพื่อโหลดบทเรียน" %></option>';
+    chapterSelect.innerHTML = '<option value=""><%= t("selectCourseToLoadChapters") %></option>';
+    lessonSelect.innerHTML = '<option value=""><%= t("selectChapterToLoadLessons") %></option>';
     chapterSelect.disabled = true;
     lessonSelect.disabled = true;
+    chaptersSource = 'chapters';
 
     if (!courseId) {
         return;
@@ -739,16 +862,29 @@ function loadChapters() {
         .then(response => response.json())
         .then(result => {
             if (result.success && result.data.length > 0) {
-                chapterSelect.innerHTML = '<option value=""><%= t("noChapterSelected") || "ไม่ระบุบท" %></option>';
+                // Track the source type
+                chaptersSource = result.source || 'chapters';
+
+                chapterSelect.innerHTML = '<option value=""><%= t("noChapterSelected") %></option>';
                 chapterSelect.disabled = false;
+
                 result.data.forEach(chapter => {
                     const option = document.createElement('option');
                     option.value = chapter.chapter_id;
                     option.textContent = chapter.title;
+                    // Store source type in data attribute
+                    option.dataset.source = chaptersSource;
                     chapterSelect.appendChild(option);
                 });
+
+                // If source is materials, hide lesson select (materials don't have sub-lessons)
+                if (chaptersSource === 'materials') {
+                    lessonSelect.parentElement.style.display = 'none';
+                } else {
+                    lessonSelect.parentElement.style.display = '';
+                }
             } else {
-                chapterSelect.innerHTML = '<option value=""><%= t("noCourseChapters") || "Course นี้ยังไม่มีบท" %></option>';
+                chapterSelect.innerHTML = '<option value=""><%= t("noCourseChapters") %></option>';
             }
         })
         .catch(error => console.error('Error loading chapters:', error));
@@ -759,19 +895,25 @@ function loadLessons() {
     const lessonSelect = document.getElementById('lesson_id');
 
     // Reset lessons
-    lessonSelect.innerHTML = '<option value=""><%= t("selectChapterToLoadLessons") || "เลือกบทเพื่อโหลดบทเรียน" %></option>';
+    lessonSelect.innerHTML = '<option value=""><%= t("selectChapterToLoadLessons") %></option>';
     lessonSelect.disabled = true;
 
     if (!chapterId) {
         return;
     }
 
+    // If chapters came from materials, don't load lessons
+    if (chaptersSource === 'materials') {
+        lessonSelect.innerHTML = '<option value=""><%= t("noLessonsForMaterial") || "ไม่มีบทเรียนย่อย" %></option>';
+        return;
+    }
+
     // Load lessons for selected chapter
-    fetch(`/tests/api/chapters/${chapterId}/lessons`)
+    fetch(`/tests/api/chapters/${chapterId}/lessons?source=${chaptersSource}`)
         .then(response => response.json())
         .then(result => {
             if (result.success && result.data.length > 0) {
-                lessonSelect.innerHTML = '<option value=""><%= t("noLessonSelected") || "ไม่ระบุบทเรียน" %></option>';
+                lessonSelect.innerHTML = '<option value=""><%= t("noLessonSelected") %></option>';
                 lessonSelect.disabled = false;
                 result.data.forEach(lesson => {
                     const option = document.createElement('option');
@@ -780,7 +922,7 @@ function loadLessons() {
                     lessonSelect.appendChild(option);
                 });
             } else {
-                lessonSelect.innerHTML = '<option value=""><%= t("noChapterLessons") || "บทนี้ยังไม่มีบทเรียน" %></option>';
+                lessonSelect.innerHTML = '<option value=""><%= t("noChapterLessons") %></option>';
             }
         })
         .catch(error => console.error('Error loading lessons:', error));
@@ -961,6 +1103,33 @@ function restoreDraft(testDraft) {
         }
     });
 
+    // After restoring form data, trigger course change if course was selected
+    // This loads chapters/lessons dropdowns and shows course assessment structure
+    if (formData.course_id) {
+        handleCourseChange();
+
+        // If chapter_id was also saved, restore lessons after chapters load
+        if (formData.chapter_id) {
+            setTimeout(() => {
+                const chapterSelect = document.getElementById('chapter_id');
+                if (chapterSelect) {
+                    chapterSelect.value = formData.chapter_id;
+                    loadLessons();
+
+                    // If lesson_id was also saved, restore it after lessons load
+                    if (formData.lesson_id) {
+                        setTimeout(() => {
+                            const lessonSelect = document.getElementById('lesson_id');
+                            if (lessonSelect) {
+                                lessonSelect.value = formData.lesson_id;
+                            }
+                        }, 500);
+                    }
+                }
+            }, 500);
+        }
+    }
+
     // Restore questions
     questions = testDraft.questions || [];
     updateQuestionsDisplay();
@@ -985,6 +1154,7 @@ function collectFormData() {
         chapter_id: document.getElementById('chapter_id')?.value || '',
         lesson_id: document.getElementById('lesson_id')?.value || '',
         difficulty_level: document.getElementById('difficulty_level')?.value || '',
+        language: document.getElementById('language')?.value || '',
         time_limit: document.getElementById('time_limit')?.value || '',
         start_date: document.getElementById('start_date')?.value || '',
         end_date: document.getElementById('end_date')?.value || '',
@@ -1472,6 +1642,7 @@ async function submitTest() {
         type: formData.get('type'),
         course_id: formData.get('course_id') || null,
         difficulty_level: formData.get('difficulty_level'),
+        language: formData.get('language'),
         time_limit: formData.get('time_limit') ? parseInt(formData.get('time_limit')) : null,
         start_date: formData.get('start_date') || null,
         end_date: formData.get('end_date') || null,

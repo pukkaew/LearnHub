@@ -99,31 +99,34 @@
             background: white !important;
         }
 
-        /* Security warning overlay */
+        /* Security warning - now a toast notification instead of full overlay */
         .security-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(239, 68, 68, 0.9);
+            top: 20px;
+            right: 20px;
+            width: auto;
+            max-width: 400px;
+            padding: 16px 24px;
+            background: rgba(239, 68, 68, 0.95);
             z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             color: white;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 500;
+            pointer-events: none; /* Allow clicking through */
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Security Warning (hidden by default) -->
+    <!-- Security Warning Toast (hidden by default) -->
     <div id="security-warning" class="security-overlay hidden">
-        <div class="text-center">
-            <i class="fas fa-shield-alt text-6xl mb-4"></i>
-            <div class="text-2xl mb-2" id="security-warning-title"><%= typeof t === 'function' ? t('securityViolationDetected') : 'Security Violation Detected' %></div>
-            <div class="text-lg" id="security-warning-message"><%= typeof t === 'function' ? t('pleaseFollowExamRules') : 'Please follow exam rules' %></div>
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-triangle text-xl mr-3"></i>
+            <div>
+                <div class="font-semibold" id="security-warning-title"><%= typeof t === 'function' ? t('securityViolationDetected') : 'Security Violation Detected' %></div>
+                <div class="text-sm opacity-90" id="security-warning-message"><%= typeof t === 'function' ? t('pleaseFollowExamRules') : 'Please follow exam rules' %></div>
+            </div>
         </div>
     </div>
 
@@ -177,21 +180,25 @@
             return false;
         });
 
-        // Monitor tab switching
+        // Monitor tab switching - only warn after multiple times
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && isTestActive) {
                 tabSwitchCount++;
-                logSecurityViolation('tab_switch', `Tab switch #${tabSwitchCount}`);
-                showSecurityWarning(i18n.tabSwitchDetected);
+                // Only log to server, don't show warning for first few switches
+                if (tabSwitchCount >= 5) {
+                    logSecurityViolation('tab_switch', `Tab switch #${tabSwitchCount}`);
+                    showSecurityWarning(i18n.tabSwitchDetected);
+                }
             }
         });
 
-        // Monitor window blur (losing focus)
+        // Monitor window blur (losing focus) - disabled to reduce false positives
+        // This was too aggressive and triggered on normal interactions
         window.addEventListener('blur', function() {
             if (isTestActive) {
                 windowBlurCount++;
-                logSecurityViolation('window_blur', `Window blur #${windowBlurCount}`);
-                showSecurityWarning(i18n.windowBlurDetected);
+                // Only log for record keeping, don't show warning
+                // showSecurityWarning causes too many false positives
             }
         });
 

@@ -55,20 +55,30 @@ const materialProgressController = {
                     `);
             }
 
-            // Calculate and update overall course progress (only count required materials)
+            // Calculate and update overall course progress (count required materials + required tests)
             const progressResult = await pool.request()
                 .input('userId', sql.Int, userId)
                 .input('courseId', sql.Int, parseInt(course_id))
                 .query(`
                     SELECT
+                        -- Count required materials
                         (SELECT COUNT(*) FROM course_materials WHERE course_id = @courseId AND is_required = 1) as total_materials,
                         (SELECT COUNT(*) FROM user_material_progress ump
                          INNER JOIN course_materials cm ON ump.material_id = cm.material_id
-                         WHERE ump.user_id = @userId AND ump.course_id = @courseId AND ump.is_completed = 1 AND cm.is_required = 1) as completed_materials
+                         WHERE ump.user_id = @userId AND ump.course_id = @courseId AND ump.is_completed = 1 AND cm.is_required = 1) as completed_materials,
+                        -- Count required tests
+                        (SELECT COUNT(*) FROM tests WHERE course_id = @courseId AND is_required = 1) as total_tests,
+                        (SELECT COUNT(DISTINCT ta.test_id) FROM TestAttempts ta
+                         INNER JOIN tests t ON ta.test_id = t.test_id
+                         WHERE ta.user_id = @userId AND t.course_id = @courseId AND t.is_required = 1
+                         AND ta.status = 'Completed'
+                         AND (t.is_passing_required = 0 OR ta.passed = 1)) as completed_tests
                 `);
 
-            const { total_materials, completed_materials } = progressResult.recordset[0];
-            const progressPercentage = total_materials > 0 ? Math.round((completed_materials / total_materials) * 100) : 0;
+            const { total_materials, completed_materials, total_tests, completed_tests } = progressResult.recordset[0];
+            const totalItems = (total_materials || 0) + (total_tests || 0);
+            const completedItems = (completed_materials || 0) + (completed_tests || 0);
+            const progressPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
             // Update enrollment progress
             await pool.request()
@@ -89,8 +99,12 @@ const materialProgressController = {
                 message: req.t ? req.t('materialMarkedComplete') : 'Material marked as complete',
                 data: {
                     progress_percentage: progressPercentage,
-                    completed_materials,
-                    total_materials
+                    completed_materials: completedItems,
+                    total_materials: totalItems,
+                    breakdown: {
+                        materials: { completed: completed_materials || 0, total: total_materials || 0 },
+                        tests: { completed: completed_tests || 0, total: total_tests || 0 }
+                    }
                 }
             });
         } catch (error) {
@@ -133,6 +147,71 @@ const materialProgressController = {
             const userId = req.user.user_id;
             const pool = await poolPromise;
 
+            // Check if this is a test (material_id starts with 'test_')
+            if (material_id && material_id.toString().startsWith('test_')) {
+                const testId = parseInt(material_id.replace('test_', ''));
+
+                // Get test attempts for this user
+                const testResult = await pool.request()
+                    .input('userId', sql.Int, userId)
+                    .input('testId', sql.Int, testId)
+                    .query(`
+                        SELECT TOP 1 ta.*, t.passing_marks, t.total_marks, t.title
+                        FROM TestAttempts ta
+                        JOIN tests t ON ta.test_id = t.test_id
+                        WHERE ta.user_id = @userId AND ta.test_id = @testId
+                        ORDER BY ta.completed_at DESC
+                    `);
+
+                if (testResult.recordset.length === 0) {
+                    return res.json({
+                        success: true,
+                        data: {
+                            is_completed: false,
+                            passed: false,
+                            score: null,
+                            percentage: null,
+                            canComplete: false,
+                            requirements: {
+                                test: {
+                                    required: true,
+                                    completed: false,
+                                    passed: false
+                                }
+                            }
+                        }
+                    });
+                }
+
+                const attempt = testResult.recordset[0];
+                const isCompleted = attempt.status === 'Completed';
+                const isPassed = attempt.passed === true || attempt.passed === 1;
+
+                return res.json({
+                    success: true,
+                    data: {
+                        is_completed: isCompleted,
+                        passed: isPassed,
+                        score: attempt.score,
+                        percentage: attempt.percentage,
+                        completed_at: attempt.completed_at,
+                        total_marks: attempt.total_marks,
+                        passing_marks: attempt.passing_marks,
+                        canComplete: isCompleted,
+                        requirements: {
+                            test: {
+                                required: true,
+                                completed: isCompleted,
+                                passed: isPassed,
+                                score: attempt.score,
+                                percentage: attempt.percentage
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Regular material progress
             const result = await pool.request()
                 .input('userId', sql.Int, userId)
                 .input('courseId', sql.Int, parseInt(course_id))

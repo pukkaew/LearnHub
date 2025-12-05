@@ -1,5 +1,4 @@
 const { poolPromise, sql } = require('../config/database');
-const { v4: uuidv4 } = require('uuid');
 
 class Question {
     constructor(data) {
@@ -23,16 +22,15 @@ class Question {
     static async create(questionData) {
         try {
             const pool = await poolPromise;
-            const questionId = uuidv4();
 
+            // question_id is IDENTITY - let DB generate it
             const result = await pool.request()
-                .input('questionId', sql.Int, questionId)
                 .input('bankId', sql.Int, questionData.bank_id || null)
                 .input('testId', sql.Int, questionData.test_id || null)
                 .input('questionType', sql.NVarChar(20), questionData.question_type)
                 .input('questionText', sql.NVarChar(sql.MAX), questionData.question_text)
                 .input('questionImage', sql.NVarChar(500), questionData.question_image || null)
-                .input('points', sql.Decimal(5, 2), questionData.points)
+                .input('points', sql.Decimal(5, 2), questionData.points || 1)
                 .input('difficultyLevel', sql.Int, questionData.difficulty_level || 3)
                 .input('timeEstimate', sql.Int, questionData.time_estimate_seconds || 60)
                 .input('explanation', sql.NVarChar(sql.MAX), questionData.explanation || null)
@@ -40,35 +38,39 @@ class Question {
                 .input('createdBy', sql.Int, questionData.created_by)
                 .query(`
                     INSERT INTO Questions (
-                        question_id, bank_id, test_id, question_type, question_text,
+                        bank_id, test_id, question_type, question_text,
                         question_image, points, difficulty_level, time_estimate_seconds,
                         explanation, tags, usage_count, correct_count, is_active,
                         created_by, created_date, version
-                    ) VALUES (
-                        @questionId, @bankId, @testId, @questionType, @questionText,
+                    )
+                    OUTPUT INSERTED.question_id
+                    VALUES (
+                        @bankId, @testId, @questionType, @questionText,
                         @questionImage, @points, @difficultyLevel, @timeEstimate,
                         @explanation, @tags, 0, 0, 1,
                         @createdBy, GETDATE(), 1
                     )
                 `);
 
+            const questionId = result.recordset[0].question_id;
+
             // Add options if provided (for multiple choice)
             if (questionData.options && questionData.options.length > 0) {
                 for (let i = 0; i < questionData.options.length; i++) {
                     const option = questionData.options[i];
+                    // option_id is IDENTITY - let DB generate it
                     await pool.request()
-                        .input('optionId', sql.Int, uuidv4())
                         .input('questionId', sql.Int, questionId)
-                        .input('optionText', sql.NVarChar(500), option.text)
-                        .input('optionImage', sql.NVarChar(500), option.image || null)
+                        .input('optionText', sql.NVarChar(500), option.text || option.option_text)
+                        .input('optionImage', sql.NVarChar(500), option.image || option.option_image || null)
                         .input('isCorrect', sql.Bit, option.is_correct || false)
                         .input('optionOrder', sql.Int, i + 1)
                         .query(`
                             INSERT INTO QuestionOptions (
-                                option_id, question_id, option_text, option_image,
+                                question_id, option_text, option_image,
                                 is_correct, option_order, created_date
                             ) VALUES (
-                                @optionId, @questionId, @optionText, @optionImage,
+                                @questionId, @optionText, @optionImage,
                                 @isCorrect, @optionOrder, GETDATE()
                             )
                         `);
@@ -259,22 +261,21 @@ class Question {
                     .input('questionId', sql.Int, questionId)
                     .query('DELETE FROM QuestionOptions WHERE question_id = @questionId');
 
-                // Add new options
+                // Add new options (option_id is IDENTITY - let DB generate)
                 for (let i = 0; i < updateData.options.length; i++) {
                     const option = updateData.options[i];
                     await pool.request()
-                        .input('optionId', sql.Int, uuidv4())
                         .input('questionId', sql.Int, questionId)
-                        .input('optionText', sql.NVarChar(500), option.text)
-                        .input('optionImage', sql.NVarChar(500), option.image || null)
+                        .input('optionText', sql.NVarChar(500), option.text || option.option_text)
+                        .input('optionImage', sql.NVarChar(500), option.image || option.option_image || null)
                         .input('isCorrect', sql.Bit, option.is_correct || false)
                         .input('optionOrder', sql.Int, i + 1)
                         .query(`
                             INSERT INTO QuestionOptions (
-                                option_id, question_id, option_text, option_image,
+                                question_id, option_text, option_image,
                                 is_correct, option_order, created_date
                             ) VALUES (
-                                @optionId, @questionId, @optionText, @optionImage,
+                                @questionId, @optionText, @optionImage,
                                 @isCorrect, @optionOrder, GETDATE()
                             )
                         `);
@@ -301,10 +302,8 @@ class Question {
                 return { success: false, message: 'Original question not found' };
             }
 
-            // Create new question
-            const newQuestionId = uuidv4();
-            await pool.request()
-                .input('questionId', sql.Int, newQuestionId)
+            // Create new question (question_id is IDENTITY - let DB generate)
+            const result = await pool.request()
                 .input('bankId', sql.Int, targetBankId)
                 .input('testId', sql.Int, targetTestId)
                 .input('questionType', sql.NVarChar(20), original.question_type)
@@ -318,23 +317,26 @@ class Question {
                 .input('createdBy', sql.Int, createdBy)
                 .query(`
                     INSERT INTO Questions (
-                        question_id, bank_id, test_id, question_type, question_text,
+                        bank_id, test_id, question_type, question_text,
                         question_image, points, difficulty_level, time_estimate_seconds,
                         explanation, tags, usage_count, correct_count, is_active,
                         created_by, created_date, version
-                    ) VALUES (
-                        @questionId, @bankId, @testId, @questionType, @questionText,
+                    )
+                    OUTPUT INSERTED.question_id
+                    VALUES (
+                        @bankId, @testId, @questionType, @questionText,
                         @questionImage, @points, @difficultyLevel, @timeEstimate,
                         @explanation, @tags, 0, 0, 1,
                         @createdBy, GETDATE(), 1
                     )
                 `);
 
-            // Clone options if they exist
+            const newQuestionId = result.recordset[0].question_id;
+
+            // Clone options if they exist (option_id is IDENTITY - let DB generate)
             if (original.options && original.options.length > 0) {
                 for (const option of original.options) {
                     await pool.request()
-                        .input('optionId', sql.Int, uuidv4())
                         .input('questionId', sql.Int, newQuestionId)
                         .input('optionText', sql.NVarChar(500), option.option_text)
                         .input('optionImage', sql.NVarChar(500), option.option_image)
@@ -342,10 +344,10 @@ class Question {
                         .input('optionOrder', sql.Int, option.option_order)
                         .query(`
                             INSERT INTO QuestionOptions (
-                                option_id, question_id, option_text, option_image,
+                                question_id, option_text, option_image,
                                 is_correct, option_order, created_date
                             ) VALUES (
-                                @optionId, @questionId, @optionText, @optionImage,
+                                @questionId, @optionText, @optionImage,
                                 @isCorrect, @optionOrder, GETDATE()
                             )
                         `);
@@ -379,10 +381,8 @@ class Question {
                         continue;
                     }
 
-                    // Create question
-                    const questionId = uuidv4();
-                    await pool.request()
-                        .input('questionId', sql.Int, questionId)
+                    // Create question (question_id is IDENTITY - let DB generate)
+                    const result = await pool.request()
                         .input('bankId', sql.Int, bankId)
                         .input('questionType', sql.NVarChar(20), questionData.question_type.toUpperCase())
                         .input('questionText', sql.NVarChar(sql.MAX), questionData.question_text)
@@ -393,18 +393,22 @@ class Question {
                         .input('createdBy', sql.Int, createdBy)
                         .query(`
                             INSERT INTO Questions (
-                                question_id, bank_id, question_type, question_text,
+                                bank_id, question_type, question_text,
                                 points, difficulty_level, explanation, tags,
                                 usage_count, correct_count, is_active,
                                 created_by, created_date, version
-                            ) VALUES (
-                                @questionId, @bankId, @questionType, @questionText,
+                            )
+                            OUTPUT INSERTED.question_id
+                            VALUES (
+                                @bankId, @questionType, @questionText,
                                 @points, @difficultyLevel, @explanation, @tags,
                                 0, 0, 1, @createdBy, GETDATE(), 1
                             )
                         `);
 
-                    // Add options for multiple choice questions
+                    const questionId = result.recordset[0].question_id;
+
+                    // Add options for multiple choice questions (option_id is IDENTITY)
                     if (questionData.question_type.toUpperCase() === 'MULTIPLE_CHOICE') {
                         const options = [];
                         for (let i = 1; i <= 6; i++) {
@@ -421,17 +425,16 @@ class Question {
 
                         for (let i = 0; i < options.length; i++) {
                             await pool.request()
-                                .input('optionId', sql.Int, uuidv4())
                                 .input('questionId', sql.Int, questionId)
                                 .input('optionText', sql.NVarChar(500), options[i].text)
                                 .input('isCorrect', sql.Bit, options[i].is_correct)
                                 .input('optionOrder', sql.Int, i + 1)
                                 .query(`
                                     INSERT INTO QuestionOptions (
-                                        option_id, question_id, option_text,
+                                        question_id, option_text,
                                         is_correct, option_order, created_date
                                     ) VALUES (
-                                        @optionId, @questionId, @optionText,
+                                        @questionId, @optionText,
                                         @isCorrect, @optionOrder, GETDATE()
                                     )
                                 `);
@@ -577,6 +580,63 @@ class Question {
         } catch (error) {
             throw new Error(`Error getting questions by difficulty: ${error.message}`);
         }
+    }
+
+    // Find questions by test ID
+    static async findByTestId(testId, options = {}) {
+        try {
+            const { randomizeQuestions = false, randomizeOptions = false } = options;
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('testId', sql.Int, parseInt(testId))
+                .query(`
+                    SELECT q.*,
+                           CONCAT(u.first_name, ' ', u.last_name) as creator_name
+                    FROM Questions q
+                    LEFT JOIN Users u ON q.created_by = u.user_id
+                    WHERE q.test_id = @testId AND q.is_active = 1
+                    ORDER BY q.question_id
+                `);
+
+            // Get options for each question
+            let questions = result.recordset;
+            for (let question of questions) {
+                const optionsResult = await pool.request()
+                    .input('questionId', sql.Int, question.question_id)
+                    .query(`
+                        SELECT * FROM QuestionOptions
+                        WHERE question_id = @questionId
+                        ORDER BY option_order
+                    `);
+                let questionOptions = optionsResult.recordset;
+
+                // Randomize options if enabled and question is multiple choice
+                if (randomizeOptions && question.question_type === 'multiple_choice') {
+                    questionOptions = Question.shuffleArray(questionOptions);
+                }
+                question.options = questionOptions;
+            }
+
+            // Randomize questions if enabled
+            if (randomizeQuestions) {
+                questions = Question.shuffleArray(questions);
+            }
+
+            return questions;
+        } catch (error) {
+            console.error('Error finding questions by test ID:', error);
+            throw new Error(`Error finding questions by test ID: ${error.message}`);
+        }
+    }
+
+    // Helper function to shuffle array (Fisher-Yates algorithm)
+    static shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
     }
 }
 

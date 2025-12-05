@@ -226,7 +226,8 @@ async function loadTestData() {
         const result = await response.json();
 
         if (result.success) {
-            testData = result.data;
+            // API returns { data: { test: {...}, questions: [...] } }
+            testData = result.data.test || result.data;
             displayTestInfo();
         } else {
             showError(i18n.testNotFound);
@@ -237,14 +238,26 @@ async function loadTestData() {
 }
 
 function displayTestInfo() {
-    document.getElementById('test-title').textContent = testData.test_name;
-    document.getElementById('test-code').textContent = `${i18n.testCodeLabel}: ${testData.test_code}`;
+    // Map field names: API returns title, passing_marks, attempts_allowed
+    const testName = testData.title || testData.test_name || '';
+    const testCode = testData.test_code || `TEST-${testData.test_id}`;
+    const passingScore = testData.passing_marks || testData.passing_score || 70;
+    const maxAttempts = testData.attempts_allowed || testData.max_attempts || 1;
+    const difficultyLevel = testData.difficulty_level || testData.type || 'Medium';
+
+    document.getElementById('test-title').textContent = testName;
+    document.getElementById('test-code').textContent = `${i18n.testCodeLabel}: ${testCode}`;
     document.getElementById('test-description').textContent = testData.description || '';
     document.getElementById('question-count').textContent = testData.question_count || 0;
     document.getElementById('time-limit').textContent = testData.time_limit ? `${testData.time_limit} ${i18n.minutes}` : i18n.unlimited;
-    document.getElementById('passing-score').textContent = `${testData.passing_score || 70}%`;
-    document.getElementById('difficulty').textContent = getDifficultyText(testData.difficulty_level);
-    document.getElementById('attempt-limit').innerHTML = `${i18n.attemptLimitLabel} <span class="font-medium">${testData.max_attempts || 1}</span>`;
+    document.getElementById('passing-score').textContent = `${passingScore}%`;
+    document.getElementById('difficulty').textContent = getDifficultyText(difficultyLevel);
+    document.getElementById('attempt-limit').innerHTML = `${i18n.attemptLimitLabel} <span class="font-medium">${maxAttempts}</span>`;
+
+    // Store mapped values for later use
+    testData.test_name = testName;
+    testData.passing_score = passingScore;
+    testData.max_attempts = maxAttempts;
 
     // Instructions
     document.getElementById('test-instructions').innerHTML = testData.instructions || i18n.noAdditionalInstructions;
@@ -253,7 +266,7 @@ function displayTestInfo() {
     updateStatusBadge(testData.status);
 
     // Camera requirement
-    if (testData.require_camera) {
+    if (testData.require_camera || testData.proctoring_enabled) {
         document.getElementById('camera-required').classList.remove('hidden');
     }
 
@@ -383,8 +396,8 @@ async function loadTestStatistics() {
 function updateStartButton() {
     const btn = document.getElementById('start-test-btn');
 
-    // Check if test is available
-    if (testData.status !== 'Published') {
+    // Check if test is available (accept both 'Active' and 'Published')
+    if (testData.status !== 'Published' && testData.status !== 'Active') {
         btn.disabled = true;
         btn.innerHTML = `<i class="fas fa-lock mr-2"></i>${i18n.testNotActive}`;
         btn.className = btn.className.replace('ruxchai-gradient', 'bg-gray-400');

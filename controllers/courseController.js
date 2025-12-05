@@ -1914,7 +1914,108 @@ const courseController = {
                 };
             });
 
-            res.json({ success: true, data: materials });
+            // Also load tests linked to this course
+            const testsResult = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT test_id, title, description, type, time_limit,
+                           total_marks, passing_marks, status, chapter_id, lesson_id
+                    FROM tests
+                    WHERE course_id = @courseId
+                      AND status IN ('Active', 'Published')
+                    ORDER BY test_id
+                `);
+
+            // Get user's test attempts for progress tracking
+            let testProgress = {};
+            if (userId) {
+                const testAttemptsResult = await pool.request()
+                    .input('userId', sql.Int, userId)
+                    .input('courseId', sql.Int, parseInt(course_id))
+                    .query(`
+                        SELECT ta.test_id, ta.status, ta.score, ta.percentage, ta.passed,
+                               ta.completed_at, t.passing_marks
+                        FROM TestAttempts ta
+                        JOIN tests t ON ta.test_id = t.test_id
+                        WHERE ta.user_id = @userId AND t.course_id = @courseId
+                        ORDER BY ta.completed_at DESC
+                    `);
+
+                // Create a map of test_id -> best attempt progress
+                testAttemptsResult.recordset.forEach(attempt => {
+                    if (!testProgress[attempt.test_id]) {
+                        testProgress[attempt.test_id] = {
+                            is_completed: attempt.status === 'Completed',
+                            passed: attempt.passed === true || attempt.passed === 1,
+                            score: attempt.score,
+                            percentage: attempt.percentage,
+                            completed_at: attempt.completed_at
+                        };
+                    }
+                });
+            }
+
+            // Convert tests to material format with smart ordering
+            const testMaterials = testsResult.recordset.map((test, index) => {
+                const progress = testProgress[test.test_id] || {};
+
+                // Calculate order_index based on test type and chapter/lesson association
+                let orderIndex = 1000 + index; // Default: put at end
+
+                // For chapter_test or lesson_test, calculate order to appear after the chapter/lesson content
+                if (test.type === 'chapter_test' && test.chapter_id) {
+                    // Find the max order_index of materials in this chapter + 1
+                    const chapterMaterials = materials.filter(m => m.chapter_id === test.chapter_id);
+                    if (chapterMaterials.length > 0) {
+                        orderIndex = Math.max(...chapterMaterials.map(m => m.order_index || 0)) + 1;
+                    }
+                } else if (test.type === 'lesson_test' && test.lesson_id) {
+                    // Find the max order_index of materials in this lesson + 1
+                    const lessonMaterials = materials.filter(m => m.lesson_id === test.lesson_id);
+                    if (lessonMaterials.length > 0) {
+                        orderIndex = Math.max(...lessonMaterials.map(m => m.order_index || 0)) + 1;
+                    }
+                }
+
+                return {
+                    material_id: `test_${test.test_id}`,
+                    test_id: test.test_id,
+                    quiz_id: test.test_id,
+                    title: test.title,
+                    description: test.description || '',
+                    material_type: 'quiz',
+                    file_type: 'quiz',
+                    type: 'quiz',
+                    order_index: orderIndex,
+                    duration: test.time_limit ? `${test.time_limit} นาที` : '',
+                    total_marks: test.total_marks,
+                    passing_marks: test.passing_marks,
+                    test_type: test.type,
+                    is_completed: progress.is_completed || false,
+                    passed: progress.passed || false,
+                    score: progress.score || null,
+                    percentage: progress.percentage || null,
+                    completed_at: progress.completed_at || null,
+                    chapter_id: test.chapter_id,
+                    lesson_id: test.lesson_id
+                };
+            });
+
+            // Combine materials and tests, then sort by order_index
+            const allMaterials = [...materials, ...testMaterials].sort((a, b) => {
+                // Group by chapter first
+                if (a.chapter_id !== b.chapter_id) {
+                    return (a.chapter_id || 9999) - (b.chapter_id || 9999);
+                }
+                // Then by lesson
+                if (a.lesson_id !== b.lesson_id) {
+                    return (a.lesson_id || 9999) - (b.lesson_id || 9999);
+                }
+                // Then by order_index
+                return (a.order_index || 0) - (b.order_index || 0);
+            });
+
+            res.json({ success: true, data: allMaterials });
         } catch (error) {
             console.error('Get materials error:', error);
             res.status(500).json({ success: false, message: error.message });

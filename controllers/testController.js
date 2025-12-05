@@ -4,8 +4,188 @@ const TestBank = require('../models/TestBank');
 const ActivityLog = require('../models/ActivityLog');
 const Chapter = require('../models/Chapter');
 const Lesson = require('../models/Lesson');
+const { poolPromise, sql } = require('../config/database');
+
+// Helper function to update course progress after test submission
+async function updateCourseProgressAfterTest(userId, courseId) {
+    try {
+        if (!courseId) return; // Test might not be linked to a course
+
+        const pool = await poolPromise;
+
+        // Calculate progress including materials and tests
+        const progressResult = await pool.request()
+            .input('userId', sql.Int, userId)
+            .input('courseId', sql.Int, courseId)
+            .query(`
+                SELECT
+                    -- Count required materials
+                    (SELECT COUNT(*) FROM course_materials WHERE course_id = @courseId AND is_required = 1) as total_materials,
+                    (SELECT COUNT(*) FROM user_material_progress ump
+                     INNER JOIN course_materials cm ON ump.material_id = cm.material_id
+                     WHERE ump.user_id = @userId AND ump.course_id = @courseId AND ump.is_completed = 1 AND cm.is_required = 1) as completed_materials,
+                    -- Count required tests
+                    (SELECT COUNT(*) FROM tests WHERE course_id = @courseId AND is_required = 1) as total_tests,
+                    (SELECT COUNT(DISTINCT ta.test_id) FROM TestAttempts ta
+                     INNER JOIN tests t ON ta.test_id = t.test_id
+                     WHERE ta.user_id = @userId AND t.course_id = @courseId AND t.is_required = 1
+                     AND ta.status = 'Completed'
+                     AND (t.is_passing_required = 0 OR ta.passed = 1)) as completed_tests
+            `);
+
+        const { total_materials, completed_materials, total_tests, completed_tests } = progressResult.recordset[0];
+        const totalItems = (total_materials || 0) + (total_tests || 0);
+        const completedItems = (completed_materials || 0) + (completed_tests || 0);
+        const progressPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+        // Update enrollment progress
+        await pool.request()
+            .input('userId', sql.Int, userId)
+            .input('courseId', sql.Int, courseId)
+            .input('progress', sql.Decimal(5, 2), progressPercentage)
+            .query(`
+                UPDATE user_courses
+                SET progress = @progress,
+                    status = CASE WHEN @progress >= 100 THEN 'completed' ELSE 'active' END,
+                    completion_date = CASE WHEN @progress >= 100 AND completion_date IS NULL THEN GETDATE() ELSE completion_date END,
+                    last_access_date = GETDATE()
+                WHERE user_id = @userId AND course_id = @courseId
+            `);
+
+        console.log(`Updated course progress for user ${userId} course ${courseId}: ${progressPercentage}%`);
+    } catch (error) {
+        console.error('Error updating course progress after test:', error);
+        // Don't throw - this is a side effect and shouldn't fail the main operation
+    }
+}
 
 const testController = {
+    // Get test statistics for index page
+    async getTestStats(req, res) {
+        try {
+            const pool = await poolPromise;
+            const userId = req.user.user_id;
+
+            const result = await pool.request()
+                .input('userId', sql.Int, userId)
+                .query(`
+                    SELECT
+                        (SELECT COUNT(*) FROM tests WHERE status IN ('Active', 'Published')) as total_tests,
+                        (SELECT COUNT(DISTINCT ta.test_id) FROM TestAttempts ta WHERE ta.user_id = @userId) as tests_taken,
+                        (SELECT COUNT(DISTINCT ta.test_id) FROM TestAttempts ta WHERE ta.user_id = @userId AND ta.passed = 1) as tests_passed,
+                        (SELECT AVG(CAST(ta.percentage AS FLOAT)) FROM TestAttempts ta WHERE ta.user_id = @userId AND ta.status = 'Completed') as avg_score
+                `);
+
+            res.json({
+                success: true,
+                data: result.recordset[0]
+            });
+        } catch (error) {
+            console.error('Get test stats error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorLoadingStats') : 'Error loading stats'
+            });
+        }
+    },
+
+    // Get test list for index page with tabs support
+    async getTestList(req, res) {
+        try {
+            const pool = await poolPromise;
+            const userId = req.user.user_id;
+            const { page = 1, limit = 12, tab = 'all', search, category } = req.query;
+            const offset = (parseInt(page) - 1) * parseInt(limit);
+
+            let whereClause = "WHERE t.status IN ('Active', 'Published')";
+            const request = pool.request()
+                .input('userId', sql.Int, userId)
+                .input('offset', sql.Int, offset)
+                .input('limit', sql.Int, parseInt(limit));
+
+            // Filter by tab
+            if (tab === 'my-tests') {
+                whereClause += ' AND EXISTS (SELECT 1 FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId)';
+            } else if (tab === 'created') {
+                whereClause += ' AND t.instructor_id = @userId';
+            }
+
+            // Filter by search
+            if (search) {
+                whereClause += ' AND (t.title LIKE @search OR t.description LIKE @search)';
+                request.input('search', sql.NVarChar, `%${search}%`);
+            }
+
+            // Filter by category/type
+            if (category) {
+                whereClause += ' AND t.type = @category';
+                request.input('category', sql.NVarChar, category);
+            }
+
+            // Get total count
+            const countResult = await request.query(`
+                SELECT COUNT(*) as total FROM tests t ${whereClause}
+            `);
+
+            // Get tests
+            const result = await request.query(`
+                SELECT t.*,
+                       c.title as course_name,
+                       (SELECT COUNT(*) FROM questions WHERE test_id = t.test_id) as question_count,
+                       (SELECT TOP 1 ta.status FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId ORDER BY ta.started_at DESC) as user_status,
+                       (SELECT TOP 1 ta.percentage FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId ORDER BY ta.started_at DESC) as user_score
+                FROM tests t
+                LEFT JOIN courses c ON t.course_id = c.course_id
+                ${whereClause}
+                ORDER BY t.created_at DESC
+                OFFSET @offset ROWS
+                FETCH NEXT @limit ROWS ONLY
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset,
+                pagination: {
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    total: countResult.recordset[0].total
+                }
+            });
+        } catch (error) {
+            console.error('Get test list error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorLoadingTestList') : 'Error loading test list'
+            });
+        }
+    },
+
+    // Get test categories/types for filter
+    async getTestCategories(req, res) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT DISTINCT type as category, COUNT(*) as count
+                FROM tests
+                WHERE status IN ('Active', 'Published')
+                GROUP BY type
+                ORDER BY count DESC
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+        } catch (error) {
+            console.error('Get test categories error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorLoadingCategories') : 'Error loading categories'
+            });
+        }
+    },
+
     async getAllTests(req, res) {
         try {
             const {
@@ -54,10 +234,18 @@ const testController = {
     async getTestById(req, res) {
         try {
             const { test_id } = req.params;
+            const testIdInt = parseInt(test_id);
             const userId = req.user.user_id;
             const userRole = req.user.role_name;
 
-            const test = await Test.findById(test_id);
+            if (isNaN(testIdInt)) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('invalidTestId')
+                });
+            }
+
+            const test = await Test.findById(testIdInt);
             if (!test) {
                 return res.status(404).json({
                     success: false,
@@ -72,13 +260,13 @@ const testController = {
                 });
             }
 
-            const questions = await Question.findByTestId(test_id);
+            const questions = await Question.findByTestId(testIdInt);
 
             await ActivityLog.create({
                 user_id: userId,
                 action: 'View_Test',
                 table_name: 'tests',
-                record_id: test_id,
+                record_id: testIdInt,
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
@@ -155,23 +343,79 @@ const testController = {
                 return res.status(400).json(result);
             }
 
+            const testId = result.data.test_id;
+            let totalMarks = 0;
+
+            // Create questions if provided
+            if (req.body.questions && Array.isArray(req.body.questions)) {
+                for (let i = 0; i < req.body.questions.length; i++) {
+                    const q = req.body.questions[i];
+
+                    const questionData = {
+                        test_id: testId,
+                        question_type: q.question_type,
+                        question_text: q.question_text,
+                        points: q.points || 1,
+                        explanation: q.explanation || null,
+                        created_by: userId,
+                        order_index: i + 1
+                    };
+
+                    // Add options for multiple choice
+                    if (q.question_type === 'multiple_choice' && q.options) {
+                        questionData.options = q.options.map(opt => ({
+                            text: opt.text,
+                            is_correct: opt.is_correct
+                        }));
+                    }
+
+                    // Add correct answer for true/false
+                    if (q.question_type === 'true_false') {
+                        questionData.correct_answer = q.correct_answer;
+                    }
+
+                    // Add sample answer for essay
+                    if (q.question_type === 'essay') {
+                        questionData.sample_answer = q.sample_answer;
+                    }
+
+                    // Add correct answers for fill_blank
+                    if (q.question_type === 'fill_blank') {
+                        questionData.correct_answers = q.correct_answers;
+                    }
+
+                    try {
+                        await Question.create(questionData);
+                        totalMarks += (q.points || 1);
+                    } catch (questionError) {
+                        console.error(`Error creating question ${i + 1}:`, questionError);
+                        // Continue with other questions even if one fails
+                    }
+                }
+
+                // Update test total_marks
+                if (totalMarks > 0) {
+                    await Test.update(testId, { total_marks: totalMarks });
+                }
+            }
+
             await ActivityLog.logDataChange(
                 userId,
                 'Create',
                 'tests',
-                result.data.test_id,
+                testId,
                 null,
                 testData,
                 req.ip,
                 req.get('User-Agent'),
                 req.sessionID,
-                `Created test: ${testData.title}`
+                `Created test: ${testData.title} with ${req.body.questions?.length || 0} questions`
             );
 
             res.status(201).json({
                 success: true,
                 message: req.t('testCreatedSuccess'),
-                data: result.data
+                data: { ...result.data, questions_created: req.body.questions?.length || 0 }
             });
 
         } catch (error) {
@@ -334,7 +578,8 @@ const testController = {
                 });
             }
 
-            if (test.status !== 'Active') {
+            // Accept both 'Active' and 'Published' status
+            if (test.status !== 'Active' && test.status !== 'Published') {
                 return res.status(400).json({
                     success: false,
                     message: req.t('testNotActive')
@@ -452,6 +697,11 @@ const testController = {
                 module: 'Assessment'
             });
 
+            // Update course progress if test is linked to a course
+            if (test.course_id) {
+                await updateCourseProgressAfterTest(userId, test.course_id);
+            }
+
             res.json({
                 success: true,
                 message: req.t('testSubmitSuccess'),
@@ -463,6 +713,132 @@ const testController = {
             res.status(500).json({
                 success: false,
                 message: req.t('errorSubmittingTest')
+            });
+        }
+    },
+
+    async getMyAttempts(req, res) {
+        try {
+            const { test_id } = req.params;
+            const testIdInt = parseInt(test_id);
+            const userId = req.user.user_id;
+
+            if (isNaN(testIdInt)) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('invalidTestId')
+                });
+            }
+
+            const attempts = await Test.getUserAttempts(testIdInt, userId);
+
+            res.json({
+                success: true,
+                data: attempts
+            });
+        } catch (error) {
+            console.error('Get my attempts error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingAttempts')
+            });
+        }
+    },
+
+    // Start test and redirect to test taking page (for page navigation, not API)
+    async startTestAndRedirect(req, res) {
+        try {
+            const { test_id } = req.params;
+            const testIdInt = parseInt(test_id);
+            const userId = req.user.user_id;
+
+            if (isNaN(testIdInt)) {
+                return res.render('error/400', {
+                    title: req.t('errorTitle'),
+                    message: req.t('invalidTestId'),
+                    user: req.session.user
+                });
+            }
+
+            const test = await Test.findById(testIdInt);
+            if (!test) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    message: req.t('testNotFound'),
+                    user: req.session.user
+                });
+            }
+
+            if (test.status !== 'Active' && test.status !== 'Published') {
+                return res.render('error/400', {
+                    title: req.t('errorTitle'),
+                    message: req.t('testNotActive'),
+                    user: req.session.user
+                });
+            }
+
+            // Check existing attempts
+            const existingAttempts = await Test.getUserAttempts(testIdInt, userId);
+
+            // If there's an active attempt in progress, redirect to it
+            const activeAttempt = existingAttempts.find(attempt => attempt.status === 'In_Progress');
+            if (activeAttempt) {
+                return res.redirect(`/tests/${testIdInt}/${activeAttempt.attempt_id}/taking`);
+            }
+
+            // Check if user has exceeded max attempts
+            // attempts_allowed = 0 means unlimited attempts
+            const maxAttempts = test.attempts_allowed || 0;
+            if (maxAttempts > 0 && existingAttempts.length >= maxAttempts) {
+                return res.render('error/400', {
+                    title: req.t('errorTitle'),
+                    message: req.t('testAttemptsExceeded'),
+                    user: req.session.user
+                });
+            }
+
+            // Create new attempt
+            const attemptData = {
+                test_id: testIdInt,
+                user_id: userId,
+                start_time: new Date(),
+                status: 'In_Progress'
+            };
+
+            const result = await Test.createAttempt(attemptData);
+
+            if (!result.success) {
+                return res.render('error/500', {
+                    title: req.t('errorTitle'),
+                    message: result.message || req.t('errorStartingTest'),
+                    user: req.session.user
+                });
+            }
+
+            // Log activity
+            await ActivityLog.create({
+                user_id: userId,
+                action: 'Start_Test',
+                table_name: 'test_attempts',
+                record_id: result.data.attempt_id,
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                session_id: req.sessionID,
+                description: `Started test: ${test.title}`,
+                severity: 'Info',
+                module: 'Assessment'
+            });
+
+            // Redirect to test taking page
+            res.redirect(`/tests/${testIdInt}/${result.data.attempt_id}/taking`);
+
+        } catch (error) {
+            console.error('Start test and redirect error:', error);
+            res.render('error/500', {
+                title: req.t('errorTitle'),
+                message: req.t('errorStartingTest'),
+                user: req.session.user,
+                error: error
             });
         }
     },
@@ -661,15 +1037,24 @@ const testController = {
                 return res.redirect(`/tests/${test_id}/results`);
             }
 
-            const questions = await Question.findByTestId(test_id);
+            // Get questions with randomization based on test settings
+            const questions = await Question.findByTestId(test_id, {
+                randomizeQuestions: test.randomize_questions === true || test.randomize_questions === 1,
+                randomizeOptions: true  // Always randomize answer options for multiple choice
+            });
 
-            res.render('tests/taking', {
+            // Set custom layout for test taking page
+            res.locals.layout = 'test-layout';
+
+            res.render('tests/take', {
                 title: `${req.t('takingTest')}: ${test.title} - Rukchai Hongyen LearnHub`,
                 user: req.session.user,
                 userRole: req.user.role_name,
                 test: test,
                 attempt: attempt,
-                questions: questions
+                questions: questions,
+                attemptId: attempt_id,
+                layout: 'test-layout'
             });
 
         } catch (error) {
@@ -684,6 +1069,7 @@ const testController = {
     },
 
     // API: Get chapters by course ID
+    // Also supports course_materials as virtual chapters if no real chapters exist
     async getChaptersByCourse(req, res) {
         try {
             const { course_id } = req.params;
@@ -695,11 +1081,40 @@ const testController = {
                 });
             }
 
+            // First try to get real chapters
             const chapters = await Chapter.findByCourseId(parseInt(course_id));
+
+            if (chapters && chapters.length > 0) {
+                return res.json({
+                    success: true,
+                    data: chapters,
+                    source: 'chapters'
+                });
+            }
+
+            // If no chapters, get course_materials that have has_test = 1
+            const pool = await poolPromise;
+            const materialsResult = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`
+                    SELECT
+                        material_id as chapter_id,
+                        title,
+                        content as description,
+                        order_index,
+                        'material' as source_type,
+                        has_test
+                    FROM course_materials
+                    WHERE course_id = @courseId
+                      AND type IN ('lesson', 'chapter', 'section')
+                      AND has_test = 1
+                    ORDER BY order_index, material_id
+                `);
 
             res.json({
                 success: true,
-                data: chapters
+                data: materialsResult.recordset,
+                source: 'materials'
             });
 
         } catch (error) {
@@ -712,14 +1127,26 @@ const testController = {
     },
 
     // API: Get lessons by chapter ID
+    // Also supports course_materials as virtual lessons
     async getLessonsByChapter(req, res) {
         try {
             const { chapter_id } = req.params;
+            const { source } = req.query; // 'chapters' or 'materials'
 
             if (!chapter_id) {
                 return res.status(400).json({
                     success: false,
                     message: req.t('chapterIdRequired')
+                });
+            }
+
+            // If source is materials, the chapter_id is actually a material_id
+            // In this case, return empty since materials don't have sub-lessons
+            if (source === 'materials') {
+                return res.json({
+                    success: true,
+                    data: [],
+                    message: 'Materials do not have sub-lessons'
                 });
             }
 
@@ -776,6 +1203,103 @@ const testController = {
             res.status(500).json({
                 success: false,
                 message: req.t('errorLoadingTests') || 'Error loading tests'
+            });
+        }
+    },
+
+    // Render test results page
+    async renderTestResults(req, res) {
+        try {
+            const { test_id } = req.params;
+            const attemptId = req.query.attempt_id;
+            const userId = req.user.user_id;
+
+            if (!attemptId) {
+                return res.render('error/400', {
+                    title: req.t('errorTitle'),
+                    message: req.t('attemptIdRequired') || 'Attempt ID is required',
+                    user: req.session.user
+                });
+            }
+
+            const test = await Test.findById(test_id);
+            if (!test) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    message: req.t('testNotFound'),
+                    user: req.session.user
+                });
+            }
+
+            const attempt = await Test.getAttemptById(attemptId);
+            if (!attempt || attempt.user_id !== userId) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    message: req.t('testAttemptNotFound'),
+                    user: req.session.user
+                });
+            }
+
+            res.render('tests/results', {
+                title: `${req.t('testResultsTitle')} - ${test.title}`,
+                user: req.session.user,
+                userRole: req.user.role_name,
+                test: test,
+                attemptId: attemptId
+            });
+
+        } catch (error) {
+            console.error('Render test results error:', error);
+            res.render('error/500', {
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingResults') || 'Error loading results',
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
+    // API: Get detailed attempt results
+    async getAttemptResultsAPI(req, res) {
+        try {
+            const { attempt_id } = req.params;
+            const userId = req.user.user_id;
+
+            const attempt = await Test.getAttemptById(attempt_id);
+            if (!attempt) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('testAttemptNotFound')
+                });
+            }
+
+            // Check if user owns this attempt or is admin/instructor
+            const userRole = req.user.role_name;
+            if (attempt.user_id !== userId && !['Admin', 'Instructor'].includes(userRole)) {
+                return res.status(403).json({
+                    success: false,
+                    message: req.t('noPermissionViewResults') || 'No permission to view these results'
+                });
+            }
+
+            const results = await Test.getAttemptResults(attempt_id);
+            if (!results) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('resultsNotFound') || 'Results not found'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: results
+            });
+
+        } catch (error) {
+            console.error('Get attempt results API error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingResults') || 'Error loading results'
             });
         }
     }

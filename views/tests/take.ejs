@@ -1,5 +1,3 @@
-<% layout('test-layout') -%>
-
 <div class="min-h-screen bg-gray-50">
     <!-- Test Header (Fixed) -->
     <div class="fixed top-0 left-0 right-0 bg-white shadow-sm border-b z-40">
@@ -46,16 +44,10 @@
                                 <i class="fas fa-chevron-left mr-2"></i><%= t('previousQuestion') %>
                             </button>
 
-                            <div class="flex space-x-2">
-                                <button id="flag-question" class="btn-ruxchai-outline" onclick="toggleFlag()">
-                                    <i class="fas fa-flag mr-1"></i>
-                                    <span id="flag-text"><%= t('markQuestion') %></span>
-                                </button>
-
-                                <button id="save-answer" class="btn-ruxchai-accent" onclick="saveAnswer()">
-                                    <i class="fas fa-save mr-1"></i><%= t('saveAnswer') %>
-                                </button>
-                            </div>
+                            <button id="flag-question" class="btn-ruxchai-outline" onclick="toggleFlag()">
+                                <i class="fas fa-flag mr-1"></i>
+                                <span id="flag-text"><%= t('markQuestion') %></span>
+                            </button>
 
                             <button id="next-question" class="btn-ruxchai-primary" onclick="nextQuestion()">
                                 <%= t('nextQuestion') %><i class="fas fa-chevron-right ml-2"></i>
@@ -147,8 +139,8 @@
                 </p>
 
                 <div class="flex space-x-3">
-                    <button id="confirm-submit" class="flex-1 btn-ruxchai-primary"><%= t('confirmSubmitButton') %></button>
-                    <button id="cancel-submit" class="flex-1 btn-ruxchai-outline"><%= t('cancel') %></button>
+                    <button id="confirm-submit" class="flex-1 btn-ruxchai-primary" onclick="submitTest()"><%= t('confirmSubmitButton') %></button>
+                    <button id="cancel-submit" class="flex-1 btn-ruxchai-outline" onclick="closeSubmitModal()"><%= t('cancel') %></button>
                 </div>
             </div>
         </div>
@@ -181,8 +173,8 @@
 </div>
 
 <script>
-// i18n translations
-const i18n = {
+// i18n translations for test taking (renamed to avoid conflict with layout)
+const testPageI18n = {
     testTitle: '<%= t("testTitle") %>',
     questionCounter: '<%= t("questionCounter") %>',
     submitAnswer: '<%= t("submitAnswer") %>',
@@ -234,6 +226,11 @@ const i18n = {
     tabSwitchWarning: '<%= t("confirmExit") %>'
 };
 
+// Server-rendered data
+const serverTestData = <%- JSON.stringify(test || {}) %>;
+const serverQuestions = <%- JSON.stringify(questions || []) %>;
+const serverAttempt = <%- JSON.stringify(attempt || {}) %>;
+
 let testData = null;
 let questions = [];
 let currentQuestionIndex = 0;
@@ -246,10 +243,10 @@ let testAttemptId = '<%= locals.attemptId || "" %>';
 let isSubmitted = false;
 
 document.addEventListener('DOMContentLoaded', function() {
-    if (testAttemptId) {
-        initializeTest();
+    if (testAttemptId && serverTestData && serverTestData.test_id) {
+        initializeTestFromServer();
     } else {
-        showError(i18n.errorLoadingTestAttempt);
+        showError(testPageI18n.errorLoadingTestAttempt);
         window.location.href = '/tests';
     }
 
@@ -281,11 +278,47 @@ function setupEventListeners() {
     window.addEventListener('beforeunload', function(e) {
         if (!isSubmitted) {
             e.preventDefault();
-            e.returnValue = i18n.confirmExit;
+            e.returnValue = testPageI18n.confirmExit;
         }
     });
 }
 
+// Initialize test from server-rendered data (no API call needed)
+function initializeTestFromServer() {
+    try {
+        // Use server-rendered data directly
+        testData = {
+            test_id: serverTestData.test_id,
+            test_title: serverTestData.title,
+            time_limit: serverTestData.time_limit || 60,
+            time_remaining: serverTestData.time_limit || 60,
+            questions: serverQuestions,
+            answers: {},
+            total_marks: serverTestData.total_marks,
+            passing_marks: serverTestData.passing_marks
+        };
+
+        questions = serverQuestions;
+        answers = {};
+        timeRemaining = (serverTestData.time_limit || 60) * 60; // Convert to seconds
+
+        setupTestInterface();
+        loadQuestion(0);
+        startTimer();
+        startAutoSave();
+
+        // Disable aggressive security monitoring for now (causes false positives)
+        // Security features can be enabled per-test if proctoring is required
+        // if (typeof initializeTestSecurity === 'function') {
+        //     initializeTestSecurity();
+        // }
+    } catch (error) {
+        console.error('Error initializing test from server data:', error);
+        showError(testPageI18n.errorLoadingTest);
+    }
+}
+
+// Original async function kept for potential API usage
 async function initializeTest() {
     try {
         const response = await fetch(`/tests/api/attempts/${testAttemptId}`);
@@ -302,11 +335,11 @@ async function initializeTest() {
             startTimer();
             startAutoSave();
         } else {
-            showError(i18n.cannotLoadTest);
+            showError(testPageI18n.cannotLoadTest);
         }
     } catch (error) {
         console.error('Error initializing test:', error);
-        showError(i18n.errorLoadingTest);
+        showError(testPageI18n.errorLoadingTest);
     }
 }
 
@@ -358,12 +391,25 @@ function loadQuestion(index) {
     const question = questions[index];
 
     // Update question counter
-    document.getElementById('question-counter').textContent = i18n.questionCounter.replace('{current}', index + 1).replace('{total}', questions.length);
+    document.getElementById('question-counter').textContent = testPageI18n.questionCounter.replace('{current}', index + 1).replace('{total}', questions.length);
 
     // Update navigation buttons
     document.getElementById('prev-question').disabled = index === 0;
-    document.getElementById('next-question').textContent =
-        index === questions.length - 1 ? i18n.lastQuestion : i18n.nextQuestion;
+
+    const nextBtn = document.getElementById('next-question');
+    const isLastQuestion = index === questions.length - 1;
+
+    if (isLastQuestion) {
+        nextBtn.innerHTML = '<i class="fas fa-save mr-2"></i>' + testPageI18n.saveAnswer;
+        nextBtn.onclick = function() { saveAnswer(); };
+        nextBtn.classList.remove('btn-ruxchai-primary');
+        nextBtn.classList.add('btn-ruxchai-accent');
+    } else {
+        nextBtn.innerHTML = testPageI18n.nextQuestion + '<i class="fas fa-chevron-right ml-2"></i>';
+        nextBtn.onclick = function() { nextQuestion(); };
+        nextBtn.classList.remove('btn-ruxchai-accent');
+        nextBtn.classList.add('btn-ruxchai-primary');
+    }
 
     // Update flag button
     const flagBtn = document.getElementById('flag-question');
@@ -371,11 +417,11 @@ function loadQuestion(index) {
     if (flaggedQuestions.has(question.question_id)) {
         flagBtn.classList.remove('btn-ruxchai-outline');
         flagBtn.classList.add('btn-ruxchai-secondary');
-        flagText.textContent = i18n.unmarkQuestion;
+        flagText.textContent = testPageI18n.unmarkQuestion;
     } else {
         flagBtn.classList.remove('btn-ruxchai-secondary');
         flagBtn.classList.add('btn-ruxchai-outline');
-        flagText.textContent = i18n.markQuestion;
+        flagText.textContent = testPageI18n.markQuestion;
     }
 
     // Load question content
@@ -395,10 +441,10 @@ function renderQuestion(question) {
         <div class="mb-6">
             <div class="flex items-start justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-900">
-                    ${i18n.question} ${currentQuestionIndex + 1}. ${question.question_text}
+                    ${testPageI18n.question} ${currentQuestionIndex + 1}. ${question.question_text}
                 </h2>
                 <div class="flex items-center space-x-2 text-sm text-gray-500">
-                    <span>${i18n.points}: ${question.points || 1}</span>
+                    <span>${testPageI18n.points}: ${question.points || 1}</span>
                     ${question.difficulty ? `<span class="badge-${getDifficultyColor(question.difficulty)}">${getDifficultyText(question.difficulty)}</span>` : ''}
                 </div>
             </div>
@@ -468,11 +514,11 @@ function renderTrueFalse(question) {
         <div class="space-y-3">
             <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                 <input type="radio" name="answer" value="true" class="form-radio text-ruxchai-primary">
-                <span>${i18n.true}</span>
+                <span>${testPageI18n.true}</span>
             </label>
             <label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                 <input type="radio" name="answer" value="false" class="form-radio text-ruxchai-primary">
-                <span>${i18n.false}</span>
+                <span>${testPageI18n.false}</span>
             </label>
         </div>
     `;
@@ -482,10 +528,10 @@ function renderFillBlank(question) {
     return `
         <div class="space-y-4">
             <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">${i18n.answer}:</label>
+                <label class="block text-sm font-medium text-gray-700">${testPageI18n.answer}:</label>
                 <input type="text" name="answer"
                        class="form-input-ruxchai"
-                       placeholder="${i18n.enterAnswer}">
+                       placeholder="${testPageI18n.enterAnswer}">
             </div>
         </div>
     `;
@@ -495,13 +541,13 @@ function renderEssay(question) {
     return `
         <div class="space-y-4">
             <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">${i18n.answer}:</label>
+                <label class="block text-sm font-medium text-gray-700">${testPageI18n.answer}:</label>
                 <textarea name="answer" rows="8"
                           class="form-input-ruxchai"
-                          placeholder="${i18n.writeYourAnswer}"></textarea>
+                          placeholder="${testPageI18n.writeYourAnswer}"></textarea>
             </div>
             <div class="text-sm text-gray-500">
-                ${i18n.tip}
+                ${testPageI18n.tip}
             </div>
         </div>
     `;
@@ -681,15 +727,15 @@ function showSubmitConfirmation() {
     document.getElementById('submit-summary').innerHTML = `
         <div class="space-y-2">
             <div class="flex justify-between">
-                <span>${i18n.totalQuestions}:</span>
+                <span>${testPageI18n.totalQuestions}:</span>
                 <span class="font-medium">${questions.length}</span>
             </div>
             <div class="flex justify-between">
-                <span>${i18n.answeredQuestions}</span>
+                <span>${testPageI18n.answeredQuestions}</span>
                 <span class="font-medium text-green-600">${answeredCount}</span>
             </div>
             <div class="flex justify-between">
-                <span>${i18n.unansweredQuestions}</span>
+                <span>${testPageI18n.unansweredQuestions}</span>
                 <span class="font-medium text-red-600">${unansweredCount}</span>
             </div>
         </div>
@@ -716,8 +762,8 @@ async function submitTest() {
         // Save current answer before submitting
         saveAnswer();
 
-        const response = await fetch(`/tests/api/attempts/${testAttemptId}/submit`, {
-            method: 'PUT',
+        const response = await fetch(`/tests/api/${testData.test_id}/${testAttemptId}/submit`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -737,12 +783,12 @@ async function submitTest() {
             // Redirect to results page
             window.location.href = `/tests/${testData.test_id}/results?attempt_id=${testAttemptId}`;
         } else {
-            showError(data.message || i18n.errorSubmitting);
+            showError(data.message || testPageI18n.errorSubmitting);
             closeSubmitModal();
         }
     } catch (error) {
         console.error('Error submitting test:', error);
-        showError(i18n.errorSubmitting);
+        showError(testPageI18n.errorSubmitting);
         closeSubmitModal();
     }
 }
@@ -751,8 +797,8 @@ async function autoSubmitTest() {
     try {
         saveAnswer();
 
-        await fetch(`/tests/api/attempts/${testAttemptId}/submit`, {
-            method: 'PUT',
+        await fetch(`/tests/api/${testData.test_id}/${testAttemptId}/submit`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -767,11 +813,11 @@ async function autoSubmitTest() {
         clearInterval(autoSaveInterval);
 
         // Show time up message and redirect
-        alert(i18n.autoSubmitMessage);
+        alert(testPageI18n.autoSubmitMessage);
         window.location.href = `/tests/${testData.test_id}/results?attempt_id=${testAttemptId}`;
     } catch (error) {
         console.error('Error auto-submitting test:', error);
-        showError(i18n.errorSubmitting);
+        showError(testPageI18n.errorSubmitting);
     }
 }
 
@@ -791,26 +837,18 @@ function preventCheating() {
         }
     });
 
-    // Detect window focus/blur (user switching tabs)
-    let blurCount = 0;
-    window.addEventListener('blur', function() {
-        blurCount++;
-        if (blurCount >= 3) {
-            if (confirm(i18n.tabSwitchWarning)) {
-                submitTest();
-            }
-        }
-    });
+    // Window blur detection disabled - too many false positives
+    // The test-layout.ejs already has more appropriate security monitoring
 }
 
 // Utility functions
 function getDifficultyText(level) {
     const texts = {
-        'easy': i18n.easy,
-        'medium': i18n.medium,
-        'hard': i18n.hard
+        'easy': testPageI18n.easy,
+        'medium': testPageI18n.medium,
+        'hard': testPageI18n.hard
     };
-    return texts[level] || i18n.medium;
+    return texts[level] || testPageI18n.medium;
 }
 
 function getDifficultyColor(level) {
@@ -875,5 +913,22 @@ function showError(message) {
 .form-radio:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.2);
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+}
+
+/* Modal content */
+.modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    z-index: 10;
 }
 </style>

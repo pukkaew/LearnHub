@@ -318,12 +318,13 @@ class Course {
                         .input('filePath', sql.NVarChar(500), lesson.video_url || null)
                         .input('orderIndex', sql.Int, i + 1)
                         .input('duration', sql.Int, lesson.duration || 0)
+                        .input('hasTest', sql.Bit, lesson.has_quiz ? 1 : 0)
                         .query(`
                             INSERT INTO course_materials (
-                                course_id, title, content, type, file_path, order_index, duration_minutes, created_at
+                                course_id, title, content, type, file_path, order_index, duration_minutes, has_test, created_at
                             ) OUTPUT INSERTED.material_id
                             VALUES (
-                                @courseId, @title, @content, @type, @filePath, @orderIndex, @duration, GETDATE()
+                                @courseId, @title, @content, @type, @filePath, @orderIndex, @duration, @hasTest, GETDATE()
                             )
                         `);
 

@@ -34,6 +34,7 @@ class Test {
         this.is_passing_required = data.is_passing_required;
         this.score_weight = data.score_weight;
         this.show_score_breakdown = data.show_score_breakdown;
+        this.language = data.language;
     }
 
     // Create new test
@@ -72,6 +73,7 @@ class Test {
                 .input('isPassingRequired', sql.Bit, testData.is_passing_required || 0)
                 .input('scoreWeight', sql.Int, testData.score_weight || 100)
                 .input('showScoreBreakdown', sql.Bit, testData.show_score_breakdown !== undefined ? (testData.show_score_breakdown ? 1 : 0) : 1)
+                .input('language', sql.NVarChar(10), testData.language || 'th')
                 .query(`
                     INSERT INTO tests (
                         course_id, instructor_id, title, description, type,
@@ -82,7 +84,7 @@ class Test {
                         available_after_chapter_complete, required_for_completion,
                         weight_in_course, available_from, available_until,
                         is_graded, is_required, is_passing_required,
-                        score_weight, show_score_breakdown
+                        score_weight, show_score_breakdown, language
                     ) VALUES (
                         @courseId, @instructorId, @title, @description, @type,
                         @timeLimit, @totalMarks, @passingMarks, @attemptsAllowed,
@@ -92,7 +94,7 @@ class Test {
                         @availableAfterChapterComplete, @requiredForCompletion,
                         @weightInCourse, @availableFrom, @availableUntil,
                         @isGraded, @isRequired, @isPassingRequired,
-                        @scoreWeight, @showScoreBreakdown
+                        @scoreWeight, @showScoreBreakdown, @language
                     );
                     SELECT SCOPE_IDENTITY() as test_id
                 `);
@@ -158,7 +160,7 @@ class Test {
                         .input('questionId', sql.Int, question.question_id)
                         .query(`
                             SELECT *
-                            FROM question_options
+                            FROM QuestionOptions
                             WHERE question_id = @questionId
                             ORDER BY option_order
                         `);
@@ -258,13 +260,13 @@ class Test {
             const result = await pool.request()
                 .input('testId', sql.Int, attemptData.test_id)
                 .input('userId', sql.Int, attemptData.user_id)
-                .input('startTime', sql.DateTime2, attemptData.start_time || new Date())
+                .input('startedAt', sql.DateTime2, attemptData.start_time || new Date())
                 .input('status', sql.NVarChar(20), attemptData.status || 'In_Progress')
                 .query(`
                     INSERT INTO TestAttempts (
-                        test_id, user_id, start_time, status, created_at
+                        test_id, user_id, started_at, status
                     ) OUTPUT INSERTED.attempt_id VALUES (
-                        @testId, @userId, @startTime, @status, GETDATE()
+                        @testId, @userId, @startedAt, @status
                     )
                 `);
 
@@ -294,7 +296,7 @@ class Test {
                     SELECT *
                     FROM TestAttempts
                     WHERE test_id = @testId AND user_id = @userId
-                    ORDER BY start_time DESC
+                    ORDER BY started_at DESC
                 `);
 
             return result.recordset;
@@ -317,7 +319,7 @@ class Test {
                     FROM TestAttempts ta
                     JOIN users u ON ta.user_id = u.user_id
                     WHERE ta.test_id = @testId
-                    ORDER BY ta.start_time DESC
+                    ORDER BY ta.started_at DESC
                 `);
 
             return result.recordset;
@@ -392,15 +394,17 @@ class Test {
             // Update attempt
             await pool.request()
                 .input('attemptId', sql.Int, attemptId)
-                .input('score', sql.Int, totalScore)
+                .input('score', sql.Decimal(10, 2), totalScore)
+                .input('percentage', sql.Decimal(5, 2), percentage)
                 .input('passed', sql.Bit, passed ? 1 : 0)
                 .query(`
                     UPDATE TestAttempts
-                    SET end_time = GETDATE(),
+                    SET completed_at = GETDATE(),
                         score = @score,
+                        percentage = @percentage,
                         passed = @passed,
                         status = 'Completed',
-                        updated_at = GETDATE()
+                        is_submitted = 1
                     WHERE attempt_id = @attemptId
                 `);
 
@@ -558,6 +562,132 @@ class Test {
         } catch (error) {
             console.error('Error fetching test statistics:', error);
             throw new Error(`Error fetching test statistics: ${error.message}`);
+        }
+    }
+
+    // Get detailed attempt results for results page
+    static async getAttemptResults(attemptId) {
+        try {
+            const pool = await poolPromise;
+
+            // Get attempt info with test details
+            const attemptResult = await pool.request()
+                .input('attemptId', sql.Int, attemptId)
+                .query(`
+                    SELECT ta.*,
+                           t.title as test_title,
+                           t.passing_marks as passing_score,
+                           t.total_marks,
+                           t.show_results,
+                           t.attempts_allowed,
+                           DATEDIFF(MINUTE, ta.started_at, ISNULL(ta.completed_at, GETDATE())) as time_taken
+                    FROM TestAttempts ta
+                    JOIN tests t ON ta.test_id = t.test_id
+                    WHERE ta.attempt_id = @attemptId
+                `);
+
+            if (attemptResult.recordset.length === 0) {
+                return null;
+            }
+
+            const attempt = attemptResult.recordset[0];
+
+            // Get questions and user answers
+            // Note: UserAnswers links via TestQuestions.test_question_id
+            // If TestQuestions is empty (questions added directly to Questions.test_id),
+            // user answers won't be found, so we show questions without answers
+            const questionsResult = await pool.request()
+                .input('attemptId', sql.Int, attemptId)
+                .input('testId', sql.Int, attempt.test_id)
+                .query(`
+                    SELECT
+                        q.question_id,
+                        q.question_text,
+                        q.question_type,
+                        q.points,
+                        q.difficulty_level as difficulty,
+                        q.explanation,
+                        q.question_image,
+                        COALESCE(ua.answer_text, CAST(ua.selected_option_id AS NVARCHAR(MAX))) as user_answer,
+                        ua.is_correct,
+                        ua.points_earned,
+                        CASE
+                            WHEN q.question_type = 'multiple_choice' THEN
+                                CAST((SELECT TOP 1 option_id FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1) AS NVARCHAR(MAX))
+                            WHEN q.question_type = 'true_false' THEN
+                                (SELECT TOP 1 option_text FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1)
+                            ELSE NULL
+                        END as correct_answer
+                    FROM Questions q
+                    LEFT JOIN TestQuestions tq ON q.question_id = tq.question_id AND tq.test_id = @testId
+                    LEFT JOIN UserAnswers ua ON tq.test_question_id = ua.test_question_id AND ua.attempt_id = @attemptId
+                    WHERE q.test_id = @testId AND q.is_active = 1
+                    ORDER BY COALESCE(tq.question_order, q.question_id), q.question_id
+                `);
+
+            // Get options for multiple choice questions
+            const questions = questionsResult.recordset;
+            for (let question of questions) {
+                if (question.question_type === 'multiple_choice') {
+                    const optionsResult = await pool.request()
+                        .input('questionId', sql.Int, question.question_id)
+                        .query(`
+                            SELECT option_id, option_text, is_correct
+                            FROM QuestionOptions
+                            WHERE question_id = @questionId
+                            ORDER BY option_order
+                        `);
+                    question.options = optionsResult.recordset;
+                }
+            }
+
+            // Calculate statistics
+            let correctAnswers = 0;
+            let incorrectAnswers = 0;
+            let unanswered = 0;
+
+            for (let q of questions) {
+                if (q.user_answer === null || q.user_answer === undefined) {
+                    unanswered++;
+                } else if (q.is_correct) {
+                    correctAnswers++;
+                } else {
+                    incorrectAnswers++;
+                }
+            }
+
+            // Check if user can retake
+            const attemptsCountResult = await pool.request()
+                .input('testId', sql.Int, attempt.test_id)
+                .input('userId', sql.Int, attempt.user_id)
+                .query(`
+                    SELECT COUNT(*) as attempt_count
+                    FROM TestAttempts
+                    WHERE test_id = @testId AND user_id = @userId
+                `);
+
+            const attemptCount = attemptsCountResult.recordset[0].attempt_count;
+            const canRetake = attempt.attempts_allowed === 0 || attemptCount < attempt.attempts_allowed;
+
+            return {
+                attempt_id: attempt.attempt_id,
+                test_id: attempt.test_id,
+                test_title: attempt.test_title,
+                score: attempt.percentage || 0,
+                passing_score: attempt.passing_score || 60,
+                time_taken: attempt.time_taken || 0,
+                correct_answers: correctAnswers,
+                incorrect_answers: incorrectAnswers,
+                unanswered: unanswered,
+                total_questions: questions.length,
+                questions: questions,
+                can_retake: canRetake,
+                has_certificate: false, // Can be implemented later
+                show_results: attempt.show_results
+            };
+        } catch (error) {
+            console.error('Error getting attempt results:', error);
+            throw new Error(`Error getting attempt results: ${error.message}`);
         }
     }
 }

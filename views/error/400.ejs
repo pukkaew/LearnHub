@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="<%= currentLanguage || 'th' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%
+        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
+        const isEnglish = currentLang === 'en';
+        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteName = isEnglish ? siteNameEn : siteNameTh;
+        const companyNameTh = typeof getSetting === 'function' ? getSetting('company_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
+        const companyName = isEnglish ? companyNameEn : companyNameTh;
+    %>
+    <title><%= t('badRequest') || 'Bad Request' %> - <%= siteName %></title>
+    <link href="/css/tailwind.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+            <!-- Error Icon -->
+            <div class="mx-auto flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-6">
+                <i class="fas fa-exclamation-triangle text-orange-600 text-2xl"></i>
+            </div>
+
+            <!-- Error Title -->
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">
+                <%= t('badRequest') || 'Bad Request' %>
+            </h1>
+
+            <!-- Error Message -->
+            <p class="text-gray-600 mb-6">
+                <%= typeof message !== 'undefined' ? message : (t('badRequestMessage') || 'The request could not be processed.') %>
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="history.back()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    <%= t('goBack') %>
+                </button>
+
+                <a href="/dashboard"
+                   class="block w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-home mr-2"></i>
+                    <%= t('goHome') %>
+                </a>
+            </div>
+
+            <!-- Help Contact -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-sm text-gray-500">
+                    <%= t('ifProblemPersists') %>
+                    <a href="mailto:support@rukchaihongyen.com" class="text-blue-600 hover:text-blue-800">
+                        <%= t('supportTeam') %>
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6">
+            <p class="text-sm text-gray-500">
+                &copy; <%= new Date().getFullYear() %> <%= companyName %>. <%= t('allRightsReserved') %>.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
