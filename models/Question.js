@@ -23,6 +23,12 @@ class Question {
         try {
             const pool = await poolPromise;
 
+            // Prepare correct_answers as JSON string if array
+            let correctAnswersJson = null;
+            if (questionData.correct_answers && Array.isArray(questionData.correct_answers)) {
+                correctAnswersJson = JSON.stringify(questionData.correct_answers);
+            }
+
             // question_id is IDENTITY - let DB generate it
             const result = await pool.request()
                 .input('bankId', sql.Int, questionData.bank_id || null)
@@ -35,19 +41,24 @@ class Question {
                 .input('timeEstimate', sql.Int, questionData.time_estimate_seconds || 60)
                 .input('explanation', sql.NVarChar(sql.MAX), questionData.explanation || null)
                 .input('tags', sql.NVarChar(500), questionData.tags || null)
+                .input('correctAnswer', sql.NVarChar(50), questionData.correct_answer || null)
+                .input('sampleAnswer', sql.NVarChar(sql.MAX), questionData.sample_answer || null)
+                .input('correctAnswers', sql.NVarChar(sql.MAX), correctAnswersJson)
                 .input('createdBy', sql.Int, questionData.created_by)
                 .query(`
                     INSERT INTO Questions (
                         bank_id, test_id, question_type, question_text,
                         question_image, points, difficulty_level, time_estimate_seconds,
-                        explanation, tags, usage_count, correct_count, is_active,
+                        explanation, tags, correct_answer, sample_answer, correct_answers,
+                        usage_count, correct_count, is_active,
                         created_by, created_date, version
                     )
                     OUTPUT INSERTED.question_id
                     VALUES (
                         @bankId, @testId, @questionType, @questionText,
                         @questionImage, @points, @difficultyLevel, @timeEstimate,
-                        @explanation, @tags, 0, 0, 1,
+                        @explanation, @tags, @correctAnswer, @sampleAnswer, @correctAnswers,
+                        0, 0, 1,
                         @createdBy, GETDATE(), 1
                     )
                 `);
@@ -75,6 +86,24 @@ class Question {
                             )
                         `);
                 }
+            }
+
+            // Add to TestQuestions linking table if test_id is provided
+            if (questionData.test_id) {
+                const testQuestionResult = await pool.request()
+                    .input('testId', sql.Int, questionData.test_id)
+                    .input('questionId', sql.Int, questionId)
+                    .input('questionOrder', sql.Int, questionData.order_index || 1)
+                    .input('points', sql.Decimal(5, 2), questionData.points || 1)
+                    .query(`
+                        INSERT INTO TestQuestions (
+                            test_id, question_id, question_order, points, created_at
+                        )
+                        OUTPUT INSERTED.test_question_id
+                        VALUES (
+                            @testId, @questionId, @questionOrder, @points, GETDATE()
+                        )
+                    `);
             }
 
             return {
@@ -590,7 +619,12 @@ class Question {
             const result = await pool.request()
                 .input('testId', sql.Int, parseInt(testId))
                 .query(`
-                    SELECT q.*,
+                    SELECT q.question_id, q.bank_id, q.test_id, q.question_type,
+                           q.question_text, q.question_image, q.points, q.difficulty_level,
+                           q.time_estimate_seconds, q.explanation, q.tags,
+                           q.correct_answer, q.sample_answer, q.correct_answers,
+                           q.usage_count, q.correct_count, q.is_active, q.version,
+                           q.created_by, q.created_date, q.modified_date,
                            CONCAT(u.first_name, ' ', u.last_name) as creator_name
                     FROM Questions q
                     LEFT JOIN Users u ON q.created_by = u.user_id
@@ -601,6 +635,16 @@ class Question {
             // Get options for each question
             let questions = result.recordset;
             for (let question of questions) {
+                // Parse correct_answers from JSON if stored as string
+                if (question.correct_answers && typeof question.correct_answers === 'string') {
+                    try {
+                        question.correct_answers = JSON.parse(question.correct_answers);
+                    } catch (e) {
+                        // If parsing fails, try splitting by comma
+                        question.correct_answers = question.correct_answers.split(',').map(a => a.trim());
+                    }
+                }
+
                 const optionsResult = await pool.request()
                     .input('questionId', sql.Int, question.question_id)
                     .query(`

@@ -74,6 +74,8 @@ class Test {
                 .input('scoreWeight', sql.Int, testData.score_weight || 100)
                 .input('showScoreBreakdown', sql.Bit, testData.show_score_breakdown !== undefined ? (testData.show_score_breakdown ? 1 : 0) : 1)
                 .input('language', sql.NVarChar(10), testData.language || 'th')
+                .input('randomizeOptions', sql.Bit, testData.randomize_options ? 1 : 0)
+                .input('questionsToShow', sql.Int, testData.questions_to_show || null)
                 .query(`
                     INSERT INTO tests (
                         course_id, instructor_id, title, description, type,
@@ -84,7 +86,8 @@ class Test {
                         available_after_chapter_complete, required_for_completion,
                         weight_in_course, available_from, available_until,
                         is_graded, is_required, is_passing_required,
-                        score_weight, show_score_breakdown, language
+                        score_weight, show_score_breakdown, language,
+                        randomize_options, questions_to_show
                     ) VALUES (
                         @courseId, @instructorId, @title, @description, @type,
                         @timeLimit, @totalMarks, @passingMarks, @attemptsAllowed,
@@ -94,7 +97,8 @@ class Test {
                         @availableAfterChapterComplete, @requiredForCompletion,
                         @weightInCourse, @availableFrom, @availableUntil,
                         @isGraded, @isRequired, @isPassingRequired,
-                        @scoreWeight, @showScoreBreakdown, @language
+                        @scoreWeight, @showScoreBreakdown, @language,
+                        @randomizeOptions, @questionsToShow
                     );
                     SELECT SCOPE_IDENTITY() as test_id
                 `);
@@ -358,7 +362,7 @@ class Test {
     }
 
     // Submit test attempt (compatibility method)
-    static async submitAttempt(attemptId, answers) {
+    static async submitAttempt(attemptId, answers, timeSpentSeconds = 0) {
         try {
             const pool = await poolPromise;
 
@@ -377,26 +381,145 @@ class Test {
             }
 
             const attempt = attemptResult.recordset[0];
+            const testId = attempt.test_id;
 
-            // Calculate score (simplified - assumes answers array has correct/incorrect info)
-            let totalScore = 0;
-            if (answers && Array.isArray(answers)) {
-                for (let answer of answers) {
-                    if (answer.is_correct) {
-                        totalScore += answer.points || 0;
+            // Check if attempt is already completed - prevent double submission
+            if (attempt.status === 'Completed' || attempt.is_submitted) {
+                console.log('Attempt already submitted, skipping duplicate submission');
+                return {
+                    success: true,
+                    message: 'Already submitted',
+                    data: {
+                        total_score: attempt.score || 0,
+                        percentage: attempt.percentage || 0,
+                        passed: attempt.passed || false,
+                        correct_count: attempt.correct_answers || 0,
+                        total_questions: attempt.total_questions || 0
                     }
+                };
+            }
+
+            // Get all questions with TestQuestions info and correct answers
+            const questionsResult = await pool.request()
+                .input('testId', sql.Int, testId)
+                .query(`
+                    SELECT
+                        q.question_id,
+                        q.question_type,
+                        q.points,
+                        tq.test_question_id,
+                        tq.points as tq_points,
+                        (SELECT TOP 1 option_id FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1) as correct_option_id,
+                        (SELECT TOP 1 option_text FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1) as correct_answer_text
+                    FROM Questions q
+                    LEFT JOIN TestQuestions tq ON q.question_id = tq.question_id AND tq.test_id = @testId
+                    WHERE q.test_id = @testId AND q.is_active = 1
+                `);
+
+            const questions = questionsResult.recordset;
+            let totalScore = 0;
+            let correctCount = 0;
+            let totalQuestions = questions.length;
+
+            // Convert answers object to array format if needed
+            // Frontend sends: { question_id: answer_value }
+            // We need: [{ question_id, selected_option_id, answer_text }]
+            let answersArray = [];
+            if (answers && typeof answers === 'object' && !Array.isArray(answers)) {
+                // Convert object format to array format
+                for (const [questionId, answerValue] of Object.entries(answers)) {
+                    const qId = parseInt(questionId);
+                    const question = questions.find(q => q.question_id === qId);
+                    if (!question) continue;
+
+                    const answerObj = { question_id: qId };
+
+                    if (question.question_type === 'multiple_choice') {
+                        // answerValue is option_id as string
+                        answerObj.selected_option_id = parseInt(answerValue);
+                    } else if (question.question_type === 'true_false') {
+                        // answerValue is "true" or "false"
+                        answerObj.answer_text = answerValue;
+                    } else {
+                        // fill_blank, essay - answerValue is text
+                        answerObj.answer_text = answerValue;
+                    }
+
+                    answersArray.push(answerObj);
+                }
+            } else if (Array.isArray(answers)) {
+                answersArray = answers;
+            }
+
+            // Process each answer
+            for (const answer of answersArray) {
+                const question = questions.find(q => q.question_id === answer.question_id);
+                if (!question) continue;
+
+                const points = question.tq_points || question.points || 1;
+                let isCorrect = false;
+                let pointsEarned = 0;
+
+                // Determine if answer is correct based on question type
+                if (question.question_type === 'multiple_choice') {
+                    isCorrect = answer.selected_option_id === question.correct_option_id;
+                } else if (question.question_type === 'true_false') {
+                    const userAnswer = String(answer.answer_text || '').toLowerCase();
+                    const correctAnswer = String(question.correct_answer_text || '').toLowerCase();
+                    isCorrect = userAnswer === correctAnswer;
+                } else if (question.question_type === 'fill_blank') {
+                    // Simple text comparison (case insensitive)
+                    isCorrect = String(answer.answer_text || '').toLowerCase().trim() ===
+                               String(question.correct_answer_text || '').toLowerCase().trim();
+                }
+                // Essay questions need manual grading
+
+                if (isCorrect) {
+                    pointsEarned = points;
+                    totalScore += points;
+                    correctCount++;
+                }
+
+                // Save answer to UserAnswers if we have test_question_id
+                // Use MERGE to prevent duplicates (upsert)
+                if (question.test_question_id) {
+                    await pool.request()
+                        .input('attemptId', sql.Int, attemptId)
+                        .input('testQuestionId', sql.Int, question.test_question_id)
+                        .input('selectedOptionId', sql.Int, answer.selected_option_id || null)
+                        .input('answerText', sql.NVarChar(sql.MAX), answer.answer_text || null)
+                        .input('isCorrect', sql.Bit, isCorrect ? 1 : 0)
+                        .input('pointsEarned', sql.Decimal(5, 2), pointsEarned)
+                        .query(`
+                            MERGE UserAnswers AS target
+                            USING (SELECT @attemptId AS attempt_id, @testQuestionId AS test_question_id) AS source
+                            ON target.attempt_id = source.attempt_id AND target.test_question_id = source.test_question_id
+                            WHEN MATCHED THEN
+                                UPDATE SET
+                                    selected_option_id = @selectedOptionId,
+                                    answer_text = @answerText,
+                                    is_correct = @isCorrect,
+                                    points_earned = @pointsEarned,
+                                    answered_at = GETDATE()
+                            WHEN NOT MATCHED THEN
+                                INSERT (attempt_id, test_question_id, selected_option_id, answer_text, is_correct, points_earned, answered_at)
+                                VALUES (@attemptId, @testQuestionId, @selectedOptionId, @answerText, @isCorrect, @pointsEarned, GETDATE());
+                        `);
                 }
             }
 
             const percentage = attempt.total_marks > 0 ? (totalScore / attempt.total_marks) * 100 : 0;
             const passed = percentage >= (attempt.passing_marks || 0);
 
-            // Update attempt
+            // Update attempt with calculated results
             await pool.request()
                 .input('attemptId', sql.Int, attemptId)
                 .input('score', sql.Decimal(10, 2), totalScore)
                 .input('percentage', sql.Decimal(5, 2), percentage)
                 .input('passed', sql.Bit, passed ? 1 : 0)
+                .input('totalQuestions', sql.Int, totalQuestions)
+                .input('correctAnswers', sql.Int, correctCount)
+                .input('timeSpentSeconds', sql.Int, timeSpentSeconds || 0)
                 .query(`
                     UPDATE TestAttempts
                     SET completed_at = GETDATE(),
@@ -404,7 +527,10 @@ class Test {
                         percentage = @percentage,
                         passed = @passed,
                         status = 'Completed',
-                        is_submitted = 1
+                        is_submitted = 1,
+                        total_questions = @totalQuestions,
+                        correct_answers = @correctAnswers,
+                        time_spent_seconds = @timeSpentSeconds
                     WHERE attempt_id = @attemptId
                 `);
 
@@ -413,7 +539,9 @@ class Test {
                 data: {
                     total_score: totalScore,
                     percentage: percentage,
-                    passed: passed
+                    passed: passed,
+                    correct_count: correctCount,
+                    total_questions: totalQuestions
                 }
             };
         } catch (error) {
@@ -552,8 +680,8 @@ class Test {
                         AVG(CASE WHEN status = 'Completed' THEN CAST(score AS FLOAT) END) as avg_score,
                         MIN(CASE WHEN status = 'Completed' THEN score END) as min_score,
                         MAX(CASE WHEN status = 'Completed' THEN score END) as max_score,
-                        AVG(CASE WHEN status = 'Completed' AND end_time IS NOT NULL THEN
-                            DATEDIFF(MINUTE, start_time, end_time) END) as avg_time_minutes
+                        AVG(CASE WHEN status = 'Completed' AND completed_at IS NOT NULL THEN
+                            DATEDIFF(MINUTE, started_at, completed_at) END) as avg_time_minutes
                     FROM TestAttempts
                     WHERE test_id = @testId
                 `);
@@ -580,7 +708,10 @@ class Test {
                            t.total_marks,
                            t.show_results,
                            t.attempts_allowed,
-                           DATEDIFF(MINUTE, ta.started_at, ISNULL(ta.completed_at, GETDATE())) as time_taken
+                           CASE
+                               WHEN ta.time_spent_seconds > 0 THEN ta.time_spent_seconds / 60
+                               ELSE DATEDIFF(MINUTE, ta.started_at, ISNULL(ta.completed_at, GETDATE()))
+                           END as time_taken
                     FROM TestAttempts ta
                     JOIN tests t ON ta.test_id = t.test_id
                     WHERE ta.attempt_id = @attemptId
@@ -596,6 +727,7 @@ class Test {
             // Note: UserAnswers links via TestQuestions.test_question_id
             // If TestQuestions is empty (questions added directly to Questions.test_id),
             // user answers won't be found, so we show questions without answers
+            // Using OUTER APPLY with TOP 1 to avoid duplicate results when UserAnswers has multiple records
             const questionsResult = await pool.request()
                 .input('attemptId', sql.Int, attemptId)
                 .input('testId', sql.Int, attempt.test_id)
@@ -615,12 +747,19 @@ class Test {
                             WHEN q.question_type = 'multiple_choice' THEN
                                 CAST((SELECT TOP 1 option_id FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1) AS NVARCHAR(MAX))
                             WHEN q.question_type = 'true_false' THEN
-                                (SELECT TOP 1 option_text FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1)
-                            ELSE NULL
+                                COALESCE(q.correct_answer, (SELECT TOP 1 option_text FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1))
+                            WHEN q.question_type IN ('fill_blank', 'essay') THEN
+                                COALESCE(q.correct_answer, q.sample_answer)
+                            ELSE q.correct_answer
                         END as correct_answer
                     FROM Questions q
                     LEFT JOIN TestQuestions tq ON q.question_id = tq.question_id AND tq.test_id = @testId
-                    LEFT JOIN UserAnswers ua ON tq.test_question_id = ua.test_question_id AND ua.attempt_id = @attemptId
+                    OUTER APPLY (
+                        SELECT TOP 1 ua2.answer_text, ua2.selected_option_id, ua2.is_correct, ua2.points_earned
+                        FROM UserAnswers ua2
+                        WHERE ua2.test_question_id = tq.test_question_id AND ua2.attempt_id = @attemptId
+                        ORDER BY ua2.answered_at DESC
+                    ) ua
                     WHERE q.test_id = @testId AND q.is_active = 1
                     ORDER BY COALESCE(tq.question_order, q.question_id), q.question_id
                 `);
@@ -641,19 +780,30 @@ class Test {
                 }
             }
 
-            // Calculate statistics
+            // Calculate statistics from questions or use stored values
             let correctAnswers = 0;
             let incorrectAnswers = 0;
             let unanswered = 0;
+            let hasUserAnswers = false;
 
             for (let q of questions) {
-                if (q.user_answer === null || q.user_answer === undefined) {
-                    unanswered++;
-                } else if (q.is_correct) {
-                    correctAnswers++;
+                if (q.user_answer !== null && q.user_answer !== undefined) {
+                    hasUserAnswers = true;
+                    if (q.is_correct) {
+                        correctAnswers++;
+                    } else {
+                        incorrectAnswers++;
+                    }
                 } else {
-                    incorrectAnswers++;
+                    unanswered++;
                 }
+            }
+
+            // If no UserAnswers found, use stored values from TestAttempts
+            if (!hasUserAnswers && attempt.correct_answers !== null) {
+                correctAnswers = attempt.correct_answers || 0;
+                incorrectAnswers = (attempt.total_questions || questions.length) - correctAnswers;
+                unanswered = 0; // All questions were answered
             }
 
             // Check if user can retake

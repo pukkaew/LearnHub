@@ -1,175 +1,329 @@
 
 
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
-    <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <div class="flex items-start justify-between">
-            <div class="flex-1">
-                <h1 id="test-title" class="text-3xl font-bold text-gray-900 mb-2"><%= t('loading') %></h1>
-                <p id="test-code" class="text-sm text-gray-500 mb-4"></p>
-                <p id="test-description" class="text-gray-600 mb-4"></p>
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/dashboard" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-home"></i>
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <a href="/tests" class="text-gray-500 hover:text-gray-700 text-sm"><%= t('tests') %></a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <span id="breadcrumb-title" class="text-gray-700 text-sm font-medium"><%= t('loading') %></span>
+                </div>
+            </li>
+        </ol>
+    </nav>
 
-                <!-- Test Info -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                        <span class="text-gray-500"><%= t('numberOfQuestions') %></span>
-                        <span id="question-count" class="font-medium">-</span>
+    <!-- Main Header Card -->
+    <div class="bg-white rounded-2xl shadow-lg mb-8 overflow-hidden border border-gray-100">
+        <!-- Top Accent Bar -->
+        <div class="h-2" style="background: linear-gradient(90deg, #1565C0 0%, #1976D2 25%, #2196F3 50%, #4CAF50 75%, #00ACC1 100%);"></div>
+
+        <div class="p-8">
+            <!-- Status Badge & Test Type -->
+            <div class="flex items-center gap-3 mb-4">
+                <span id="status-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                    <span class="w-2 h-2 rounded-full mr-2" id="status-dot"></span>
+                    <span id="status-text">-</span>
+                </span>
+                <span id="test-type-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                    <i class="fas fa-tag mr-1.5"></i>
+                    <span id="test-type-text">-</span>
+                </span>
+            </div>
+
+            <!-- Title & Description -->
+            <h1 id="test-title" class="text-3xl md:text-4xl font-bold mb-2 text-gray-900"><%= t('loading') %></h1>
+            <p id="test-code" class="text-sm mb-3 text-gray-500"></p>
+            <p id="test-description" class="text-base max-w-3xl leading-relaxed text-gray-600"></p>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center border border-blue-200">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-question-circle text-xl text-blue-600"></i>
                     </div>
-                    <div>
-                        <span class="text-gray-500"><%= t('time') %></span>
-                        <span id="time-limit" class="font-medium">-</span>
+                    <div id="question-count" class="text-2xl font-bold text-blue-700">-</div>
+                    <div class="text-xs mt-1 text-blue-600"><%= t('numberOfQuestions') %></div>
+                </div>
+                <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-4 text-center border border-cyan-200">
+                    <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-clock text-xl text-cyan-600"></i>
                     </div>
-                    <div>
-                        <span class="text-gray-500"><%= t('passingScoreLabel') %></span>
-                        <span id="passing-score" class="font-medium">-</span>
+                    <div id="time-limit" class="text-2xl font-bold text-cyan-700">-</div>
+                    <div class="text-xs mt-1 text-cyan-600"><%= t('time') %></div>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center border border-green-200">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-trophy text-xl text-green-600"></i>
                     </div>
-                    <div>
-                        <span class="text-gray-500"><%= t('level') %></span>
-                        <span id="difficulty" class="font-medium">-</span>
+                    <div id="passing-score" class="text-2xl font-bold text-green-700">-</div>
+                    <div class="text-xs mt-1 text-green-600"><%= t('passingScoreLabel') %></div>
+                </div>
+                <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 text-center border border-indigo-200">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-redo text-xl text-indigo-600"></i>
+                    </div>
+                    <div id="max-attempts" class="text-2xl font-bold text-indigo-700">-</div>
+                    <div class="text-xs mt-1 text-indigo-600"><%= t('attemptLimitLabel') %></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Test Instructions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-info-circle text-blue-600"></i>
+                        </div>
+                        <%= t('testInstructions') %>
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div id="test-instructions" class="prose max-w-none text-gray-600">
+                        <!-- Instructions will be loaded here -->
+                    </div>
+
+                    <!-- Important Rules -->
+                    <div class="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-5">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-semibold text-amber-800 mb-3"><%= t('importantWarnings') %></h4>
+                                <ul class="space-y-2 text-sm text-amber-700">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-amber-500 mt-0.5 mr-2 flex-shrink-0"></i>
+                                        <span><%= t('readQuestionsCarefully') %></span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-amber-500 mt-0.5 mr-2 flex-shrink-0"></i>
+                                        <span><%= t('checkBeforeSubmit') %></span>
+                                    </li>
+                                    <li id="camera-required" class="hidden flex items-start text-red-700">
+                                        <i class="fas fa-video text-red-500 mt-0.5 mr-2 flex-shrink-0"></i>
+                                        <span><%= t('cameraRequiredWarning') %></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col space-y-3 ml-6">
-                <button id="start-test-btn" onclick="startTest()"
-                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white ruxchai-gradient hover:opacity-90">
-                    <i class="fas fa-play mr-2"></i><%= t('startTest') %>
-                </button>
+            <!-- Previous Attempts -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-history text-purple-600"></i>
+                        </div>
+                        <%= t('testHistory') %>
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div id="attempts-list">
+                        <!-- Attempts will be loaded here -->
+                    </div>
+                </div>
+            </div>
 
-                <div class="flex space-x-2">
-                    <% if (['Admin', 'Instructor'].includes(user.role)) { %>
-                    <a id="edit-test-link" href="#"
-                       class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-edit mr-2"></i><%= t('editTest') %>
-                    </a>
-                    <% } %>
+            <!-- Test Statistics (for instructors) -->
+            <% if (['Admin', 'Instructor'].includes(user.role_name || user.role)) { %>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-chart-bar text-green-600"></i>
+                        </div>
+                        <%= t('testStatistics') %>
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-blue-50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-blue-600" id="total-attempts">-</div>
+                            <div class="text-xs text-blue-600/70 mt-1"><%= t('totalTestTakers') %></div>
+                        </div>
+                        <div class="bg-green-50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-green-600" id="pass-rate">-</div>
+                            <div class="text-xs text-green-600/70 mt-1"><%= t('passRate') %></div>
+                        </div>
+                        <div class="bg-amber-50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-amber-600" id="avg-score">-</div>
+                            <div class="text-xs text-amber-600/70 mt-1"><%= t('avgScore') %></div>
+                        </div>
+                        <div class="bg-purple-50 rounded-xl p-4 text-center">
+                            <div class="text-3xl font-bold text-purple-600" id="avg-time">-</div>
+                            <div class="text-xs text-purple-600/70 mt-1"><%= t('avgTime') %></div>
+                        </div>
+                    </div>
 
-                    <button onclick="shareTest()"
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        <i class="fas fa-share mr-2"></i><%= t('share') %>
+                    <div class="mt-6 flex flex-wrap justify-center gap-3">
+                        <a id="results-link" href="#"
+                           class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors">
+                            <i class="fas fa-list mr-2"></i><%= t('viewAllResults') %>
+                        </a>
+                        <a id="analytics-link" href="#"
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium text-white transition-colors">
+                            <i class="fas fa-chart-line mr-2"></i><%= t('analyzeTest') %>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Right Column - Actions -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-24 space-y-4">
+                <!-- Start Test Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <button id="start-test-btn" onclick="startTest()"
+                            class="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5">
+                        <i class="fas fa-play mr-3"></i><%= t('startTest') %>
                     </button>
+
+                    <p class="text-center text-xs text-gray-500 mt-3">
+                        <i class="fas fa-shield-alt mr-1"></i>
+                        <%= t('checkBeforeSubmit') %>
+                    </p>
                 </div>
-            </div>
-        </div>
 
-        <!-- Status Badge -->
-        <div class="mt-4">
-            <span id="status-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                <span id="status-text">-</span>
-            </span>
-        </div>
-    </div>
+                <!-- Admin Actions -->
+                <% if (['Admin', 'Instructor'].includes(user.role_name || user.role)) { %>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3"><%= t('adminActions') || 'การจัดการ' %></h4>
 
-    <!-- Test Instructions -->
-    <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">
-            <i class="fas fa-info-circle mr-2 text-ruxchai-primary"></i><%= t('testInstructions') %>
-        </h3>
-        <div id="test-instructions" class="prose max-w-none text-gray-600">
-            <!-- Instructions will be loaded here -->
-        </div>
+                    <div class="space-y-2">
+                        <a id="edit-test-link" href="#"
+                           class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-pen-to-square text-blue-600 text-sm"></i>
+                            </div>
+                            <span class="font-medium text-sm"><%= t('editTest') %></span>
+                        </a>
 
-        <!-- Important Rules -->
-        <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-md p-4">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                        <!-- Status Change -->
+                        <div class="relative" id="status-dropdown-container">
+                            <button onclick="toggleStatusDropdown()" type="button"
+                                    class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-exchange-alt text-yellow-600 text-sm"></i>
+                                </div>
+                                <span class="font-medium text-sm flex-1 text-left"><%= t('changeStatus') || 'เปลี่ยนสถานะ' %></span>
+                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                            </button>
+                            <div id="status-dropdown" class="hidden absolute left-0 right-0 mt-1 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                                <div class="py-1">
+                                    <button onclick="updateTestStatus('Draft')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                                        <span class="w-2 h-2 rounded-full bg-yellow-400 mr-3"></span>
+                                        <%= t('draftStatus') || 'แบบร่าง' %>
+                                    </button>
+                                    <button onclick="updateTestStatus('Active')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                                        <span class="w-2 h-2 rounded-full bg-green-400 mr-3"></span>
+                                        <%= t('activeStatus') || 'เปิดใช้งาน' %>
+                                    </button>
+                                    <button onclick="updateTestStatus('Published')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                                        <span class="w-2 h-2 rounded-full bg-blue-400 mr-3"></span>
+                                        <%= t('publishedStatus') || 'เผยแพร่' %>
+                                    </button>
+                                    <button onclick="updateTestStatus('Inactive')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                                        <span class="w-2 h-2 rounded-full bg-gray-400 mr-3"></span>
+                                        <%= t('inactiveStatus') || 'ปิดใช้งาน' %>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="shareTest()"
+                                class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-share text-green-600 text-sm"></i>
+                            </div>
+                            <span class="font-medium text-sm"><%= t('share') %></span>
+                        </button>
+
+                        <% if ((user.role_name || user.role) === 'Admin') { %>
+                        <button onclick="confirmDeleteTest()"
+                                class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-trash text-red-600 text-sm"></i>
+                            </div>
+                            <span class="font-medium text-sm"><%= t('deleteTest') || 'ลบข้อสอบ' %></span>
+                        </button>
+                        <% } %>
+                    </div>
                 </div>
-                <div class="ml-3">
-                    <h4 class="text-sm font-medium text-yellow-800"><%= t('importantWarnings') %></h4>
-                    <div class="mt-2 text-sm text-yellow-700">
-                        <ul class="list-disc list-inside space-y-1">
-                            <li><%= t('readQuestionsCarefully') %></li>
-                            <li><%= t('checkBeforeSubmit') %></li>
-                            <li id="attempt-limit"><%= t('attemptLimitLabel') %> <span class="font-medium">-</span></li>
-                            <li id="camera-required" class="hidden text-red-700"><%= t('cameraRequiredWarning') %></li>
-                        </ul>
+                <% } %>
+
+                <!-- Quick Info -->
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3"><%= t('quickInfo') || 'ข้อมูลสรุป' %></h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500"><%= t('createdBy') || 'สร้างโดย' %></span>
+                            <span id="instructor-name" class="text-gray-900 font-medium">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500"><%= t('course') || 'หลักสูตร' %></span>
+                            <span id="course-name" class="text-gray-900 font-medium">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500"><%= t('createdAt') || 'สร้างเมื่อ' %></span>
+                            <span id="created-date" class="text-gray-900 font-medium">-</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Previous Attempts -->
-    <div id="attempts-section" class="bg-white rounded-lg shadow mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
-                <i class="fas fa-history mr-2 text-ruxchai-primary"></i><%= t('testHistory') %>
-            </h3>
-        </div>
-        <div class="p-6">
-            <div id="attempts-list">
-                <!-- Attempts will be loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Test Statistics (for instructors) -->
-    <% if (['Admin', 'Instructor'].includes(user.role)) { %>
-    <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
-                <i class="fas fa-chart-bar mr-2 text-ruxchai-primary"></i><%= t('testStatistics') %>
-            </h3>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600" id="total-attempts">-</div>
-                    <div class="text-sm text-gray-500"><%= t('totalTestTakers') %></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-green-600" id="pass-rate">-</div>
-                    <div class="text-sm text-gray-500"><%= t('passRate') %></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-yellow-600" id="avg-score">-</div>
-                    <div class="text-sm text-gray-500"><%= t('avgScore') %></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-purple-600" id="avg-time">-</div>
-                    <div class="text-sm text-gray-500"><%= t('avgTime') %></div>
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-center space-x-3">
-                <a id="results-link" href="#"
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-list mr-2"></i><%= t('viewAllResults') %>
-                </a>
-                <a id="analytics-link" href="#"
-                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                    <i class="fas fa-chart-line mr-2"></i><%= t('analyzeTest') %>
-                </a>
-            </div>
-        </div>
-    </div>
-    <% } %>
 </div>
 
 <!-- Access Code Modal -->
-<div id="access-code-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
-                <i class="fas fa-key text-yellow-600"></i>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mt-4"><%= t('enterTestAccessCode') %></h3>
-            <div class="mt-4">
+<div id="access-code-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative mx-4 w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-key text-2xl text-amber-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2"><%= t('enterTestAccessCode') %></h3>
+                <p class="text-sm text-gray-500 mb-6"><%= t('accessCodeDescription') || 'กรุณาใส่รหัสเข้าสอบที่ได้รับจากผู้สอน' %></p>
+
                 <input type="text" id="access-code-input"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                       placeholder="<%= t('enterAccessCodePlaceholder') %>">
-            </div>
-            <div class="mt-6 flex space-x-3 justify-center">
-                <button onclick="closeAccessCodeModal()"
-                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    <%= t('cancel') %>
-                </button>
-                <button onclick="verifyAccessCode()"
-                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                    <%= t('confirm') %>
-                </button>
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center text-lg font-mono tracking-widest"
+                       placeholder="XXXX-XXXX">
+
+                <div class="mt-6 flex gap-3">
+                    <button onclick="closeAccessCodeModal()"
+                            class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                        <%= t('cancel') %>
+                    </button>
+                    <button onclick="verifyAccessCode()"
+                            class="flex-1 px-4 py-3 bg-blue-600 rounded-xl text-white font-medium hover:bg-blue-700 transition-colors">
+                        <%= t('confirm') %>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -180,14 +334,23 @@
 const i18n = {
     testCodeLabel: '<%= t("testCode") %>',
     minutes: '<%= t("minutes") %>',
+    minute: '<%= t("minute") || "นาที" %>',
     unlimited: '<%= t("unlimited") %>',
     easy: '<%= t("easy") %>',
     medium: '<%= t("medium") %>',
     hard: '<%= t("hard") %>',
-    attemptLimitLabel: '<%= t("attemptLimitLabel") %>',
+    typeQuiz: '<%= t("typeQuiz") || "แบบทดสอบ" %>',
+    typeExam: '<%= t("typeExam") || "ข้อสอบ" %>',
+    typePractice: '<%= t("typePractice") || "แบบฝึกหัด" %>',
+    typeChapterTest: '<%= t("typeChapterTest") || "แบบทดสอบท้ายบท" %>',
+    typeLessonTest: '<%= t("typeLessonTest") || "แบบทดสอบท้ายบทเรียน" %>',
+    typeCourseTest: '<%= t("typeCourseTest") || "แบบทดสอบหลักสูตร" %>',
+    typePreTest: '<%= t("typePreTest") || "แบบทดสอบก่อนเรียน" %>',
+    typePostTest: '<%= t("typePostTest") || "แบบทดสอบหลังเรียน" %>',
     noAdditionalInstructions: '<%= t("noAdditionalInstructions") %>',
     active: '<%= t("active") %>',
     draft: '<%= t("draft") %>',
+    inactive: '<%= t("inactiveStatus") %>',
     archived: '<%= t("archived") %>',
     noTestHistory: '<%= t("noTestHistory") %>',
     attemptN: '<%= t("attemptN") %>',
@@ -206,7 +369,11 @@ const i18n = {
     errorStartingTest: '<%= t("errorStartingTest") %>',
     linkCopied: '<%= t("linkCopied") %>',
     testNotFound: '<%= t("testNotFound") %>',
-    errorLoadingData: '<%= t("errorLoadingData") %>'
+    errorLoadingData: '<%= t("errorLoadingData") %>',
+    testInProgress: '<%= t("testInProgress") %>',
+    scoreLabel: '<%= t("scoreLabel") %>',
+    questions: '<%= t("questions") || "ข้อ" %>',
+    notSpecified: '<%= t("notSpecified") || "ไม่ระบุ" %>'
 };
 
 let testId, testData = {}, userAttempts = [];
@@ -215,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
     testId = window.location.pathname.split('/')[2];
     loadTestData();
     loadUserAttempts();
-    <% if (['Admin', 'Instructor'].includes(user.role)) { %>
+    <% if (['Admin', 'Instructor'].includes(user.role_name || user.role)) { %>
     loadTestStatistics();
     <% } %>
 });
@@ -226,7 +393,6 @@ async function loadTestData() {
         const result = await response.json();
 
         if (result.success) {
-            // API returns { data: { test: {...}, questions: [...] } }
             testData = result.data.test || result.data;
             displayTestInfo();
         } else {
@@ -238,29 +404,34 @@ async function loadTestData() {
 }
 
 function displayTestInfo() {
-    // Map field names: API returns title, passing_marks, attempts_allowed
     const testName = testData.title || testData.test_name || '';
-    const testCode = testData.test_code || `TEST-${testData.test_id}`;
+    const testCode = testData.test_code || `TEST-${String(testData.test_id).padStart(4, '0')}`;
     const passingScore = testData.passing_marks || testData.passing_score || 70;
     const maxAttempts = testData.attempts_allowed || testData.max_attempts || 1;
-    const difficultyLevel = testData.difficulty_level || testData.type || 'Medium';
 
+    // Update header
     document.getElementById('test-title').textContent = testName;
-    document.getElementById('test-code').textContent = `${i18n.testCodeLabel}: ${testCode}`;
+    document.getElementById('breadcrumb-title').textContent = testName;
+    document.getElementById('test-code').innerHTML = `<i class="fas fa-hashtag mr-1"></i>${testCode}`;
     document.getElementById('test-description').textContent = testData.description || '';
-    document.getElementById('question-count').textContent = testData.question_count || 0;
-    document.getElementById('time-limit').textContent = testData.time_limit ? `${testData.time_limit} ${i18n.minutes}` : i18n.unlimited;
-    document.getElementById('passing-score').textContent = `${passingScore}%`;
-    document.getElementById('difficulty').textContent = getDifficultyText(difficultyLevel);
-    document.getElementById('attempt-limit').innerHTML = `${i18n.attemptLimitLabel} <span class="font-medium">${maxAttempts}</span>`;
 
-    // Store mapped values for later use
+    // Update stats cards
+    document.getElementById('question-count').textContent = testData.question_count || 0;
+    document.getElementById('time-limit').textContent = testData.time_limit ? testData.time_limit : '∞';
+    document.getElementById('passing-score').textContent = `${passingScore}%`;
+    document.getElementById('max-attempts').textContent = maxAttempts;
+
+    // Update test type badge
+    document.getElementById('test-type-text').textContent = getTestTypeText(testData.type);
+
+    // Store mapped values
     testData.test_name = testName;
     testData.passing_score = passingScore;
     testData.max_attempts = maxAttempts;
 
     // Instructions
-    document.getElementById('test-instructions').innerHTML = testData.instructions || i18n.noAdditionalInstructions;
+    document.getElementById('test-instructions').innerHTML = testData.instructions ||
+        `<p class="text-gray-500 italic">${i18n.noAdditionalInstructions}</p>`;
 
     // Status
     updateStatusBadge(testData.status);
@@ -270,47 +441,65 @@ function displayTestInfo() {
         document.getElementById('camera-required').classList.remove('hidden');
     }
 
+    // Quick Info
+    document.getElementById('instructor-name').textContent = testData.instructor_name || i18n.notSpecified;
+    document.getElementById('course-name').textContent = testData.course_name || i18n.notSpecified;
+    document.getElementById('created-date').textContent = testData.created_at ? formatDate(testData.created_at) : '-';
+
     // Links for instructors
-    <% if (['Admin', 'Instructor'].includes(user.role)) { %>
+    <% if (['Admin', 'Instructor'].includes(user.role_name || user.role)) { %>
     document.getElementById('edit-test-link').href = `/tests/${testId}/edit`;
     document.getElementById('results-link').href = `/tests/${testId}/results`;
     document.getElementById('analytics-link').href = `/tests/${testId}/analytics`;
     <% } %>
 
-    // Check if test can be started
     updateStartButton();
 }
 
-function getDifficultyText(level) {
-    const levels = {
-        'Easy': i18n.easy,
-        'Medium': i18n.medium,
-        'Hard': i18n.hard
+function getTestTypeText(type) {
+    const types = {
+        'Quiz': i18n.typeQuiz,
+        'Exam': i18n.typeExam,
+        'Practice': i18n.typePractice,
+        'chapter_test': i18n.typeChapterTest,
+        'lesson_test': i18n.typeLessonTest,
+        'course_test': i18n.typeCourseTest,
+        'pre_test': i18n.typePreTest,
+        'post_test': i18n.typePostTest
     };
-    return levels[level] || level;
+    return types[type] || type || '-';
 }
 
 function updateStatusBadge(status) {
     const badge = document.getElementById('status-badge');
+    const dot = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
-
-    badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ';
 
     switch (status) {
         case 'Published':
-            badge.className += 'bg-green-100 text-green-800';
+        case 'Active':
+            badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800';
+            dot.className = 'w-2 h-2 rounded-full mr-2 bg-green-500';
             text.textContent = i18n.active;
             break;
         case 'Draft':
-            badge.className += 'bg-yellow-100 text-yellow-800';
+            badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800';
+            dot.className = 'w-2 h-2 rounded-full mr-2 bg-yellow-500';
             text.textContent = i18n.draft;
             break;
+        case 'Inactive':
+            badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600';
+            dot.className = 'w-2 h-2 rounded-full mr-2 bg-gray-400';
+            text.textContent = i18n.inactive;
+            break;
         case 'Archived':
-            badge.className += 'bg-gray-100 text-gray-800';
+            badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600';
+            dot.className = 'w-2 h-2 rounded-full mr-2 bg-gray-400';
             text.textContent = i18n.archived;
             break;
         default:
-            badge.className += 'bg-gray-100 text-gray-800';
+            badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700';
+            dot.className = 'w-2 h-2 rounded-full mr-2 bg-gray-400';
             text.textContent = status;
     }
 }
@@ -332,60 +521,94 @@ async function loadUserAttempts() {
 function displayAttempts() {
     const container = document.getElementById('attempts-list');
 
-    if (userAttempts.length === 0) {
+    if (!userAttempts || userAttempts.length === 0) {
         container.innerHTML = `
-            <div class="text-center py-4 text-gray-500">
-                <i class="fas fa-clipboard-list text-gray-300 text-2xl mb-2"></i>
-                <p>${i18n.noTestHistory}</p>
+            <div class="text-center py-8">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-clipboard-list text-2xl text-gray-400"></i>
+                </div>
+                <p class="text-gray-500">${i18n.noTestHistory}</p>
             </div>
         `;
         return;
     }
 
-    container.innerHTML = userAttempts.map((attempt, index) => `
-        <div class="flex items-center justify-between p-3 border rounded-lg ${attempt.status === 'Completed' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'} mb-3">
-            <div>
-                <div class="flex items-center space-x-3">
-                    <span class="text-sm font-medium">${i18n.attemptN} ${attempt.attempt_number}</span>
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        attempt.passed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }">
-                        ${attempt.passed ? i18n.passed : i18n.failed}
-                    </span>
+    container.innerHTML = userAttempts.map((attempt, index) => {
+        const isCompleted = attempt.status === 'Completed';
+        const isPassed = attempt.passed;
+
+        return `
+        <div class="flex items-center justify-between p-4 rounded-xl border ${
+            isCompleted
+                ? (isPassed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200')
+                : 'bg-amber-50 border-amber-200'
+        } mb-3 last:mb-0">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
+                    isCompleted
+                        ? (isPassed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600')
+                        : 'bg-amber-100 text-amber-600'
+                }">
+                    ${isCompleted
+                        ? (isPassed ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>')
+                        : '<i class="fas fa-hourglass-half"></i>'
+                    }
                 </div>
-                <div class="text-sm text-gray-500 mt-1">
-                    ${formatDate(attempt.start_time)} • คะแนน: ${attempt.score}/${attempt.max_score} (${attempt.percentage}%)
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-semibold text-gray-900">${i18n.attemptN} ${attempt.attempt_number || index + 1}</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                            isCompleted
+                                ? (isPassed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')
+                                : 'bg-amber-100 text-amber-800'
+                        }">
+                            ${isCompleted ? (isPassed ? i18n.passed : i18n.failed) : i18n.testInProgress}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-500 mt-1">
+                        ${formatDate(attempt.started_at)}
+                        ${isCompleted ? `<span class="mx-2">•</span><span class="font-medium">${attempt.score || 0} ${i18n.scoreLabel} (${Math.round(attempt.percentage || 0)}%)</span>` : ''}
+                    </div>
                 </div>
             </div>
-            <div class="flex space-x-2">
-                ${attempt.status === 'Completed' ? `
+            <div>
+                ${isCompleted ? `
                     <button onclick="viewResults('${attempt.attempt_id}')"
-                            class="text-blue-600 hover:text-blue-800 text-sm">
-                        <i class="fas fa-eye mr-1"></i>${i18n.viewResults}
+                            class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>${i18n.viewResults}
                     </button>
                 ` : `
                     <button onclick="continueAttempt('${attempt.attempt_id}')"
-                            class="text-orange-600 hover:text-orange-800 text-sm">
-                        <i class="fas fa-play mr-1"></i>${i18n.continueTest}
+                            class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 transition-colors">
+                        <i class="fas fa-play mr-2"></i>${i18n.continueTest}
                     </button>
                 `}
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
-<% if (['Admin', 'Instructor'].includes(user.role)) { %>
+<% if (['Admin', 'Instructor'].includes(user.role_name || user.role)) { %>
 async function loadTestStatistics() {
     try {
-        const response = await fetch(`/tests/api/${testId}/stats`);
+        const response = await fetch(`/tests/api/${testId}/statistics`);
         const result = await response.json();
 
         if (result.success) {
             const stats = result.data;
             document.getElementById('total-attempts').textContent = stats.total_attempts || 0;
-            document.getElementById('pass-rate').textContent = `${stats.pass_rate || 0}%`;
-            document.getElementById('avg-score').textContent = `${stats.avg_score || 0}%`;
-            document.getElementById('avg-time').textContent = formatDuration(stats.avg_time || 0);
+
+            // Calculate pass rate from passed_attempts / completed_attempts
+            const passRate = stats.completed_attempts > 0
+                ? Math.round((stats.passed_attempts / stats.completed_attempts) * 100)
+                : 0;
+            document.getElementById('pass-rate').textContent = `${passRate}%`;
+
+            document.getElementById('avg-score').textContent = `${Math.round(stats.avg_score || 0)}%`;
+
+            // Use avg_time_minutes and convert to proper format
+            document.getElementById('avg-time').textContent = formatDuration((stats.avg_time_minutes || 0) * 60);
         }
     } catch (error) {
         console.error('Error loading test statistics:', error);
@@ -396,54 +619,48 @@ async function loadTestStatistics() {
 function updateStartButton() {
     const btn = document.getElementById('start-test-btn');
 
-    // Check if test is available (accept both 'Active' and 'Published')
     if (testData.status !== 'Published' && testData.status !== 'Active') {
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-lock mr-2"></i>${i18n.testNotActive}`;
-        btn.className = btn.className.replace('ruxchai-gradient', 'bg-gray-400');
+        btn.innerHTML = `<i class="fas fa-lock mr-3"></i>${i18n.testNotActive}`;
+        btn.className = 'w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white bg-gray-400 cursor-not-allowed';
         return;
     }
 
-    // Check date range
     const now = new Date();
     if (testData.start_date && new Date(testData.start_date) > now) {
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-calendar mr-2"></i>${i18n.notYetTestTime}`;
-        btn.className = btn.className.replace('ruxchai-gradient', 'bg-gray-400');
+        btn.innerHTML = `<i class="fas fa-calendar mr-3"></i>${i18n.notYetTestTime}`;
+        btn.className = 'w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white bg-gray-400 cursor-not-allowed';
         return;
     }
 
     if (testData.end_date && new Date(testData.end_date) < now) {
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-calendar-times mr-2"></i>${i18n.testTimeExpired}`;
-        btn.className = btn.className.replace('ruxchai-gradient', 'bg-gray-400');
+        btn.innerHTML = `<i class="fas fa-calendar-times mr-3"></i>${i18n.testTimeExpired}`;
+        btn.className = 'w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white bg-gray-400 cursor-not-allowed';
         return;
     }
 
-    // Check attempt limit
     const completedAttempts = userAttempts.filter(a => a.status === 'Completed').length;
     if (completedAttempts >= testData.max_attempts) {
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-ban mr-2"></i>${i18n.maxAttemptsReached}`;
-        btn.className = btn.className.replace('ruxchai-gradient', 'bg-gray-400');
+        btn.innerHTML = `<i class="fas fa-ban mr-3"></i>${i18n.maxAttemptsReached}`;
+        btn.className = 'w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white bg-gray-400 cursor-not-allowed';
         return;
     }
 
-    // Check if already in progress
     const inProgressAttempt = userAttempts.find(a => a.status === 'In Progress');
     if (inProgressAttempt) {
-        btn.innerHTML = `<i class="fas fa-play mr-2"></i>${i18n.continueCurrentTest}`;
+        btn.innerHTML = `<i class="fas fa-play mr-3"></i>${i18n.continueCurrentTest}`;
         btn.onclick = () => continueAttempt(inProgressAttempt.attempt_id);
     }
 }
 
 async function startTest() {
-    // Check if access code is required
     if (testData.access_code) {
         document.getElementById('access-code-modal').classList.remove('hidden');
         return;
     }
-
     await createNewAttempt();
 }
 
@@ -471,10 +688,7 @@ function closeAccessCodeModal() {
 
 async function createNewAttempt() {
     try {
-        const response = await fetch(`/tests/api/${testId}/start`, {
-            method: 'POST'
-        });
-
+        const response = await fetch(`/tests/api/${testId}/start`, { method: 'POST' });
         const result = await response.json();
 
         if (result.success) {
@@ -492,7 +706,7 @@ function continueAttempt(attemptId) {
 }
 
 function viewResults(attemptId) {
-    window.location.href = `/tests/${testId}/results?attempt=${attemptId}`;
+    window.location.href = `/tests/${testId}/results?attempt_id=${attemptId}`;
 }
 
 function shareTest() {
@@ -511,8 +725,8 @@ function shareTest() {
     }
 }
 
-// Helper functions
 function formatDate(dateString) {
+    if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('th-TH', {
         year: 'numeric',
         month: 'short',
@@ -523,8 +737,104 @@ function formatDate(dateString) {
 }
 
 function formatDuration(minutes) {
+    if (!minutes) return '-';
     const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    const mins = Math.round(minutes % 60);
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
 }
+
+function toggleStatusDropdown() {
+    document.getElementById('status-dropdown').classList.toggle('hidden');
+}
+
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('status-dropdown-container');
+    if (container && !container.contains(event.target)) {
+        document.getElementById('status-dropdown').classList.add('hidden');
+    }
+});
+
+async function updateTestStatus(newStatus) {
+    document.getElementById('status-dropdown').classList.add('hidden');
+
+    if (testData.status === newStatus) return;
+
+    try {
+        const response = await fetch(`/tests/api/${testId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            testData.status = newStatus;
+            updateStatusBadge(newStatus);
+            updateStartButton();
+            showSuccess('<%= t("statusUpdatedSuccess") || "อัปเดตสถานะสำเร็จ" %>');
+        } else {
+            showError(result.message || '<%= t("statusUpdateError") || "ไม่สามารถอัปเดตสถานะได้" %>');
+        }
+    } catch (error) {
+        showError('<%= t("statusUpdateError") || "ไม่สามารถอัปเดตสถานะได้" %>');
+    }
+}
+
+function confirmDeleteTest() {
+    if (confirm('<%= t("confirmDeleteTest") || "คุณแน่ใจหรือไม่ว่าต้องการลบข้อสอบนี้? การกระทำนี้ไม่สามารถย้อนกลับได้" %>')) {
+        deleteTest();
+    }
+}
+
+async function deleteTest() {
+    try {
+        const response = await fetch(`/tests/api/${testId}`, { method: 'DELETE' });
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccess('<%= t("testDeletedSuccess") || "ลบข้อสอบสำเร็จ" %>');
+            setTimeout(() => { window.location.href = '/tests'; }, 1500);
+        } else {
+            showError(result.message || '<%= t("testDeleteError") || "ไม่สามารถลบข้อสอบได้" %>');
+        }
+    } catch (error) {
+        showError('<%= t("testDeleteError") || "ไม่สามารถลบข้อสอบได้" %>');
+    }
+}
+
+function showSuccess(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 flex items-center px-6 py-4 bg-green-500 text-white rounded-xl shadow-2xl z-50 animate-slide-in';
+    alert.innerHTML = `<i class="fas fa-check-circle text-xl mr-3"></i><span class="font-medium">${message}</span>`;
+    document.body.appendChild(alert);
+    setTimeout(() => {
+        alert.classList.add('animate-slide-out');
+        setTimeout(() => alert.remove(), 300);
+    }, 3000);
+}
+
+function showError(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 flex items-center px-6 py-4 bg-red-500 text-white rounded-xl shadow-2xl z-50 animate-slide-in';
+    alert.innerHTML = `<i class="fas fa-exclamation-circle text-xl mr-3"></i><span class="font-medium">${message}</span>`;
+    document.body.appendChild(alert);
+    setTimeout(() => {
+        alert.classList.add('animate-slide-out');
+        setTimeout(() => alert.remove(), 300);
+    }, 3000);
+}
 </script>
+
+<style>
+@keyframes slide-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-out {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+.animate-slide-in { animation: slide-in 0.3s ease-out; }
+.animate-slide-out { animation: slide-out 0.3s ease-in; }
+</style>

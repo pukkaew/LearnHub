@@ -256,6 +256,23 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <!-- Anti-Cheating Settings -->
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="questions_to_show" class="block text-sm font-medium text-gray-700 mb-2">จำนวนข้อที่ออกสอบ</label>
+                                    <input type="number" id="questions_to_show" name="questions_to_show" min="0" placeholder="ทุกข้อ"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                    <p class="text-xs text-gray-500 mt-1">ถ้ามี 20 ข้อ ใส่ 10 = สุ่ม 10 ข้อจาก 20 (ว่าง = ออกทุกข้อ)</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <label class="inline-flex items-center mt-4">
+                                        <input type="checkbox" id="randomize_options" name="randomize_options"
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">สุ่มลำดับตัวเลือก (เฉพาะข้อเลือกตอบ)</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Display Settings -->
@@ -861,7 +878,7 @@ function loadChapters() {
     fetch(`/tests/api/courses/${courseId}/chapters`)
         .then(response => response.json())
         .then(result => {
-            if (result.success && result.data.length > 0) {
+            if (result.success && result.data && result.data.length > 0) {
                 // Track the source type
                 chaptersSource = result.source || 'chapters';
 
@@ -1167,6 +1184,8 @@ function collectFormData() {
         require_camera: document.getElementById('require_camera')?.checked || false,
         prevent_copy_paste: document.getElementById('prevent_copy_paste')?.checked || false,
         track_tab_switching: document.getElementById('track_tab_switching')?.checked || false,
+        randomize_options: document.getElementById('randomize_options')?.checked || false,
+        questions_to_show: document.getElementById('questions_to_show')?.value || '',
         access_code: document.getElementById('access_code')?.value || '',
         status: document.getElementById('status')?.value || ''
     };
@@ -1655,6 +1674,8 @@ async function submitTest() {
         require_camera: formData.get('require_camera') ? true : false,
         prevent_copy_paste: formData.get('prevent_copy_paste') ? true : false,
         track_tab_switching: formData.get('track_tab_switching') ? true : false,
+        randomize_options: formData.get('randomize_options') ? true : false,
+        questions_to_show: formData.get('questions_to_show') ? parseInt(formData.get('questions_to_show')) : null,
         access_code: formData.get('access_code') || null,
         status: formData.get('status'),
         questions: questions.map(q => ({

@@ -27,6 +27,9 @@ router.post('/api/create', authMiddleware.requireRole(['Admin', 'Instructor']), 
 // Test results API
 router.get('/api/attempts/:attempt_id/results', testController.getAttemptResultsAPI);
 
+// Test analytics API (Admin/Instructor only)
+router.get('/api/analytics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.getTestAnalyticsAPI);
+
 // Test-specific API endpoints (with :test_id)
 router.get('/api/:test_id', testController.getTestById);
 router.put('/api/:test_id', authMiddleware.requireRole(['Admin', 'Instructor']), testController.updateTest);
@@ -46,6 +49,7 @@ router.get('/create', authMiddleware.requireRole(['Admin', 'Instructor']), testC
 router.get('/:test_id', testController.renderTestDetail);
 router.get('/:test_id/take', testController.startTestAndRedirect);
 router.get('/:test_id/results', testController.renderTestResults);
+router.get('/:test_id/analytics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderTestAnalytics);
 router.get('/:test_id/:attempt_id/taking', testController.renderTestTaking);
 
 module.exports = router;

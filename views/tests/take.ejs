@@ -241,6 +241,7 @@ let timerInterval = null;
 let autoSaveInterval = null;
 let testAttemptId = '<%= locals.attemptId || "" %>';
 let isSubmitted = false;
+let testStartTime = Date.now(); // Track actual start time for elapsed time calculation
 
 document.addEventListener('DOMContentLoaded', function() {
     if (testAttemptId && serverTestData && serverTestData.test_id) {
@@ -762,6 +763,9 @@ async function submitTest() {
         // Save current answer before submitting
         saveAnswer();
 
+        // Calculate elapsed time in seconds
+        const elapsedSeconds = Math.floor((Date.now() - testStartTime) / 1000);
+
         const response = await fetch(`/tests/api/${testData.test_id}/${testAttemptId}/submit`, {
             method: 'POST',
             headers: {
@@ -769,7 +773,7 @@ async function submitTest() {
             },
             body: JSON.stringify({
                 answers: answers,
-                time_taken: Math.floor((testData.time_limit * 60 - timeRemaining) / 60)
+                time_spent_seconds: elapsedSeconds
             })
         });
 
@@ -797,6 +801,9 @@ async function autoSubmitTest() {
     try {
         saveAnswer();
 
+        // Calculate elapsed time in seconds
+        const elapsedSeconds = Math.floor((Date.now() - testStartTime) / 1000);
+
         await fetch(`/tests/api/${testData.test_id}/${testAttemptId}/submit`, {
             method: 'POST',
             headers: {
@@ -804,7 +811,7 @@ async function autoSubmitTest() {
             },
             body: JSON.stringify({
                 answers: answers,
-                time_taken: testData.time_limit,
+                time_spent_seconds: elapsedSeconds,
                 auto_submit: true
             })
         });

@@ -18,8 +18,9 @@ router.get('/:course_id/content', courseController.renderCourseContent);
 router.get('/:course_id', courseController.renderCourseDetail);
 
 // API endpoints - Course CRUD operations (IMPORTANT: Static routes MUST come before dynamic routes)
+router.get('/api/stats', courseController.getUserCourseStats);  // User course statistics
 router.get('/api/all', courseController.getAllCourses);
-router.get('/api/list', courseController.getAllCourses);  // Alias for /api/all
+router.get('/api/list', courseController.getCoursesList);  // Course list with tab support
 router.get('/api/my-courses', courseController.getMyEnrollments);
 router.get('/api/categories', courseController.getCategories);
 router.get('/api/instructors', courseController.getInstructors);

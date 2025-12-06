@@ -94,10 +94,18 @@ const testController = {
         try {
             const pool = await poolPromise;
             const userId = req.user.user_id;
+            const userRole = req.user.role_name;
             const { page = 1, limit = 12, tab = 'all', search, category } = req.query;
             const offset = (parseInt(page) - 1) * parseInt(limit);
 
-            let whereClause = "WHERE t.status IN ('Active', 'Published')";
+            // Admin and Instructor can see Draft tests, others only see Active/Published
+            let whereClause;
+            if (['Admin', 'Instructor'].includes(userRole)) {
+                whereClause = "WHERE t.status IN ('Active', 'Published', 'Draft')";
+            } else {
+                whereClause = "WHERE t.status IN ('Active', 'Published')";
+            }
+
             const request = pool.request()
                 .input('userId', sql.Int, userId)
                 .input('offset', sql.Int, offset)
@@ -334,7 +342,9 @@ const testController = {
                 is_required: req.body.is_required || false,
                 is_passing_required: req.body.is_passing_required || false,
                 score_weight: req.body.score_weight || 100,
-                show_score_breakdown: req.body.show_score_breakdown !== undefined ? req.body.show_score_breakdown : true
+                show_score_breakdown: req.body.show_score_breakdown !== undefined ? req.body.show_score_breakdown : true,
+                randomize_options: req.body.randomize_options || false,
+                questions_to_show: req.body.questions_to_show || null
             };
 
             const result = await Test.create(testData);
@@ -652,7 +662,7 @@ const testController = {
     async submitTest(req, res) {
         try {
             const { test_id, attempt_id } = req.params;
-            const { answers } = req.body;
+            const { answers, time_spent_seconds } = req.body;
             const userId = req.user.user_id;
 
             const test = await Test.findById(test_id);
@@ -678,7 +688,7 @@ const testController = {
                 });
             }
 
-            const result = await Test.submitAttempt(attempt_id, answers);
+            const result = await Test.submitAttempt(attempt_id, answers, time_spent_seconds);
 
             if (!result.success) {
                 return res.status(400).json(result);
@@ -1038,10 +1048,17 @@ const testController = {
             }
 
             // Get questions with randomization based on test settings
-            const questions = await Question.findByTestId(test_id, {
+            let questions = await Question.findByTestId(test_id, {
                 randomizeQuestions: test.randomize_questions === true || test.randomize_questions === 1,
-                randomizeOptions: true  // Always randomize answer options for multiple choice
+                randomizeOptions: test.randomize_options === true || test.randomize_options === 1
             });
+
+            // Limit questions if questions_to_show is set
+            if (test.questions_to_show && test.questions_to_show > 0 && questions.length > test.questions_to_show) {
+                // Shuffle and take only the specified number of questions
+                const shuffled = [...questions].sort(() => Math.random() - 0.5);
+                questions = shuffled.slice(0, test.questions_to_show);
+            }
 
             // Set custom layout for test taking page
             res.locals.layout = 'test-layout';
@@ -1092,7 +1109,7 @@ const testController = {
                 });
             }
 
-            // If no chapters, get course_materials that have has_test = 1
+            // If no chapters, get course_materials (all types for test assignment)
             const pool = await poolPromise;
             const materialsResult = await pool.request()
                 .input('courseId', sql.Int, parseInt(course_id))
@@ -1103,11 +1120,10 @@ const testController = {
                         content as description,
                         order_index,
                         'material' as source_type,
-                        has_test
+                        ISNULL(has_test, 0) as has_test
                     FROM course_materials
                     WHERE course_id = @courseId
                       AND type IN ('lesson', 'chapter', 'section')
-                      AND has_test = 1
                     ORDER BY order_index, material_id
                 `);
 
@@ -1211,16 +1227,9 @@ const testController = {
     async renderTestResults(req, res) {
         try {
             const { test_id } = req.params;
-            const attemptId = req.query.attempt_id;
+            let attemptId = req.query.attempt_id;
             const userId = req.user.user_id;
-
-            if (!attemptId) {
-                return res.render('error/400', {
-                    title: req.t('errorTitle'),
-                    message: req.t('attemptIdRequired') || 'Attempt ID is required',
-                    user: req.session.user
-                });
-            }
+            const userRole = req.user.role_name;
 
             const test = await Test.findById(test_id);
             if (!test) {
@@ -1231,8 +1240,30 @@ const testController = {
                 });
             }
 
+            // If no attempt_id specified, get the latest completed attempt for this user
+            if (!attemptId) {
+                const userAttempts = await Test.getUserAttempts(test_id, userId);
+                const completedAttempts = userAttempts.filter(a => a.status === 'Completed');
+
+                if (completedAttempts.length === 0) {
+                    // No completed attempts, show list of all attempts or redirect
+                    return res.render('tests/results', {
+                        title: `${req.t('testResultsTitle')} - ${test.title}`,
+                        user: req.session.user,
+                        userRole: userRole,
+                        test: test,
+                        attemptId: null,
+                        attempts: userAttempts,
+                        noAttemptSelected: true
+                    });
+                }
+
+                // Use the latest completed attempt
+                attemptId = completedAttempts[0].attempt_id;
+            }
+
             const attempt = await Test.getAttemptById(attemptId);
-            if (!attempt || attempt.user_id !== userId) {
+            if (!attempt) {
                 return res.render('error/404', {
                     title: req.t('pageNotFoundTitle'),
                     message: req.t('testAttemptNotFound'),
@@ -1240,12 +1271,26 @@ const testController = {
                 });
             }
 
+            // Allow viewing if user owns the attempt or is admin/instructor
+            if (attempt.user_id !== userId && !['Admin', 'Instructor'].includes(userRole)) {
+                return res.render('error/403', {
+                    title: req.t('accessDeniedTitle') || 'Access Denied',
+                    message: req.t('noPermissionViewResults') || 'You do not have permission to view these results',
+                    user: req.session.user
+                });
+            }
+
+            // Get all attempts for this test by this user (for attempt selector)
+            const userAttempts = await Test.getUserAttempts(test_id, attempt.user_id);
+
             res.render('tests/results', {
                 title: `${req.t('testResultsTitle')} - ${test.title}`,
                 user: req.session.user,
-                userRole: req.user.role_name,
+                userRole: userRole,
                 test: test,
-                attemptId: attemptId
+                attemptId: attemptId,
+                attempts: userAttempts,
+                noAttemptSelected: false
             });
 
         } catch (error) {
@@ -1255,6 +1300,275 @@ const testController = {
                 message: req.t('errorLoadingResults') || 'Error loading results',
                 user: req.session.user,
                 error: error
+            });
+        }
+    },
+
+    // Render test analytics page (Admin/Instructor only)
+    async renderTestAnalytics(req, res) {
+        try {
+            const { test_id } = req.params;
+
+            const test = await Test.findById(test_id);
+            if (!test) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    message: req.t('testNotFound'),
+                    user: req.session.user
+                });
+            }
+
+            res.render('tests/analytics', {
+                title: `${req.t('testAnalyticsTitle') || 'สถิติแบบทดสอบ'} - ${test.title}`,
+                user: req.session.user,
+                userRole: req.user.role_name,
+                test: test
+            });
+
+        } catch (error) {
+            console.error('Render test analytics error:', error);
+            res.render('error/500', {
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingAnalytics') || 'Error loading analytics',
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
+    // API: Get test analytics data (Admin/Instructor only)
+    async getTestAnalyticsAPI(req, res) {
+        try {
+            const userRole = req.user.role_name;
+            const userId = req.user.user_id;
+            const { test_id } = req.params;
+            const { timeRange = 30 } = req.query;
+
+            if (!['Admin', 'Instructor'].includes(userRole)) {
+                return res.status(403).json({
+                    success: false,
+                    message: req.t('noPermissionViewAnalytics') || 'No permission to view analytics'
+                });
+            }
+
+            const pool = await poolPromise;
+            const days = parseInt(timeRange);
+            const dateFilter = new Date();
+            dateFilter.setDate(dateFilter.getDate() - days);
+
+            // Build instructor filter for non-admin users
+            let instructorFilter = '';
+            const request = pool.request()
+                .input('dateFilter', sql.DateTime, dateFilter)
+                .input('testId', sql.Int, test_id || null);
+
+            if (userRole === 'Instructor') {
+                instructorFilter = ' AND t.instructor_id = @instructorId';
+                request.input('instructorId', sql.Int, userId);
+            }
+
+            // Get key metrics
+            const metricsResult = await request.query(`
+                SELECT
+                    COUNT(DISTINCT t.test_id) as totalTests,
+                    (SELECT COUNT(*) FROM TestAttempts ta
+                     INNER JOIN tests t2 ON ta.test_id = t2.test_id
+                     WHERE ta.started_at >= @dateFilter ${instructorFilter.replace('t.', 't2.')}) as totalAttempts,
+                    (SELECT AVG(CAST(ta.percentage AS FLOAT)) FROM TestAttempts ta
+                     INNER JOIN tests t2 ON ta.test_id = t2.test_id
+                     WHERE ta.status = 'Completed' AND ta.started_at >= @dateFilter ${instructorFilter.replace('t.', 't2.')}) as averageScore,
+                    (SELECT CAST(COUNT(CASE WHEN ta.passed = 1 THEN 1 END) AS FLOAT) * 100 / NULLIF(COUNT(*), 0)
+                     FROM TestAttempts ta
+                     INNER JOIN tests t2 ON ta.test_id = t2.test_id
+                     WHERE ta.status = 'Completed' AND ta.started_at >= @dateFilter ${instructorFilter.replace('t.', 't2.')}) as passRate
+                FROM tests t
+                WHERE t.status != 'Deleted' ${instructorFilter}
+                    ${test_id ? ' AND t.test_id = @testId' : ''}
+            `);
+
+            const metrics = metricsResult.recordset[0];
+
+            // Get performance over time (last 30 days)
+            const performanceResult = await request.query(`
+                SELECT
+                    CONVERT(VARCHAR(10), ta.started_at, 120) as date,
+                    AVG(CAST(ta.percentage AS FLOAT)) as avgScore,
+                    CAST(COUNT(CASE WHEN ta.passed = 1 THEN 1 END) AS FLOAT) * 100 / NULLIF(COUNT(*), 0) as passRate
+                FROM TestAttempts ta
+                INNER JOIN tests t ON ta.test_id = t.test_id
+                WHERE ta.status = 'Completed'
+                    AND ta.started_at >= @dateFilter
+                    ${instructorFilter}
+                    ${test_id ? ' AND t.test_id = @testId' : ''}
+                GROUP BY CONVERT(VARCHAR(10), ta.started_at, 120)
+                ORDER BY date
+            `);
+
+            // Get score distribution
+            const distributionResult = await request.query(`
+                SELECT
+                    CASE
+                        WHEN ta.percentage <= 20 THEN 0
+                        WHEN ta.percentage <= 40 THEN 1
+                        WHEN ta.percentage <= 60 THEN 2
+                        WHEN ta.percentage <= 80 THEN 3
+                        ELSE 4
+                    END as bucket,
+                    COUNT(*) as count
+                FROM TestAttempts ta
+                INNER JOIN tests t ON ta.test_id = t.test_id
+                WHERE ta.status = 'Completed'
+                    AND ta.started_at >= @dateFilter
+                    ${instructorFilter}
+                    ${test_id ? ' AND t.test_id = @testId' : ''}
+                GROUP BY CASE
+                    WHEN ta.percentage <= 20 THEN 0
+                    WHEN ta.percentage <= 40 THEN 1
+                    WHEN ta.percentage <= 60 THEN 2
+                    WHEN ta.percentage <= 80 THEN 3
+                    ELSE 4
+                END
+                ORDER BY bucket
+            `);
+
+            // Convert to array format
+            const scoreDistribution = [0, 0, 0, 0, 0];
+            distributionResult.recordset.forEach(row => {
+                scoreDistribution[row.bucket] = row.count;
+            });
+
+            // Get attempts by day
+            const attemptsResult = await request.query(`
+                SELECT
+                    CONVERT(VARCHAR(10), ta.started_at, 120) as date,
+                    COUNT(*) as attempts
+                FROM TestAttempts ta
+                INNER JOIN tests t ON ta.test_id = t.test_id
+                WHERE ta.started_at >= @dateFilter
+                    ${instructorFilter}
+                    ${test_id ? ' AND t.test_id = @testId' : ''}
+                GROUP BY CONVERT(VARCHAR(10), ta.started_at, 120)
+                ORDER BY date
+            `);
+
+            // Get question types distribution
+            const questionTypesResult = await request.query(`
+                SELECT
+                    q.question_type,
+                    COUNT(*) as count
+                FROM Questions q
+                INNER JOIN tests t ON q.test_id = t.test_id
+                WHERE t.status != 'Deleted'
+                    ${instructorFilter}
+                    ${test_id ? ' AND t.test_id = @testId' : ''}
+                GROUP BY q.question_type
+            `);
+
+            const questionTypes = [0, 0, 0, 0]; // multiple_choice, true_false, essay, fill_blank
+            questionTypesResult.recordset.forEach(row => {
+                switch (row.question_type) {
+                    case 'multiple_choice': questionTypes[0] = row.count; break;
+                    case 'true_false': questionTypes[1] = row.count; break;
+                    case 'essay': questionTypes[2] = row.count; break;
+                    case 'fill_blank': questionTypes[3] = row.count; break;
+                }
+            });
+
+            // Get top performing tests
+            const topTestsResult = await request.query(`
+                SELECT TOP 5
+                    t.test_id,
+                    t.title,
+                    AVG(CAST(ta.percentage AS FLOAT)) as avgScore,
+                    COUNT(ta.attempt_id) as attempts
+                FROM tests t
+                INNER JOIN TestAttempts ta ON t.test_id = ta.test_id
+                WHERE ta.status = 'Completed'
+                    AND ta.started_at >= @dateFilter
+                    ${instructorFilter}
+                GROUP BY t.test_id, t.title
+                HAVING COUNT(ta.attempt_id) >= 3
+                ORDER BY avgScore DESC
+            `);
+
+            // Get challenging tests
+            const challengingTestsResult = await request.query(`
+                SELECT TOP 5
+                    t.test_id,
+                    t.title,
+                    AVG(CAST(ta.percentage AS FLOAT)) as avgScore,
+                    COUNT(ta.attempt_id) as attempts
+                FROM tests t
+                INNER JOIN TestAttempts ta ON t.test_id = ta.test_id
+                WHERE ta.status = 'Completed'
+                    AND ta.started_at >= @dateFilter
+                    ${instructorFilter}
+                GROUP BY t.test_id, t.title
+                HAVING COUNT(ta.attempt_id) >= 3
+                ORDER BY avgScore ASC
+            `);
+
+            // Get all tests with stats for the table
+            const testsResult = await request.query(`
+                SELECT
+                    t.test_id,
+                    t.title,
+                    t.status,
+                    c.title as course_title,
+                    COUNT(ta.attempt_id) as attempts,
+                    AVG(CAST(ta.percentage AS FLOAT)) as avgScore,
+                    CAST(COUNT(CASE WHEN ta.passed = 1 THEN 1 END) AS FLOAT) * 100 / NULLIF(COUNT(ta.attempt_id), 0) as passRate
+                FROM tests t
+                LEFT JOIN courses c ON t.course_id = c.course_id
+                LEFT JOIN TestAttempts ta ON t.test_id = ta.test_id AND ta.status = 'Completed'
+                WHERE t.status != 'Deleted'
+                    ${instructorFilter}
+                    ${test_id ? ' AND t.test_id = @testId' : ''}
+                GROUP BY t.test_id, t.title, t.status, c.title, t.created_at
+                ORDER BY t.created_at DESC
+            `);
+
+            res.json({
+                success: true,
+                data: {
+                    metrics: {
+                        totalTests: metrics.totalTests || 0,
+                        totalAttempts: metrics.totalAttempts || 0,
+                        averageScore: Math.round(metrics.averageScore || 0),
+                        passRate: Math.round(metrics.passRate || 0)
+                    },
+                    trends: {
+                        testsTrend: 0,
+                        attemptsTrend: 0,
+                        scoreTrend: 0,
+                        passTrend: 0
+                    },
+                    performance: {
+                        labels: performanceResult.recordset.map(r => r.date),
+                        scores: performanceResult.recordset.map(r => Math.round(r.avgScore || 0)),
+                        passRates: performanceResult.recordset.map(r => Math.round(r.passRate || 0))
+                    },
+                    scoreDistribution: scoreDistribution,
+                    attempts: {
+                        labels: attemptsResult.recordset.map(r => r.date),
+                        data: attemptsResult.recordset.map(r => r.attempts)
+                    },
+                    questionTypes: questionTypes,
+                    departments: {
+                        labels: [],
+                        scores: []
+                    },
+                    topTests: topTestsResult.recordset,
+                    challengingTests: challengingTestsResult.recordset,
+                    tests: testsResult.recordset
+                }
+            });
+
+        } catch (error) {
+            console.error('Get test analytics API error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingAnalytics') || 'Error loading analytics'
             });
         }
     },

@@ -2460,6 +2460,197 @@ const { t } = require('../utils/languages');
         }
     },
 
+    // Get user's course statistics for dashboard
+    async getUserCourseStats(req, res) {
+        try {
+            const userId = req.user.user_id;
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('userId', sql.Int, userId)
+                .query(`
+                    SELECT
+                        (SELECT COUNT(*) FROM Courses WHERE status IN ('Active', 'Published') AND is_active = 1) as total_courses,
+                        (SELECT COUNT(*) FROM user_courses WHERE user_id = @userId AND status = 'active') as enrolled_courses,
+                        (SELECT COUNT(*) FROM user_courses WHERE user_id = @userId AND status = 'completed') as completed_courses,
+                        (SELECT AVG(CAST(progress as FLOAT)) FROM user_courses WHERE user_id = @userId AND status IN ('active', 'completed')) as average_progress
+                `);
+
+            const stats = result.recordset[0] || {};
+
+            res.json({
+                success: true,
+                data: {
+                    total_courses: stats.total_courses || 0,
+                    enrolled_courses: stats.enrolled_courses || 0,
+                    completed_courses: stats.completed_courses || 0,
+                    average_progress: stats.average_progress || 0
+                }
+            });
+
+        } catch (error) {
+            console.error('Get user course stats error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorLoadingStats') : 'Error loading statistics'
+            });
+        }
+    },
+
+    // Get courses list with tab support
+    async getCoursesList(req, res) {
+        try {
+            const {
+                tab = 'all',
+                category,
+                difficulty,
+                status,
+                search,
+                sort = 'created_at',
+                page = 1,
+                limit = 12
+            } = req.query;
+
+            const userId = req.user.user_id;
+            const userRole = req.user.role_name;
+            const pool = await poolPromise;
+
+            const offset = (parseInt(page) - 1) * parseInt(limit);
+
+            // Base query parts - using correct column names
+            const baseSelect = `
+                SELECT c.course_id, c.title, c.description, c.thumbnail, c.category,
+                       c.difficulty_level, c.duration_hours, c.course_type, c.status,
+                       c.instructor_id, c.instructor_name, c.created_at,
+                       cc.category_name,
+                       uc.status as enrollment_status, uc.progress as progress_percentage,
+                       COALESCE(ec.enrollment_count, 0) as enrollment_count,
+                       (SELECT AVG(CAST(rating as FLOAT)) FROM course_reviews WHERE course_id = c.course_id) as rating
+                FROM Courses c
+                LEFT JOIN CourseCategories cc ON c.category = CAST(cc.category_id AS NVARCHAR) OR c.category = cc.category_name
+                LEFT JOIN user_courses uc ON c.course_id = uc.course_id AND uc.user_id = @userId
+                LEFT JOIN (SELECT course_id, COUNT(*) as enrollment_count FROM user_courses GROUP BY course_id) ec ON c.course_id = ec.course_id
+            `;
+
+            // Build WHERE clause based on tab
+            let whereClause = ' WHERE c.is_active = 1 ';
+
+            switch (tab) {
+                case 'my-courses':
+                    whereClause += ' AND uc.user_id = @userId AND uc.status IN (\'active\', \'completed\') ';
+                    break;
+                case 'recommended':
+                    // Recommended: courses not enrolled yet
+                    whereClause += ' AND (uc.user_id IS NULL OR uc.status IS NULL) AND c.status IN (\'Active\', \'Published\') ';
+                    break;
+                case 'popular':
+                    whereClause += ' AND c.status IN (\'Active\', \'Published\') ';
+                    break;
+                case 'created':
+                    if (['Admin', 'Instructor'].includes(userRole)) {
+                        whereClause += ' AND c.instructor_id = @userId ';
+                    }
+                    break;
+                default: // 'all'
+                    whereClause += ' AND c.status IN (\'Active\', \'Published\') ';
+            }
+
+            // Add filters
+            if (category) {
+                whereClause += ' AND (c.category = @category OR cc.category_id = @categoryId) ';
+            }
+            if (difficulty) {
+                whereClause += ' AND c.difficulty_level = @difficulty ';
+            }
+            if (status === 'not_enrolled') {
+                whereClause += ' AND (uc.user_id IS NULL OR uc.status IS NULL) ';
+            } else if (status === 'in_progress') {
+                whereClause += ' AND uc.status = \'active\' AND uc.progress < 100 ';
+            } else if (status === 'completed') {
+                whereClause += ' AND uc.status = \'completed\' ';
+            }
+            if (search) {
+                whereClause += ' AND (c.title LIKE @search OR c.description LIKE @search) ';
+            }
+
+            // Build ORDER BY clause
+            let orderClause = ' ORDER BY ';
+            switch (sort) {
+                case 'title':
+                    orderClause += 'c.title ASC';
+                    break;
+                case 'popularity':
+                    orderClause += 'ec.enrollment_count DESC';
+                    break;
+                case 'rating':
+                    orderClause += '(SELECT AVG(CAST(rating as FLOAT)) FROM course_reviews WHERE course_id = c.course_id) DESC';
+                    break;
+                default:
+                    orderClause += 'c.created_at DESC';
+            }
+
+            // Full query with pagination
+            const query = baseSelect + whereClause + orderClause + ' OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY';
+            const countQuery = `SELECT COUNT(*) as total FROM Courses c
+                          LEFT JOIN user_courses uc ON c.course_id = uc.course_id AND uc.user_id = @userId
+                          LEFT JOIN CourseCategories cc ON c.category = CAST(cc.category_id AS NVARCHAR) OR c.category = cc.category_name
+                          ${whereClause}`;
+
+            // Execute queries
+            const request = pool.request()
+                .input('userId', sql.Int, userId)
+                .input('offset', sql.Int, offset)
+                .input('limit', sql.Int, parseInt(limit));
+
+            if (category) {
+                request.input('category', sql.NVarChar, category);
+                request.input('categoryId', sql.Int, parseInt(category) || 0);
+            }
+            if (difficulty) {
+                request.input('difficulty', sql.NVarChar, difficulty);
+            }
+            if (search) {
+                request.input('search', sql.NVarChar, `%${search}%`);
+            }
+
+            const dataResult = await request.query(query);
+
+            const countRequest = pool.request()
+                .input('userId', sql.Int, userId);
+            if (category) {
+                countRequest.input('category', sql.NVarChar, category);
+                countRequest.input('categoryId', sql.Int, parseInt(category) || 0);
+            }
+            if (difficulty) {
+                countRequest.input('difficulty', sql.NVarChar, difficulty);
+            }
+            if (search) {
+                countRequest.input('search', sql.NVarChar, `%${search}%`);
+            }
+
+            const countResult = await countRequest.query(countQuery);
+            const total = countResult.recordset[0].total;
+
+            res.json({
+                success: true,
+                data: dataResult.recordset,
+                pagination: {
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    total: total,
+                    totalPages: Math.ceil(total / parseInt(limit))
+                }
+            });
+
+        } catch (error) {
+            console.error('Get courses list error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorLoadingCourses') : 'Error loading courses'
+            });
+        }
+    },
+
     async getAvailableTests(req, res) {
         try {
             const { poolPromise } = require('../config/database');
