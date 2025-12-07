@@ -646,9 +646,122 @@
     <!-- Submenu Dropdown CSS -->
     <link href="/css/submenu.css" rel="stylesheet">
 
-    <!-- Mobile Menu Styles - Modern Borderless Design -->
+    <!-- Desktop & Mobile Navbar Styles - Modern Borderless Design -->
     <style>
-        /* Mobile Menu - Modern Gradient */
+        /* ========================================
+           DESKTOP NAVBAR - Modern Gradient (Same as Mobile)
+           ======================================== */
+
+        /* Main Navbar - Gradient from Primary to Secondary */
+        .ruxchai-nav {
+            background: linear-gradient(135deg, <%= primaryColor %> 0%, <%= secondaryColor %> 100%) !important;
+            border-bottom: none !important;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+        }
+
+        /* Desktop Menu Items - Glass Cards */
+        .nav-menu-item {
+            background: rgba(255,255,255,0.15) !important;
+            border: none !important;
+            border-radius: 16px !important;
+            color: #ffffff !important;
+            padding: 12px 20px !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+            transition: all 0.3s ease !important;
+        }
+        .nav-menu-item:hover {
+            background: rgba(255,255,255,0.28) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+        }
+        .nav-menu-item:active {
+            transform: translateY(0) scale(0.98) !important;
+        }
+        .nav-menu-item.active {
+            background: rgba(255,255,255,0.35) !important;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+        }
+
+        /* Desktop Menu Icon */
+        .nav-menu-icon {
+            background: rgba(255,255,255,0.2) !important;
+            border-radius: 10px !important;
+            padding: 6px !important;
+            width: 28px !important;
+            height: 28px !important;
+            min-width: 28px !important;
+        }
+        .nav-menu-item:hover .nav-menu-icon {
+            background: rgba(255,255,255,0.3) !important;
+        }
+
+        /* Action Buttons - Glass Style */
+        .nav-action-button {
+            background: rgba(255,255,255,0.15) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+        }
+        .nav-action-button:hover {
+            background: rgba(255,255,255,0.28) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+
+        /* User Profile - Glass Style */
+        .nav-user-profile {
+            background: rgba(255,255,255,0.15) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+        }
+        .nav-user-profile:hover {
+            background: rgba(255,255,255,0.28) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+
+        /* Language Button - Glass Style */
+        .nav-language-button {
+            background: rgba(255,255,255,0.15) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+        }
+        .nav-language-button:hover {
+            background: rgba(255,255,255,0.28) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* Mobile Toggle Button - Glass Style */
+        .nav-mobile-toggle {
+            background: rgba(255,255,255,0.15) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+        }
+        .nav-mobile-toggle:hover {
+            background: rgba(255,255,255,0.28) !important;
+        }
+
+        /* Remove overlay effects for cleaner look */
+        .nav-overlay-top,
+        .nav-overlay-sides {
+            display: none !important;
+        }
+
+        /* ========================================
+           MOBILE MENU - Modern Gradient
+           ======================================== */
         .nav-mobile-menu {
             background: linear-gradient(165deg, <%= primaryColor %> 0%, <%= secondaryColor %> 100%) !important;
             border-top: none !important;

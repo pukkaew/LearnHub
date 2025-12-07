@@ -89,6 +89,43 @@ const testController = {
         }
     },
 
+    // Get tab counts for test index page
+    async getTabCounts(req, res) {
+        try {
+            const pool = await poolPromise;
+            const userId = req.user.user_id;
+            const userRole = req.user.role_name;
+
+            // Build status filter based on role
+            // Admin sees all Drafts, others see only their own Drafts
+            const statusFilter = userRole === 'Admin'
+                ? "status IN ('Active', 'Published', 'Draft')"
+                : "(status IN ('Active', 'Published') OR (status = 'Draft' AND instructor_id = @userId))";
+
+            const result = await pool.request()
+                .input('userId', sql.Int, userId)
+                .query(`
+                    SELECT
+                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter}) as [all],
+                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter} AND EXISTS (SELECT 1 FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId)) as myTests,
+                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter} AND t.created_at >= DATEADD(day, -30, GETDATE())) as recent,
+                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter}) as popular,
+                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter} AND t.instructor_id = @userId) as created
+                `);
+
+            res.json({
+                success: true,
+                data: result.recordset[0]
+            });
+        } catch (error) {
+            console.error('Get tab counts error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorLoadingCounts') : 'Error loading counts'
+            });
+        }
+    },
+
     // Get test list for index page with tabs support
     async getTestList(req, res) {
         try {
@@ -98,12 +135,14 @@ const testController = {
             const { page = 1, limit = 12, tab = 'all', search, category } = req.query;
             const offset = (parseInt(page) - 1) * parseInt(limit);
 
-            // Admin and Instructor can see Draft tests, others only see Active/Published
+            // Draft visibility: Admin sees all Draft, Owner sees their own Draft
             let whereClause;
-            if (['Admin', 'Instructor'].includes(userRole)) {
+            if (userRole === 'Admin') {
+                // Admin sees all tests including all Drafts
                 whereClause = "WHERE t.status IN ('Active', 'Published', 'Draft')";
             } else {
-                whereClause = "WHERE t.status IN ('Active', 'Published')";
+                // Others see Active/Published + their own Drafts (as owner)
+                whereClause = "WHERE (t.status IN ('Active', 'Published') OR (t.status = 'Draft' AND t.instructor_id = @userId))";
             }
 
             const request = pool.request()
@@ -112,10 +151,19 @@ const testController = {
                 .input('limit', sql.Int, parseInt(limit));
 
             // Filter by tab
+            let orderByClause = 'ORDER BY t.created_at DESC'; // default ordering
+
             if (tab === 'my-tests') {
                 whereClause += ' AND EXISTS (SELECT 1 FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId)';
             } else if (tab === 'created') {
                 whereClause += ' AND t.instructor_id = @userId';
+            } else if (tab === 'recent') {
+                // Recent: tests created within last 30 days, ordered by newest first
+                whereClause += ' AND t.created_at >= DATEADD(day, -30, GETDATE())';
+                orderByClause = 'ORDER BY t.created_at DESC';
+            } else if (tab === 'popular') {
+                // Popular: order by total attempt count (most attempted first)
+                orderByClause = 'ORDER BY (SELECT COUNT(*) FROM TestAttempts ta WHERE ta.test_id = t.test_id) DESC, t.created_at DESC';
             }
 
             // Filter by search
@@ -141,11 +189,14 @@ const testController = {
                        c.title as course_name,
                        (SELECT COUNT(*) FROM questions WHERE test_id = t.test_id) as question_count,
                        (SELECT TOP 1 ta.status FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId ORDER BY ta.started_at DESC) as user_status,
-                       (SELECT TOP 1 ta.percentage FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId ORDER BY ta.started_at DESC) as user_score
+                       (SELECT TOP 1 ta.percentage FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId ORDER BY ta.started_at DESC) as user_score,
+                       (SELECT COUNT(*) FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId) as user_attempt_count,
+                       (SELECT TOP 1 ta.attempt_id FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId AND ta.status = 'Completed' ORDER BY ta.started_at DESC) as last_attempt_id,
+                       (SELECT COUNT(*) FROM TestAttempts ta WHERE ta.test_id = t.test_id) as attempt_count
                 FROM tests t
                 LEFT JOIN courses c ON t.course_id = c.course_id
                 ${whereClause}
-                ORDER BY t.created_at DESC
+                ${orderByClause}
                 OFFSET @offset ROWS
                 FETCH NEXT @limit ROWS ONLY
             `);

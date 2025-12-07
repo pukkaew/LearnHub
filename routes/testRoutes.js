@@ -17,6 +17,7 @@ router.get('/api/courses/:course_id/tests', testController.getTestsByCourse);
 
 // Test list and stats APIs (for index page)
 router.get('/api/stats', testController.getTestStats);
+router.get('/api/counts', testController.getTabCounts);
 router.get('/api/list', testController.getTestList);
 router.get('/api/categories', testController.getTestCategories);
 

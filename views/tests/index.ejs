@@ -127,7 +127,7 @@
                     <button id="view-list" class="view-mode-btn active px-3 py-1.5 text-sm" title="<%= t('listView') || 'List View' %>">
                         <i class="fas fa-list"></i>
                     </button>
-                    <button id="view-grid" class="view-mode-btn px-3 py-1.5 text-sm" title="Grid View">
+                    <button id="view-grid" class="view-mode-btn px-3 py-1.5 text-sm" title="<%= t('gridView') || 'Grid View' %>">
                         <i class="fas fa-th-large"></i>
                     </button>
                 </div>
@@ -147,20 +147,20 @@
         <div class="border-b border-gray-200">
             <nav class="-mb-px flex space-x-8 px-6">
                 <button class="test-tab-btn active" data-tab="all">
-                    <i class="fas fa-th-list mr-2"></i><%= t('testManagementAll') %>
+                    <i class="fas fa-th-list mr-2"></i><%= t('testManagementAll') %> <span id="count-all" class="tab-count"></span>
                 </button>
                 <button class="test-tab-btn" data-tab="my-tests">
-                    <i class="fas fa-user mr-2"></i><%= t('testManagementMyTests') %>
+                    <i class="fas fa-user mr-2"></i><%= t('testManagementMyTests') %> <span id="count-my-tests" class="tab-count"></span>
                 </button>
                 <button class="test-tab-btn" data-tab="recent">
-                    <i class="fas fa-clock mr-2"></i><%= t('testManagementRecent') %>
+                    <i class="fas fa-clock mr-2"></i><%= t('testManagementRecent') %> <span id="count-recent" class="tab-count"></span>
                 </button>
                 <button class="test-tab-btn" data-tab="popular">
-                    <i class="fas fa-fire mr-2"></i><%= t('testManagementPopular') %>
+                    <i class="fas fa-fire mr-2"></i><%= t('testManagementPopular') %> <span id="count-popular" class="tab-count"></span>
                 </button>
                 <% if (['Admin', 'Instructor'].includes(user.role_name)) { %>
                 <button class="test-tab-btn" data-tab="created">
-                    <i class="fas fa-edit mr-2"></i><%= t('testManagementCreated') %>
+                    <i class="fas fa-edit mr-2"></i><%= t('testManagementCreated') %> <span id="count-created" class="tab-count"></span>
                 </button>
                 <% } %>
             </nav>
@@ -300,7 +300,7 @@ const i18n = {
     loadTestError: '<%= t("testManagementLoadTestError") %>',
     testName: '<%= t("testManagementTestName") %>',
     questionCountLabel: '<%= t("testManagementQuestionCountLabel") %>',
-    timeLimit: '<%= t("testManagementTimeUsed") %>',
+    timeLimit: '<%= t("testManagementTimeLimit") %>',
     passingScore: '<%= t("testManagementPassingScore") %>',
     difficulty: '<%= t("testManagementDifficulty") %>',
     cannotStartTest: '<%= t("testManagementCannotStartTest") %>',
@@ -319,7 +319,24 @@ const i18n = {
     easy: '<%= t("testManagementEasy") %>',
     medium: '<%= t("testManagementMedium") %>',
     hard: '<%= t("testManagementHard") %>',
-    allCategories: '<%= t("testManagementAllCategories") %>'
+    allCategories: '<%= t("testManagementAllCategories") %>',
+    draft: '<%= t("testManagementDraft") %>',
+    active: '<%= t("testManagementActive") %>',
+    published: '<%= t("testManagementPublished") %>',
+    inactive: '<%= t("testManagementInactive") %>',
+    notReady: '<%= t("testManagementNotReady") %>',
+    noQuestions: '<%= t("testManagementNoQuestions") %>',
+    deleteTest: '<%= t("testManagementDeleteTest") %>',
+    deleteConfirm: '<%= t("testManagementDeleteConfirm") %>',
+    updateSuccess: '<%= t("testManagementUpdateSuccess") %>',
+    updateError: '<%= t("testManagementUpdateError") %>',
+    deleteSuccess: '<%= t("testManagementDeleteSuccess") %>',
+    deleteError: '<%= t("testManagementDeleteError") %>',
+    maxAttemptsReached: '<%= t("testManagementMaxAttemptsReached") %>',
+    opensAt: '<%= t("testManagementOpensAt") %>',
+    expired: '<%= t("testManagementExpired") %>',
+    inProgress: '<%= t("testManagementInProgress") %>',
+    continueTest: '<%= t("continueTest") %>'
 };
 
 let currentTab = 'all';
@@ -341,7 +358,8 @@ async function initializeTestPage() {
         await Promise.all([
             loadTestStats(),
             loadCategories(),
-            loadTests()
+            loadTests(),
+            loadTabCounts()
         ]);
 
         setupEventListeners();
@@ -350,6 +368,39 @@ async function initializeTestPage() {
         showError(i18n.loadError);
     } finally {
         document.getElementById('loading-overlay').style.display = 'none';
+    }
+}
+
+async function loadTabCounts() {
+    try {
+        const response = await fetch('/tests/api/counts');
+        const data = await response.json();
+
+        if (data.success) {
+            const counts = data.data;
+            if (counts.all !== undefined) {
+                const el = document.getElementById('count-all');
+                if (el) el.textContent = `(${counts.all})`;
+            }
+            if (counts.myTests !== undefined) {
+                const el = document.getElementById('count-my-tests');
+                if (el) el.textContent = `(${counts.myTests})`;
+            }
+            if (counts.recent !== undefined) {
+                const el = document.getElementById('count-recent');
+                if (el) el.textContent = `(${counts.recent})`;
+            }
+            if (counts.popular !== undefined) {
+                const el = document.getElementById('count-popular');
+                if (el) el.textContent = `(${counts.popular})`;
+            }
+            if (counts.created !== undefined) {
+                const el = document.getElementById('count-created');
+                if (el) el.textContent = `(${counts.created})`;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading tab counts:', error);
     }
 }
 
@@ -580,7 +631,7 @@ function createTestListItem(test) {
 
                     <div class="flex space-x-2">
                         <a href="/tests/${test.test_id}" class="btn-ruxchai-outline text-sm px-3 py-1.5">
-                            <i class="fas fa-eye mr-1"></i>${i18n.viewResults || 'ดู'}
+                            <i class="fas fa-eye mr-1"></i>${i18n.viewResults}
                         </a>
                         ${statusInfo.button}
                         ${createManageButtons(test)}
@@ -605,18 +656,18 @@ function createManageButtons(test) {
             <div id="test-menu-${test.test_id}" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                 <div class="py-1">
                     <button onclick="quickUpdateStatus(${test.test_id}, 'Draft')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-file-alt mr-2 text-yellow-500"></i>แบบร่าง
+                        <i class="fas fa-file-alt mr-2 text-yellow-500"></i>${i18n.draft}
                     </button>
                     <button onclick="quickUpdateStatus(${test.test_id}, 'Active')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-check-circle mr-2 text-green-500"></i>เปิดใช้งาน
+                        <i class="fas fa-check-circle mr-2 text-green-500"></i>${i18n.active}
                     </button>
                     <button onclick="quickUpdateStatus(${test.test_id}, 'Published')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-globe mr-2 text-blue-500"></i>เผยแพร่
+                        <i class="fas fa-globe mr-2 text-blue-500"></i>${i18n.published}
                     </button>
                     <hr class="my-1">
                     ${userRole === 'Admin' ? `
                     <button onclick="quickDeleteTest(${test.test_id})" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                        <i class="fas fa-trash mr-2"></i>ลบข้อสอบ
+                        <i class="fas fa-trash mr-2"></i>${i18n.deleteTest}
                     </button>
                     ` : ''}
                 </div>
@@ -627,10 +678,10 @@ function createManageButtons(test) {
 
 function getStatusBadge(status) {
     const badges = {
-        'Draft': '<span class="badge-warning text-xs">แบบร่าง</span>',
-        'Active': '<span class="badge-success text-xs">เปิดใช้งาน</span>',
-        'Published': '<span class="badge-primary text-xs">เผยแพร่</span>',
-        'Inactive': '<span class="badge-danger text-xs">ปิดใช้งาน</span>'
+        'Draft': `<span class="badge-warning text-xs">${i18n.draft}</span>`,
+        'Active': `<span class="badge-success text-xs">${i18n.active}</span>`,
+        'Published': `<span class="badge-primary text-xs">${i18n.published}</span>`,
+        'Inactive': `<span class="badge-danger text-xs">${i18n.inactive}</span>`
     };
     return badges[status] || '';
 }
@@ -693,38 +744,44 @@ function createTestCard(test) {
     `;
 }
 
-function createMyTestItem(attempt) {
+function createMyTestItem(test) {
+    const statusInfo = getTestStatus(test);
+    const score = test.user_score;
+    const hasScore = score !== null && score !== undefined;
+
     return `
         <div class="bg-white rounded-lg shadow-sm p-6 ruxchai-card">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
                     <div class="flex items-start space-x-4">
                         <div class="flex-1">
-                            <h4 class="font-semibold text-gray-900">${attempt.test_title}</h4>
-                            <p class="text-gray-600 text-sm mt-1">${attempt.test_description || ''}</p>
+                            <h4 class="font-semibold text-gray-900">${test.title}</h4>
+                            <p class="text-gray-600 text-sm mt-1">${test.description || ''}</p>
 
                             <div class="flex items-center space-x-4 mt-3 text-sm text-gray-500">
-                                <span><i class="fas fa-calendar mr-1"></i>${formatDate(attempt.attempted_at)}</span>
-                                <span><i class="fas fa-clock mr-1"></i>${attempt.time_taken} ${i18n.minutes}</span>
-                                <span class="badge-${getScoreColor(attempt.score)}">${attempt.score}%</span>
+                                <span><i class="fas fa-question-circle mr-1"></i>${test.question_count || 0} ${i18n.questions}</span>
+                                <span><i class="fas fa-clock mr-1"></i>${test.time_limit || '-'} ${i18n.minutes}</span>
+                                <span><i class="fas fa-redo mr-1"></i>${test.user_attempt_count || 0}/${test.attempts_allowed || '∞'}</span>
+                                ${hasScore ? `<span class="badge-${getScoreColor(score)}">${score}%</span>` : ''}
                             </div>
                         </div>
 
                         <div class="text-right">
-                            <div class="text-2xl font-bold ${getScoreTextColor(attempt.score)} mb-2">
-                                ${attempt.score}%
-                            </div>
+                            ${hasScore ? `
+                                <div class="text-2xl font-bold ${getScoreTextColor(score)} mb-2">
+                                    ${score}%
+                                </div>
+                            ` : `
+                                <div class="text-sm text-gray-500 mb-2">${test.user_status === 'In_Progress' ? i18n.inProgress || 'กำลังทำ' : '-'}</div>
+                            `}
                             <div class="space-x-2">
-                                <button onclick="showTestResults('${attempt.attempt_id}')"
-                                        class="btn-ruxchai-outline text-sm">
-                                    <i class="fas fa-chart-line mr-1"></i>${i18n.viewResults}
-                                </button>
-                                ${attempt.can_retake ? `
-                                    <button onclick="showTestStartModal('${attempt.test_id}')"
-                                            class="btn-ruxchai-primary text-sm">
-                                        <i class="fas fa-redo mr-1"></i>${i18n.retake}
+                                ${test.last_attempt_id ? `
+                                    <button onclick="showTestResults('${test.last_attempt_id}')"
+                                            class="btn-ruxchai-outline text-sm">
+                                        <i class="fas fa-chart-line mr-1"></i>${i18n.viewResults}
                                     </button>
                                 ` : ''}
+                                ${statusInfo.button}
                             </div>
                         </div>
                     </div>
@@ -735,7 +792,58 @@ function createMyTestItem(attempt) {
 }
 
 function getTestStatus(test) {
-    if (test.is_completed) {
+    const now = new Date();
+    const userRole = '<%= user.role_name %>';
+
+    // Check 1: Test status (must be Active or Published)
+    const isStatusValid = ['Active', 'Published'].includes(test.status);
+
+    // Check 2: Date range validity
+    let isDateValid = true;
+    let dateMessage = '';
+    if (test.start_date) {
+        const startDate = new Date(test.start_date);
+        if (now < startDate) {
+            isDateValid = false;
+            dateMessage = `${i18n.opensAt}: ${formatDate(test.start_date)}`;
+        }
+    }
+    if (test.end_date) {
+        const endDate = new Date(test.end_date);
+        if (now > endDate) {
+            isDateValid = false;
+            dateMessage = i18n.expired;
+        }
+    }
+
+    // Check 3: Question count (must have at least 1 question)
+    const hasQuestions = (test.question_count || 0) > 0;
+
+    // Check 4: Attempt count (0 = unlimited)
+    const maxAttempts = test.attempts_allowed || 0;
+    const userAttempts = test.user_attempt_count || 0;
+    const hasAttemptsLeft = maxAttempts === 0 || userAttempts < maxAttempts;
+
+    // Check if user has an attempt in progress
+    const isInProgress = test.user_status === 'In_Progress';
+
+    // Check if user has completed attempt
+    const hasCompleted = test.user_status === 'Completed' && test.last_attempt_id;
+
+    // Determine overall test availability
+    // Admin/Instructor sees additional status info but still follows rules
+
+    // If user has an attempt in progress, show continue button
+    if (isInProgress) {
+        return {
+            badge: `<span class="badge-warning">${i18n.inProgress || 'กำลังทำ'}</span>`,
+            button: `<a href="/tests/${test.test_id}/start" class="btn-ruxchai-primary text-sm">${i18n.continueTest || 'ทำต่อ'}</a>`
+        };
+    }
+
+    // If user has completed, show results
+    if (hasCompleted) {
+        const canRetake = hasAttemptsLeft && isStatusValid && isDateValid && hasQuestions;
         return {
             badge: `<span class="badge-success">${i18n.completed}</span>`,
             button: `
@@ -743,7 +851,7 @@ function getTestStatus(test) {
                     <button onclick="showTestResults('${test.last_attempt_id}')" class="btn-ruxchai-outline text-sm">
                         ${i18n.viewResults}
                     </button>
-                    ${test.can_retake ? `
+                    ${canRetake ? `
                         <button onclick="showTestStartModal('${test.test_id}')" class="btn-ruxchai-primary text-sm">
                             ${i18n.retake}
                         </button>
@@ -751,17 +859,53 @@ function getTestStatus(test) {
                 </div>
             `
         };
-    } else if (test.is_locked) {
+    }
+
+    // Check if test is Draft (only visible to Admin/Instructor)
+    if (test.status === 'Draft') {
         return {
-            badge: `<span class="badge-danger">${i18n.locked}</span>`,
-            button: `<span class="text-sm text-gray-500">${i18n.cannotTake}</span>`
-        };
-    } else {
-        return {
-            badge: `<span class="badge-primary">${i18n.available}</span>`,
-            button: `<button onclick="showTestStartModal('${test.test_id}')" class="btn-ruxchai-primary text-sm">${i18n.startTest}</button>`
+            badge: `<span class="badge-warning">${i18n.draft}</span>`,
+            button: `<span class="text-sm text-gray-500">${i18n.notReady}</span>`
         };
     }
+
+    // Check if test is Inactive
+    if (test.status === 'Inactive') {
+        return {
+            badge: `<span class="badge-danger">${i18n.inactive}</span>`,
+            button: `<span class="text-sm text-gray-500">${i18n.cannotTake}</span>`
+        };
+    }
+
+    // Check date validity
+    if (!isDateValid) {
+        return {
+            badge: `<span class="badge-warning">${dateMessage}</span>`,
+            button: `<span class="text-sm text-gray-500">${i18n.cannotTake}</span>`
+        };
+    }
+
+    // Check if test has no questions
+    if (!hasQuestions) {
+        return {
+            badge: `<span class="badge-warning">${i18n.noQuestions}</span>`,
+            button: `<span class="text-sm text-gray-500">${i18n.notReady}</span>`
+        };
+    }
+
+    // Check if user has exceeded max attempts
+    if (!hasAttemptsLeft) {
+        return {
+            badge: `<span class="badge-danger">${i18n.locked}</span>`,
+            button: `<span class="text-sm text-gray-500">${i18n.maxAttemptsReached} (${maxAttempts})</span>`
+        };
+    }
+
+    // All checks passed - test is available
+    return {
+        badge: `<span class="badge-primary">${i18n.available}</span>`,
+        button: `<button onclick="showTestStartModal('${test.test_id}')" class="btn-ruxchai-primary text-sm">${i18n.startTest}</button>`
+    };
 }
 
 function switchTestTab(tab) {
@@ -1098,14 +1242,14 @@ async function quickUpdateStatus(testId, newStatus) {
         const result = await response.json();
 
         if (result.success) {
-            showSuccess('อัปเดตสถานะสำเร็จ');
+            showSuccess(i18n.updateSuccess);
             loadTests(1); // Reload the list
         } else {
-            showError(result.message || 'ไม่สามารถอัปเดตสถานะได้');
+            showError(result.message || i18n.updateError);
         }
     } catch (error) {
         console.error('Error updating status:', error);
-        showError('ไม่สามารถอัปเดตสถานะได้');
+        showError(i18n.updateError);
     }
 }
 
@@ -1113,7 +1257,7 @@ async function quickUpdateStatus(testId, newStatus) {
 async function quickDeleteTest(testId) {
     document.querySelectorAll('[id^="test-menu-"]').forEach(menu => menu.classList.add('hidden'));
 
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อสอบนี้? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
+    if (!confirm(i18n.deleteConfirm)) {
         return;
     }
 
@@ -1125,14 +1269,14 @@ async function quickDeleteTest(testId) {
         const result = await response.json();
 
         if (result.success) {
-            showSuccess('ลบข้อสอบสำเร็จ');
+            showSuccess(i18n.deleteSuccess);
             loadTests(1); // Reload the list
         } else {
-            showError(result.message || 'ไม่สามารถลบข้อสอบได้');
+            showError(result.message || i18n.deleteError);
         }
     } catch (error) {
         console.error('Error deleting test:', error);
-        showError('ไม่สามารถลบข้อสอบได้');
+        showError(i18n.deleteError);
     }
 }
 </script>
@@ -1153,6 +1297,16 @@ async function quickDeleteTest(testId) {
 .test-tab-btn.active {
     color: #1e40af;
     border-bottom-color: #1e40af;
+}
+
+.tab-count {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: normal;
+}
+
+.test-tab-btn.active .tab-count {
+    color: #1e40af;
 }
 
 .line-clamp-2 {

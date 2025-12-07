@@ -426,7 +426,10 @@ const applicantController = {
 
             const filters = {};
             if (position_id) {filters.position_id = position_id;}
-            if (test_completed !== undefined) {filters.test_completed = test_completed === 'true';}
+            // Only set test_completed filter when explicitly 'true' or 'false', not empty string
+            if (test_completed === 'true' || test_completed === 'false') {
+                filters.test_completed = test_completed === 'true';
+            }
             if (search) {filters.search = search;}
 
             const offset = (parseInt(page) - 1) * parseInt(limit);

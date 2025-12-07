@@ -384,9 +384,9 @@ class Applicant {
             }
             if (filters.test_completed !== undefined && filters.test_completed !== '') {
                 if (filters.test_completed === 'true' || filters.test_completed === true) {
-                    whereClause += ' AND EXISTS (SELECT 1 FROM ApplicantTestResults WHERE applicant_id = a.applicant_id AND completed_at IS NOT NULL)';
+                    whereClause += " AND EXISTS (SELECT 1 FROM ApplicantTestAttempts WHERE applicant_id = a.applicant_id AND status = 'Completed')";
                 } else if (filters.test_completed === 'false' || filters.test_completed === false) {
-                    whereClause += ' AND NOT EXISTS (SELECT 1 FROM ApplicantTestResults WHERE applicant_id = a.applicant_id AND completed_at IS NOT NULL)';
+                    whereClause += " AND NOT EXISTS (SELECT 1 FROM ApplicantTestAttempts WHERE applicant_id = a.applicant_id AND status = 'Completed')";
                 }
             }
             if (filters.search) {
@@ -409,21 +409,22 @@ class Applicant {
                 ${whereClause}
             `);
 
-            // Get paginated data
+            // Get paginated data - use ApplicantTestAttempts for test results
             const result = await request.query(`
                 SELECT a.*,
                        p.position_name,
                        d.department_name,
-                       atr.score as test_score,
-                       atr.percentage,
-                       atr.passed,
-                       atr.started_at as test_start_time,
-                       atr.completed_at as test_end_time,
-                       CASE WHEN atr.completed_at IS NOT NULL THEN 1 ELSE 0 END as test_completed
+                       ata.percentage as test_score,
+                       ata.percentage,
+                       CASE WHEN ata.percentage >= ISNULL(t.passing_marks, 60) THEN 1 ELSE 0 END as passed,
+                       ata.started_at as test_start_time,
+                       ata.completed_at as test_end_time,
+                       CASE WHEN ata.status = 'Completed' THEN 1 ELSE 0 END as test_completed
                 FROM Applicants a
                 LEFT JOIN positions p ON a.position_id = p.position_id
                 LEFT JOIN Departments d ON p.department_id = d.department_id
-                LEFT JOIN ApplicantTestResults atr ON a.applicant_id = atr.applicant_id
+                LEFT JOIN ApplicantTestAttempts ata ON a.applicant_id = ata.applicant_id AND ata.status = 'Completed'
+                LEFT JOIN Tests t ON ata.test_id = t.test_id
                 ${whereClause}
                 ORDER BY a.created_at DESC
                 OFFSET @offset ROWS
