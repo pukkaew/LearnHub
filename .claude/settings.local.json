@@ -98,7 +98,8 @@
       "Bash(cmd.exe /c:*)",
       "Bash(npx eslint:*)",
       "WebFetch(domain:www.youtube.com)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

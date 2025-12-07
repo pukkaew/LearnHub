@@ -344,7 +344,8 @@ const testController = {
                 score_weight: req.body.score_weight || 100,
                 show_score_breakdown: req.body.show_score_breakdown !== undefined ? req.body.show_score_breakdown : true,
                 randomize_options: req.body.randomize_options || false,
-                questions_to_show: req.body.questions_to_show || null
+                questions_to_show: req.body.questions_to_show || null,
+                position_id: req.body.position_id || null // For recruitment tests
             };
 
             const result = await Test.create(testData);
@@ -974,11 +975,20 @@ const testController = {
                 ORDER BY title
             `);
 
+            // Fetch all positions for recruitment test selection
+            const positionsResult = await pool.request().query(`
+                SELECT position_id, position_name as name, department_id, is_active
+                FROM positions
+                WHERE is_active = 1 OR is_active IS NULL
+                ORDER BY position_name
+            `);
+
             res.render('tests/create', {
                 title: req.t('createTestTitle'),
                 user: req.session.user,
                 userRole: req.user.role_name,
-                courses: coursesResult.recordset || []
+                courses: coursesResult.recordset || [],
+                positions: positionsResult.recordset || []
             });
 
         } catch (error) {

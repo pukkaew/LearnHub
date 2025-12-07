@@ -10,6 +10,9 @@
                 <p class="text-gray-600"><%= t('applicantManagementSubtitle') %></p>
             </div>
             <div class="flex space-x-3">
+                <button id="addApplicantBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
+                    <i class="fas fa-user-plus mr-2"></i><%= t('addApplicant') || 'เพิ่มผู้สมัคร' %>
+                </button>
                 <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
                     <i class="fas fa-download mr-2"></i><%= t('applicantManagementExport') %>
                 </button>
@@ -83,14 +86,6 @@
                         <% }); %>
                     <% } %>
                 </select>
-                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value=""><%= t('applicantManagementAllStatuses') %></option>
-                    <option value="Pending"><%= t('applicantManagementStatusPending') %></option>
-                    <option value="Screening"><%= t('applicantManagementStatusScreening') %></option>
-                    <option value="Interview"><%= t('applicantManagementStatusInterview') %></option>
-                    <option value="Passed"><%= t('applicantManagementStatusPassed') %></option>
-                    <option value="Rejected"><%= t('applicantManagementStatusRejected') %></option>
-                </select>
                 <select id="testFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
                     <option value=""><%= t('applicantManagementAllTests') %></option>
                     <option value="true"><%= t('applicantManagementTestCompleted') %></option>
@@ -107,10 +102,10 @@
                         <tr class="border-b border-gray-200">
                             <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementApplicant') %></th>
                             <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementPosition') %></th>
+                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('testCode') || 'รหัสสอบ' %></th>
                             <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementContact') %></th>
                             <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementTest') %></th>
                             <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementScore') %></th>
-                            <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementStatus') %></th>
                             <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementApplicationDate') %></th>
                             <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700"><%= t('applicantManagementActions') %></th>
                         </tr>
@@ -143,47 +138,150 @@
     </div>
 </div>
 
-<!-- Status Update Modal -->
-<div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+<!-- Add Applicant Modal -->
+<div id="addApplicantModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900"><%= t('applicantManagementUpdateStatus') %></h3>
-                <button id="closeStatusModal" class="text-gray-400 hover:text-gray-600">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-bold text-gray-900">
+                    <i class="fas fa-user-plus text-ruxchai-primary mr-2"></i>
+                    <%= t('addApplicant') || 'เพิ่มผู้สมัครงาน' %>
+                </h3>
+                <button id="closeAddApplicantModal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <form id="statusForm" class="p-6 space-y-4">
-                <input type="hidden" id="applicantId" name="applicant_id">
+            <form id="addApplicantForm" class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- National ID -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-id-card text-ruxchai-primary mr-1"></i>
+                            <%= t('nationalId') || 'เลขบัตรประชาชน' %> <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="add_national_id" name="national_id" required maxlength="13" pattern="[0-9]{13}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                               placeholder="<%= t('enterNationalId') || 'กรอกเลขบัตรประชาชน 13 หลัก' %>">
+                        <p class="text-xs text-gray-500 mt-1"><%= t('nationalIdHint') || 'เลขบัตรประชาชน 13 หลัก' %></p>
+                    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('applicantManagementNewStatus') %></label>
-                    <select id="newStatus" name="status" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value="Pending"><%= t('applicantManagementStatusPending') %></option>
-                        <option value="Screening"><%= t('applicantManagementStatusScreening') %></option>
-                        <option value="Interview"><%= t('applicantManagementStatusInterview') %></option>
-                        <option value="Passed"><%= t('applicantManagementStatusPassed') %></option>
-                        <option value="Rejected"><%= t('applicantManagementStatusRejected') %></option>
-                    </select>
-                </div>
+                    <!-- First Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <%= t('firstName') || 'ชื่อ' %> <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="add_first_name" name="first_name" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                               placeholder="<%= t('enterFirstName') || 'กรอกชื่อ' %>">
+                    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('applicantManagementNotes') %></label>
-                    <textarea id="notes" name="notes" rows="3"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="<%= t('applicantManagementNotesPlaceholder') %>"></textarea>
+                    <!-- Last Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <%= t('lastName') || 'นามสกุล' %> <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="add_last_name" name="last_name" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                               placeholder="<%= t('enterLastName') || 'กรอกนามสกุล' %>">
+                    </div>
+
+                    <!-- Position -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-briefcase text-ruxchai-primary mr-1"></i>
+                            <%= t('position') || 'ตำแหน่งที่สมัคร' %> <span class="text-red-500">*</span>
+                        </label>
+                        <select id="add_position_id" name="position_id" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
+                            <option value=""><%= t('selectPosition') || 'เลือกตำแหน่งงาน' %></option>
+                            <% if (positions && positions.length > 0) { %>
+                                <% positions.forEach(position => { %>
+                                    <option value="<%= position.position_id %>"><%= position.position_name %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope text-ruxchai-primary mr-1"></i>
+                            <%= t('email') || 'อีเมล' %>
+                        </label>
+                        <input type="email" id="add_email" name="email"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                               placeholder="example@email.com">
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone text-ruxchai-primary mr-1"></i>
+                            <%= t('phone') || 'เบอร์โทรศัพท์' %>
+                        </label>
+                        <input type="tel" id="add_phone" name="phone"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                               placeholder="08X-XXX-XXXX">
+                    </div>
+
+                    <!-- Address -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-ruxchai-primary mr-1"></i>
+                            <%= t('address') || 'ที่อยู่' %>
+                        </label>
+                        <textarea id="add_address" name="address" rows="2"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                                  placeholder="<%= t('enterAddress') || 'กรอกที่อยู่' %>"></textarea>
+                    </div>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
-                    <button type="button" id="cancelStatus" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <%= t('applicantManagementCancel') %>
+                    <button type="button" id="cancelAddApplicant" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <%= t('cancel') || 'ยกเลิก' %>
                     </button>
                     <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                        <%= t('applicantManagementSave') %>
+                        <i class="fas fa-save mr-2"></i><%= t('saveApplicant') || 'บันทึกผู้สมัคร' %>
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Test Code Success Modal -->
+<div id="testCodeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-2xl p-6 text-center">
+            <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center mb-4">
+                <i class="fas fa-check-circle text-green-500 text-4xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white"><%= t('applicantAddedSuccess') || 'เพิ่มผู้สมัครสำเร็จ!' %></h3>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-600 text-center mb-4"><%= t('testCodeForApplicant') || 'รหัสทดสอบสำหรับผู้สมัคร' %></p>
+            <div class="bg-gray-100 rounded-xl p-4 mb-4">
+                <div class="flex items-center justify-between">
+                    <span id="displayTestCode" class="text-2xl font-mono font-bold text-ruxchai-primary tracking-wider"></span>
+                    <button id="copyTestCodeBtn" class="bg-ruxchai-primary text-white px-4 py-2 rounded-lg hover:bg-ruxchai-primary/90 transition-colors flex items-center">
+                        <i class="fas fa-copy mr-2"></i><%= t('copy') || 'คัดลอก' %>
+                    </button>
+                </div>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p class="text-blue-800 text-sm">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <%= t('testCodeInfo') || 'แจ้งรหัสนี้ให้ผู้สมัครใช้เข้าทดสอบที่หน้าเข้าสอบ' %>
+                </p>
+            </div>
+            <div class="flex space-x-3">
+                <button id="closeTestCodeModal" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                    <i class="fas fa-times mr-2"></i><%= t('close') || 'ปิด' %>
+                </button>
+                <button id="addAnotherApplicantBtn" class="flex-1 bg-ruxchai-primary text-white py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors font-medium">
+                    <i class="fas fa-user-plus mr-2"></i><%= t('addAnother') || 'เพิ่มอีกคน' %>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -194,15 +292,7 @@ const i18n = {
     completed: '<%= t('applicantManagementTestCompletedBadge') %>',
     notCompleted: '<%= t('applicantManagementTestNotCompletedBadge') %>',
     viewDetails: '<%= t('applicantManagementViewDetails') %>',
-    updateStatus: '<%= t('applicantManagementUpdateStatusButton') %>',
-    statusPending: '<%= t('applicantManagementStatusPending') %>',
-    statusScreening: '<%= t('applicantManagementStatusScreening') %>',
-    statusInterview: '<%= t('applicantManagementStatusInterview') %>',
-    statusPassed: '<%= t('applicantManagementStatusPassed') %>',
-    statusRejected: '<%= t('applicantManagementStatusRejected') %>',
-    errorLoading: '<%= t('applicantManagementErrorLoading') %>',
-    updateSuccess: '<%= t('applicantManagementUpdateSuccess') %>',
-    updateError: '<%= t('applicantManagementUpdateError') %>'
+    errorLoading: '<%= t('applicantManagementErrorLoading') %>'
 };
 
 let currentPage = 1;
@@ -221,12 +311,7 @@ function setupEventListeners() {
 
     document.getElementById('searchApplicants').addEventListener('input', debounce(loadApplicants, 300));
     document.getElementById('positionFilter').addEventListener('change', loadApplicants);
-    document.getElementById('statusFilter').addEventListener('change', loadApplicants);
     document.getElementById('testFilter').addEventListener('change', loadApplicants);
-
-    document.getElementById('closeStatusModal').addEventListener('click', closeStatusModal);
-    document.getElementById('cancelStatus').addEventListener('click', closeStatusModal);
-    document.getElementById('statusForm').addEventListener('submit', handleStatusUpdate);
 }
 
 // Load applicants
@@ -238,14 +323,12 @@ async function loadApplicants() {
 
         const search = document.getElementById('searchApplicants').value;
         const position = document.getElementById('positionFilter').value;
-        const status = document.getElementById('statusFilter').value;
         const testCompleted = document.getElementById('testFilter').value;
 
         const params = new URLSearchParams({
             page: currentPage,
             search,
             position_id: position,
-            status,
             test_completed: testCompleted
         });
 
@@ -277,7 +360,6 @@ function displayApplicants() {
 
 // Create applicant row
 function createApplicantRow(applicant) {
-    const statusBadge = getStatusBadge(applicant.status);
     const testBadge = applicant.test_completed
         ? `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><i class="fas fa-check mr-1"></i>${i18n.completed}</span>`
         : `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"><i class="fas fa-clock mr-1"></i>${i18n.notCompleted}</span>`;
@@ -298,6 +380,12 @@ function createApplicantRow(applicant) {
             <td class="py-4 px-4">
                 <div class="text-sm text-gray-900">${applicant.position_name || '-'}</div>
             </td>
+            <td class="py-4 px-4 text-center">
+                <div class="flex items-center justify-center space-x-2">
+                    <span class="font-mono text-sm font-bold text-ruxchai-primary">${applicant.test_code || '-'}</span>
+                    ${applicant.test_code ? `<button onclick="copyTestCodeInline('${applicant.test_code}', this)" class="text-gray-400 hover:text-ruxchai-primary" title="คัดลอก"><i class="fas fa-copy text-xs"></i></button>` : ''}
+                </div>
+            </td>
             <td class="py-4 px-4">
                 <div class="text-sm text-gray-600">
                     <div><i class="fas fa-envelope mr-2"></i>${applicant.email || '-'}</div>
@@ -309,43 +397,41 @@ function createApplicantRow(applicant) {
             </td>
             <td class="py-4 px-4 text-center">
                 ${applicant.test_score !== null
-                    ? `<span class="text-lg font-bold ${applicant.test_score >= 70 ? 'text-green-600' : 'text-red-600'}">${applicant.test_score}</span>`
+                    ? `<span class="text-lg font-bold ${applicant.test_score >= 70 ? 'text-green-600' : 'text-red-600'}">${applicant.test_score}%</span>`
                     : '<span class="text-gray-400">-</span>'}
-            </td>
-            <td class="py-4 px-4 text-center">
-                ${statusBadge}
             </td>
             <td class="py-4 px-4 text-center text-sm text-gray-600">
                 ${formatDate(applicant.application_date)}
             </td>
             <td class="py-4 px-4 text-center">
-                <div class="flex justify-center space-x-2">
-                    <button onclick="viewApplicant(${applicant.applicant_id})"
-                            class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-sm"
-                            title="${i18n.viewDetails}">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button onclick="updateStatus(${applicant.applicant_id}, '${applicant.status}')"
-                            class="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1 rounded-lg text-sm"
-                            title="${i18n.updateStatus}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
+                <button onclick="viewApplicant(${applicant.applicant_id})"
+                        class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-sm"
+                        title="${i18n.viewDetails}">
+                    <i class="fas fa-eye mr-1"></i> ดูรายละเอียด
+                </button>
             </td>
         </tr>
     `;
 }
 
-// Get status badge
-function getStatusBadge(status) {
-    const badges = {
-        'Pending': `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">${i18n.statusPending}</span>`,
-        'Screening': `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${i18n.statusScreening}</span>`,
-        'Interview': `<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">${i18n.statusInterview}</span>`,
-        'Passed': `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${i18n.statusPassed}</span>`,
-        'Rejected': `<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">${i18n.statusRejected}</span>`
-    };
-    return badges[status] || status;
+// Copy test code inline (for table)
+async function copyTestCodeInline(testCode, button) {
+    try {
+        await navigator.clipboard.writeText(testCode);
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check text-xs text-green-600"></i>';
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+        }, 1500);
+    } catch (err) {
+        const textArea = document.createElement('textarea');
+        textArea.value = testCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showMessage('<%= t("copiedToClipboard") || "คัดลอกแล้ว" %>', 'success');
+    }
 }
 
 // Update stats
@@ -366,62 +452,15 @@ function viewApplicant(applicantId) {
     window.location.href = `/applicants/admin/${applicantId}`;
 }
 
-// Update status modal
-function updateStatus(applicantId, currentStatus) {
-    document.getElementById('applicantId').value = applicantId;
-    document.getElementById('newStatus').value = currentStatus;
-    document.getElementById('notes').value = '';
-    document.getElementById('statusModal').classList.remove('hidden');
-}
-
-function closeStatusModal() {
-    document.getElementById('statusModal').classList.add('hidden');
-}
-
-// Handle status update
-async function handleStatusUpdate(e) {
-    e.preventDefault();
-
-    try {
-        const formData = new FormData(e.target);
-        const applicantId = formData.get('applicant_id');
-        const status = formData.get('status');
-        const notes = formData.get('notes');
-
-        const response = await fetch(`/applicants/admin/api/${applicantId}/status`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ status, notes })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showMessage(i18n.updateSuccess, 'success');
-            closeStatusModal();
-            loadApplicants();
-        } else {
-            showMessage(data.message || i18n.updateError, 'error');
-        }
-    } catch (error) {
-        console.error('Error updating status:', error);
-        showMessage(i18n.updateError, 'error');
-    }
-}
-
 // Export applicants
 function exportApplicants() {
     const search = document.getElementById('searchApplicants').value;
     const position = document.getElementById('positionFilter').value;
-    const status = document.getElementById('statusFilter').value;
     const testCompleted = document.getElementById('testFilter').value;
 
     const params = new URLSearchParams({
         search,
         position_id: position,
-        status,
         test_completed: testCompleted,
         format: 'excel'
     });
@@ -461,4 +500,141 @@ function showMessage(message, type = 'info') {
         messageDiv.remove();
     }, 3000);
 }
+
+// ============ Add Applicant Modal Functions ============
+const addApplicantModal = document.getElementById('addApplicantModal');
+const addApplicantBtn = document.getElementById('addApplicantBtn');
+const closeAddApplicantModalBtn = document.getElementById('closeAddApplicantModal');
+const cancelAddApplicantBtn = document.getElementById('cancelAddApplicant');
+const addApplicantForm = document.getElementById('addApplicantForm');
+
+// Open Add Applicant Modal
+addApplicantBtn.addEventListener('click', () => {
+    addApplicantModal.classList.remove('hidden');
+    document.getElementById('add_national_id').focus();
+});
+
+// Close Add Applicant Modal
+function closeAddApplicantModal() {
+    addApplicantModal.classList.add('hidden');
+    addApplicantForm.reset();
+}
+
+closeAddApplicantModalBtn.addEventListener('click', closeAddApplicantModal);
+cancelAddApplicantBtn.addEventListener('click', closeAddApplicantModal);
+
+// Close modal when clicking outside
+addApplicantModal.addEventListener('click', (e) => {
+    if (e.target === addApplicantModal) {
+        closeAddApplicantModal();
+    }
+});
+
+// Handle Add Applicant Form Submit
+addApplicantForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = {
+        national_id: document.getElementById('add_national_id').value,
+        first_name: document.getElementById('add_first_name').value,
+        last_name: document.getElementById('add_last_name').value,
+        position_id: document.getElementById('add_position_id').value,
+        email: document.getElementById('add_email').value,
+        phone: document.getElementById('add_phone').value,
+        address: document.getElementById('add_address').value
+    };
+
+    // Validate national ID
+    if (formData.national_id.length !== 13 || !/^\d+$/.test(formData.national_id)) {
+        showMessage('<%= t("pleaseEnterIdCard13Digits") || "กรุณากรอกเลขบัตรประชาชน 13 หลัก" %>', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/applicants/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            closeAddApplicantModal();
+            loadApplicants();
+
+            // Show test code in beautiful modal
+            showTestCodeModal(data.data.test_code);
+        } else {
+            showMessage(data.message || '<%= t("errorAddingApplicant") || "เกิดข้อผิดพลาดในการเพิ่มผู้สมัคร" %>', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding applicant:', error);
+        showMessage('<%= t("errorAddingApplicant") || "เกิดข้อผิดพลาดในการเพิ่มผู้สมัคร" %>', 'error');
+    }
+});
+
+// Format national ID input (only numbers)
+document.getElementById('add_national_id').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 13);
+});
+
+// Test Code Modal Functions
+function showTestCodeModal(testCode) {
+    const modal = document.getElementById('testCodeModal');
+    const displayTestCode = document.getElementById('displayTestCode');
+    displayTestCode.textContent = testCode;
+    modal.classList.remove('hidden');
+}
+
+function closeTestCodeModalFn() {
+    const modal = document.getElementById('testCodeModal');
+    modal.classList.add('hidden');
+}
+
+// Copy test code to clipboard
+document.getElementById('copyTestCodeBtn').addEventListener('click', async () => {
+    const testCode = document.getElementById('displayTestCode').textContent;
+    try {
+        await navigator.clipboard.writeText(testCode);
+        const btn = document.getElementById('copyTestCodeBtn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check mr-2"></i><%= t("copied") || "คัดลอกแล้ว!" %>';
+        btn.classList.remove('bg-ruxchai-primary');
+        btn.classList.add('bg-green-600');
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('bg-green-600');
+            btn.classList.add('bg-ruxchai-primary');
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = testCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showMessage('<%= t("copiedToClipboard") || "คัดลอกไปยังคลิปบอร์ดแล้ว" %>', 'success');
+    }
+});
+
+// Close test code modal
+document.getElementById('closeTestCodeModal').addEventListener('click', closeTestCodeModalFn);
+
+// Add another applicant
+document.getElementById('addAnotherApplicantBtn').addEventListener('click', () => {
+    closeTestCodeModalFn();
+    openAddApplicantModal();
+});
+
+// Close modal on backdrop click
+document.getElementById('testCodeModal').addEventListener('click', (e) => {
+    if (e.target.id === 'testCodeModal') {
+        closeTestCodeModalFn();
+    }
+});
 </script>

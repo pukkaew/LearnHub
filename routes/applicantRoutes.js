@@ -18,24 +18,32 @@ router.get('/', (req, res) => {
 
 // Public routes (no authentication required)
 router.post('/register', applicantController.registerApplicant);
+router.get('/test', (req, res) => res.redirect('/applicants/test/login'));
 router.get('/test/login', applicantController.renderTestLogin);
 router.get('/test/:test_code', applicantController.renderTestInterface);
+router.get('/result/:test_code', applicantController.renderTestResult);
 router.get('/api/:test_code/info', applicantController.getApplicantByTestCode);
+
+// Test API routes
+router.post('/api/test/:test_code/start', applicantController.startApplicantTest);
+router.post('/api/test/:test_code/submit', applicantController.submitApplicantTest);
+router.post('/api/test/:test_code/autosave', applicantController.autosaveApplicantTest);
+router.post('/api/test/:test_code/log-activity', applicantController.logTestActivity);
+
+// Legacy routes (keep for compatibility)
 router.post('/api/:test_code/start', applicantController.startApplicantTest);
 router.post('/api/:test_code/:attempt_id/submit', applicantController.submitApplicantTest);
 
 // HR and Admin routes (require authentication and appropriate roles)
 router.use('/admin', authMiddleware.requireAuth, authMiddleware.requireRole(['Admin', 'HR']));
 
-// HR Management - Render pages
-router.get('/admin/', applicantController.renderApplicantManagement);
-
-// Applicant CRUD operations (HR/Admin) (using existing functions)
+// Applicant API operations (HR/Admin) - MUST come before :applicant_id route
 router.get('/admin/api/all', applicantController.getAllApplicants);
-router.get('/admin/api/:applicant_id', applicantController.getApplicantById);
-router.put('/admin/api/:applicant_id/status', applicantController.updateApplicantStatus);
-
-// Statistics and reports (using existing functions)
 router.get('/admin/api/statistics', applicantController.getApplicantStatistics);
+router.get('/admin/api/:applicant_id', applicantController.getApplicantById);
+
+// HR Management - Render pages (dynamic routes last)
+router.get('/admin/', applicantController.renderApplicantManagement);
+router.get('/admin/:applicant_id', applicantController.renderApplicantDetail);
 
 module.exports = router;

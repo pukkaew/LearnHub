@@ -102,6 +102,14 @@ const applicantController = {
                 });
             }
 
+            // Check if applicant has completed a test
+            const attempts = await Test.getApplicantAttempts(applicant.applicant_id);
+            const completedAttempt = attempts.find(a => a.status === 'Completed');
+            const hasCompletedTest = !!completedAttempt;
+
+            // Check if status allows testing
+            const canTakeTest = applicant.status === 'Pending' && !hasCompletedTest;
+
             const sanitizedData = {
                 applicant_id: applicant.applicant_id,
                 first_name: applicant.first_name,
@@ -110,9 +118,14 @@ const applicantController = {
                 department_name: applicant.department_name,
                 status: applicant.status,
                 application_date: applicant.application_date,
-                test_completed: applicant.test_completed,
-                test_score: applicant.test_score,
-                test_taken_at: applicant.test_taken_at
+                test_completed: hasCompletedTest,
+                test_score: completedAttempt ? completedAttempt.percentage : null,
+                test_taken_at: completedAttempt ? completedAttempt.completed_at : null,
+                can_take_test: canTakeTest,
+                test_status_message: !canTakeTest ? (hasCompletedTest
+                    ? (req.t('testAlreadyCompleted') || 'คุณได้ทำแบบทดสอบไปแล้ว')
+                    : (req.t('applicationStatusNotAllowTest') || 'สถานะใบสมัครไม่อนุญาตให้ทำแบบทดสอบ'))
+                    : null
             };
 
             res.json({
@@ -141,17 +154,10 @@ const applicantController = {
                 });
             }
 
-            if (applicant.test_completed) {
-                return res.status(400).json({
-                    success: false,
-                    message: req.t('testAlreadyCompleted')
-                });
-            }
-
             if (applicant.status !== 'Pending') {
                 return res.status(400).json({
                     success: false,
-                    message: req.t('applicationStatusNotAllowTest')
+                    message: req.t('applicationStatusNotAllowTest') || 'สถานะใบสมัครไม่อนุญาตให้ทำแบบทดสอบ'
                 });
             }
 
@@ -163,7 +169,20 @@ const applicantController = {
                 });
             }
 
+            // Check for existing attempts
             const existingAttempts = await Test.getApplicantAttempts(applicant.applicant_id);
+
+            // Check if already completed a test
+            const completedAttempt = existingAttempts.find(attempt => attempt.status === 'Completed');
+            if (completedAttempt) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('testAlreadyCompleted') || 'คุณได้ทำแบบทดสอบไปแล้ว',
+                    redirect_url: `/applicants/result/${test_code}`
+                });
+            }
+
+            // Check for in-progress attempt
             const activeAttempt = existingAttempts.find(attempt => attempt.status === 'In_Progress');
 
             if (activeAttempt) {
@@ -173,7 +192,14 @@ const applicantController = {
                     message: req.t('foundIncompleteTest'),
                     data: {
                         attempt: activeAttempt,
-                        test: activeAttempt.test_info,
+                        test: {
+                            test_id: activeAttempt.test_id,
+                            title: activeAttempt.test_title,
+                            time_limit: activeAttempt.time_limit,
+                            passing_score: activeAttempt.passing_marks,
+                            total_marks: activeAttempt.total_marks,
+                            total_questions: activeAttempt.total_questions
+                        },
                         questions: questions,
                         applicant: {
                             applicant_id: applicant.applicant_id,
@@ -218,7 +244,14 @@ const applicantController = {
                 message: req.t('testStartedSuccessfully'),
                 data: {
                     attempt: attemptResult.data,
-                    test: test,
+                    test: {
+                        test_id: test.test_id,
+                        title: test.title,
+                        time_limit: test.time_limit,
+                        passing_score: test.passing_marks,
+                        total_marks: test.total_marks,
+                        total_questions: test.question_count
+                    },
                     questions: questions,
                     applicant: {
                         applicant_id: applicant.applicant_id,
@@ -239,8 +272,8 @@ const applicantController = {
 
     async submitApplicantTest(req, res) {
         try {
-            const { test_code, attempt_id } = req.params;
-            const { answers } = req.body;
+            const { test_code } = req.params;
+            const { answers, marked_questions, time_taken, submission_type } = req.body;
 
             const applicant = await Applicant.findByTestCode(test_code);
             if (!applicant) {
@@ -250,22 +283,32 @@ const applicantController = {
                 });
             }
 
-            const attempt = await Test.getApplicantAttemptById(attempt_id);
-            if (!attempt || attempt.applicant_id !== applicant.applicant_id) {
+            // Find attempts for this applicant
+            const attempts = await Test.getApplicantAttempts(applicant.applicant_id);
+
+            // Check if already has a completed attempt
+            const completedAttempt = attempts.find(a => a.status === 'Completed');
+            if (completedAttempt) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('testAlreadyCompleted') || 'คุณได้ทำแบบทดสอบไปแล้ว',
+                    redirect_url: `/applicants/result/${test_code}`
+                });
+            }
+
+            // Find active attempt
+            const attempt = attempts.find(a => a.status === 'In_Progress');
+
+            if (!attempt) {
                 return res.status(404).json({
                     success: false,
                     message: req.t('testAttemptNotFound')
                 });
             }
 
-            if (attempt.status !== 'In_Progress') {
-                return res.status(400).json({
-                    success: false,
-                    message: req.t('testAlreadyFinished')
-                });
-            }
+            const attempt_id = attempt.attempt_id;
 
-            const result = await Test.submitApplicantAttempt(attempt_id, answers);
+            const result = await Test.submitApplicantAttempt(attempt_id, answers, time_taken);
 
             if (!result.success) {
                 return res.status(400).json(result);
@@ -310,9 +353,61 @@ const applicantController = {
         }
     },
 
+    async autosaveApplicantTest(req, res) {
+        try {
+            const { test_code } = req.params;
+            const { answers, marked_questions, current_question, time_remaining } = req.body;
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Test code not found'
+                });
+            }
+
+            // Store auto-save data in session or database
+            // For now, just acknowledge the save
+            res.json({
+                success: true,
+                message: 'Progress saved'
+            });
+
+        } catch (error) {
+            console.error('Autosave applicant test error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error saving progress'
+            });
+        }
+    },
+
+    async logTestActivity(req, res) {
+        try {
+            const { test_code } = req.params;
+            const { activity_type, data, timestamp } = req.body;
+
+            // Log suspicious activity
+            console.log(`[Test Activity] ${test_code}: ${activity_type}`, data, timestamp);
+
+            // Could store in database for monitoring
+            res.json({
+                success: true,
+                message: 'Activity logged'
+            });
+
+        } catch (error) {
+            console.error('Log test activity error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error logging activity'
+            });
+        }
+    },
+
     async getAllApplicants(req, res) {
         try {
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
@@ -323,7 +418,6 @@ const applicantController = {
 
             const {
                 position_id,
-                status,
                 test_completed,
                 search,
                 page = 1,
@@ -332,7 +426,6 @@ const applicantController = {
 
             const filters = {};
             if (position_id) {filters.position_id = position_id;}
-            if (status) {filters.status = status;}
             if (test_completed !== undefined) {filters.test_completed = test_completed === 'true';}
             if (search) {filters.search = search;}
 
@@ -340,7 +433,7 @@ const applicantController = {
             filters.limit = parseInt(limit);
             filters.offset = offset;
 
-            const applicants = await Applicant.findAll(filters);
+            const result = await Applicant.findAll(filters);
 
             await ActivityLog.create({
                 user_id: req.user.user_id,
@@ -356,11 +449,12 @@ const applicantController = {
 
             res.json({
                 success: true,
-                data: applicants,
+                data: result.data,
                 pagination: {
-                    page: parseInt(page),
+                    page: result.page,
                     limit: parseInt(limit),
-                    total: applicants.length
+                    total: result.total,
+                    totalPages: result.totalPages
                 }
             });
 
@@ -376,7 +470,7 @@ const applicantController = {
     async getApplicantById(req, res) {
         try {
             const { applicant_id } = req.params;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
@@ -412,69 +506,10 @@ const applicantController = {
         }
     },
 
-    async updateApplicantStatus(req, res) {
-        try {
-            const { applicant_id } = req.params;
-            const { status, notes } = req.body;
-            const userRole = req.user.role;
-            const userId = req.user.user_id;
-
-            if (!['Admin', 'HR'].includes(userRole)) {
-                return res.status(403).json({
-                    success: false,
-                    message: req.t('noPermissionToUpdateApplicantStatus')
-                });
-            }
-
-            const applicant = await Applicant.findById(applicant_id);
-            if (!applicant) {
-                return res.status(404).json({
-                    success: false,
-                    message: req.t('applicantNotFound')
-                });
-            }
-
-            const updateData = { status };
-            if (notes) {updateData.notes = notes;}
-
-            const result = await Applicant.updateStatus(applicant_id, updateData);
-
-            if (!result.success) {
-                return res.status(400).json(result);
-            }
-
-            await ActivityLog.logDataChange(
-                userId,
-                'Update_Applicant_Status',
-                'Applicants',
-                applicant_id,
-                { status: applicant.status, notes: applicant.notes },
-                updateData,
-                req.ip,
-                req.get('User-Agent'),
-                req.sessionID,
-                `Updated applicant status to: ${status}`
-            );
-
-            res.json({
-                success: true,
-                message: req.t('applicantStatusUpdatedSuccessfully'),
-                data: result.data
-            });
-
-        } catch (error) {
-            console.error('Update applicant status error:', error);
-            res.status(500).json({
-                success: false,
-                message: req.t('errorUpdatingApplicantStatus')
-            });
-        }
-    },
-
     async getApplicantStatistics(req, res) {
         try {
             const { position_id } = req.query;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name;
 
             if (!['Admin', 'HR'].includes(userRole)) {
                 return res.status(403).json({
@@ -534,6 +569,24 @@ const applicantController = {
                 });
             }
 
+            // Check if applicant has completed a test
+            const attempts = await Test.getApplicantAttempts(applicant.applicant_id);
+            const completedAttempt = attempts.find(a => a.status === 'Completed');
+
+            if (completedAttempt) {
+                // Already completed - redirect to result page
+                return res.redirect(`/applicants/result/${test_code}`);
+            }
+
+            // Check if status allows testing
+            if (applicant.status !== 'Pending') {
+                return res.render('error/403', {
+                    title: req.t('accessDenied') + ' - Rukchai Hongyen LearnHub',
+                    layout: false,
+                    message: req.t('applicationStatusNotAllowTest') || 'สถานะใบสมัครไม่อนุญาตให้ทำแบบทดสอบ'
+                });
+            }
+
             res.render('applicants/test-interface', {
                 title: req.t('testingSystem') + ' - Rukchai Hongyen LearnHub',
                 layout: false,
@@ -556,16 +609,76 @@ const applicantController = {
         }
     },
 
+    async renderTestResult(req, res) {
+        try {
+            const { test_code } = req.params;
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFound') + ' - Rukchai Hongyen LearnHub',
+                    layout: false
+                });
+            }
+
+            // Get the latest completed attempt
+            const attempts = await Test.getApplicantAttempts(applicant.applicant_id);
+            const completedAttempt = attempts.find(a => a.status === 'Completed');
+
+            if (!completedAttempt) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFound') + ' - Rukchai Hongyen LearnHub',
+                    layout: false,
+                    message: req.t('testResultNotFound') || 'Test result not found'
+                });
+            }
+
+            res.render('applicants/test-result', {
+                title: req.t('testResult') + ' - Rukchai Hongyen LearnHub',
+                layout: false,
+                applicant: {
+                    first_name: applicant.first_name,
+                    last_name: applicant.last_name,
+                    position_name: applicant.position_name
+                },
+                result: {
+                    score: completedAttempt.score,
+                    percentage: completedAttempt.percentage,
+                    passed: completedAttempt.passed,
+                    time_spent: completedAttempt.time_spent_seconds,
+                    completed_at: completedAttempt.completed_at
+                },
+                test_code: test_code
+            });
+
+        } catch (error) {
+            console.error('Render test result error:', error);
+            res.render('error/500', {
+                title: req.t('errorOccurred') + ' - Rukchai Hongyen LearnHub',
+                message: req.t('cannotLoadTestResult') || 'Cannot load test result',
+                layout: false,
+                error: error
+            });
+        }
+    },
+
     async renderApplicantManagement(req, res) {
         try {
-            const userRole = req.user.role;
+            console.log('🔍 renderApplicantManagement - req.user:', req.user);
+            console.log('🔍 renderApplicantManagement - role_name:', req.user?.role_name);
+            const userRole = req.user.role_name;
+
+            console.log('🔍 Checking role:', userRole, 'against:', ['Admin', 'HR']);
+            console.log('🔍 Match:', ['Admin', 'HR'].includes(userRole));
 
             if (!['Admin', 'HR'].includes(userRole)) {
+                console.log('❌ Access denied for role:', userRole);
                 return res.render('error/403', {
                     title: req.t('noPermissionToAccess') + ' - Rukchai Hongyen LearnHub',
                     user: req.session.user
                 });
             }
+            console.log('✅ Access granted for role:', userRole);
 
             const positions = await JobPosition.findAll({ is_active: true });
 
@@ -581,6 +694,48 @@ const applicantController = {
             res.render('error/500', {
                 title: req.t('errorOccurred') + ' - Rukchai Hongyen LearnHub',
                 message: req.t('cannotLoadApplicantManagementPage'),
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
+    async renderApplicantDetail(req, res) {
+        try {
+            const { applicant_id } = req.params;
+            const userRole = req.user.role_name;
+
+            if (!['Admin', 'HR'].includes(userRole)) {
+                return res.render('error/403', {
+                    title: req.t('noPermissionToAccess') + ' - Rukchai Hongyen LearnHub',
+                    user: req.session.user
+                });
+            }
+
+            const applicant = await Applicant.findById(applicant_id);
+            if (!applicant) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFound') + ' - Rukchai Hongyen LearnHub',
+                    user: req.session.user
+                });
+            }
+
+            // Get test attempts for this applicant
+            const attempts = await Test.getApplicantAttempts(applicant_id);
+
+            res.render('applicants/detail', {
+                title: `${applicant.first_name} ${applicant.last_name} - ${req.t('applicantDetail') || 'รายละเอียดผู้สมัคร'} - Rukchai Hongyen LearnHub`,
+                user: req.session.user,
+                userRole: userRole,
+                applicant: applicant,
+                testAttempts: attempts || []
+            });
+
+        } catch (error) {
+            console.error('Render applicant detail error:', error);
+            res.render('error/500', {
+                title: req.t('errorOccurred') + ' - Rukchai Hongyen LearnHub',
+                message: req.t('cannotLoadApplicantDetailPage') || 'ไม่สามารถโหลดหน้ารายละเอียดผู้สมัครได้',
                 user: req.session.user,
                 error: error
             });

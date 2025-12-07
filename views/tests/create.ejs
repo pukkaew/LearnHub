@@ -94,6 +94,11 @@
                                     <option value="midcourse_assessment"><%= t('midcourseAssessment') %></option>
                                     <option value="final_assessment"><%= t('finalAssessment') %></option>
                                 </optgroup>
+                                <optgroup label="<%= t('recruitmentAssessments') || 'Recruitment Assessments' %>">
+                                    <option value="job_application_test"><%= t('jobApplicationTest') || 'Job Application Test' %></option>
+                                    <option value="aptitude_test"><%= t('aptitudeTest') || 'Aptitude Test' %></option>
+                                    <option value="personality_test"><%= t('personalityTest') || 'Personality Test' %></option>
+                                </optgroup>
                                 <optgroup label="<%= t('otherAssessments') || 'Other' %>">
                                     <option value="assessment"><%= t('assessment') %></option>
                                     <option value="practice_exercise"><%= t('practiceExercise') %></option>
@@ -102,7 +107,7 @@
                             </select>
                         </div>
 
-                        <div>
+                        <div id="course-field">
                             <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2"><%= t('relatedCourse') %></label>
                             <select id="course_id" name="course_id" onchange="handleCourseChange()"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
@@ -115,6 +120,24 @@
                                     <% }); %>
                                 <% } %>
                             </select>
+                        </div>
+
+                        <!-- Position Selection for Recruitment Tests -->
+                        <div id="position-selection" class="md:col-span-2 hidden">
+                            <label for="position_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-briefcase text-ruxchai-primary mr-1"></i>
+                                <%= t('selectPosition') || 'Select Job Position' %> <span class="text-red-500">*</span>
+                            </label>
+                            <select id="position_id" name="position_id"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                <option value=""><%= t('selectPositionPlaceholder') || 'Select job position for this test' %></option>
+                                <% if (typeof positions !== 'undefined' && positions && positions.length > 0) { %>
+                                    <% positions.forEach(position => { %>
+                                        <option value="<%= position.position_id %>"><%= position.name %></option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1"><%= t('positionTestHint') || 'This test will be used for applicants applying to this position' %></p>
                         </div>
 
                         <!-- Course Assessment Structure Display -->
@@ -133,7 +156,7 @@
                             </div>
                         </div>
 
-                        <div>
+                        <div id="chapter-field">
                             <label for="chapter_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 <%= t('selectChapter') %> <span class="text-gray-500 text-xs">(<%= t('selectCourseFirst') %>)</span>
                             </label>
@@ -144,7 +167,7 @@
                             </select>
                         </div>
 
-                        <div>
+                        <div id="lesson-field">
                             <label for="lesson_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 <%= t('selectLesson') %> <span class="text-gray-500 text-xs">(<%= t('selectChapterFirst') %>)</span>
                             </label>
@@ -598,6 +621,14 @@ function handleTestTypeChange() {
     const courseSelect = document.getElementById('course_id');
     const chapterSelect = document.getElementById('chapter_id');
     const lessonSelect = document.getElementById('lesson_id');
+    const positionSelection = document.getElementById('position-selection');
+    const positionSelect = document.getElementById('position_id');
+
+    // Field containers
+    const courseField = document.getElementById('course-field');
+    const chapterField = document.getElementById('chapter-field');
+    const lessonField = document.getElementById('lesson-field');
+    const courseAssessmentStructure = document.getElementById('course-assessment-structure');
 
     const courseLabel = document.querySelector('label[for="course_id"]');
     const chapterLabel = document.querySelector('label[for="chapter_id"]');
@@ -605,11 +636,13 @@ function handleTestTypeChange() {
 
     // Reset required indicators
     const resetRequired = (label) => {
+        if (!label) return;
         const requiredSpan = label.querySelector('.text-red-500');
         if (requiredSpan) requiredSpan.remove();
     };
 
     const addRequired = (label) => {
+        if (!label) return;
         if (!label.querySelector('.text-red-500')) {
             const span = document.createElement('span');
             span.className = 'text-red-500';
@@ -626,7 +659,37 @@ function handleTestTypeChange() {
     chapterSelect.removeAttribute('required');
     lessonSelect.removeAttribute('required');
 
-    if (testType === 'chapter_test') {
+    // Hide position selection by default
+    positionSelection.classList.add('hidden');
+    positionSelect.removeAttribute('required');
+
+    // Show all course-related fields by default
+    courseField.classList.remove('hidden');
+    chapterField.classList.remove('hidden');
+    lessonField.classList.remove('hidden');
+
+    // Recruitment test types that need position selection
+    const recruitmentTestTypes = ['job_application_test', 'aptitude_test', 'personality_test'];
+
+    if (recruitmentTestTypes.includes(testType)) {
+        // Show position selection for recruitment tests
+        positionSelection.classList.remove('hidden');
+        positionSelect.setAttribute('required', 'required');
+
+        // Hide course-related fields (not needed for recruitment tests)
+        courseField.classList.add('hidden');
+        chapterField.classList.add('hidden');
+        lessonField.classList.add('hidden');
+        courseAssessmentStructure.classList.add('hidden');
+
+        // Reset course-related values
+        courseSelect.value = '';
+        chapterSelect.value = '';
+        lessonSelect.value = '';
+
+        // Show info message for recruitment tests
+        showTestTypeInfo('recruitmentTestInfo');
+    } else if (testType === 'chapter_test') {
         // Chapter test requires course and chapter
         addRequired(courseLabel);
         addRequired(chapterLabel);
@@ -675,6 +738,14 @@ function showTestTypeInfo(infoType) {
                 <i class="fas fa-info-circle mr-2"></i>
                 <strong><%= t('lessonTestNote') || 'Lesson Test' %>:</strong>
                 <%= t('lessonTestDescription') || 'This test will appear at the end of the selected lesson. Please select a course, chapter, and lesson.' %>
+            </p>
+        `;
+    } else if (infoType === 'recruitmentTestInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-briefcase mr-2"></i>
+                <strong><%= t('recruitmentTestNote') || 'Recruitment Test' %>:</strong>
+                <%= t('recruitmentTestDescription') || 'This test will be used for job applicants. Please select the job position this test is for.' %>
             </p>
         `;
     }
@@ -1168,6 +1239,7 @@ function collectFormData() {
         instructions: document.getElementById('instructions')?.value || '',
         type: document.getElementById('test_type')?.value || '',
         course_id: document.getElementById('course_id')?.value || '',
+        position_id: document.getElementById('position_id')?.value || '',
         chapter_id: document.getElementById('chapter_id')?.value || '',
         lesson_id: document.getElementById('lesson_id')?.value || '',
         difficulty_level: document.getElementById('difficulty_level')?.value || '',
@@ -1660,6 +1732,7 @@ async function submitTest() {
         instructions: formData.get('instructions'),
         type: formData.get('type'),
         course_id: formData.get('course_id') || null,
+        position_id: formData.get('position_id') || null, // For recruitment tests
         difficulty_level: formData.get('difficulty_level'),
         language: formData.get('language'),
         time_limit: formData.get('time_limit') ? parseInt(formData.get('time_limit')) : null,

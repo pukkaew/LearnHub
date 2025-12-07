@@ -41,6 +41,165 @@ class Applicant {
         return checkDigit === parseInt(nationalId[12]);
     }
 
+    // Create new applicant
+    static async create(applicantData) {
+        try {
+            const pool = await poolPromise;
+
+            // Generate test code
+            const testCode = 'APL' + Date.now().toString(36).toUpperCase();
+
+            const result = await pool.request()
+                .input('national_id', sql.NVarChar(13), applicantData.national_id)
+                .input('first_name', sql.NVarChar(100), applicantData.first_name)
+                .input('last_name', sql.NVarChar(100), applicantData.last_name)
+                .input('email', sql.NVarChar(100), applicantData.email || null)
+                .input('phone', sql.NVarChar(20), applicantData.phone || null)
+                .input('address', sql.NVarChar(500), applicantData.address || null)
+                .input('position_id', sql.Int, applicantData.position_id)
+                .input('status', sql.NVarChar(20), applicantData.status || 'Pending')
+                .input('test_code', sql.NVarChar(50), testCode)
+                .query(`
+                    INSERT INTO Applicants (
+                        national_id, first_name, last_name, email, phone,
+                        current_address, position_id, status, test_code,
+                        application_date, created_at
+                    )
+                    OUTPUT INSERTED.*
+                    VALUES (
+                        @national_id, @first_name, @last_name, @email, @phone,
+                        @address, @position_id, @status, @test_code,
+                        GETDATE(), GETDATE()
+                    )
+                `);
+
+            return { success: true, data: result.recordset[0] };
+        } catch (error) {
+            console.error('Error creating applicant:', error);
+            if (error.number === 2627) {
+                return { success: false, message: 'National ID already registered' };
+            }
+            return { success: false, message: 'Failed to create applicant' };
+        }
+    }
+
+    // Find by national ID and position
+    static async findByNationalIdAndPosition(nationalId, positionId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('nationalId', sql.NVarChar(13), nationalId)
+                .input('positionId', sql.Int, positionId)
+                .query(`
+                    SELECT * FROM Applicants
+                    WHERE national_id = @nationalId AND position_id = @positionId
+                `);
+
+            return result.recordset[0] || null;
+        } catch (error) {
+            console.error('Error finding applicant:', error);
+            return null;
+        }
+    }
+
+    // Find by test code
+    static async findByTestCode(testCode) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('testCode', sql.NVarChar(50), testCode)
+                .query(`
+                    SELECT a.*, p.position_name
+                    FROM Applicants a
+                    LEFT JOIN positions p ON a.position_id = p.position_id
+                    WHERE a.test_code = @testCode
+                `);
+
+            return result.recordset[0] || null;
+        } catch (error) {
+            console.error('Error finding applicant by test code:', error);
+            return null;
+        }
+    }
+
+    // Find by ID
+    static async findById(applicantId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('applicantId', sql.Int, applicantId)
+                .query(`
+                    SELECT a.*,
+                           p.position_name,
+                           d.department_name,
+                           ata.percentage as test_score,
+                           ata.completed_at as test_taken_at,
+                           CASE WHEN ata.status = 'Completed' THEN 1 ELSE 0 END as test_completed
+                    FROM Applicants a
+                    LEFT JOIN positions p ON a.position_id = p.position_id
+                    LEFT JOIN Departments d ON p.department_id = d.department_id
+                    LEFT JOIN ApplicantTestAttempts ata ON a.applicant_id = ata.applicant_id AND ata.status = 'Completed'
+                    WHERE a.applicant_id = @applicantId
+                `);
+
+            return result.recordset[0] || null;
+        } catch (error) {
+            console.error('Error finding applicant by ID:', error);
+            return null;
+        }
+    }
+
+    // Update test results - only updates status (test scores stored in ApplicantTestAttempts)
+    static async updateTestResults(applicantId, updateData) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('applicantId', sql.Int, applicantId)
+                .input('status', sql.NVarChar(20), updateData.status || 'Pending')
+                .query(`
+                    UPDATE Applicants
+                    SET status = @status,
+                        updated_at = GETDATE()
+                    OUTPUT INSERTED.*
+                    WHERE applicant_id = @applicantId
+                `);
+
+            if (result.recordset.length === 0) {
+                return { success: false, message: 'Applicant not found' };
+            }
+
+            return { success: true, data: result.recordset[0] };
+        } catch (error) {
+            console.error('Error updating test results:', error);
+            return { success: false, message: 'Failed to update test results' };
+        }
+    }
+
+    // Get overall statistics
+    static async getOverallStatistics() {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT
+                    COUNT(*) as total_applicants,
+                    COUNT(CASE WHEN status = 'Pending' THEN 1 END) as pending_count,
+                    COUNT(CASE WHEN status = 'Passed' THEN 1 END) as passed_count,
+                    COUNT(CASE WHEN status = 'Rejected' THEN 1 END) as rejected_count,
+                    COUNT(CASE WHEN status = 'Screening' THEN 1 END) as screening_count,
+                    COUNT(CASE WHEN status = 'Interview' THEN 1 END) as interview_count,
+                    AVG(CAST(test_score AS FLOAT)) as avg_score
+                FROM Applicants
+            `);
+
+            return result.recordset[0];
+        } catch (error) {
+            console.error('Error getting overall statistics:', error);
+            return null;
+        }
+    }
+
     // Find applicant by national ID
     static async findByNationalId(nationalId) {
         try {
@@ -206,10 +365,12 @@ class Applicant {
     }
 
     // Get all applicants with pagination
-    static async findAll(page = 1, limit = 50, filters = {}) {
+    static async findAll(filters = {}) {
         try {
             const pool = await poolPromise;
-            const offset = (page - 1) * limit;
+            const page = parseInt(filters.page) || 1;
+            const limit = parseInt(filters.limit) || 50;
+            const offset = parseInt(filters.offset) || ((page - 1) * limit);
 
             let whereClause = 'WHERE 1=1';
             const request = pool.request()
@@ -218,18 +379,14 @@ class Applicant {
 
             // Add filters
             if (filters.position_id) {
-                whereClause += ' AND a.applied_position_id = @positionId';
+                whereClause += ' AND a.position_id = @positionId';
                 request.input('positionId', sql.Int, filters.position_id);
             }
-            if (filters.department_id) {
-                whereClause += ' AND jp.department_id = @departmentId';
-                request.input('departmentId', sql.Int, filters.department_id);
-            }
-            if (filters.test_status) {
-                if (filters.test_status === 'completed') {
-                    whereClause += ' AND EXISTS (SELECT 1 FROM ApplicantTestResults WHERE applicant_id = a.applicant_id)';
-                } else if (filters.test_status === 'not_started') {
-                    whereClause += ' AND NOT EXISTS (SELECT 1 FROM ApplicantTestResults WHERE applicant_id = a.applicant_id)';
+            if (filters.test_completed !== undefined && filters.test_completed !== '') {
+                if (filters.test_completed === 'true' || filters.test_completed === true) {
+                    whereClause += ' AND EXISTS (SELECT 1 FROM ApplicantTestResults WHERE applicant_id = a.applicant_id AND completed_at IS NOT NULL)';
+                } else if (filters.test_completed === 'false' || filters.test_completed === false) {
+                    whereClause += ' AND NOT EXISTS (SELECT 1 FROM ApplicantTestResults WHERE applicant_id = a.applicant_id AND completed_at IS NOT NULL)';
                 }
             }
             if (filters.search) {
@@ -238,42 +395,37 @@ class Applicant {
                     a.last_name LIKE @search OR
                     a.email LIKE @search OR
                     a.phone LIKE @search OR
-                    a.national_id LIKE @search
+                    a.national_id LIKE @search OR
+                    a.test_code LIKE @search
                 )`;
                 request.input('search', sql.NVarChar(100), `%${filters.search}%`);
-            }
-            if (filters.date_from) {
-                whereClause += ' AND a.created_date >= @dateFrom';
-                request.input('dateFrom', sql.Date, filters.date_from);
-            }
-            if (filters.date_to) {
-                whereClause += ' AND a.created_date <= @dateTo';
-                request.input('dateTo', sql.Date, filters.date_to);
             }
 
             // Get total count
             const countResult = await request.query(`
                 SELECT COUNT(*) as total
                 FROM Applicants a
-                LEFT JOIN JobPositions jp ON a.applied_position_id = jp.job_position_id
+                LEFT JOIN positions p ON a.position_id = p.position_id
                 ${whereClause}
             `);
 
             // Get paginated data
             const result = await request.query(`
                 SELECT a.*,
-                       jp.position_title, jp.test_code,
+                       p.position_name,
                        d.department_name,
-                       t.test_name,
-                       atr.score, atr.percentage, atr.passed, atr.ranking,
-                       atr.start_time as test_start_time, atr.end_time as test_end_time
+                       atr.score as test_score,
+                       atr.percentage,
+                       atr.passed,
+                       atr.started_at as test_start_time,
+                       atr.completed_at as test_end_time,
+                       CASE WHEN atr.completed_at IS NOT NULL THEN 1 ELSE 0 END as test_completed
                 FROM Applicants a
-                LEFT JOIN JobPositions jp ON a.applied_position_id = jp.job_position_id
-                LEFT JOIN Departments d ON jp.department_id = d.department_id
-                LEFT JOIN Tests t ON jp.test_id = t.test_id
+                LEFT JOIN positions p ON a.position_id = p.position_id
+                LEFT JOIN Departments d ON p.department_id = d.department_id
                 LEFT JOIN ApplicantTestResults atr ON a.applicant_id = atr.applicant_id
                 ${whereClause}
-                ORDER BY a.created_date DESC
+                ORDER BY a.created_at DESC
                 OFFSET @offset ROWS
                 FETCH NEXT @limit ROWS ONLY
             `);

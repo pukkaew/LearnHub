@@ -76,6 +76,7 @@ class Test {
                 .input('language', sql.NVarChar(10), testData.language || 'th')
                 .input('randomizeOptions', sql.Bit, testData.randomize_options ? 1 : 0)
                 .input('questionsToShow', sql.Int, testData.questions_to_show || null)
+                .input('positionId', sql.Int, testData.position_id || null)
                 .query(`
                     INSERT INTO tests (
                         course_id, instructor_id, title, description, type,
@@ -87,7 +88,7 @@ class Test {
                         weight_in_course, available_from, available_until,
                         is_graded, is_required, is_passing_required,
                         score_weight, show_score_breakdown, language,
-                        randomize_options, questions_to_show
+                        randomize_options, questions_to_show, position_id
                     ) VALUES (
                         @courseId, @instructorId, @title, @description, @type,
                         @timeLimit, @totalMarks, @passingMarks, @attemptsAllowed,
@@ -98,7 +99,7 @@ class Test {
                         @weightInCourse, @availableFrom, @availableUntil,
                         @isGraded, @isRequired, @isPassingRequired,
                         @scoreWeight, @showScoreBreakdown, @language,
-                        @randomizeOptions, @questionsToShow
+                        @randomizeOptions, @questionsToShow, @positionId
                     );
                     SELECT SCOPE_IDENTITY() as test_id
                 `);
@@ -176,6 +177,30 @@ class Test {
         } catch (error) {
             console.error('Error finding test:', error);
             throw new Error(`Error finding test: ${error.message}`);
+        }
+    }
+
+    // Find tests by job position (for applicant testing)
+    static async findByJobPosition(positionId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('positionId', sql.Int, positionId)
+                .query(`
+                    SELECT t.*,
+                           p.position_name,
+                           (SELECT COUNT(*) FROM questions WHERE test_id = t.test_id) as question_count
+                    FROM tests t
+                    LEFT JOIN positions p ON t.position_id = p.position_id
+                    WHERE t.position_id = @positionId
+                      AND t.status = 'Published'
+                    ORDER BY t.created_at DESC
+                `);
+
+            return result.recordset;
+        } catch (error) {
+            console.error('Error finding tests by position:', error);
+            return [];
         }
     }
 
@@ -693,6 +718,44 @@ class Test {
         }
     }
 
+    // Get test attempts for an applicant
+    static async getApplicantAttempts(applicantId) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('applicantId', sql.Int, applicantId)
+                .query(`
+                    SELECT
+                        ata.attempt_id,
+                        ata.applicant_id,
+                        ata.test_id,
+                        ata.started_at,
+                        ata.completed_at,
+                        ata.time_spent_seconds as time_taken_seconds,
+                        ata.score,
+                        ata.percentage,
+                        ata.passed,
+                        ata.status,
+                        t.title as test_title,
+                        t.total_marks,
+                        t.passing_marks,
+                        t.type as test_type,
+                        t.time_limit,
+                        (SELECT COUNT(*) FROM Questions WHERE test_id = t.test_id) as total_questions
+                    FROM ApplicantTestAttempts ata
+                    JOIN Tests t ON ata.test_id = t.test_id
+                    WHERE ata.applicant_id = @applicantId
+                    ORDER BY ata.started_at DESC
+                `);
+
+            return result.recordset;
+        } catch (error) {
+            console.error('Error getting applicant attempts:', error);
+            return [];
+        }
+    }
+
     // Get detailed attempt results for results page
     static async getAttemptResults(attemptId) {
         try {
@@ -840,6 +903,178 @@ class Test {
             throw new Error(`Error getting attempt results: ${error.message}`);
         }
     }
+
+    // Create applicant test attempt
+    static async createApplicantAttempt(attemptData) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('test_id', sql.Int, attemptData.test_id)
+                .input('applicant_id', sql.Int, attemptData.applicant_id)
+                .input('start_time', sql.DateTime, attemptData.start_time || new Date())
+                .input('status', sql.VarChar(50), attemptData.status || 'In_Progress')
+                .query(`
+                    INSERT INTO ApplicantTestAttempts (test_id, applicant_id, started_at, status)
+                    OUTPUT INSERTED.attempt_id, INSERTED.test_id, INSERTED.applicant_id,
+                           INSERTED.started_at, INSERTED.status
+                    VALUES (@test_id, @applicant_id, @start_time, @status)
+                `);
+
+            if (result.recordset.length > 0) {
+                return {
+                    success: true,
+                    data: result.recordset[0]
+                };
+            }
+
+            return { success: false, message: 'Failed to create attempt' };
+        } catch (error) {
+            console.error('Error creating applicant attempt:', error);
+            return { success: false, message: error.message };
+        }
+    }
+
+    // Get applicant attempt by ID
+    static async getApplicantAttemptById(attemptId) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('attemptId', sql.Int, attemptId)
+                .query(`
+                    SELECT ata.*, t.title as test_title, t.time_limit, t.passing_marks
+                    FROM ApplicantTestAttempts ata
+                    JOIN Tests t ON ata.test_id = t.test_id
+                    WHERE ata.attempt_id = @attemptId
+                `);
+
+            return result.recordset[0] || null;
+        } catch (error) {
+            console.error('Error getting applicant attempt by ID:', error);
+            return null;
+        }
+    }
+
+    // Submit applicant test attempt
+    static async submitApplicantAttempt(attemptId, answers, timeTaken) {
+        try {
+            const pool = await poolPromise;
+
+            // Get attempt info
+            const attemptResult = await pool.request()
+                .input('attemptId', sql.Int, attemptId)
+                .query(`
+                    SELECT ata.*, t.passing_marks, t.total_marks
+                    FROM ApplicantTestAttempts ata
+                    JOIN Tests t ON ata.test_id = t.test_id
+                    WHERE ata.attempt_id = @attemptId
+                `);
+
+            if (attemptResult.recordset.length === 0) {
+                return { success: false, message: 'Attempt not found' };
+            }
+
+            const attempt = attemptResult.recordset[0];
+
+            // Get questions for this test
+            const questionsResult = await pool.request()
+                .input('testId', sql.Int, attempt.test_id)
+                .query(`
+                    SELECT q.question_id, q.question_type, q.points, q.correct_answer,
+                           q.correct_answers
+                    FROM Questions q
+                    WHERE q.test_id = @testId AND q.is_active = 1
+                `);
+
+            const questions = questionsResult.recordset;
+            let totalScore = 0;
+            let correctCount = 0;
+            const totalQuestions = questions.length;
+
+            // Calculate score
+            for (let i = 0; i < questions.length; i++) {
+                const question = questions[i];
+                const userAnswer = answers[i];
+
+                if (userAnswer !== undefined && userAnswer !== null) {
+                    let isCorrect = false;
+
+                    if (question.question_type === 'multiple_choice') {
+                        // Get correct option index
+                        const optionsResult = await pool.request()
+                            .input('questionId', sql.Int, question.question_id)
+                            .query(`
+                                SELECT option_id, is_correct, option_order
+                                FROM QuestionOptions
+                                WHERE question_id = @questionId
+                                ORDER BY option_order
+                            `);
+
+                        const correctIndex = optionsResult.recordset.findIndex(o => o.is_correct);
+                        isCorrect = parseInt(userAnswer) === correctIndex;
+                    } else if (question.question_type === 'true_false') {
+                        const correctAns = question.correct_answer?.toLowerCase();
+                        isCorrect = userAnswer.toLowerCase() === correctAns;
+                    } else if (question.question_type === 'fill_blank') {
+                        const correctAns = question.correct_answer?.toLowerCase().trim();
+                        isCorrect = userAnswer.toLowerCase().trim() === correctAns;
+                    }
+
+                    if (isCorrect) {
+                        totalScore += question.points || 1;
+                        correctCount++;
+                    }
+                }
+            }
+
+            // Calculate percentage
+            const maxScore = questions.reduce((sum, q) => sum + (q.points || 1), 0);
+            const percentage = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
+            const passed = percentage >= (attempt.passing_marks || 60);
+
+            // Update attempt
+            await pool.request()
+                .input('attemptId', sql.Int, attemptId)
+                .input('completedAt', sql.DateTime, new Date())
+                .input('score', sql.Decimal(5, 2), totalScore)
+                .input('percentage', sql.Decimal(5, 2), percentage)
+                .input('passed', sql.Bit, passed ? 1 : 0)
+                .input('answers', sql.NVarChar(sql.MAX), JSON.stringify(answers))
+                .input('timeSpent', sql.Int, timeTaken || 0)
+                .query(`
+                    UPDATE ApplicantTestAttempts
+                    SET completed_at = @completedAt,
+                        status = 'Completed',
+                        score = @score,
+                        percentage = @percentage,
+                        passed = @passed,
+                        answers = @answers,
+                        time_spent_seconds = @timeSpent,
+                        updated_at = GETDATE()
+                    WHERE attempt_id = @attemptId
+                `);
+
+            return {
+                success: true,
+                data: {
+                    attempt_id: attemptId,
+                    total_score: totalScore,
+                    max_score: maxScore,
+                    percentage: percentage,
+                    correct_count: correctCount,
+                    total_questions: totalQuestions,
+                    passed: passed,
+                    status: passed ? 'Passed' : 'Failed'
+                }
+            };
+
+        } catch (error) {
+            console.error('Error submitting applicant attempt:', error);
+            return { success: false, message: error.message };
+        }
+    }
+
 }
 
 module.exports = Test;

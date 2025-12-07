@@ -1,0 +1,334 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="/dashboard" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-home"></i>
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <a href="/applicants/admin/" class="text-gray-500 hover:text-gray-700 text-sm"><%= t('applicants') || 'ผู้สมัครงาน' %></a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <span class="text-gray-700 text-sm font-medium"><%= t('applicantDetail') || 'รายละเอียดผู้สมัคร' %></span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header Card -->
+    <div class="bg-white rounded-2xl shadow-lg mb-8 overflow-hidden border border-gray-100">
+        <!-- Top Accent Bar -->
+        <div class="h-2" style="background: linear-gradient(90deg, #1565C0 0%, #1976D2 25%, #2196F3 50%, #4CAF50 75%, #00ACC1 100%);"></div>
+
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-start gap-4">
+                    <!-- Avatar -->
+                    <div class="relative flex-shrink-0">
+                        <div class="w-16 h-16 bg-ruxchai-primary/10 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user-tie text-2xl text-ruxchai-primary"></i>
+                        </div>
+                        <% if (applicant.status === 'Passed') { %>
+                            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-ruxchai-secondary rounded-full flex items-center justify-center ring-2 ring-white">
+                                <i class="fas fa-check text-white text-[10px]"></i>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900"><%= applicant.first_name %> <%= applicant.last_name %></h1>
+                        <p class="text-gray-600 mt-1">
+                            <i class="fas fa-briefcase mr-2 text-gray-400"></i>
+                            <%= applicant.position_name || t('noPosition') || 'ไม่ระบุตำแหน่ง' %>
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <% if (applicant.status === 'Passed') { %>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-ruxchai-secondary/10 text-ruxchai-secondary rounded-full text-xs font-medium">
+                                    <i class="fas fa-check-circle mr-1"></i><%= t('statusPassed') || 'ผ่าน' %>
+                                </span>
+                            <% } else if (applicant.status === 'Rejected') { %>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-red-100 text-red-600 rounded-full text-xs font-medium">
+                                    <i class="fas fa-times-circle mr-1"></i><%= t('statusRejected') || 'ไม่ผ่าน' %>
+                                </span>
+                            <% } else if (applicant.status === 'Pending') { %>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-amber-100 text-amber-600 rounded-full text-xs font-medium">
+                                    <i class="fas fa-clock mr-1"></i><%= t('statusPending') || 'รอดำเนินการ' %>
+                                </span>
+                            <% } else if (applicant.status === 'Screening') { %>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">
+                                    <i class="fas fa-search mr-1"></i><%= t('statusScreening') || 'กำลังคัดกรอง' %>
+                                </span>
+                            <% } else if (applicant.status === 'Interview') { %>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-purple-100 text-purple-600 rounded-full text-xs font-medium">
+                                    <i class="fas fa-comments mr-1"></i><%= t('statusInterview') || 'สัมภาษณ์' %>
+                                </span>
+                            <% } else { %>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                                    <%= applicant.status %>
+                                </span>
+                            <% } %>
+
+                            <% if (applicant.test_code) { %>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-ruxchai-primary/10 text-ruxchai-primary rounded-full text-xs font-mono">
+                                    <i class="fas fa-key mr-1"></i><%= applicant.test_code %>
+                                </span>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="window.print()" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-print mr-2"></i><%= t('print') || 'พิมพ์' %>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Personal Info Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-info-circle text-blue-600"></i>
+                    </div>
+                    <%= t('personalInfo') || 'ข้อมูลส่วนตัว' %>
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-500"><%= t('nationalId') || 'เลขบัตรประชาชน' %></p>
+                        <p class="text-base font-semibold text-gray-900 mt-1"><%= applicant.national_id || '-' %></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-500"><%= t('testCode') || 'รหัสทดสอบ' %></p>
+                        <p class="text-base font-mono font-bold text-ruxchai-primary mt-1"><%= applicant.test_code || '-' %></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-500"><%= t('email') || 'อีเมล' %></p>
+                        <p class="text-base font-semibold text-gray-900 mt-1">
+                            <% if (applicant.email) { %>
+                                <a href="mailto:<%= applicant.email %>" class="text-ruxchai-primary hover:underline"><%= applicant.email %></a>
+                            <% } else { %>
+                                -
+                            <% } %>
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-500"><%= t('phone') || 'เบอร์โทรศัพท์' %></p>
+                        <p class="text-base font-semibold text-gray-900 mt-1">
+                            <% if (applicant.phone) { %>
+                                <a href="tel:<%= applicant.phone %>" class="text-ruxchai-primary hover:underline"><%= applicant.phone %></a>
+                            <% } else { %>
+                                -
+                            <% } %>
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 sm:col-span-2">
+                        <p class="text-sm font-medium text-gray-500"><%= t('address') || 'ที่อยู่' %></p>
+                        <p class="text-base font-semibold text-gray-900 mt-1"><%= applicant.address || '-' %></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-500"><%= t('applicationDate') || 'วันที่สมัคร' %></p>
+                        <p class="text-base font-semibold text-gray-900 mt-1">
+                            <%= applicant.application_date ? new Date(applicant.application_date).toLocaleDateString('th-TH', {year: 'numeric', month: 'short', day: 'numeric'}) : '-' %>
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-500"><%= t('department') || 'แผนก' %></p>
+                        <p class="text-base font-semibold text-gray-900 mt-1"><%= applicant.department_name || '-' %></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test History Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-clipboard-list text-green-600"></i>
+                        </div>
+                        <%= t('testHistory') || 'ประวัติการทดสอบ' %>
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <% if (testAttempts && testAttempts.length > 0) { %>
+                        <div class="space-y-4">
+                            <% testAttempts.forEach((attempt, index) => { %>
+                                <div class="bg-gray-50 rounded-lg p-4 border-l-4 <%= attempt.passed ? 'border-ruxchai-secondary' : attempt.completed_at ? 'border-red-500' : 'border-amber-500' %>">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="text-sm font-semibold text-gray-900"><%= attempt.test_title || t('testNumber') || 'ข้อสอบ #' + (index + 1) %></h4>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                <i class="fas fa-calendar mr-1"></i>
+                                                <%= attempt.started_at ? new Date(attempt.started_at).toLocaleDateString('th-TH', {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : '-' %>
+                                            </p>
+                                            <% if (attempt.time_taken_seconds) { %>
+                                                <p class="text-xs text-gray-400 mt-1">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    <%= t('timeTaken') || 'เวลาที่ใช้' %>: <%= Math.floor(attempt.time_taken_seconds / 60) %> <%= t('minutes') || 'นาที' %>
+                                                </p>
+                                            <% } %>
+                                        </div>
+                                        <div class="text-right">
+                                            <% if (attempt.percentage !== null && attempt.percentage !== undefined) { %>
+                                                <p class="text-xl font-bold <%= attempt.passed ? 'text-ruxchai-secondary' : 'text-red-600' %>">
+                                                    <%= Math.round(attempt.percentage) %><span class="text-xs text-gray-500">%</span>
+                                                </p>
+                                            <% } else { %>
+                                                <p class="text-gray-400 text-sm">-</p>
+                                            <% } %>
+                                            <% if (attempt.passed) { %>
+                                                <span class="inline-flex items-center px-2 py-0.5 bg-ruxchai-secondary/10 text-ruxchai-secondary text-xs rounded-full font-medium mt-1"><%= t('passed') || 'ผ่าน' %></span>
+                                            <% } else if (attempt.completed_at) { %>
+                                                <span class="inline-flex items-center px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full font-medium mt-1"><%= t('failed') || 'ไม่ผ่าน' %></span>
+                                            <% } else { %>
+                                                <span class="inline-flex items-center px-2 py-0.5 bg-amber-100 text-amber-600 text-xs rounded-full font-medium mt-1"><%= t('inProgress') || 'กำลังทำ' %></span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-clipboard text-gray-400 text-2xl"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm"><%= t('noTestHistory') || 'ยังไม่มีประวัติการทดสอบ' %></p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="space-y-6">
+            <!-- Test Score Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div class="w-8 h-8 bg-cyan-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-chart-pie text-cyan-600"></i>
+                    </div>
+                    <%= t('testScore') || 'คะแนนสอบ' %>
+                </h3>
+                <div class="text-center">
+                    <% if (applicant.test_score !== null && applicant.test_score !== undefined) { %>
+                        <div class="relative inline-flex items-center justify-center">
+                            <svg class="w-28 h-28 transform -rotate-90">
+                                <circle cx="56" cy="56" r="48" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
+                                <circle cx="56" cy="56" r="48"
+                                        class="<%= applicant.test_score >= 70 ? 'stroke-ruxchai-secondary' : 'stroke-red-500' %>"
+                                        stroke-width="8"
+                                        fill="none"
+                                        stroke-dasharray="<%= 301.59 * (applicant.test_score / 100) %> 301.59"
+                                        stroke-linecap="round"></circle>
+                            </svg>
+                            <span class="absolute text-2xl font-bold <%= applicant.test_score >= 70 ? 'text-ruxchai-secondary' : 'text-red-600' %>">
+                                <%= applicant.test_score %>%
+                            </span>
+                        </div>
+                        <p class="mt-3 text-sm">
+                            <% if (applicant.test_score >= 70) { %>
+                                <span class="text-ruxchai-secondary font-medium"><i class="fas fa-check-circle mr-1"></i><%= t('passedTest') || 'ผ่านเกณฑ์' %></span>
+                            <% } else { %>
+                                <span class="text-red-600 font-medium"><i class="fas fa-times-circle mr-1"></i><%= t('failedTest') || 'ไม่ผ่านเกณฑ์' %></span>
+                            <% } %>
+                        </p>
+                    <% } else { %>
+                        <div class="py-6">
+                            <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-hourglass-half text-gray-400 text-xl"></i>
+                            </div>
+                            <p class="text-gray-500 text-sm"><%= t('notTestedYet') || 'ยังไม่ได้ทำการทดสอบ' %></p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+                        <%= t('quickActions') || 'ดำเนินการด่วน' %>
+                    </h3>
+                </div>
+                <div class="p-4 space-y-2">
+                    <% if (applicant.email) { %>
+                        <a href="mailto:<%= applicant.email %>" class="flex items-center w-full px-4 py-2.5 bg-ruxchai-primary/5 text-ruxchai-primary rounded-lg hover:bg-ruxchai-primary/10 transition-colors text-sm font-medium">
+                            <i class="fas fa-envelope w-5 mr-3"></i>
+                            <%= t('sendEmail') || 'ส่งอีเมล' %>
+                        </a>
+                    <% } %>
+                    <% if (applicant.phone) { %>
+                        <a href="tel:<%= applicant.phone %>" class="flex items-center w-full px-4 py-2.5 bg-ruxchai-secondary/5 text-ruxchai-secondary rounded-lg hover:bg-ruxchai-secondary/10 transition-colors text-sm font-medium">
+                            <i class="fas fa-phone w-5 mr-3"></i>
+                            <%= t('callPhone') || 'โทรหา' %>
+                        </a>
+                    <% } %>
+                    <button onclick="copyTestCode('<%= applicant.test_code %>')" class="flex items-center w-full px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                        <i class="fas fa-copy w-5 mr-3"></i>
+                        <%= t('copyTestCode') || 'คัดลอกรหัสทดสอบ' %>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notes Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <i class="fas fa-sticky-note text-indigo-500 mr-2"></i>
+                        <%= t('notes') || 'บันทึกเพิ่มเติม' %>
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <% if (applicant.notes) { %>
+                        <p class="text-gray-600 text-sm whitespace-pre-line"><%= applicant.notes %></p>
+                    <% } else { %>
+                        <p class="text-gray-400 text-sm italic"><%= t('noNotes') || 'ไม่มีบันทึกเพิ่มเติม' %></p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Copy test code
+async function copyTestCode(testCode) {
+    try {
+        await navigator.clipboard.writeText(testCode);
+        showMessage('<%= t("copiedToClipboard") || "คัดลอกไปยังคลิปบอร์ดแล้ว" %>', 'success');
+    } catch (err) {
+        const textArea = document.createElement('textarea');
+        textArea.value = testCode;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showMessage('<%= t("copiedToClipboard") || "คัดลอกไปยังคลิปบอร์ดแล้ว" %>', 'success');
+    }
+}
+
+// Show message toast
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-ruxchai-secondary' : type === 'error' ? 'bg-red-500' : 'bg-ruxchai-primary';
+    messageDiv.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-white shadow-lg text-sm ${bgColor}`;
+    messageDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>${message}`;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+</script>

@@ -619,8 +619,10 @@
                     <!-- Logo ชิดซ้าย -->
                     <a href="/dashboard" class="nav-logo-container">
                         <div class="relative group">
-                            <img src="<%= logoUrl %>" alt="<%= siteName %>" class="nav-logo-image transform transition-transform group-hover:scale-105" style="min-width: 80px; max-width: 100px;">
-                            <div class="absolute -inset-1 bg-gradient-to-r from-ruxchai-primary/20 to-ruxchai-secondary/20 rounded-lg blur opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                            <div class="bg-white p-2 rounded-lg shadow-lg transform transition-transform group-hover:scale-105">
+                                <img src="<%= logoUrl %>" alt="<%= siteName %>" class="nav-logo-image" style="min-width: 80px; max-width: 100px;">
+                            </div>
+                            <div class="absolute -inset-1 ruxchai-gradient opacity-30 rounded-lg blur group-hover:opacity-50 transition-opacity"></div>
                         </div>
                         <div class="nav-logo-text-container ml-3">
                             <div class="nav-logo-title"><%= siteName.replace('Rukchai Hongyen ', '') %></div>
@@ -699,6 +701,10 @@
                                 <a href="/organization/positions" class="nav-submenu-item">
                                     <span class="nav-submenu-icon"><i class="fas fa-briefcase"></i></span>
                                     <span><%= typeof t === 'function' ? t('positions') : 'ตำแหน่ง' %></span>
+                                </a>
+                                <a href="/applicants/admin/" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-user-tie"></i></span>
+                                    <span><%= typeof t === 'function' ? t('applicants') : 'ผู้สมัครงาน' %></span>
                                 </a>
                             </div>
                         </div>

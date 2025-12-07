@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0090D3;
+            --secondary-color: #3AAA35;
+        }
+        .bg-ruxchai-primary { background-color: var(--primary-color); }
+        .bg-ruxchai-secondary { background-color: var(--secondary-color); }
+        .text-ruxchai-primary { color: var(--primary-color); }
+        .text-ruxchai-secondary { color: var(--secondary-color); }
+        .border-ruxchai-primary { border-color: var(--primary-color); }
+        .ring-ruxchai-primary { --tw-ring-color: var(--primary-color); }
+
+        /* Disable text selection */
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Enable selection for inputs */
+        input, textarea {
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Test Header -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 bg-ruxchai-primary/10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-tie text-2xl text-ruxchai-primary"></i>
+                    </div>
+                    <div>
+                        <h1 id="testTitle" class="text-2xl font-bold text-gray-900 mb-1">ระบบทดสอบ</h1>
+                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                            <span><i class="fas fa-user mr-1"></i> <%= applicant.first_name %> <%= applicant.last_name %></span>
+                            <span><i class="fas fa-briefcase mr-1"></i> <%= applicant.position_name || 'ไม่ระบุตำแหน่ง' %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timer -->
+                <div class="text-right">
+                    <div class="text-3xl font-bold text-ruxchai-primary" id="timer">00:00:00</div>
+                    <div class="text-sm text-gray-500">เวลาที่เหลือ</div>
+                </div>
+            </div>
+
+            <!-- Test Info Bar -->
+            <div id="testInfoBar" class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-4 text-sm text-gray-600 hidden">
+                <span id="questionCount"><i class="fas fa-list-ol mr-1"></i> 0 ข้อ</span>
+                <span id="timeLimit"><i class="fas fa-clock mr-1"></i> 0 นาที</span>
+                <span id="passingScore"><i class="fas fa-percentage mr-1"></i> ผ่าน 0%</span>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-ruxchai-primary border-t-transparent mx-auto mb-4"></div>
+            <p class="text-gray-600">กำลังโหลดข้อสอบ...</p>
+        </div>
+
+        <!-- Test Content -->
+        <div id="testContent" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Questions Area -->
+            <div class="lg:col-span-3">
+                <!-- Current Question -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-medium text-gray-900">
+                            ข้อที่ <span id="currentQuestionNumber">1</span> จาก <span id="totalQuestions">0</span>
+                        </h2>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <span id="questionType">ปรนัย</span>
+                            <span>•</span>
+                            <span id="questionPoints">1 คะแนน</span>
+                        </div>
+                    </div>
+
+                    <!-- Question Content -->
+                    <div id="questionContent" class="mb-8 prose max-w-none">
+                        <!-- Question will be loaded here -->
+                    </div>
+
+                    <!-- Answer Options -->
+                    <div id="answerOptions" class="space-y-3">
+                        <!-- Answer options will be loaded here -->
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="flex justify-between items-center pt-8 border-t border-gray-200 mt-8">
+                        <div class="w-32">
+                            <button id="prevBtn" class="hidden px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-chevron-left mr-2"></i>ก่อนหน้า
+                            </button>
+                        </div>
+
+                        <div class="flex space-x-3">
+                            <button id="markBtn" class="px-4 py-2 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors">
+                                <i class="far fa-flag mr-2"></i>ทำเครื่องหมาย
+                            </button>
+                            <button id="clearBtn" class="hidden px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
+                                <i class="fas fa-eraser mr-2"></i>ล้างคำตอบ
+                            </button>
+                        </div>
+
+                        <button id="nextBtn" class="px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:opacity-90 transition-colors">
+                            ถัดไป<i class="fas fa-chevron-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Progress -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">ความคืบหน้า</h3>
+
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>ตอบแล้ว</span>
+                            <span id="progressText">0/0</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progressBar" class="bg-ruxchai-primary h-2 rounded-full transition-all" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="text-center p-3 bg-green-50 rounded-lg">
+                            <div class="text-lg font-bold text-green-600" id="answeredCount">0</div>
+                            <div class="text-green-800 text-xs">ตอบแล้ว</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-lg font-bold text-gray-600" id="unansweredCount">0</div>
+                            <div class="text-gray-800 text-xs">ยังไม่ตอบ</div>
+                        </div>
+                        <div class="text-center p-3 bg-orange-50 rounded-lg col-span-2">
+                            <div class="text-lg font-bold text-orange-600" id="markedCount">0</div>
+                            <div class="text-orange-800 text-xs">ทำเครื่องหมาย</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Navigator -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">ไปยังข้อ</h3>
+                    <div id="questionNavigator" class="grid grid-cols-5 gap-2">
+                        <!-- Question buttons will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Legends -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">สัญลักษณ์</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 bg-green-500 text-white rounded text-center text-xs leading-6 mr-3">1</div>
+                            <span>ตอบแล้ว</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 bg-gray-300 text-gray-700 rounded text-center text-xs leading-6 mr-3">1</div>
+                            <span>ยังไม่ตอบ</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 bg-orange-500 text-white rounded text-center text-xs leading-6 mr-3">
+                                <i class="fas fa-flag text-xs"></i>
+                            </div>
+                            <span>ทำเครื่องหมาย</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 bg-ruxchai-primary text-white rounded text-center text-xs leading-6 mr-3">1</div>
+                            <span>ข้อปัจจุบัน</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">เกิดข้อผิดพลาด</h3>
+            <p id="errorMessage" class="text-gray-600 mb-6">ไม่สามารถโหลดข้อสอบได้</p>
+            <a href="/applicants/test" class="inline-flex items-center px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:opacity-90 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>กลับหน้าหลัก
+            </a>
+        </div>
+
+        <!-- No Test State -->
+        <div id="noTestState" class="hidden bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+            <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-clipboard-list text-yellow-500 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">ไม่พบข้อสอบ</h3>
+            <p class="text-gray-600 mb-6">ยังไม่มีข้อสอบที่กำหนดให้สำหรับตำแหน่งนี้</p>
+            <a href="/applicants/test" class="inline-flex items-center px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:opacity-90 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>กลับหน้าหลัก
+            </a>
+        </div>
+    </div>
+
+    <!-- Confirm Submit Modal -->
+    <div id="confirmSubmitModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">ยืนยันการส่งข้อสอบ</h3>
+                        <p class="text-gray-600 mb-6">เมื่อส่งแล้วจะไม่สามารถแก้ไขคำตอบได้</p>
+
+                        <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">ตอบแล้ว:</span>
+                                    <span id="finalAnsweredCount" class="font-medium">0 ข้อ</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">ยังไม่ตอบ:</span>
+                                    <span id="finalUnansweredCount" class="font-medium text-red-600">0 ข้อ</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">ทำเครื่องหมาย:</span>
+                                    <span id="finalMarkedCount" class="font-medium text-orange-600">0 ข้อ</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">เวลาที่เหลือ:</span>
+                                    <span id="finalTimeLeft" class="font-medium">00:00:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-3">
+                            <button id="cancelSubmit" class="flex-1 px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                ยกเลิก
+                            </button>
+                            <button id="confirmSubmit" class="flex-1 px-6 py-3 bg-ruxchai-secondary text-white rounded-lg hover:opacity-90 transition-colors">
+                                ยืนยันส่ง
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Warning Modal -->
+    <div id="timeWarningModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-clock text-red-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">เวลาใกล้หมด!</h3>
+                        <p id="timeWarningMessage" class="text-gray-600 mb-6">เหลือเวลาอีก 5 นาที</p>
+                        <button id="acknowledgeWarning" class="px-6 py-3 bg-ruxchai-primary text-white rounded-lg hover:opacity-90 transition-colors">
+                            รับทราบ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Global variables
+    const testCode = '<%= test_code %>';
+    let testData = {};
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let answers = {};
+    let markedQuestions = new Set();
+    let timeRemaining = 0;
+    let timerInterval = null;
+    let autoSaveInterval = null;
+    let testStarted = false;
+
+    // Initialize test
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeTest();
+        setupEventListeners();
+        setupAntiCheating();
+    });
+
+    // Event listeners
+    function setupEventListeners() {
+        // Navigation
+        document.getElementById('prevBtn').addEventListener('click', goToPrevQuestion);
+        document.getElementById('nextBtn').addEventListener('click', goToNextQuestion);
+
+        // Question actions
+        document.getElementById('markBtn').addEventListener('click', toggleMarkQuestion);
+        document.getElementById('clearBtn').addEventListener('click', clearCurrentAnswer);
+
+        // Submit test
+        document.getElementById('confirmSubmit').addEventListener('click', submitTest);
+        document.getElementById('cancelSubmit').addEventListener('click', hideSubmitConfirmation);
+
+        // Time warning
+        document.getElementById('acknowledgeWarning').addEventListener('click', hideTimeWarning);
+
+        // Prevent form submission on Enter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                e.preventDefault();
+            }
+        });
+
+        // Auto-save on answer change
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'answer') {
+                saveAnswer();
+                autoSave();
+            }
+        });
+    }
+
+    // Anti-cheating measures
+    function setupAntiCheating() {
+        // Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Monitor tab switching
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && testStarted) {
+                logSuspiciousActivity('tab_switch');
+            }
+        });
+
+        // Monitor focus changes
+        let focusLossCount = 0;
+        window.addEventListener('blur', function() {
+            if (testStarted) {
+                focusLossCount++;
+                logSuspiciousActivity('focus_loss', { count: focusLossCount });
+
+                if (focusLossCount >= 5) {
+                    autoSubmitTest('excessive_tab_switching');
+                }
+            }
+        });
+    }
+
+    // Initialize test
+    async function initializeTest() {
+        try {
+            const response = await fetch(`/applicants/api/test/${testCode}/start`, {
+                method: 'POST'
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                // Data is nested in result.data
+                const data = result.data;
+                testData = data.test || {};
+                questions = data.questions || [];
+
+                if (questions.length === 0) {
+                    showNoTestState();
+                    return;
+                }
+
+                // time_limit might be in minutes, convert to seconds
+                timeRemaining = (testData.time_limit || testData.duration || 60) * 60;
+
+                displayTestInfo();
+                loadQuestion(0);
+                startTimer();
+                setupAutoSave();
+                testStarted = true;
+
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('testContent').classList.remove('hidden');
+                document.getElementById('testInfoBar').classList.remove('hidden');
+            } else {
+                showErrorState(result.message || 'ไม่สามารถเริ่มข้อสอบได้');
+            }
+        } catch (error) {
+            console.error('Error initializing test:', error);
+            showErrorState('เกิดข้อผิดพลาดในการโหลดข้อสอบ');
+        }
+    }
+
+    function showErrorState(message) {
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('errorState').classList.remove('hidden');
+        document.getElementById('errorMessage').textContent = message;
+    }
+
+    function showNoTestState() {
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('noTestState').classList.remove('hidden');
+    }
+
+    // Display test information
+    function displayTestInfo() {
+        document.getElementById('testTitle').textContent = testData.title || 'ข้อสอบ';
+        document.getElementById('questionCount').innerHTML = `<i class="fas fa-list-ol mr-1"></i> ${questions.length} ข้อ`;
+        document.getElementById('timeLimit').innerHTML = `<i class="fas fa-clock mr-1"></i> ${testData.time_limit || 60} นาที`;
+        document.getElementById('passingScore').innerHTML = `<i class="fas fa-percentage mr-1"></i> ผ่าน ${testData.passing_score || 60}%`;
+        document.getElementById('totalQuestions').textContent = questions.length;
+
+        updateQuestionNavigator();
+    }
+
+    // Load question
+    function loadQuestion(index) {
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        const question = questions[index];
+
+        // Update question info
+        document.getElementById('currentQuestionNumber').textContent = index + 1;
+        document.getElementById('questionType').textContent = getQuestionTypeName(question.question_type || question.type);
+        document.getElementById('questionPoints').textContent = `${question.points || 1} คะแนน`;
+
+        // Display question content
+        document.getElementById('questionContent').innerHTML = `
+            <div class="text-gray-900">
+                ${question.question_text || question.text || ''}
+                ${question.question_image ? `<img src="${question.question_image}" alt="Question image" class="mt-4 max-w-full h-auto rounded-lg">` : ''}
+            </div>
+        `;
+
+        // Display answer options
+        displayAnswerOptions(question);
+
+        // Update navigation buttons
+        const prevBtn = document.getElementById('prevBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        // Show/hide prev button (hide on first question)
+        if (index === 0) {
+            prevBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+        }
+
+        // Show/hide clear button (show only if answered)
+        if (answers.hasOwnProperty(index)) {
+            clearBtn.classList.remove('hidden');
+        } else {
+            clearBtn.classList.add('hidden');
+        }
+
+        // Update next button text
+        document.getElementById('nextBtn').innerHTML = index === questions.length - 1
+            ? 'เสร็จสิ้น<i class="fas fa-check ml-2"></i>'
+            : 'ถัดไป<i class="fas fa-chevron-right ml-2"></i>';
+
+        // Update mark button
+        const markBtn = document.getElementById('markBtn');
+        const isMarked = markedQuestions.has(index);
+        markBtn.innerHTML = isMarked
+            ? '<i class="fas fa-flag mr-2"></i>ยกเลิกเครื่องหมาย'
+            : '<i class="far fa-flag mr-2"></i>ทำเครื่องหมาย';
+        markBtn.className = isMarked
+            ? 'px-4 py-2 text-orange-600 bg-orange-50 border border-orange-300 rounded-lg hover:bg-orange-100 transition-colors'
+            : 'px-4 py-2 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors';
+
+        // Update progress
+        updateProgress();
+        updateQuestionNavigator();
+    }
+
+    // Display answer options based on question type
+    function displayAnswerOptions(question) {
+        const container = document.getElementById('answerOptions');
+        const currentAnswer = answers[currentQuestionIndex];
+        const options = question.options || [];
+        const questionType = question.question_type || question.type || 'multiple_choice';
+
+        switch (questionType) {
+            case 'multiple_choice':
+                container.innerHTML = options.map((option, index) => `
+                    <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${currentAnswer == index ? 'bg-ruxchai-primary/5 border-ruxchai-primary' : ''}">
+                        <input type="radio" name="answer" value="${index}"
+                               ${currentAnswer == index ? 'checked' : ''}
+                               class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
+                        <span class="flex-1">${option.option_text || option.text || option}</span>
+                    </label>
+                `).join('');
+                break;
+
+            case 'true_false':
+                container.innerHTML = `
+                    <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${currentAnswer === 'true' ? 'bg-ruxchai-primary/5 border-ruxchai-primary' : ''}">
+                        <input type="radio" name="answer" value="true"
+                               ${currentAnswer === 'true' ? 'checked' : ''}
+                               class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
+                        <span class="flex-1">ถูก</span>
+                    </label>
+                    <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${currentAnswer === 'false' ? 'bg-ruxchai-primary/5 border-ruxchai-primary' : ''}">
+                        <input type="radio" name="answer" value="false"
+                               ${currentAnswer === 'false' ? 'checked' : ''}
+                               class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
+                        <span class="flex-1">ผิด</span>
+                    </label>
+                `;
+                break;
+
+            case 'fill_blank':
+                container.innerHTML = `
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
+                        <input type="text" name="answer" value="${currentAnswer || ''}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
+                               placeholder="พิมพ์คำตอบของคุณ">
+                    </div>
+                `;
+                break;
+
+            case 'essay':
+                container.innerHTML = `
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">คำตอบ:</label>
+                        <textarea name="answer" rows="6"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent resize-none"
+                                  placeholder="พิมพ์คำตอบของคุณ">${currentAnswer || ''}</textarea>
+                        <div class="text-sm text-gray-500">
+                            <span id="charCount">${(currentAnswer || '').length}</span> ตัวอักษร
+                        </div>
+                    </div>
+                `;
+
+                container.querySelector('textarea')?.addEventListener('input', function(e) {
+                    document.getElementById('charCount').textContent = e.target.value.length;
+                });
+                break;
+
+            default:
+                container.innerHTML = options.map((option, index) => `
+                    <label class="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="radio" name="answer" value="${index}"
+                               ${currentAnswer == index ? 'checked' : ''}
+                               class="mt-1 text-ruxchai-primary focus:ring-ruxchai-primary">
+                        <span class="flex-1">${option.option_text || option.text || option}</span>
+                    </label>
+                `).join('');
+        }
+    }
+
+    // Save current answer
+    function saveAnswer() {
+        const answerInput = document.querySelector('input[name="answer"]:checked, input[name="answer"][type="text"], textarea[name="answer"]');
+
+        if (answerInput && answerInput.value) {
+            answers[currentQuestionIndex] = answerInput.value;
+            // Show clear button when answered
+            document.getElementById('clearBtn').classList.remove('hidden');
+        }
+
+        updateProgress();
+    }
+
+    // Navigation functions
+    function goToPrevQuestion() {
+        if (currentQuestionIndex > 0) {
+            saveAnswer();
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function goToNextQuestion() {
+        saveAnswer();
+
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        } else {
+            showSubmitConfirmation();
+        }
+    }
+
+    function goToQuestion(index) {
+        saveAnswer();
+        loadQuestion(index);
+    }
+
+    // Question marking
+    function toggleMarkQuestion() {
+        if (markedQuestions.has(currentQuestionIndex)) {
+            markedQuestions.delete(currentQuestionIndex);
+        } else {
+            markedQuestions.add(currentQuestionIndex);
+        }
+
+        loadQuestion(currentQuestionIndex);
+    }
+
+    // Clear current answer
+    function clearCurrentAnswer() {
+        delete answers[currentQuestionIndex];
+
+        const inputs = document.querySelectorAll('input[name="answer"], textarea[name="answer"]');
+        inputs.forEach(input => {
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+
+        // Hide clear button after clearing
+        document.getElementById('clearBtn').classList.add('hidden');
+
+        updateProgress();
+        autoSave();
+    }
+
+    // Update progress
+    function updateProgress() {
+        const totalQuestions = questions.length;
+        const answeredCount = Object.keys(answers).length;
+        const progressPercent = (answeredCount / totalQuestions) * 100;
+
+        document.getElementById('progressText').textContent = `${answeredCount}/${totalQuestions}`;
+        document.getElementById('progressBar').style.width = `${progressPercent}%`;
+        document.getElementById('answeredCount').textContent = answeredCount;
+        document.getElementById('unansweredCount').textContent = totalQuestions - answeredCount;
+        document.getElementById('markedCount').textContent = markedQuestions.size;
+    }
+
+    // Update question navigator
+    function updateQuestionNavigator() {
+        const container = document.getElementById('questionNavigator');
+
+        container.innerHTML = questions.map((_, index) => {
+            const isAnswered = answers.hasOwnProperty(index);
+            const isMarked = markedQuestions.has(index);
+            const isCurrent = index === currentQuestionIndex;
+
+            let className = 'w-8 h-8 rounded text-center text-xs leading-8 cursor-pointer transition-colors ';
+
+            if (isCurrent) {
+                className += 'bg-ruxchai-primary text-white';
+            } else if (isMarked) {
+                className += 'bg-orange-500 text-white';
+            } else if (isAnswered) {
+                className += 'bg-green-500 text-white';
+            } else {
+                className += 'bg-gray-300 text-gray-700 hover:bg-gray-400';
+            }
+
+            return `
+                <button type="button" class="${className}" onclick="goToQuestion(${index})">
+                    ${isMarked ? '<i class="fas fa-flag"></i>' : index + 1}
+                </button>
+            `;
+        }).join('');
+    }
+
+    // Timer functions
+    function startTimer() {
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+
+            if (timeRemaining === 300) {
+                showTimeWarning('เหลือเวลาอีก 5 นาที');
+            } else if (timeRemaining === 60) {
+                showTimeWarning('เหลือเวลาอีก 1 นาที!');
+            } else if (timeRemaining <= 0) {
+                autoSubmitTest('time_up');
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const hours = Math.floor(timeRemaining / 3600);
+        const minutes = Math.floor((timeRemaining % 3600) / 60);
+        const seconds = timeRemaining % 60;
+
+        const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('timer').textContent = display;
+
+        const timerElement = document.getElementById('timer');
+        if (timeRemaining <= 300) {
+            timerElement.className = 'text-3xl font-bold text-red-600';
+        } else if (timeRemaining <= 600) {
+            timerElement.className = 'text-3xl font-bold text-orange-600';
+        } else {
+            timerElement.className = 'text-3xl font-bold text-ruxchai-primary';
+        }
+    }
+
+    // Auto-save
+    function setupAutoSave() {
+        autoSaveInterval = setInterval(autoSave, 30000);
+    }
+
+    async function autoSave() {
+        try {
+            await fetch(`/applicants/api/test/${testCode}/autosave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    answers: answers,
+                    marked_questions: Array.from(markedQuestions),
+                    current_question: currentQuestionIndex,
+                    time_remaining: timeRemaining
+                })
+            });
+        } catch (error) {
+            console.error('Auto-save failed:', error);
+        }
+    }
+
+    // Submit test
+    function showSubmitConfirmation() {
+        saveAnswer();
+
+        const totalQuestions = questions.length;
+        const answeredCount = Object.keys(answers).length;
+
+        document.getElementById('finalAnsweredCount').textContent = `${answeredCount} ข้อ`;
+        document.getElementById('finalUnansweredCount').textContent = `${totalQuestions - answeredCount} ข้อ`;
+        document.getElementById('finalMarkedCount').textContent = `${markedQuestions.size} ข้อ`;
+        document.getElementById('finalTimeLeft').textContent = document.getElementById('timer').textContent;
+
+        document.getElementById('confirmSubmitModal').classList.remove('hidden');
+    }
+
+    function hideSubmitConfirmation() {
+        document.getElementById('confirmSubmitModal').classList.add('hidden');
+    }
+
+    async function submitTest() {
+        try {
+            clearInterval(timerInterval);
+            clearInterval(autoSaveInterval);
+
+            const response = await fetch(`/applicants/api/test/${testCode}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    answers: answers,
+                    marked_questions: Array.from(markedQuestions),
+                    time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
+                    submission_type: 'manual'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showMessage('ส่งข้อสอบสำเร็จ!', 'success');
+                setTimeout(() => {
+                    window.location.href = data.redirect_url || `/applicants/result/${testCode}`;
+                }, 2000);
+            } else {
+                showMessage(data.message || 'เกิดข้อผิดพลาดในการส่งข้อสอบ', 'error');
+                hideSubmitConfirmation();
+            }
+        } catch (error) {
+            console.error('Error submitting test:', error);
+            showMessage('เกิดข้อผิดพลาดในการส่งข้อสอบ', 'error');
+            hideSubmitConfirmation();
+        }
+    }
+
+    async function autoSubmitTest(reason) {
+        try {
+            clearInterval(timerInterval);
+            clearInterval(autoSaveInterval);
+
+            await fetch(`/applicants/api/test/${testCode}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    answers: answers,
+                    marked_questions: Array.from(markedQuestions),
+                    time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
+                    submission_type: 'auto',
+                    reason: reason
+                })
+            });
+
+            showMessage('ข้อสอบถูกส่งอัตโนมัติ', 'info');
+            setTimeout(() => {
+                window.location.href = `/applicants/result/${testCode}`;
+            }, 3000);
+        } catch (error) {
+            console.error('Error auto-submitting test:', error);
+        }
+    }
+
+    // Time warning
+    function showTimeWarning(message) {
+        document.getElementById('timeWarningMessage').textContent = message;
+        document.getElementById('timeWarningModal').classList.remove('hidden');
+    }
+
+    function hideTimeWarning() {
+        document.getElementById('timeWarningModal').classList.add('hidden');
+    }
+
+    // Suspicious activity logging
+    async function logSuspiciousActivity(type, data = {}) {
+        try {
+            await fetch(`/applicants/api/test/${testCode}/log-activity`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    activity_type: type,
+                    data: data,
+                    timestamp: new Date().toISOString()
+                })
+            });
+        } catch (error) {
+            console.error('Error logging activity:', error);
+        }
+    }
+
+    // Utility functions
+    function getQuestionTypeName(type) {
+        const types = {
+            multiple_choice: 'ปรนัย',
+            true_false: 'ถูก/ผิด',
+            fill_blank: 'เติมคำ',
+            essay: 'อัตนัย',
+            multiple_select: 'เลือกหลายข้อ'
+        };
+        return types[type] || 'ปรนัย';
+    }
+
+    function showMessage(message, type = 'info') {
+        const messageDiv = document.createElement('div');
+        const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+        messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${bgColor} shadow-lg`;
+        messageDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>${message}`;
+
+        document.body.appendChild(messageDiv);
+
+        setTimeout(() => {
+            messageDiv.remove();
+        }, 3000);
+    }
+
+    // Prevent leaving page
+    window.addEventListener('beforeunload', function(e) {
+        if (testStarted) {
+            e.preventDefault();
+            e.returnValue = '';
+            return 'คุณยังไม่ได้ส่งข้อสอบ ต้องการออกจากหน้านี้หรือไม่?';
+        }
+    });
+    </script>
+</body>
+</html>
