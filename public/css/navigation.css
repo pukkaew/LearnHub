@@ -390,61 +390,157 @@
   }
 }
 
-/* Mobile Menu */
+/* ============================================
+   MOBILE MENU - Integrated with System Settings
+   Uses CSS Variables from layout.ejs:
+   - --primary-color: Main brand color
+   - --secondary-color: Accent/highlight color
+   - --accent-color: Interactive elements
+   - --border-radius: Corner rounding
+   - --spacing-unit: Base spacing
+   - --font-family: Typography
+   - --enable-animations: Animation toggle
+   - --enable-shadows: Shadow toggle
+   ============================================ */
+
 .nav-mobile-menu {
   display: none;
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
+
+  /* Background: Uses primary color with gradient */
   background: linear-gradient(180deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.08) 100%
+    var(--primary-color, #0090D3) 0%,
+    color-mix(in srgb, var(--primary-color, #0090D3) 88%, #000 12%) 50%,
+    color-mix(in srgb, var(--primary-color, #0090D3) 75%, #000 25%) 100%
   );
-  backdrop-filter: blur(20px);
-  border-top: 2px solid rgba(255, 255, 255, 0.25);
-  padding: 16px;
-  box-shadow:
-    inset 0 4px 10px rgba(0, 0, 0, 0.1),
-    0 8px 32px rgba(0, 0, 0, 0.2);
+
+  /* Border: Uses secondary color for accent */
+  border-top: 4px solid var(--secondary-color, #3AAA35);
+
+  /* Spacing: Uses system spacing unit */
+  padding: calc(var(--spacing-unit, 1rem) * 1.25);
+
+  /* Shadow: Conditional based on enable-shadows */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35),
+              0 8px 20px rgba(0, 0, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
   z-index: 1000;
+
+  /* Smooth scrolling for long menus */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .nav-mobile-menu.open {
-  display: block;
-  animation: slideDown 0.3s ease-out;
+  display: block !important;
+  animation: mobileMenuSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@keyframes mobileMenuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Menu Items */
 .nav-mobile-menu-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.9);
-  text-decoration: none;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  transition: all 0.25s ease;
-}
+  gap: calc(var(--spacing-unit, 1rem) * 0.875);
 
-.nav-mobile-menu-item:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: white;
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+  /* Padding: Uses spacing unit */
+  padding: calc(var(--spacing-unit, 1rem) * 1) calc(var(--spacing-unit, 1rem) * 1.25);
+  margin-bottom: calc(var(--spacing-unit, 1rem) * 0.625);
 
-.nav-mobile-menu-item.active {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
-  color: white;
+  /* Border radius: Uses system setting */
+  border-radius: calc(var(--border-radius, 0.5rem) * 1.5);
+
+  /* Background: Glassmorphism effect */
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  /* Typography */
+  color: #ffffff;
+  font-family: var(--font-family, 'Sarabun', sans-serif);
+  font-size: calc(var(--font-size-base, 16px) * 1);
   font-weight: 600;
+  text-decoration: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.01em;
+
+  /* Transitions */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Glass effect */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Icon container inside menu item */
+.nav-mobile-menu-item .nav-menu-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: calc(var(--border-radius, 0.5rem) * 1);
+  font-size: 0.9rem;
+}
+
+/* Hover state: Uses accent color influence */
+.nav-mobile-menu-item:hover {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.32) 0%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+  transform: translateX(6px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.nav-mobile-menu-item:hover .nav-menu-icon {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.08);
+}
+
+/* Active/pressed state */
+.nav-mobile-menu-item:active {
+  transform: translateX(3px) scale(0.98);
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+}
+
+/* Current page/active menu item: Uses secondary color */
+.nav-mobile-menu-item.active {
+  background: linear-gradient(135deg,
+    var(--secondary-color, #3AAA35) 0%,
+    color-mix(in srgb, var(--secondary-color, #3AAA35) 75%, #000 25%) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--secondary-color, #3AAA35) 40%, transparent);
+}
+
+.nav-mobile-menu-item.active .nav-menu-icon {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 /* Language Switcher Styles */
@@ -926,14 +1022,24 @@
     margin-top: 8px;
   }
 
-  /* Better mobile menu positioning */
+  /* Better mobile menu positioning - Uses System Settings */
   .nav-mobile-menu {
     margin-top: 0;
     border-radius: 0;
-    border-top: 2px solid rgba(255, 255, 255, 0.15);
+    border-top: 4px solid var(--secondary-color, #3AAA35);
     left: 0;
     right: 0;
     width: 100%;
+    max-height: calc(100vh - var(--nav-height-mobile, 70px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: calc(var(--spacing-unit, 1rem) * 1);
+  }
+
+  .nav-mobile-menu-item {
+    padding: calc(var(--spacing-unit, 1rem) * 0.875) calc(var(--spacing-unit, 1rem) * 1);
+    font-size: calc(var(--font-size-base, 16px) * 0.9375);
+    margin-bottom: calc(var(--spacing-unit, 1rem) * 0.5);
   }
 }
 

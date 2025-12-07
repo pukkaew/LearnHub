@@ -409,6 +409,8 @@
         @media (min-width: 640px) {
             .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .sm\:block { display: block; }
+            .sm\:flex { display: flex; }
         }
 
         @media (min-width: 768px) {
@@ -422,6 +424,49 @@
             .md\:block { display: block; }
             .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
             .md\:col-span-2 { grid-column: span 2 / span 2; }
+            .md\:p-2 { padding: 0.5rem; }
+            .md\:h-10 { height: 2.5rem; }
+            .md\:ml-3 { margin-left: 0.75rem; }
+        }
+
+        /* Responsive Logo Styles */
+        .nav-logo-wrapper {
+            padding: 0.25rem;
+            border-radius: 0.375rem;
+        }
+        .nav-logo-img {
+            height: 2rem;
+            width: auto;
+            min-width: 60px;
+            max-width: 85px;
+        }
+        .nav-logo-glow {
+            inset: -2px;
+        }
+        @media (min-width: 640px) {
+            .nav-logo-wrapper {
+                padding: 0.375rem;
+                border-radius: 0.5rem;
+            }
+            .nav-logo-img {
+                height: 2.25rem;
+                min-width: 70px;
+                max-width: 95px;
+            }
+        }
+        @media (min-width: 768px) {
+            .nav-logo-wrapper {
+                padding: 0.5rem;
+                border-radius: 0.5rem;
+            }
+            .nav-logo-img {
+                height: 2.5rem;
+                min-width: 80px;
+                max-width: 110px;
+            }
+            .nav-logo-glow {
+                inset: -4px;
+            }
         }
 
         @media (min-width: 1024px) {
@@ -601,6 +646,84 @@
     <!-- Submenu Dropdown CSS -->
     <link href="/css/submenu.css" rel="stylesheet">
 
+    <!-- Mobile Menu Styles - Modern Borderless Design -->
+    <style>
+        /* Mobile Menu - Modern Gradient */
+        .nav-mobile-menu {
+            background: linear-gradient(165deg, <%= primaryColor %> 0%, <%= secondaryColor %> 100%) !important;
+            border-top: none !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+            padding: 20px !important;
+        }
+
+        /* Menu Items - Modern Glass Cards */
+        .nav-mobile-menu-item {
+            background: rgba(255,255,255,0.15) !important;
+            border: none !important;
+            border-radius: 16px !important;
+            color: #ffffff !important;
+            padding: 16px 20px !important;
+            margin-bottom: 10px !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+            transition: all 0.3s ease !important;
+        }
+        .nav-mobile-menu-item:hover {
+            background: rgba(255,255,255,0.25) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+        }
+        .nav-mobile-menu-item:active {
+            transform: translateY(0) scale(0.98) !important;
+        }
+        .nav-mobile-menu-item.active {
+            background: rgba(255,255,255,0.35) !important;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+        }
+
+        /* Menu Icon */
+        .nav-mobile-menu-item .nav-menu-icon {
+            background: rgba(255,255,255,0.2) !important;
+            border-radius: 10px !important;
+            padding: 8px !important;
+            width: 36px !important;
+            height: 36px !important;
+        }
+
+        /* Submenu - Nested Cards */
+        .nav-mobile-submenu {
+            border-left: none !important;
+            margin-left: 24px !important;
+            margin-top: 8px !important;
+            padding-left: 0 !important;
+        }
+        .nav-mobile-submenu-item {
+            background: rgba(255,255,255,0.1) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            padding: 12px 16px !important;
+            margin-bottom: 6px !important;
+            backdrop-filter: blur(8px) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+        }
+        .nav-mobile-submenu-item:hover {
+            background: rgba(255,255,255,0.2) !important;
+            transform: translateX(4px) !important;
+        }
+        .nav-mobile-submenu-item.active {
+            background: rgba(255,255,255,0.28) !important;
+        }
+
+        /* Submenu Icon */
+        .nav-mobile-submenu-item .nav-submenu-icon {
+            background: rgba(255,255,255,0.15) !important;
+            border-radius: 8px !important;
+            padding: 6px !important;
+        }
+    </style>
+
     <% if (locals.additionalCSS) { %>
         <%- additionalCSS %>
     <% } %>
@@ -616,15 +739,15 @@
             <div class="nav-main-container">
                 <!-- Left Section: Logo + Menu -->
                 <div class="nav-left-section">
-                    <!-- Logo ชิดซ้าย -->
+                    <!-- Logo ชิดซ้าย - Responsive -->
                     <a href="/dashboard" class="nav-logo-container">
                         <div class="relative group">
-                            <div class="bg-white p-2 rounded-lg shadow-lg transform transition-transform group-hover:scale-105">
-                                <img src="<%= logoUrl %>" alt="<%= siteName %>" class="h-10 w-auto" style="min-width: 80px; max-width: 110px;">
+                            <div class="bg-white nav-logo-wrapper shadow-lg transform transition-transform group-hover:scale-105">
+                                <img src="<%= logoUrl %>" alt="<%= siteName %>" class="nav-logo-img">
                             </div>
-                            <div class="absolute -inset-1 ruxchai-gradient opacity-30 rounded-lg blur group-hover:opacity-50 transition-opacity"></div>
+                            <div class="absolute nav-logo-glow ruxchai-gradient opacity-30 rounded-lg blur group-hover:opacity-50 transition-opacity"></div>
                         </div>
-                        <div class="nav-logo-text-container ml-3">
+                        <div class="nav-logo-text-container ml-2 md:ml-3 hidden sm:block">
                             <div class="nav-logo-title"><%= siteName.replace('Rukchai Hongyen ', '') %></div>
                             <div class="nav-logo-subtitle"><%= companyName.replace('บริษัท ', '').replace(' จำกัด', '') %></div>
                         </div>
@@ -1113,16 +1236,23 @@
 
             // Mobile menu toggle
             if (mobileMenuToggle && mobileMenu) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('open');
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                    if (mobileMenu.classList.contains('open')) {
-                        mobileMenuIcon.classList.remove('fa-bars');
-                        mobileMenuIcon.classList.add('fa-times');
-                    } else {
+                    const isOpen = mobileMenu.classList.contains('open');
+
+                    if (isOpen) {
+                        mobileMenu.classList.remove('open');
                         mobileMenuIcon.classList.remove('fa-times');
                         mobileMenuIcon.classList.add('fa-bars');
+                    } else {
+                        mobileMenu.classList.add('open');
+                        mobileMenuIcon.classList.remove('fa-bars');
+                        mobileMenuIcon.classList.add('fa-times');
                     }
+
+                    console.log('📱 Mobile menu toggled:', !isOpen ? 'open' : 'closed');
                 });
             }
 
@@ -1534,12 +1664,12 @@
 
             clearConflictingStyles() {
                 // Remove any inline styles that might conflict with CSS media queries
+                // Note: Do NOT include .nav-mobile-menu as it needs inline styles for toggle
                 const elements = [
                     '.nav-container-wrapper',
                     '.nav-main-container',
                     '.nav-menu',
-                    '.nav-mobile-toggle',
-                    '.nav-mobile-menu'
+                    '.nav-mobile-toggle'
                 ];
 
                 elements.forEach(selector => {
@@ -1595,34 +1725,8 @@
             }
         };
 
-        // Mobile Menu Toggle Handler
+        // Mobile Submenu Toggle Handler (Main toggle is in DOMContentLoaded)
         function setupMobileMenuToggle() {
-            const mobileToggle = document.getElementById('mobile-menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const mobileMenuIcon = document.getElementById('mobile-menu-icon');
-
-            if (mobileToggle && mobileMenu) {
-                mobileToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    const isOpen = mobileMenu.classList.contains('open');
-
-                    if (isOpen) {
-                        mobileMenu.classList.remove('open');
-                        mobileMenu.style.display = 'none';
-                        if (mobileMenuIcon) {
-                            mobileMenuIcon.className = 'fas fa-bars text-xl';
-                        }
-                    } else {
-                        mobileMenu.classList.add('open');
-                        mobileMenu.style.display = 'block';
-                        if (mobileMenuIcon) {
-                            mobileMenuIcon.className = 'fas fa-times text-xl';
-                        }
-                    }
-                });
-            }
-
             // Mobile Courses Submenu Toggle
             const mobileCoursesToggle = document.getElementById('mobile-courses-menu-toggle');
             const mobileCoursesSubmenu = document.getElementById('mobile-courses-submenu');
