@@ -6,6 +6,9 @@
             <p class="text-gray-600 mt-2"><%= t('viewUserInformation') %></p>
         </div>
         <div class="flex space-x-3">
+            <button type="button" onclick="openResetPasswordModal()" class="bg-amber-500 text-white px-4 py-2.5 rounded-lg hover:bg-amber-600 transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-key mr-2"></i><%= t('resetPassword') %>
+            </button>
             <a href="/users/<%= userData.user_id %>/edit" class="bg-ruxchai-primary text-white px-4 py-2.5 rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
                 <i class="fas fa-edit mr-2"></i><%= t('edit') %>
             </a>
@@ -177,3 +180,143 @@
         </div>
     </div>
 </div>
+
+<!-- Reset Password Modal -->
+<div id="resetPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-key text-amber-500 mr-3"></i>
+                    <%= t('resetPassword') %>
+                </h3>
+                <button onclick="closeResetPasswordModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body - Confirm -->
+        <div id="confirmResetSection" class="p-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-amber-500 text-2xl"></i>
+                </div>
+                <p class="text-gray-600">
+                    <%= t('resetPasswordConfirm') %>
+                </p>
+                <p class="text-gray-900 font-semibold mt-2">
+                    <%= userData.first_name %> <%= userData.last_name %>
+                </p>
+                <p class="text-gray-500 text-sm">(<%= userData.email %>)</p>
+            </div>
+
+            <div class="flex space-x-3">
+                <button onclick="closeResetPasswordModal()" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium">
+                    <%= t('cancel') %>
+                </button>
+                <button onclick="confirmResetPassword()" id="confirmResetBtn" class="flex-1 px-4 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all font-medium">
+                    <i class="fas fa-key mr-2"></i><%= t('confirmReset') %>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body - Success -->
+        <div id="successResetSection" class="p-6 hidden">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-500 text-2xl"></i>
+                </div>
+                <p class="text-gray-600 mb-4"><%= t('passwordResetSuccess') %></p>
+
+                <div class="bg-gray-100 rounded-lg p-4 mb-4">
+                    <p class="text-sm text-gray-500 mb-2"><%= t('newTemporaryPassword') %></p>
+                    <div class="flex items-center justify-center space-x-3">
+                        <code id="tempPasswordDisplay" class="text-2xl font-mono font-bold text-gray-900 bg-white px-4 py-2 rounded border-2 border-dashed border-gray-300"></code>
+                        <button onclick="copyPassword()" class="p-2 text-ruxchai-primary hover:bg-ruxchai-primary/10 rounded-lg transition-all" title="<%= t('copyToClipboard') %>">
+                            <i class="fas fa-copy text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-left">
+                    <p class="text-amber-800 text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <%= t('passwordResetNote') %>
+                    </p>
+                </div>
+            </div>
+
+            <button onclick="closeResetPasswordModal()" class="w-full px-4 py-2.5 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-all font-medium">
+                <%= t('close') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const userId = <%= userData.user_id %>;
+
+function openResetPasswordModal() {
+    document.getElementById('resetPasswordModal').classList.remove('hidden');
+    document.getElementById('confirmResetSection').classList.remove('hidden');
+    document.getElementById('successResetSection').classList.add('hidden');
+}
+
+function closeResetPasswordModal() {
+    document.getElementById('resetPasswordModal').classList.add('hidden');
+}
+
+async function confirmResetPassword() {
+    const btn = document.getElementById('confirmResetBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><%= t("processing") %>';
+
+    try {
+        const response = await fetch(`/users/api/${userId}/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('tempPasswordDisplay').textContent = data.tempPassword;
+            document.getElementById('confirmResetSection').classList.add('hidden');
+            document.getElementById('successResetSection').classList.remove('hidden');
+        } else {
+            alert(data.message || '<%= t("error") %>');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-key mr-2"></i><%= t("confirmReset") %>';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('<%= t("error") %>');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-key mr-2"></i><%= t("confirmReset") %>';
+    }
+}
+
+function copyPassword() {
+    const password = document.getElementById('tempPasswordDisplay').textContent;
+    navigator.clipboard.writeText(password).then(() => {
+        // Show copied feedback
+        const btn = event.currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check text-green-500 text-xl"></i>';
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+        }, 2000);
+    });
+}
+
+// Close modal on outside click
+document.getElementById('resetPasswordModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeResetPasswordModal();
+    }
+});
+</script>

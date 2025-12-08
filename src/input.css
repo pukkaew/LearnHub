@@ -35,7 +35,7 @@
 
   /* Button Styles */
   .btn-ruxchai-primary {
-    background-color: #1e40af;
+    background-color: var(--primary-color, #1e40af);
     color: white;
     font-weight: 500;
     padding: 0.5rem 1rem;
@@ -46,11 +46,12 @@
   }
 
   .btn-ruxchai-primary:hover {
-    background-color: #1d4ed8;
+    background-color: var(--primary-color, #1d4ed8);
+    filter: brightness(110%);
   }
 
   .btn-ruxchai-secondary {
-    background-color: #dc2626;
+    background-color: var(--secondary-color, #dc2626);
     color: white;
     font-weight: 500;
     padding: 0.5rem 1rem;
@@ -61,7 +62,8 @@
   }
 
   .btn-ruxchai-secondary:hover {
-    background-color: #b91c1c;
+    background-color: var(--secondary-color, #b91c1c);
+    filter: brightness(110%);
   }
 
   .btn-ruxchai-accent {

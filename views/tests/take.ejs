@@ -394,8 +394,13 @@ function loadQuestion(index) {
     // Update question counter
     document.getElementById('question-counter').textContent = testPageI18n.questionCounter.replace('{current}', index + 1).replace('{total}', questions.length);
 
-    // Update navigation buttons
-    document.getElementById('prev-question').disabled = index === 0;
+    // Update navigation buttons - hide prev button on first question
+    const prevBtn = document.getElementById('prev-question');
+    if (index === 0) {
+        prevBtn.style.display = 'none';
+    } else {
+        prevBtn.style.display = '';
+    }
 
     const nextBtn = document.getElementById('next-question');
     const isLastQuestion = index === questions.length - 1;

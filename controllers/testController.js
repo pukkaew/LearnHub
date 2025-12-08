@@ -594,6 +594,15 @@ const testController = {
                 });
             }
 
+            // Check if test has any attempts
+            const attempts = await Test.getAllAttempts(test_id);
+            if (attempts && attempts.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('cannotDeleteTestWithAttempts')
+                });
+            }
+
             const result = await Test.delete(test_id);
 
             if (!result.success) {
@@ -1077,6 +1086,56 @@ const testController = {
             res.render('error/500', {
                 title: req.t('errorTitle'),
                 message: req.t('errorLoadingTestDetailPage'),
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
+    async renderEditTest(req, res) {
+        try {
+            const { test_id } = req.params;
+            const { poolPromise, sql } = require('../config/database');
+
+            const test = await Test.findById(test_id, true); // includeQuestions = true
+            if (!test) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    user: req.session.user
+                });
+            }
+
+            // Fetch all published courses for the dropdown
+            const pool = await poolPromise;
+            const coursesResult = await pool.request().query(`
+                SELECT course_id, title, category, status
+                FROM courses
+                WHERE status IN ('Published', 'Active')
+                ORDER BY title
+            `);
+
+            // Fetch all positions for recruitment test selection
+            const positionsResult = await pool.request().query(`
+                SELECT position_id, position_name as name, department_id, is_active
+                FROM positions
+                WHERE is_active = 1 OR is_active IS NULL
+                ORDER BY position_name
+            `);
+
+            res.render('tests/edit', {
+                title: `${req.t('editTest')} - ${test.title}`,
+                user: req.session.user,
+                userRole: req.user.role_name,
+                test: test,
+                courses: coursesResult.recordset || [],
+                positions: positionsResult.recordset || []
+            });
+
+        } catch (error) {
+            console.error('Render edit test error:', error);
+            res.render('error/500', {
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingEditTestPage'),
                 user: req.session.user,
                 error: error
             });

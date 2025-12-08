@@ -1,18 +1,20 @@
-<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+<div class="min-h-screen">
     <div class="container mx-auto px-6 py-8">
         <!-- Header Section -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div class="mb-4 md:mb-0">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= t('organizationStructure') %></h1>
-                <p class="text-gray-600"><%= t('manageOrganizationStructure') %></p>
-            </div>
-            <div class="flex space-x-3">
-                <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                    <i class="fas fa-download mr-2"></i><%= t('exportData') %>
-                </button>
-                <button id="addUnitBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
-                    <i class="fas fa-plus mr-2"></i><%= t('addUnit') %>
-                </button>
+        <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-3xl font-bold text-white mb-2"><%= t('organizationStructure') %></h1>
+                    <p class="text-white/80"><%= t('manageOrganizationStructure') %></p>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="exportBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fas fa-download mr-2"></i><%= t('exportData') %>
+                    </button>
+                    <button id="addUnitBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fas fa-plus mr-2"></i><%= t('addUnit') %>
+                    </button>
+                </div>
             </div>
         </div>
 

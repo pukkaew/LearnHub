@@ -39,5 +39,7 @@ router.put('/api/notifications/mark-all-read', dashboardController.markAllNotifi
 
 // Admin only routes
 router.get('/api/system-health', authMiddleware.requireRole(['Admin']), dashboardController.getSystemHealth);
+router.get('/api/recent-registrations', authMiddleware.requireRole(['Admin', 'HR']), dashboardController.getRecentRegistrations);
+router.get('/api/top-courses', authMiddleware.requireRole(['Admin', 'HR']), dashboardController.getTopCourses);
 
 module.exports = router;

@@ -1,13 +1,13 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
-    <div class="page-header bg-white shadow-sm rounded-lg mb-8 p-6">
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900"><%= t('manageCourseCategories') %></h1>
-                <p class="text-gray-600 mt-1"><%= t('manageCategoriesDescription') %></p>
+                <h1 class="text-3xl font-bold text-white"><%= t('manageCourseCategories') %></h1>
+                <p class="text-white/80 mt-1"><%= t('manageCategoriesDescription') %></p>
             </div>
-            <button onclick="openAddModal()" class="btn-ruxchai-primary">
+            <button onclick="openAddModal()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
                 <i class="fas fa-plus mr-2"></i><%= t('addNewCategory') %>
             </button>
         </div>
@@ -56,8 +56,8 @@
 </div>
 
 <!-- Add/Edit Category Modal -->
-<div id="categoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+<div id="categoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white my-8">
         <div class="flex justify-between items-center mb-4">
             <h3 id="modalTitle" class="text-xl font-semibold text-gray-900"><%= t('addNewCategory') %></h3>
             <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
@@ -150,8 +150,8 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3 text-center">
             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
                 <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>

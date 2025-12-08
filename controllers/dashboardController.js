@@ -20,6 +20,7 @@ const dashboardController = {
                 }
             };
 
+            const userName = req.session?.user ? `${req.session.user.first_name || ''} ${req.session.user.last_name || ''}`.trim() : 'User';
             await ActivityLog.create({
                 user_id: userId,
                 action: 'View_Dashboard',
@@ -27,7 +28,7 @@ const dashboardController = {
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
-                description: `${userRole} viewed dashboard`,
+                description: `${userName || userRole || 'User'} viewed dashboard`,
                 severity: 'Info',
                 module: 'Dashboard'
             });
@@ -91,6 +92,7 @@ const dashboardController = {
                     break;
             }
 
+            const userName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'User';
             await ActivityLog.create({
                 user_id: userId,
                 action: 'View_Dashboard',
@@ -98,7 +100,7 @@ const dashboardController = {
                 ip_address: req.ip,
                 user_agent: req.get('User-Agent'),
                 session_id: req.sessionID,
-                description: `${userRole} viewed dashboard page`,
+                description: `${userName || userRole || 'User'} viewed dashboard page`,
                 severity: 'Info',
                 module: 'Dashboard'
             });
@@ -132,32 +134,48 @@ const dashboardController = {
         try {
             const userId = req.user.user_id;
             const userRole = req.user.role;
+            const pool = await poolPromise;
 
             let stats = {};
 
             switch (userRole) {
                 case 'Admin':
-                    const pool = await poolPromise;
+                case 'HR':
                     const adminStats = await pool.request().query(`
                         SELECT
                             (SELECT COUNT(*) FROM users WHERE is_active = 1) as active_users,
                             (SELECT COUNT(*) FROM courses WHERE status = 'active') as active_courses,
-                            (SELECT COUNT(*) FROM user_courses WHERE status = 'enrolled') as active_enrollments,
-                            (SELECT COUNT(*) FROM notifications WHERE is_read = 0) as unread_notifications
+                            (SELECT COUNT(*) FROM user_courses) as active_enrollments,
+                            (SELECT COUNT(*) FROM notifications WHERE is_read = 0) as unread_notifications,
+                            CAST(
+                                CASE WHEN (SELECT COUNT(*) FROM user_courses) = 0 THEN 0
+                                ELSE (SELECT COUNT(*) FROM user_courses WHERE status = 'completed') * 100.0 /
+                                     (SELECT COUNT(*) FROM user_courses)
+                                END AS INT
+                            ) as completion_rate,
+                            (SELECT COUNT(*) FROM users WHERE is_active = 1
+                             AND created_at >= DATEADD(week, -1, GETDATE())) as new_users_week,
+                            (SELECT COUNT(*) FROM user_courses
+                             WHERE enrolled_at >= DATEADD(month, -1, GETDATE())) as new_enrollments_month
                     `);
                     stats = adminStats.recordset[0];
                     break;
 
+                case 'Instructor':
                 case 'Learner':
-                    const pool2 = await poolPromise;
-                    const learnerStats = await pool2.request()
+                default:
+                    const learnerStats = await pool.request()
                         .input('user_id', require('mssql').Int, userId)
                         .query(`
                             SELECT
-                                (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id AND status = 'enrolled') as enrolled_courses,
-                                (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id AND status = 'completed') as completed_courses,
-                                (SELECT COUNT(*) FROM user_badges WHERE user_id = @user_id) as total_badges,
-                                (SELECT SUM(points_earned) FROM user_points WHERE user_id = @user_id) as total_points
+                                (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id
+                                 AND status IN ('enrolled', 'in_progress')) as enrolled_courses,
+                                (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id
+                                 AND status = 'completed') as completed_courses,
+                                0 as total_badges,
+                                0 as total_points,
+                                1 as user_level,
+                                (SELECT COUNT(*) FROM test_results WHERE user_id = @user_id) as total_tests
                         `);
                     stats = learnerStats.recordset[0];
                     break;
@@ -367,16 +385,16 @@ const dashboardController = {
             const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('userId', userId)
+                .input('user_id', require('mssql').Int, userId)
                 .query(`
                     SELECT
-                        (SELECT COUNT(*) FROM Courses WHERE status = 'active') as totalCourses,
-                        (SELECT COUNT(*) FROM Tests WHERE status = 'active') as totalTests,
-                        (SELECT COUNT(*) FROM Users WHERE isActive = 1) as totalUsers,
-                        (SELECT COUNT(*) FROM UserCourses WHERE userId = @userId AND status = 'completed') as completedCourses,
-                        (SELECT COUNT(*) FROM TestResults WHERE userId = @userId) as completedTests,
-                        (SELECT AVG(CAST(score AS FLOAT)) FROM TestResults WHERE userId = @userId) as averageScore,
-                        (SELECT COUNT(*) FROM Notifications WHERE userId = @userId AND isRead = 0) as unreadNotifications
+                        (SELECT COUNT(*) FROM courses WHERE status = 'active') as totalCourses,
+                        (SELECT COUNT(*) FROM tests WHERE status = 'active') as totalTests,
+                        (SELECT COUNT(*) FROM users WHERE is_active = 1) as totalUsers,
+                        (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id AND status = 'completed') as completedCourses,
+                        (SELECT COUNT(*) FROM test_results WHERE user_id = @user_id) as completedTests,
+                        (SELECT AVG(CAST(score AS FLOAT)) FROM test_results WHERE user_id = @user_id) as averageScore,
+                        (SELECT COUNT(*) FROM notifications WHERE recipient_id = @user_id AND is_read = 0) as unreadNotifications
                 `);
 
             res.json({
@@ -463,19 +481,19 @@ const dashboardController = {
             } else if (type === 'tests') {
                 query = `
                     SELECT TOP ${parseInt(limit)}
-                        u.userId,
-                        u.firstName,
-                        u.lastName,
-                        u.profileImage,
-                        COUNT(tr.testResultId) as completedTests,
+                        u.user_id as userId,
+                        u.first_name as firstName,
+                        u.last_name as lastName,
+                        u.profile_image as profileImage,
+                        COUNT(tr.test_result_id) as completedTests,
                         AVG(CAST(tr.score AS FLOAT)) as averageScore,
                         d.department_name as departmentName
-                    FROM Users u
-                    LEFT JOIN TestResults tr ON u.userId = tr.userId
-                    LEFT JOIN Departments d ON u.departmentId = d.departmentId
-                    WHERE u.isActive = 1
-                    GROUP BY u.userId, u.firstName, u.lastName, u.profileImage, d.department_name
-                    ORDER BY COUNT(tr.testResultId) DESC, AVG(CAST(tr.score AS FLOAT)) DESC
+                    FROM users u
+                    LEFT JOIN test_results tr ON u.user_id = tr.user_id
+                    LEFT JOIN departments d ON u.department_id = d.department_id
+                    WHERE u.is_active = 1
+                    GROUP BY u.user_id, u.first_name, u.last_name, u.profile_image, d.department_name
+                    ORDER BY COUNT(tr.test_result_id) DESC, AVG(CAST(tr.score AS FLOAT)) DESC
                 `;
             }
 
@@ -501,45 +519,45 @@ const dashboardController = {
             const pool = await poolPromise;
 
             const result = await pool.request()
-                .input('userId', userId)
+                .input('user_id', require('mssql').Int, userId)
                 .query(`
                     SELECT TOP 10
                         'test' as eventType,
-                        t.testId as eventId,
+                        t.test_id as eventId,
                         t.title,
                         t.description,
-                        t.startDate as eventDate,
-                        t.endDate,
+                        t.start_date as eventDate,
+                        t.end_date as endDate,
                         c.title as courseName,
                         'fas fa-clipboard-check' as icon,
                         'bg-blue-100 text-blue-800' as badgeClass
-                    FROM Tests t
-                    INNER JOIN Courses c ON t.courseId = c.courseId
-                    LEFT JOIN UserCourses uc ON c.courseId = uc.courseId AND uc.userId = @userId
-                    LEFT JOIN TestResults tr ON t.testId = tr.testId AND tr.userId = @userId
+                    FROM tests t
+                    INNER JOIN courses c ON t.course_id = c.course_id
+                    LEFT JOIN user_courses uc ON c.course_id = uc.course_id AND uc.user_id = @user_id
+                    LEFT JOIN test_results tr ON t.test_id = tr.test_id AND tr.user_id = @user_id
                     WHERE t.status = 'active'
-                    AND t.startDate > GETDATE()
-                    AND (uc.userId IS NOT NULL OR c.isPublic = 1)
-                    AND tr.testId IS NULL
+                    AND t.start_date > GETDATE()
+                    AND (uc.user_id IS NOT NULL OR c.is_public = 1)
+                    AND tr.test_id IS NULL
 
                     UNION ALL
 
                     SELECT TOP 10
                         'course' as eventType,
-                        c.courseId as eventId,
+                        c.course_id as eventId,
                         c.title,
                         c.description,
-                        c.startDate as eventDate,
-                        c.endDate,
+                        c.start_date as eventDate,
+                        c.end_date as endDate,
                         NULL as courseName,
                         'fas fa-book' as icon,
                         'bg-green-100 text-green-800' as badgeClass
-                    FROM Courses c
-                    LEFT JOIN UserCourses uc ON c.courseId = uc.courseId AND uc.userId = @userId
+                    FROM courses c
+                    LEFT JOIN user_courses uc ON c.course_id = uc.course_id AND uc.user_id = @user_id
                     WHERE c.status = 'active'
-                    AND c.startDate > GETDATE()
-                    AND (uc.userId IS NULL OR uc.status = 'not_started')
-                    AND (c.isPublic = 1 OR uc.userId IS NOT NULL)
+                    AND c.start_date > GETDATE()
+                    AND (uc.user_id IS NULL OR uc.status = 'not_started')
+                    AND (c.is_public = 1 OR uc.user_id IS NOT NULL)
 
                     ORDER BY eventDate ASC
                 `);
@@ -563,27 +581,36 @@ const dashboardController = {
             const userId = req.user?.user_id || req.session.user?.user_id;
             const pool = await poolPromise;
 
-            // Demo data for now
-            const courses = [
-                {
-                    course_id: 1,
-                    title: 'Introduction to Node.js',
-                    instructor_name: 'John Doe',
-                    thumbnail: '/images/course-default.jpg',
-                    progress_percentage: 75
-                },
-                {
-                    course_id: 2,
-                    title: 'JavaScript Fundamentals',
-                    instructor_name: 'Jane Smith',
-                    thumbnail: '/images/course-default.jpg',
-                    progress_percentage: 45
-                }
-            ];
+            const result = await pool.request()
+                .input('user_id', require('mssql').Int, userId)
+                .query(`
+                    SELECT TOP 5
+                        c.course_id,
+                        c.title,
+                        c.thumbnail,
+                        c.description,
+                        CONCAT(u.first_name, ' ', u.last_name) as instructor_name,
+                        uc.progress_percentage,
+                        uc.status,
+                        uc.last_accessed_at
+                    FROM user_courses uc
+                    INNER JOIN courses c ON uc.course_id = c.course_id
+                    LEFT JOIN users u ON c.instructor_id = u.user_id
+                    WHERE uc.user_id = @user_id
+                        AND uc.status IN ('enrolled', 'in_progress')
+                    ORDER BY uc.last_accessed_at DESC, uc.enrolled_at DESC
+                `);
 
             res.json({
                 success: true,
-                data: courses
+                data: result.recordset.map(c => ({
+                    course_id: c.course_id,
+                    title: c.title || 'Untitled Course',
+                    thumbnail: c.thumbnail || '/images/course-default.jpg',
+                    instructor_name: c.instructor_name || '',
+                    progress_percentage: c.progress_percentage || 0,
+                    status: c.status
+                }))
             });
 
         } catch (error) {
@@ -598,17 +625,37 @@ const dashboardController = {
     async getProgress(req, res) {
         try {
             const userId = req.user?.user_id || req.session.user?.user_id;
+            const pool = await poolPromise;
 
-            // Demo data for now
-            const progress = [
-                { title: 'Node.js Advanced', progress_percentage: 85 },
-                { title: 'React Development', progress_percentage: 60 },
-                { title: 'Database Design', progress_percentage: 30 }
-            ];
+            const result = await pool.request()
+                .input('user_id', require('mssql').Int, userId)
+                .query(`
+                    SELECT TOP 5
+                        c.course_id,
+                        c.title,
+                        uc.progress_percentage,
+                        uc.status,
+                        uc.enrolled_at,
+                        uc.completed_at
+                    FROM user_courses uc
+                    INNER JOIN courses c ON uc.course_id = c.course_id
+                    WHERE uc.user_id = @user_id
+                        AND uc.status IN ('enrolled', 'in_progress', 'completed')
+                    ORDER BY
+                        CASE WHEN uc.status = 'in_progress' THEN 1
+                             WHEN uc.status = 'enrolled' THEN 2
+                             ELSE 3 END,
+                        uc.progress_percentage DESC
+                `);
 
             res.json({
                 success: true,
-                data: progress
+                data: result.recordset.map(p => ({
+                    course_id: p.course_id,
+                    title: p.title || 'Untitled Course',
+                    progress_percentage: p.progress_percentage || 0,
+                    status: p.status
+                }))
             });
 
         } catch (error) {
@@ -622,29 +669,35 @@ const dashboardController = {
 
     async getRecentArticles(req, res) {
         try {
-            // Demo data for now
-            const articles = [
-                {
-                    article_id: 1,
-                    title: 'Getting Started with Express.js',
-                    excerpt: 'Learn the basics of Express.js framework...',
-                    author_name: 'Admin User',
-                    published_at: new Date(),
-                    view_count: 125
-                },
-                {
-                    article_id: 2,
-                    title: 'Best Practices in JavaScript',
-                    excerpt: 'Improve your JavaScript coding skills...',
-                    author_name: 'Jane Doe',
-                    published_at: new Date(),
-                    view_count: 89
-                }
-            ];
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT TOP 6
+                    a.article_id,
+                    a.title,
+                    a.excerpt,
+                    a.thumbnail,
+                    a.view_count,
+                    a.published_at,
+                    a.created_at,
+                    CONCAT(u.first_name, ' ', u.last_name) as author_name
+                FROM articles a
+                LEFT JOIN users u ON a.author_id = u.user_id
+                WHERE a.status = 'published'
+                ORDER BY a.published_at DESC, a.created_at DESC
+            `);
 
             res.json({
                 success: true,
-                data: articles
+                data: result.recordset.map(a => ({
+                    article_id: a.article_id,
+                    title: a.title,
+                    excerpt: a.excerpt,
+                    thumbnail: a.thumbnail,
+                    author_name: a.author_name || 'Unknown',
+                    published_at: a.published_at || a.created_at,
+                    view_count: a.view_count || 0
+                }))
             });
 
         } catch (error) {
@@ -658,17 +711,10 @@ const dashboardController = {
 
     async getMyBadges(req, res) {
         try {
-            // Demo data for now
-            const badges = [
-                { name: 'First Login', icon: 'fa-star' },
-                { name: 'Course Complete', icon: 'fa-graduation-cap' },
-                { name: 'Test Master', icon: 'fa-trophy' },
-                { name: 'Article Writer', icon: 'fa-pen' }
-            ];
-
+            // Badge tables not yet implemented - return empty array
             res.json({
                 success: true,
-                data: badges
+                data: []
             });
 
         } catch (error) {
@@ -676,6 +722,87 @@ const dashboardController = {
             res.status(500).json({
                 success: false,
                 message: req.t('errorLoadingBadges')
+            });
+        }
+    },
+
+    async getRecentRegistrations(req, res) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT TOP 10
+                    u.user_id,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.profile_image,
+                    u.created_at,
+                    r.role_name
+                FROM users u
+                LEFT JOIN roles r ON u.role_id = r.role_id
+                WHERE u.is_active = 1
+                ORDER BY u.created_at DESC
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset.map(u => ({
+                    user_id: u.user_id,
+                    name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Unknown',
+                    email: u.email,
+                    profile_image: u.profile_image,
+                    role_name: u.role_name,
+                    registered: u.created_at
+                }))
+            });
+
+        } catch (error) {
+            console.error('Get recent registrations error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingRecentRegistrations')
+            });
+        }
+    },
+
+    async getTopCourses(req, res) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT TOP 5
+                    c.course_id,
+                    c.title,
+                    c.thumbnail,
+                    COUNT(uc.user_id) as enrollments,
+                    CAST(
+                        (SELECT COUNT(*) FROM user_courses WHERE course_id = c.course_id AND status = 'completed') * 100.0 /
+                        NULLIF(COUNT(uc.user_id), 0)
+                    AS INT) as completion_rate
+                FROM courses c
+                LEFT JOIN user_courses uc ON c.course_id = uc.course_id
+                WHERE c.status = 'active'
+                GROUP BY c.course_id, c.title, c.thumbnail
+                ORDER BY COUNT(uc.user_id) DESC
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset.map(c => ({
+                    course_id: c.course_id,
+                    title: c.title,
+                    thumbnail: c.thumbnail,
+                    enrollments: c.enrollments || 0,
+                    completion_rate: c.completion_rate || 0
+                }))
+            });
+
+        } catch (error) {
+            console.error('Get top courses error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingTopCourses')
             });
         }
     }

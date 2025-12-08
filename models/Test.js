@@ -395,7 +395,7 @@ class Test {
             const attemptResult = await pool.request()
                 .input('attemptId', sql.Int, attemptId)
                 .query(`
-                    SELECT ta.*, t.total_marks, t.passing_marks
+                    SELECT ta.*, t.total_marks, t.passing_marks, t.questions_to_show
                     FROM TestAttempts ta
                     JOIN tests t ON ta.test_id = t.test_id
                     WHERE ta.attempt_id = @attemptId
@@ -432,6 +432,7 @@ class Test {
                         q.question_id,
                         q.question_type,
                         q.points,
+                        q.correct_answer as question_correct_answer,
                         tq.test_question_id,
                         tq.points as tq_points,
                         (SELECT TOP 1 option_id FROM QuestionOptions WHERE question_id = q.question_id AND is_correct = 1) as correct_option_id,
@@ -444,7 +445,11 @@ class Test {
             const questions = questionsResult.recordset;
             let totalScore = 0;
             let correctCount = 0;
-            let totalQuestions = questions.length;
+            // Use questions_to_show if set, otherwise use total questions in pool
+            // questions_to_show = 0 means show all questions
+            let totalQuestions = (attempt.questions_to_show && attempt.questions_to_show > 0 && attempt.questions_to_show < questions.length)
+                ? attempt.questions_to_show
+                : questions.length;
 
             // Convert answers object to array format if needed
             // Frontend sends: { question_id: answer_value }
@@ -490,12 +495,15 @@ class Test {
                     isCorrect = answer.selected_option_id === question.correct_option_id;
                 } else if (question.question_type === 'true_false') {
                     const userAnswer = String(answer.answer_text || '').toLowerCase();
-                    const correctAnswer = String(question.correct_answer_text || '').toLowerCase();
+                    // Use correct_answer from Questions table, fallback to correct_answer_text from QuestionOptions
+                    const correctAnswer = String(question.question_correct_answer || question.correct_answer_text || '').toLowerCase();
                     isCorrect = userAnswer === correctAnswer;
                 } else if (question.question_type === 'fill_blank') {
                     // Simple text comparison (case insensitive)
+                    // Use correct_answer from Questions table, fallback to correct_answer_text from QuestionOptions
+                    const correctAnswerFill = question.question_correct_answer || question.correct_answer_text || '';
                     isCorrect = String(answer.answer_text || '').toLowerCase().trim() ===
-                               String(question.correct_answer_text || '').toLowerCase().trim();
+                               String(correctAnswerFill).toLowerCase().trim();
                 }
                 // Essay questions need manual grading
 
@@ -533,7 +541,16 @@ class Test {
                 }
             }
 
-            const percentage = attempt.total_marks > 0 ? (totalScore / attempt.total_marks) * 100 : 0;
+            // Calculate percentage: use total_marks if set, otherwise use correct/total ratio
+            let percentage;
+            if (attempt.total_marks > 0) {
+                percentage = (totalScore / attempt.total_marks) * 100;
+            } else if (totalQuestions > 0) {
+                // Calculate based on correct answers / total questions shown
+                percentage = (correctCount / totalQuestions) * 100;
+            } else {
+                percentage = 0;
+            }
             const passed = percentage >= (attempt.passing_marks || 0);
 
             // Update attempt with calculated results
@@ -702,11 +719,11 @@ class Test {
                         COUNT(*) as total_attempts,
                         COUNT(CASE WHEN status = 'Completed' THEN 1 END) as completed_attempts,
                         COUNT(CASE WHEN passed = 1 THEN 1 END) as passed_attempts,
-                        AVG(CASE WHEN status = 'Completed' THEN CAST(score AS FLOAT) END) as avg_score,
-                        MIN(CASE WHEN status = 'Completed' THEN score END) as min_score,
-                        MAX(CASE WHEN status = 'Completed' THEN score END) as max_score,
-                        AVG(CASE WHEN status = 'Completed' AND completed_at IS NOT NULL THEN
-                            DATEDIFF(MINUTE, started_at, completed_at) END) as avg_time_minutes
+                        AVG(CASE WHEN status = 'Completed' THEN CAST(percentage AS FLOAT) END) as avg_score,
+                        MIN(CASE WHEN status = 'Completed' THEN percentage END) as min_score,
+                        MAX(CASE WHEN status = 'Completed' THEN percentage END) as max_score,
+                        AVG(CASE WHEN status = 'Completed' AND time_spent_seconds > 0 THEN
+                            time_spent_seconds / 60.0 END) as avg_time_minutes
                     FROM TestAttempts
                     WHERE test_id = @testId
                 `);
@@ -788,9 +805,8 @@ class Test {
 
             // Get questions and user answers
             // Note: UserAnswers links via TestQuestions.test_question_id
-            // If TestQuestions is empty (questions added directly to Questions.test_id),
-            // user answers won't be found, so we show questions without answers
-            // Using OUTER APPLY with TOP 1 to avoid duplicate results when UserAnswers has multiple records
+            // Only show questions that have user answers (for randomized tests)
+            // Using INNER JOIN with UserAnswers to only get questions that were shown to user
             const questionsResult = await pool.request()
                 .input('attemptId', sql.Int, attemptId)
                 .input('testId', sql.Int, attempt.test_id)
@@ -816,13 +832,8 @@ class Test {
                             ELSE q.correct_answer
                         END as correct_answer
                     FROM Questions q
-                    LEFT JOIN TestQuestions tq ON q.question_id = tq.question_id AND tq.test_id = @testId
-                    OUTER APPLY (
-                        SELECT TOP 1 ua2.answer_text, ua2.selected_option_id, ua2.is_correct, ua2.points_earned
-                        FROM UserAnswers ua2
-                        WHERE ua2.test_question_id = tq.test_question_id AND ua2.attempt_id = @attemptId
-                        ORDER BY ua2.answered_at DESC
-                    ) ua
+                    INNER JOIN TestQuestions tq ON q.question_id = tq.question_id AND tq.test_id = @testId
+                    INNER JOIN UserAnswers ua ON ua.test_question_id = tq.test_question_id AND ua.attempt_id = @attemptId
                     WHERE q.test_id = @testId AND q.is_active = 1
                     ORDER BY COALESCE(tq.question_order, q.question_id), q.question_id
                 `);
@@ -882,6 +893,12 @@ class Test {
             const attemptCount = attemptsCountResult.recordset[0].attempt_count;
             const canRetake = attempt.attempts_allowed === 0 || attemptCount < attempt.attempts_allowed;
 
+            // Use stored values from TestAttempts if available (more accurate for randomized tests)
+            const finalTotalQuestions = attempt.total_questions || questions.length;
+            const finalCorrectAnswers = hasUserAnswers ? correctAnswers : (attempt.correct_answers || 0);
+            const finalIncorrectAnswers = hasUserAnswers ? incorrectAnswers : (finalTotalQuestions - finalCorrectAnswers);
+            const finalUnanswered = hasUserAnswers ? unanswered : 0;
+
             return {
                 attempt_id: attempt.attempt_id,
                 test_id: attempt.test_id,
@@ -889,10 +906,10 @@ class Test {
                 score: attempt.percentage || 0,
                 passing_score: attempt.passing_score || 60,
                 time_taken: attempt.time_taken || 0,
-                correct_answers: correctAnswers,
-                incorrect_answers: incorrectAnswers,
-                unanswered: unanswered,
-                total_questions: questions.length,
+                correct_answers: finalCorrectAnswers,
+                incorrect_answers: finalIncorrectAnswers,
+                unanswered: finalUnanswered,
+                total_questions: finalTotalQuestions,
                 questions: questions,
                 can_retake: canRetake,
                 has_certificate: false, // Can be implemented later

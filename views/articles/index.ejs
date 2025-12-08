@@ -1,13 +1,15 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header Section -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div class="mb-4 md:mb-0">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Knowledge Sharing Hub</h1>
-                <p class="text-gray-600"><%= t('knowledgeSharingHubDesc') %></p>
+        <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-3xl font-bold text-white mb-2">Knowledge Sharing Hub</h1>
+                    <p class="text-white/80"><%= t('knowledgeSharingHubDesc') %></p>
+                </div>
+                <button id="createArticleBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-plus mr-2"></i><%= t('writeNewArticle') %>
+                </button>
             </div>
-            <button id="createArticleBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
-                <i class="fas fa-plus mr-2"></i><%= t('writeNewArticle') %>
-            </button>
         </div>
 
         <!-- Stats Cards -->

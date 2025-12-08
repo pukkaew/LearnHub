@@ -1,24 +1,26 @@
 <div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
     <div class="container mx-auto px-6 py-8">
-        <!-- Header Section -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-            <div class="mb-4 md:mb-0">
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                    <i class="fas fa-user-tie text-ruxchai-primary mr-3"></i>
-                    <%= t('applicantManagementTitle') %>
-                </h1>
-                <p class="text-gray-600"><%= t('applicantManagementSubtitle') %></p>
-            </div>
-            <div class="flex space-x-3">
-                <button id="addApplicantBtn" class="bg-ruxchai-primary text-white px-6 py-3 rounded-lg hover:bg-ruxchai-primary/90 transition-colors shadow-md">
-                    <i class="fas fa-user-plus mr-2"></i><%= t('addApplicant') || 'เพิ่มผู้สมัคร' %>
-                </button>
-                <button id="exportBtn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-md">
-                    <i class="fas fa-download mr-2"></i><%= t('applicantManagementExport') %>
-                </button>
-                <button id="refreshBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
-                    <i class="fas fa-sync-alt mr-2"></i><%= t('applicantManagementRefresh') %>
-                </button>
+        <!-- Header Section with Gradient -->
+        <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-3xl font-bold text-white mb-2 flex items-center">
+                        <i class="fas fa-user-tie mr-3"></i>
+                        <%= t('applicantManagementTitle') %>
+                    </h1>
+                    <p class="text-white/80"><%= t('applicantManagementSubtitle') %></p>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="addApplicantBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fas fa-user-plus mr-2"></i><%= t('addApplicant') || 'เพิ่มผู้สมัคร' %>
+                    </button>
+                    <button id="exportBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fas fa-download mr-2"></i><%= t('applicantManagementExport') %>
+                    </button>
+                    <button id="refreshBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 flex items-center">
+                        <i class="fas fa-sync-alt mr-2"></i><%= t('applicantManagementRefresh') %>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -252,7 +254,7 @@
 <!-- Test Code Success Modal -->
 <div id="testCodeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
-        <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-t-2xl p-6 text-center">
+        <div class="rounded-t-2xl p-6 text-center" style="background: linear-gradient(to right, #22c55e, #059669);">
             <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center mb-4">
                 <i class="fas fa-check-circle text-green-500 text-4xl"></i>
             </div>

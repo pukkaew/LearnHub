@@ -2,15 +2,15 @@
 
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <div class="mb-8">
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">
-                    <i class="fas fa-plus-circle mr-3 text-ruxchai-primary"></i><%= t('createNewTest') %>
+                <h1 class="text-3xl font-bold text-white">
+                    <i class="fas fa-plus-circle mr-3"></i><%= t('createNewTest') %>
                 </h1>
-                <p class="mt-2 text-gray-600"><%= t('createTestAndAssessment') %></p>
+                <p class="mt-2 text-white/80"><%= t('createTestAndAssessment') %></p>
             </div>
-            <a href="/tests" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <a href="/tests" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
                 <i class="fas fa-arrow-left mr-2"></i><%= t('backToTestList') %>
             </a>
         </div>
@@ -312,7 +312,13 @@
                                     <label class="inline-flex items-center">
                                         <input type="checkbox" id="show_correct_answers" name="show_correct_answers"
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                        <span class="ml-2 text-sm text-gray-700"><%= t('showCorrectAnswers') %></span>
+                                        <span class="ml-2 text-sm text-gray-700">แสดงเฉลยคำตอบที่ถูกต้อง</span>
+                                    </label>
+
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="show_explanation" name="show_explanation"
+                                               class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                        <span class="ml-2 text-sm text-gray-700">แสดงคำอธิบายเฉลย</span>
                                     </label>
 
                                     <label class="inline-flex items-center">

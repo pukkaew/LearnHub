@@ -23,6 +23,14 @@ const userController = {
                 });
             }
 
+            // Get user learning statistics
+            let stats = { completed_courses: 0, in_progress_courses: 0, tests_passed: 0, badges_earned: 0 };
+            try {
+                stats = await User.getUserStatistics(userId) || stats;
+            } catch (e) {
+                console.log('Could not load user stats:', e.message);
+            }
+
             const profileData = {
                 user_id: user.user_id,
                 employee_id: user.employee_id,
@@ -32,12 +40,18 @@ const userController = {
                 phone: user.phone,
                 profile_image: user.profile_image,
                 role: user.role,
+                role_name: user.role_name,
                 department_id: user.department_id,
                 department_name: user.department_name,
                 position_id: user.position_id,
-                position_title: user.position_title,
+                position_name: user.position_name,
                 last_login: user.last_login,
-                created_at: user.created_at
+                created_at: user.created_at,
+                // Learning stats
+                completed_courses: stats.completed_courses || 0,
+                in_progress_courses: stats.in_progress_courses || 0,
+                tests_passed: stats.tests_passed || 0,
+                badges_earned: stats.badges_earned || 0
             };
 
             res.json({

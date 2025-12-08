@@ -2,21 +2,23 @@
 
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Create New Article</h1>
-            <p class="text-gray-600 mt-2">Share knowledge and insights with the <%= typeof getSetting === 'function' ? getSetting('site_name', 'LearnHub').replace('Rukchai Hongyen ', '') : 'LearnHub' %> community</p>
-        </div>
-        <div class="flex space-x-3">
-            <button onclick="previewArticle()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                <i class="fas fa-eye mr-2"></i>Preview
-            </button>
-            <button onclick="saveDraft()" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
-                <i class="fas fa-save mr-2"></i>Save Draft
-            </button>
-            <a href="/articles" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Articles
-            </a>
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Create New Article</h1>
+                <p class="text-white/80 mt-2">Share knowledge and insights with the <%= typeof getSystemSetting === 'function' ? getSystemSetting('site_name', 'LearnHub').replace('Rukchai Hongyen ', '') : 'LearnHub' %> community</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="previewArticle()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-eye mr-2"></i>Preview
+                </button>
+                <button onclick="saveDraft()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-save mr-2"></i>Save Draft
+                </button>
+                <a href="/articles" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Articles
+                </a>
+            </div>
         </div>
     </div>
 

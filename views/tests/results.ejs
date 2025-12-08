@@ -342,7 +342,9 @@ function displayResults() {
     document.getElementById('final-score').textContent = `${results.score}%`;
     document.getElementById('final-score').className = `text-5xl font-bold mb-2 ${getScoreColor(results.score)}`;
 
-    document.getElementById('time-taken').textContent = results.time_taken || '0';
+    // Show time in appropriate format
+    const timeTaken = results.time_taken || 0;
+    document.getElementById('time-taken').textContent = timeTaken < 1 ? '< 1' : Math.round(timeTaken);
 
     const passed = results.score >= results.passing_score;
     document.getElementById('pass-status').textContent = passed ? i18n.passed : i18n.failed;
@@ -480,74 +482,114 @@ function renderAnswerOptions(question) {
 
     switch (question.question_type) {
         case 'multiple_choice':
+            if (!question.options || question.options.length === 0) {
+                return `<p class="text-gray-500">ไม่มีตัวเลือก</p>`;
+            }
             return question.options.map(option => {
                 // Convert to string for comparison since API returns string values
                 const optionIdStr = String(option.option_id);
                 const isUserAnswer = optionIdStr === String(userAnswer);
-                const isCorrectAnswer = optionIdStr === String(correctAnswer);
+                const isCorrectAnswer = option.is_correct === true || optionIdStr === String(correctAnswer);
 
-                let classes = 'p-2 rounded border ';
-                if (isCorrectAnswer) {
-                    classes += 'border-green-500 bg-green-100';
+                let classes = 'p-3 rounded-lg border-2 mb-2 ';
+                let icon = '';
+                let label = '';
+
+                if (isCorrectAnswer && isUserAnswer) {
+                    classes += 'border-green-500 bg-green-50';
+                    icon = '<i class="fas fa-check-circle text-green-500 mr-2"></i>';
+                    label = '<span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">คำตอบของคุณ ✓</span>';
+                } else if (isCorrectAnswer) {
+                    classes += 'border-green-500 bg-green-50';
+                    icon = '<i class="fas fa-check text-green-500 mr-2"></i>';
+                    label = '<span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">คำตอบที่ถูก</span>';
                 } else if (isUserAnswer && !isCorrectAnswer) {
-                    classes += 'border-red-500 bg-red-100';
+                    classes += 'border-red-500 bg-red-50';
+                    icon = '<i class="fas fa-times text-red-500 mr-2"></i>';
+                    label = '<span class="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">คำตอบของคุณ ✗</span>';
                 } else {
-                    classes += 'border-gray-200';
+                    classes += 'border-gray-200 bg-white';
+                    icon = '<i class="far fa-circle text-gray-300 mr-2"></i>';
                 }
 
                 return `
                     <div class="${classes}">
-                        <div class="flex items-center space-x-2">
-                            ${isUserAnswer ? '<i class="fas fa-arrow-right text-blue-500"></i>' : '<div class="w-4"></div>'}
-                            ${isCorrectAnswer ? '<i class="fas fa-check text-green-500"></i>' : '<div class="w-4"></div>'}
-                            <span>${option.option_text}</span>
+                        <div class="flex items-center">
+                            ${icon}
+                            <span class="flex-1">${option.option_text}</span>
+                            ${label}
                         </div>
                     </div>
                 `;
             }).join('');
 
         case 'true_false':
-            const options = [
-                { value: 'true', text: i18n.true },
-                { value: 'false', text: i18n.false }
+            const tfOptions = [
+                { value: 'true', text: 'จริง' },
+                { value: 'false', text: 'เท็จ' }
             ];
 
-            return options.map(option => {
-                const isUserAnswer = option.value === userAnswer;
-                const isCorrectAnswer = option.value === correctAnswer;
+            return tfOptions.map(option => {
+                const isUserAnswer = String(option.value).toLowerCase() === String(userAnswer).toLowerCase();
+                const isCorrectAnswer = String(option.value).toLowerCase() === String(correctAnswer).toLowerCase();
 
-                let classes = 'p-2 rounded border ';
-                if (isCorrectAnswer) {
-                    classes += 'border-green-500 bg-green-100';
+                let classes = 'p-3 rounded-lg border-2 mb-2 flex items-center ';
+                let icon = '';
+                let labelBadges = '';
+
+                if (isCorrectAnswer && isUserAnswer) {
+                    classes += 'border-green-500 bg-green-50';
+                    icon = '<i class="fas fa-check-circle text-green-500 mr-3"></i>';
+                    labelBadges = '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">คำตอบของคุณ ✓</span>';
+                } else if (isCorrectAnswer) {
+                    classes += 'border-green-500 bg-green-50';
+                    icon = '<i class="fas fa-check text-green-500 mr-3"></i>';
+                    labelBadges = '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">คำตอบที่ถูก</span>';
                 } else if (isUserAnswer && !isCorrectAnswer) {
-                    classes += 'border-red-500 bg-red-100';
+                    classes += 'border-red-500 bg-red-50';
+                    icon = '<i class="fas fa-times text-red-500 mr-3"></i>';
+                    labelBadges = '<span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">คำตอบของคุณ ✗</span>';
                 } else {
-                    classes += 'border-gray-200';
+                    classes += 'border-gray-200 bg-white';
+                    icon = '<i class="far fa-circle text-gray-300 mr-3"></i>';
                 }
 
-                return `
-                    <div class="${classes}">
-                        <div class="flex items-center space-x-2">
-                            ${isUserAnswer ? '<i class="fas fa-arrow-right text-blue-500"></i>' : '<div class="w-4"></div>'}
-                            ${isCorrectAnswer ? '<i class="fas fa-check text-green-500"></i>' : '<div class="w-4"></div>'}
-                            <span>${option.text}</span>
-                        </div>
-                    </div>
-                `;
+                return '<div class="' + classes + '">' +
+                    '<div class="flex items-center flex-1">' +
+                    icon +
+                    '<span class="font-medium">' + option.text + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center">' +
+                    labelBadges +
+                    '</div>' +
+                    '</div>';
             }).join('');
 
         case 'fill_blank':
         case 'essay':
             return `
                 <div class="space-y-2">
-                    <div class="p-3 border rounded ${question.is_correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}">
-                        <h5 class="font-medium text-sm mb-1">${i18n.yourAnswer}:</h5>
-                        <p class="text-gray-900">${userAnswer || i18n.notAnswered}</p>
+                    <div class="p-3 border-2 rounded-lg ${question.is_correct ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}">
+                        <h5 class="font-medium text-sm mb-1 flex items-center">
+                            <i class="fas fa-user mr-2 text-blue-500"></i>คำตอบของคุณ:
+                        </h5>
+                        <p class="text-gray-900 font-medium">${userAnswer || 'ไม่ได้ตอบ'}</p>
                     </div>
-                    <div class="p-3 border border-green-500 bg-green-50 rounded">
-                        <h5 class="font-medium text-sm mb-1">${i18n.correctAnswer}:</h5>
-                        <p class="text-gray-900">${correctAnswer}</p>
+                    <div class="p-3 border-2 border-green-500 bg-green-50 rounded-lg">
+                        <h5 class="font-medium text-sm mb-1 flex items-center">
+                            <i class="fas fa-check-circle mr-2 text-green-500"></i>คำตอบที่ถูกต้อง:
+                        </h5>
+                        <p class="text-gray-900 font-medium">${correctAnswer || '-'}</p>
                     </div>
+                    ${question.is_correct ? `
+                        <div class="flex items-center text-green-600 font-medium mt-2">
+                            <i class="fas fa-check-circle mr-2"></i>ตอบถูกต้อง!
+                        </div>
+                    ` : `
+                        <div class="flex items-center text-red-600 font-medium mt-2">
+                            <i class="fas fa-times-circle mr-2"></i>ตอบผิด
+                        </div>
+                    `}
                 </div>
             `;
 
@@ -727,19 +769,27 @@ function getScoreColor(score) {
 }
 
 function getDifficultyText(level) {
+    // Handle both string and numeric difficulty levels
     const texts = {
         'easy': i18n.easy,
         'medium': i18n.medium,
-        'hard': i18n.hard
+        'hard': i18n.hard,
+        1: i18n.easy,
+        2: i18n.medium,
+        3: i18n.hard
     };
     return texts[level] || i18n.medium;
 }
 
 function getDifficultyColor(level) {
+    // Handle both string and numeric difficulty levels
     const colors = {
         'easy': 'success',
         'medium': 'warning',
-        'hard': 'danger'
+        'hard': 'danger',
+        1: 'success',
+        2: 'warning',
+        3: 'danger'
     };
     return colors[level] || 'warning';
 }
@@ -800,6 +850,38 @@ function showError(message) {
 
 .fab:hover {
     transform: scale(1.2);
+}
+
+/* Difficulty badges */
+.badge-success {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #dcfce7;
+    color: #166534;
+}
+.badge-warning {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #fef3c7;
+    color: #92400e;
+}
+.badge-danger {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 </style>
 <% } %>

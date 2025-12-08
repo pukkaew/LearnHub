@@ -47,7 +47,9 @@ router.get('/api/:test_id/statistics', authMiddleware.requireRole(['Admin', 'Ins
 
 router.get('/', testController.renderTestsList);
 router.get('/create', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderCreateTest);
+router.get('/:test_id/edit', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderEditTest);
 router.get('/:test_id', testController.renderTestDetail);
+router.get('/:test_id/start', testController.startTestAndRedirect);
 router.get('/:test_id/take', testController.startTestAndRedirect);
 router.get('/:test_id/results', testController.renderTestResults);
 router.get('/:test_id/analytics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderTestAnalytics);

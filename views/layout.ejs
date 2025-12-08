@@ -10,41 +10,41 @@
         const isEnglish = currentLang === 'en';
 
         // Use system_name or system_name_en based on current language
-        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
-        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameTh = typeof getSystemSetting === 'function' ? getSystemSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSystemSetting === 'function' ? getSystemSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
         const siteName = isEnglish ? siteNameEn : siteNameTh;
 
-        const siteDescription = typeof getSetting === 'function' ? getSetting('site_description', 'ระบบจัดการการเรียนรู้') : 'ระบบจัดการการเรียนรู้';
+        const siteDescription = typeof getSystemSetting === 'function' ? getSystemSetting('site_description', 'ระบบจัดการการเรียนรู้') : 'ระบบจัดการการเรียนรู้';
 
         // Use company_name or company_name_en based on current language
-        const companyNameTh = typeof getSetting === 'function' ? getSetting('company_name', 'บริษัท รักชัยห้องเย็น จำกัด') : 'บริษัท รักชัยห้องเย็น จำกัด';
-        const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
+        const companyNameTh = typeof getSystemSetting === 'function' ? getSystemSetting('company_name', 'บริษัท รักชัยห้องเย็น จำกัด') : 'บริษัท รักชัยห้องเย็น จำกัด';
+        const companyNameEn = typeof getSystemSetting === 'function' ? getSystemSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
         const companyName = isEnglish ? companyNameEn : companyNameTh;
 
-        const primaryColor = typeof getSetting === 'function' ? getSetting('primary_color', '#0090D3') : '#0090D3';
-        const secondaryColor = typeof getSetting === 'function' ? getSetting('secondary_color', '#3AAA35') : '#3AAA35';
-        const sidebarColor = typeof getSetting === 'function' ? getSetting('sidebar_color', '#1f2937') : '#1f2937';
-        const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/rukchai-logo.png') : '/images/rukchai-logo.png';
-        const faviconUrl = typeof getSetting === 'function' ? getSetting('favicon_url', '/favicon.ico') : '/favicon.ico';
-        const contactPhone = typeof getSetting === 'function' ? getSetting('contact_phone', '02-000-0000') : '02-000-0000';
-        const contactEmail = typeof getSetting === 'function' ? getSetting('contact_email', 'hr@rukchaihongyen.co.th') : 'hr@rukchaihongyen.co.th';
-        const facebookUrl = typeof getSetting === 'function' ? getSetting('facebook_url', 'https://www.facebook.com/rukchaicoldroom') : 'https://www.facebook.com/rukchaicoldroom';
-        const lineId = typeof getSetting === 'function' ? getSetting('line_id', '@rukchaicoldroom') : '@rukchaicoldroom';
-        const infoEmail = typeof getSetting === 'function' ? getSetting('info_email', 'info@rukchaicoldroom.com') : 'info@rukchaicoldroom.com';
+        const primaryColor = typeof getSystemSetting === 'function' ? getSystemSetting('primary_color', '#0090D3') : '#0090D3';
+        const secondaryColor = typeof getSystemSetting === 'function' ? getSystemSetting('secondary_color', '#3AAA35') : '#3AAA35';
+        const sidebarColor = typeof getSystemSetting === 'function' ? getSystemSetting('sidebar_color', '#1f2937') : '#1f2937';
+        const logoUrl = typeof getSystemSetting === 'function' ? getSystemSetting('logo_url', '/images/rukchai-logo.png') : '/images/rukchai-logo.png';
+        const faviconUrl = typeof getSystemSetting === 'function' ? getSystemSetting('favicon_url', '/favicon.ico') : '/favicon.ico';
+        const contactPhone = typeof getSystemSetting === 'function' ? getSystemSetting('contact_phone', '02-000-0000') : '02-000-0000';
+        const contactEmail = typeof getSystemSetting === 'function' ? getSystemSetting('contact_email', 'hr@rukchaihongyen.co.th') : 'hr@rukchaihongyen.co.th';
+        const facebookUrl = typeof getSystemSetting === 'function' ? getSystemSetting('facebook_url', 'https://www.facebook.com/rukchaicoldroom') : 'https://www.facebook.com/rukchaicoldroom';
+        const lineId = typeof getSystemSetting === 'function' ? getSystemSetting('line_id', '@rukchaicoldroom') : '@rukchaicoldroom';
+        const infoEmail = typeof getSystemSetting === 'function' ? getSystemSetting('info_email', 'info@rukchaicoldroom.com') : 'info@rukchaicoldroom.com';
 
         // Appearance settings
-        const themeMode = typeof getSetting === 'function' ? getSetting('theme_mode', 'light') : 'light';
-        const fontFamily = typeof getSetting === 'function' ? getSetting('font_family', 'Sarabun') : 'Sarabun';
-        const accentColor = typeof getSetting === 'function' ? getSetting('accent_color', '#3b82f6') : '#3b82f6';
-        const backgroundColor = typeof getSetting === 'function' ? getSetting('background_color', '#f9fafb') : '#f9fafb';
-        const textColor = typeof getSetting === 'function' ? getSetting('text_color', '#111827') : '#111827';
-        const borderRadius = typeof getSetting === 'function' ? getSetting('border_radius', '0.5rem') : '0.5rem';
-        const fontSizeBase = typeof getSetting === 'function' ? getSetting('font_size_base', '16px') : '16px';
-        const headerHeight = typeof getSetting === 'function' ? getSetting('header_height', '64px') : '64px';
-        const sidebarWidth = typeof getSetting === 'function' ? getSetting('sidebar_width', '256px') : '256px';
-        const enableAnimations = typeof getSetting === 'function' ? getSetting('enable_animations', 'true') : 'true';
-        const enableShadows = typeof getSetting === 'function' ? getSetting('enable_shadows', 'true') : 'true';
-        const compactMode = typeof getSetting === 'function' ? getSetting('compact_mode', 'false') : 'false';
+        const themeMode = typeof getSystemSetting === 'function' ? getSystemSetting('theme_mode', 'light') : 'light';
+        const fontFamily = typeof getSystemSetting === 'function' ? getSystemSetting('font_family', 'Sarabun') : 'Sarabun';
+        const accentColor = typeof getSystemSetting === 'function' ? getSystemSetting('accent_color', '#3b82f6') : '#3b82f6';
+        const backgroundColor = typeof getSystemSetting === 'function' ? getSystemSetting('background_color', '#f9fafb') : '#f9fafb';
+        const textColor = typeof getSystemSetting === 'function' ? getSystemSetting('text_color', '#111827') : '#111827';
+        const borderRadius = typeof getSystemSetting === 'function' ? getSystemSetting('border_radius', '0.5rem') : '0.5rem';
+        const fontSizeBase = typeof getSystemSetting === 'function' ? getSystemSetting('font_size_base', '16px') : '16px';
+        const headerHeight = typeof getSystemSetting === 'function' ? getSystemSetting('header_height', '64px') : '64px';
+        const sidebarWidth = typeof getSystemSetting === 'function' ? getSystemSetting('sidebar_width', '256px') : '256px';
+        const enableAnimations = typeof getSystemSetting === 'function' ? getSystemSetting('enable_animations', 'true') : 'true';
+        const enableShadows = typeof getSystemSetting === 'function' ? getSystemSetting('enable_shadows', 'true') : 'true';
+        const compactMode = typeof getSystemSetting === 'function' ? getSystemSetting('compact_mode', 'false') : 'false';
     %>
     <title><%= title || siteName %> - <%= siteDescription %></title>
     <link rel="icon" href="<%= faviconUrl %>" type="image/x-icon">
@@ -155,6 +155,15 @@
         .bg-yellow-400 { background-color: #facc15; }
         .bg-yellow-500 { background-color: #eab308; }
         .bg-yellow-600 { background-color: #ca8a04; }
+
+        /* Amber colors for warning actions */
+        .bg-amber-50 { background-color: #fffbeb; }
+        .bg-amber-100 { background-color: #fef3c7; }
+        .bg-amber-500 { background-color: #f59e0b; }
+        .bg-amber-600 { background-color: #d97706; }
+        .text-amber-500 { color: #f59e0b; }
+        .text-amber-800 { color: #92400e; }
+        .border-amber-200 { border-color: #fde68a; }
 
         .bg-purple-50 { background-color: #faf5ff; }
         .bg-purple-100 { background-color: #f3e8ff; }
@@ -359,6 +368,7 @@
         .hover\:bg-red-50:hover { background-color: #fef2f2; }
         .hover\:bg-white\/10:hover { background-color: rgba(255, 255, 255, 0.1); }
         .hover\:bg-red-500\/20:hover { background-color: rgba(239, 68, 68, 0.2); }
+        .hover\:bg-amber-600:hover { background-color: #d97706; }
 
         .hover\:text-white:hover { color: #ffffff; }
         .hover\:text-blue-200:hover { color: #bfdbfe; }
@@ -1186,7 +1196,7 @@
         <!-- Flash Messages -->
         <% if (locals.successMessage) { %>
         <div id="success-message" class="mx-4 mt-6 animate-slide-up">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg border border-green-400/20">
+            <div class="text-white px-6 py-4 rounded-xl shadow-lg" style="background: linear-gradient(to right, #22c55e, #059669);">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center">
                         <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mr-3">
@@ -1204,7 +1214,7 @@
 
         <% if (locals.errorMessage) { %>
         <div id="error-message" class="mx-4 mt-6 animate-slide-up">
-            <div class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl shadow-lg border border-red-400/20">
+            <div class="text-white px-6 py-4 rounded-xl shadow-lg" style="background: linear-gradient(to right, #ef4444, #dc2626);">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center">
                         <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center mr-3">

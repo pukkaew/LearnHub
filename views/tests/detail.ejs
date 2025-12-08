@@ -199,7 +199,8 @@
                 <!-- Start Test Card -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <button id="start-test-btn" onclick="startTest()"
-                            class="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5">
+                            class="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+                            style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#2563eb' %>, <%= systemSettings.secondary_color || '#0891b2' %>);">
                         <i class="fas fa-play mr-3"></i><%= t('startTest') %>
                     </button>
 
@@ -234,23 +235,8 @@
                                 <i class="fas fa-chevron-down text-xs text-gray-400"></i>
                             </button>
                             <div id="status-dropdown" class="hidden absolute left-0 right-0 mt-1 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
-                                <div class="py-1">
-                                    <button onclick="updateTestStatus('Draft')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                                        <span class="w-2 h-2 rounded-full bg-yellow-400 mr-3"></span>
-                                        <%= t('draftStatus') || 'แบบร่าง' %>
-                                    </button>
-                                    <button onclick="updateTestStatus('Active')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                                        <span class="w-2 h-2 rounded-full bg-green-400 mr-3"></span>
-                                        <%= t('activeStatus') || 'เปิดใช้งาน' %>
-                                    </button>
-                                    <button onclick="updateTestStatus('Published')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                                        <span class="w-2 h-2 rounded-full bg-blue-400 mr-3"></span>
-                                        <%= t('publishedStatus') || 'เผยแพร่' %>
-                                    </button>
-                                    <button onclick="updateTestStatus('Inactive')" class="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                                        <span class="w-2 h-2 rounded-full bg-gray-400 mr-3"></span>
-                                        <%= t('inactiveStatus') || 'ปิดใช้งาน' %>
-                                    </button>
+                                <div class="py-1" id="status-options">
+                                    <!-- Status options will be rendered by JavaScript based on attempt_count -->
                                 </div>
                             </div>
                         </div>
@@ -263,7 +249,7 @@
                             <span class="font-medium text-sm"><%= t('share') %></span>
                         </button>
 
-                        <% if ((user.role_name || user.role) === 'Admin') { %>
+                        <% if ((user.role_name || user.role) === 'Admin' && (!test.attempt_count || test.attempt_count === 0)) { %>
                         <button onclick="confirmDeleteTest()"
                                 class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors">
                             <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
@@ -416,7 +402,11 @@ function displayTestInfo() {
     document.getElementById('test-description').textContent = testData.description || '';
 
     // Update stats cards
-    document.getElementById('question-count').textContent = testData.question_count || 0;
+    // Show questions_to_show if set (for randomized tests), otherwise show total question_count
+    const questionsToShow = testData.questions_to_show && testData.questions_to_show > 0
+        ? testData.questions_to_show
+        : testData.question_count;
+    document.getElementById('question-count').textContent = questionsToShow || 0;
     document.getElementById('time-limit').textContent = testData.time_limit ? testData.time_limit : '∞';
     document.getElementById('passing-score').textContent = `${passingScore}%`;
     document.getElementById('max-attempts').textContent = maxAttempts;
@@ -451,6 +441,7 @@ function displayTestInfo() {
     document.getElementById('edit-test-link').href = `/tests/${testId}/edit`;
     document.getElementById('results-link').href = `/tests/${testId}/results`;
     document.getElementById('analytics-link').href = `/tests/${testId}/analytics`;
+    renderStatusOptions();
     <% } %>
 
     updateStartButton();
@@ -607,8 +598,8 @@ async function loadTestStatistics() {
 
             document.getElementById('avg-score').textContent = `${Math.round(stats.avg_score || 0)}%`;
 
-            // Use avg_time_minutes and convert to proper format
-            document.getElementById('avg-time').textContent = formatDuration((stats.avg_time_minutes || 0) * 60);
+            // avg_time_minutes is already in minutes
+            document.getElementById('avg-time').textContent = formatDuration(stats.avg_time_minutes || 0);
         }
     } catch (error) {
         console.error('Error loading test statistics:', error);
@@ -745,6 +736,60 @@ function formatDuration(minutes) {
 
 function toggleStatusDropdown() {
     document.getElementById('status-dropdown').classList.toggle('hidden');
+}
+
+function renderStatusOptions() {
+    const container = document.getElementById('status-options');
+    if (!container) return;
+
+    const hasAttempts = (testData.attempt_count || 0) > 0;
+    const currentStatus = testData.status;
+
+    // Define status options - Draft not available if test has attempts
+    const statusOptions = [];
+
+    // Published/Active (combined as เผยแพร่)
+    statusOptions.push({
+        value: 'Published',
+        label: '<%= t("published") || "เผยแพร่" %>',
+        icon: 'fa-eye',
+        iconBg: 'bg-green-100',
+        iconColor: 'text-green-600',
+        dot: 'bg-green-500'
+    });
+
+    // Draft - only show if no attempts
+    if (!hasAttempts) {
+        statusOptions.push({
+            value: 'Draft',
+            label: '<%= t("draft") || "แบบร่าง" %>',
+            icon: 'fa-pencil-alt',
+            iconBg: 'bg-yellow-100',
+            iconColor: 'text-yellow-600',
+            dot: 'bg-yellow-500'
+        });
+    }
+
+    // Inactive
+    statusOptions.push({
+        value: 'Inactive',
+        label: '<%= t("inactiveStatus") || "ปิดใช้งาน" %>',
+        icon: 'fa-eye-slash',
+        iconBg: 'bg-gray-100',
+        iconColor: 'text-gray-600',
+        dot: 'bg-gray-400'
+    });
+
+    // Render options
+    container.innerHTML = statusOptions.map(opt => `
+        <button onclick="updateTestStatus('${opt.value}')" type="button"
+                class="w-full flex items-center px-4 py-3 hover:bg-gray-50 text-left ${currentStatus === opt.value || (currentStatus === 'Active' && opt.value === 'Published') ? 'bg-blue-50' : ''}">
+            <span class="w-2 h-2 rounded-full ${opt.dot} mr-3"></span>
+            <span class="flex-1 text-sm ${currentStatus === opt.value || (currentStatus === 'Active' && opt.value === 'Published') ? 'font-semibold text-blue-700' : 'text-gray-700'}">${opt.label}</span>
+            ${currentStatus === opt.value || (currentStatus === 'Active' && opt.value === 'Published') ? '<i class="fas fa-check text-blue-600 text-xs"></i>' : ''}
+        </button>
+    `).join('');
+
 }
 
 document.addEventListener('click', function(event) {
