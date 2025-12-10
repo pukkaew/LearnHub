@@ -20,13 +20,24 @@ router.get('/', (req, res) => {
 router.post('/register', applicantController.registerApplicant);
 router.get('/test', (req, res) => res.redirect('/applicants/test/login'));
 router.get('/test/login', applicantController.renderTestLogin);
+
+// Multi-test Dashboard routes (NEW)
+router.get('/dashboard/:test_code', applicantController.renderApplicantDashboard);
+router.get('/api/:test_code/progress', applicantController.getApplicantTestProgress);
+router.get('/api/:test_code/info', applicantController.getApplicantInfoForDashboard);
+
+// Single test routes (existing - now also supports multi-test via test_id query param)
 router.get('/test/:test_code', applicantController.renderTestInterface);
 router.get('/result/:test_code', applicantController.renderTestResult);
-router.get('/api/:test_code/info', applicantController.getApplicantByTestCode);
+
+// Overall result page (multi-test)
+router.get('/overall-result/:test_code', applicantController.renderOverallResult);
 
 // Test API routes
 router.post('/api/test/:test_code/start', applicantController.startApplicantTest);
+router.get('/api/test/:test_code/start-specific', applicantController.startSpecificTest);
 router.post('/api/test/:test_code/submit', applicantController.submitApplicantTest);
+router.post('/api/test/:test_code/submit-specific', applicantController.submitSpecificTest);
 router.post('/api/test/:test_code/autosave', applicantController.autosaveApplicantTest);
 router.post('/api/test/:test_code/log-activity', applicantController.logTestActivity);
 

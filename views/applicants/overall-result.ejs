@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        :root { --primary-color: #0090D3; --secondary-color: #3AAA35; }
+        .bg-ruxchai-primary { background-color: var(--primary-color); }
+        .text-ruxchai-primary { color: var(--primary-color); }
+        body {
+            font-family: 'Sarabun', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f1f33 100%);
+            min-height: 100vh;
+        }
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .animate-check {
+            animation: checkmark 0.6s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+<div class="result-card max-w-lg w-full p-10 text-center animate-fade-in">
+    <!-- Success Icon -->
+    <div class="mb-8">
+        <div class="success-icon">
+            <i class="fas fa-clipboard-check text-5xl text-white animate-check"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">ทำแบบทดสอบครบทุกชุดแล้ว</h1>
+        <p class="text-gray-500">ขอบคุณที่สละเวลาทำแบบทดสอบ</p>
+    </div>
+
+    <!-- Applicant Info -->
+    <div class="bg-gray-50 rounded-xl p-4 mb-6">
+        <p class="text-gray-600">
+            <span id="applicantName" class="font-semibold text-gray-800">-</span>
+        </p>
+        <p class="text-sm text-gray-500">
+            ตำแหน่ง: <span id="positionName">-</span>
+        </p>
+    </div>
+
+    <!-- HR Message -->
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
+        <div class="flex items-center justify-center mb-3">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-phone-alt text-blue-600 text-xl"></i>
+            </div>
+        </div>
+        <p class="text-blue-800 font-medium text-lg">
+            ทางฝ่ายบุคคลจะตรวจสอบผลการทดสอบ<br>และติดต่อกลับภายหลัง
+        </p>
+    </div>
+
+    <!-- Test Summary (simple, no scores) -->
+    <div id="testSummary" class="mb-8">
+        <!-- Loading -->
+        <div id="loading" class="py-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+        <!-- Summary will be loaded here -->
+        <div id="summaryContent" class="hidden">
+            <div class="flex justify-center gap-6 text-center">
+                <div class="bg-green-50 rounded-lg px-6 py-3">
+                    <div id="completedCount" class="text-2xl font-bold text-green-600">0</div>
+                    <div class="text-sm text-green-700">ข้อสอบที่ทำ</div>
+                </div>
+                <div class="bg-blue-50 rounded-lg px-6 py-3">
+                    <div id="totalCount" class="text-2xl font-bold text-blue-600">0</div>
+                    <div class="text-sm text-blue-700">ข้อสอบทั้งหมด</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <a href="/applicants/test/login"
+       class="block w-full py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+        <i class="fas fa-home mr-2"></i>
+        กลับหน้าหลัก
+    </a>
+</div>
+
+<script>
+const testCode = '<%= test_code %>';
+
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        // Load applicant info
+        const infoResponse = await fetch(`/applicants/api/${testCode}/info`);
+        const infoData = await infoResponse.json();
+
+        if (infoData.success) {
+            document.getElementById('applicantName').textContent =
+                `${infoData.data.first_name} ${infoData.data.last_name}`;
+            document.getElementById('positionName').textContent =
+                infoData.data.position_name || '-';
+        }
+
+        // Load progress
+        const progressResponse = await fetch(`/applicants/api/${testCode}/progress`);
+        const progressData = await progressResponse.json();
+
+        if (progressData.success) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('summaryContent').classList.remove('hidden');
+            document.getElementById('completedCount').textContent = progressData.data.completed_tests || 0;
+            document.getElementById('totalCount').textContent = progressData.data.total_tests || 0;
+        }
+    } catch (error) {
+        console.error('Error loading data:', error);
+        document.getElementById('loading').innerHTML = '<p class="text-gray-500">ไม่สามารถโหลดข้อมูลได้</p>';
+    }
+});
+</script>
+
+</body>
+</html>

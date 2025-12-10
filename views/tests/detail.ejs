@@ -262,6 +262,21 @@
                 </div>
                 <% } %>
 
+                <!-- Target Positions (for recruitment tests) -->
+                <div id="target-positions-card" class="hidden bg-amber-50 rounded-xl p-4 border border-amber-200">
+                    <h4 class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-3">
+                        <i class="fas fa-briefcase mr-1"></i>
+                        ตำแหน่งงานเป้าหมาย
+                    </h4>
+                    <div id="target-positions-list" class="space-y-2 text-sm">
+                        <!-- Positions will be loaded here -->
+                    </div>
+                    <div id="global-test-badge" class="hidden mt-2 flex items-center text-amber-700">
+                        <i class="fas fa-globe mr-2"></i>
+                        <span class="font-medium">ข้อสอบกลาง (ทุกตำแหน่ง)</span>
+                    </div>
+                </div>
+
                 <!-- Quick Info -->
                 <div class="bg-gray-50 rounded-xl p-4">
                     <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3"><%= t('quickInfo') || 'ข้อมูลสรุป' %></h4>
@@ -436,6 +451,9 @@ function displayTestInfo() {
     document.getElementById('course-name').textContent = testData.course_name || i18n.notSpecified;
     document.getElementById('created-date').textContent = testData.created_at ? formatDate(testData.created_at) : '-';
 
+    // Target Positions (for recruitment tests)
+    displayTargetPositions();
+
     // Links for instructors
     <% if (['Admin', 'Instructor'].includes(user.role_name || user.role)) { %>
     document.getElementById('edit-test-link').href = `/tests/${testId}/edit`;
@@ -456,9 +474,58 @@ function getTestTypeText(type) {
         'lesson_test': i18n.typeLessonTest,
         'course_test': i18n.typeCourseTest,
         'pre_test': i18n.typePreTest,
-        'post_test': i18n.typePostTest
+        'post_test': i18n.typePostTest,
+        'job_application_test': 'ข้อสอบรับสมัครงาน',
+        'aptitude_test': 'ข้อสอบวัดความถนัด',
+        'personality_test': 'ข้อสอบวัดบุคลิกภาพ'
     };
     return types[type] || type || '-';
+}
+
+// Display target positions for recruitment tests
+async function displayTargetPositions() {
+    const recruitmentTypes = ['job_application_test', 'aptitude_test', 'personality_test'];
+    const card = document.getElementById('target-positions-card');
+    const listDiv = document.getElementById('target-positions-list');
+    const globalBadge = document.getElementById('global-test-badge');
+
+    // Only show for recruitment test types
+    if (!recruitmentTypes.includes(testData.type)) {
+        card.classList.add('hidden');
+        return;
+    }
+
+    // Show the card
+    card.classList.remove('hidden');
+
+    // Check if global test
+    if (testData.is_global_applicant_test) {
+        listDiv.innerHTML = '';
+        globalBadge.classList.remove('hidden');
+        return;
+    }
+
+    globalBadge.classList.add('hidden');
+
+    // Load target positions
+    try {
+        const response = await fetch(`/tests/api/${testId}/positions`);
+        const result = await response.json();
+
+        if (result.success && result.data && result.data.length > 0) {
+            listDiv.innerHTML = result.data.map(pos => `
+                <div class="flex items-center text-amber-800">
+                    <i class="fas fa-user-tie mr-2 text-amber-500"></i>
+                    <span>${pos.position_name}</span>
+                </div>
+            `).join('');
+        } else {
+            listDiv.innerHTML = '<p class="text-amber-600 text-xs italic">ยังไม่ได้กำหนดตำแหน่ง</p>';
+        }
+    } catch (error) {
+        console.error('Error loading target positions:', error);
+        listDiv.innerHTML = '<p class="text-red-500 text-xs">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+    }
 }
 
 function updateStatusBadge(status) {
@@ -642,8 +709,18 @@ function updateStartButton() {
 
     const inProgressAttempt = userAttempts.find(a => a.status === 'In Progress');
     if (inProgressAttempt) {
+        btn.disabled = false;
         btn.innerHTML = `<i class="fas fa-play mr-3"></i>${i18n.continueCurrentTest}`;
+        btn.className = 'w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5';
+        btn.style.background = 'linear-gradient(to right, <%= systemSettings.primary_color || "#2563eb" %>, <%= systemSettings.secondary_color || "#0891b2" %>)';
         btn.onclick = () => continueAttempt(inProgressAttempt.attempt_id);
+    } else {
+        // Reset to normal start test button
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-play mr-3"></i><%= t('startTest') %>`;
+        btn.className = 'w-full inline-flex items-center justify-center px-6 py-4 text-lg font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5';
+        btn.style.background = 'linear-gradient(to right, <%= systemSettings.primary_color || "#2563eb" %>, <%= systemSettings.secondary_color || "#0891b2" %>)';
+        btn.onclick = startTest;
     }
 }
 
@@ -802,8 +879,20 @@ document.addEventListener('click', function(event) {
 async function updateTestStatus(newStatus) {
     document.getElementById('status-dropdown').classList.add('hidden');
 
-    if (testData.status === newStatus) return;
+    // Check if status is already the same (Active and Published are treated as same)
+    const currentStatus = testData.status;
+    console.log('Current status:', currentStatus, 'New status:', newStatus);
 
+    const isSameStatus = currentStatus === newStatus ||
+        (currentStatus === 'Active' && newStatus === 'Published') ||
+        (currentStatus === 'Published' && newStatus === 'Active');
+
+    if (isSameStatus) {
+        console.log('Same status, skipping');
+        return;
+    }
+
+    console.log('Updating status...');
     try {
         const response = await fetch(`/tests/api/${testId}`, {
             method: 'PUT',
@@ -817,6 +906,7 @@ async function updateTestStatus(newStatus) {
             testData.status = newStatus;
             updateStatusBadge(newStatus);
             updateStartButton();
+            renderStatusOptions(); // Re-render to update checkmark
             showSuccess('<%= t("statusUpdatedSuccess") || "อัปเดตสถานะสำเร็จ" %>');
         } else {
             showError(result.message || '<%= t("statusUpdateError") || "ไม่สามารถอัปเดตสถานะได้" %>');

@@ -31,6 +31,14 @@ router.get('/api/attempts/:attempt_id/results', testController.getAttemptResults
 // Test analytics API (Admin/Instructor only)
 router.get('/api/analytics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.getTestAnalyticsAPI);
 
+// Position Test Sets API (HR/Admin) - MUST come before :test_id routes
+router.get('/api/position-test-sets/:position_id', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.getPositionTestSet);
+router.post('/api/position-test-sets/:position_id', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.addTestToPositionSet);
+router.put('/api/position-test-sets/:set_id/order', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.updateTestOrder);
+router.delete('/api/position-test-sets/:set_id', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.removeTestFromPositionSet);
+router.get('/api/position-test-config/:position_id', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.getPositionTestConfig);
+router.put('/api/position-test-config/:position_id', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.updatePositionTestConfig);
+
 // Test-specific API endpoints (with :test_id)
 router.get('/api/:test_id', testController.getTestById);
 router.put('/api/:test_id', authMiddleware.requireRole(['Admin', 'Instructor']), testController.updateTest);
@@ -40,12 +48,14 @@ router.post('/api/:test_id/start', testController.startTest);
 router.post('/api/:test_id/:attempt_id/submit', testController.submitTest);
 router.get('/api/:test_id/results', testController.getTestResults);
 router.get('/api/:test_id/statistics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.getTestStatistics);
+router.get('/api/:test_id/positions', testController.getTestPositions);
 
 // ============================================
 // PAGE ROUTES - Dynamic routes come LAST
 // ============================================
 
 router.get('/', testController.renderTestsList);
+router.get('/position-test-sets', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.renderPositionTestSets);
 router.get('/create', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderCreateTest);
 router.get('/:test_id/edit', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderEditTest);
 router.get('/:test_id', testController.renderTestDetail);

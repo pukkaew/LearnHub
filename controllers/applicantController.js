@@ -3,6 +3,7 @@ const JobPosition = require('../models/JobPosition');
 const Test = require('../models/Test');
 const Question = require('../models/Question');
 const ActivityLog = require('../models/ActivityLog');
+const PositionTestSet = require('../models/PositionTestSet');
 const { t } = require('../utils/languages');
 
 const applicantController = {
@@ -314,12 +315,28 @@ const applicantController = {
                 return res.status(400).json(result);
             }
 
+            // อัพเดทผลการสอบ แต่ไม่เปลี่ยน status (HR จะเป็นผู้ตัดสินใจ)
             await Applicant.updateTestResults(applicant.applicant_id, {
                 test_completed: true,
                 test_score: result.data.total_score,
-                test_taken_at: new Date(),
-                status: result.data.status
+                test_taken_at: new Date()
+                // ไม่ส่ง status - ให้คงเป็น Pending จนกว่า HR จะเปลี่ยน
             });
+
+            // Sync กับ ApplicantTestProgress (สำหรับ Dashboard)
+            await PositionTestSet.updateApplicantTestStatus(
+                applicant.applicant_id,
+                attempt.test_id,
+                {
+                    status: 'completed',
+                    attempt_id: attempt_id,
+                    score: result.data.total_score,
+                    percentage: result.data.percentage,
+                    passed: result.data.passed,
+                    completed_at: new Date(),
+                    time_spent_seconds: time_taken
+                }
+            );
 
             await ActivityLog.create({
                 user_id: null,
@@ -334,13 +351,20 @@ const applicantController = {
                 module: 'HR Testing'
             });
 
+            // Calculate overall result to check if all tests are completed
+            const overallResult = await PositionTestSet.calculateApplicantOverallResult(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
             res.json({
                 success: true,
                 message: req.t('testSubmittedSuccessfully'),
                 data: {
                     score: result.data.total_score,
                     status: result.data.status,
-                    passed: result.data.status === 'Passed'
+                    passed: result.data.status === 'Passed',
+                    overall: overallResult.data
                 }
             });
 
@@ -563,6 +587,7 @@ const applicantController = {
     async renderTestInterface(req, res) {
         try {
             const { test_code } = req.params;
+            const { test_id } = req.query;
 
             const applicant = await Applicant.findByTestCode(test_code);
             if (!applicant) {
@@ -572,15 +597,6 @@ const applicantController = {
                 });
             }
 
-            // Check if applicant has completed a test
-            const attempts = await Test.getApplicantAttempts(applicant.applicant_id);
-            const completedAttempt = attempts.find(a => a.status === 'Completed');
-
-            if (completedAttempt) {
-                // Already completed - redirect to result page
-                return res.redirect(`/applicants/result/${test_code}`);
-            }
-
             // Check if status allows testing
             if (applicant.status !== 'Pending') {
                 return res.render('error/403', {
@@ -588,6 +604,33 @@ const applicantController = {
                     layout: false,
                     message: req.t('applicationStatusNotAllowTest') || 'สถานะใบสมัครไม่อนุญาตให้ทำแบบทดสอบ'
                 });
+            }
+
+            // If test_id is provided, check only that specific test
+            if (test_id) {
+                const testProgress = await PositionTestSet.getApplicantTestProgress(
+                    applicant.applicant_id,
+                    applicant.position_id
+                );
+                const targetTest = testProgress.find(t => t.test_id === parseInt(test_id));
+
+                // If specific test is already completed, redirect to dashboard
+                if (targetTest && targetTest.status === 'completed') {
+                    return res.redirect(`/applicants/dashboard/${test_code}`);
+                }
+            } else {
+                // Legacy behavior: no test_id means single-test mode
+                // Check if ALL tests are completed
+                const testProgress = await PositionTestSet.getApplicantTestProgress(
+                    applicant.applicant_id,
+                    applicant.position_id
+                );
+                const allCompleted = testProgress.length > 0 &&
+                    testProgress.every(t => t.status === 'completed');
+
+                if (allCompleted) {
+                    return res.redirect(`/applicants/result/${test_code}`);
+                }
             }
 
             res.render('applicants/test-interface', {
@@ -741,6 +784,428 @@ const applicantController = {
                 message: req.t('cannotLoadApplicantDetailPage') || 'ไม่สามารถโหลดหน้ารายละเอียดผู้สมัครได้',
                 user: req.session.user,
                 error: error
+            });
+        }
+    },
+
+    // ============ Multi-Test Dashboard Functions ============
+
+    /**
+     * Render applicant dashboard showing all tests
+     */
+    async renderApplicantDashboard(req, res) {
+        try {
+            const { test_code } = req.params;
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.render('error/404', {
+                    title: 'ไม่พบข้อมูล - Rukchai Hongyen LearnHub',
+                    layout: false
+                });
+            }
+
+            res.render('applicants/dashboard', {
+                title: 'ศูนย์ทดสอบผู้สมัครงาน - Rukchai Hongyen LearnHub',
+                layout: false,
+                applicant: applicant,
+                test_code: test_code
+            });
+
+        } catch (error) {
+            console.error('Render applicant dashboard error:', error);
+            res.render('error/500', {
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้า Dashboard ได้',
+                layout: false,
+                error: error
+            });
+        }
+    },
+
+    /**
+     * Get applicant test progress (API)
+     */
+    async getApplicantTestProgress(req, res) {
+        try {
+            const { test_code } = req.params;
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'ไม่พบรหัสทดสอบ'
+                });
+            }
+
+            // Initialize tests for applicant if not already done
+            const initResult = await PositionTestSet.initializeApplicantTests(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
+            // Get test progress
+            const testProgress = await PositionTestSet.getApplicantTestProgress(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
+            // Calculate overall result
+            const overallResult = await PositionTestSet.calculateApplicantOverallResult(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
+            res.json({
+                success: true,
+                data: {
+                    tests: testProgress,
+                    total_tests: overallResult.data?.total_tests || testProgress.length,
+                    completed_tests: overallResult.data?.completed_tests || 0,
+                    passed_tests: overallResult.data?.passed_tests || 0,
+                    required_tests: overallResult.data?.required_tests || 0,
+                    required_passed: overallResult.data?.required_passed || 0,
+                    average_score: overallResult.data?.average_score || null,
+                    overall_passed: overallResult.data?.overall_passed || false,
+                    pass_reason: overallResult.data?.pass_reason || '',
+                    is_complete: overallResult.data?.is_complete || false
+                }
+            });
+
+        } catch (error) {
+            console.error('Get applicant test progress error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูล'
+            });
+        }
+    },
+
+    /**
+     * Start a specific test from test set
+     */
+    async startSpecificTest(req, res) {
+        try {
+            const { test_code } = req.params;
+            const { test_id } = req.query;
+
+            if (!test_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'กรุณาระบุข้อสอบ'
+                });
+            }
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'ไม่พบรหัสทดสอบ'
+                });
+            }
+
+            // Check if test is assigned to this applicant's position
+            const testProgress = await PositionTestSet.getApplicantTestProgress(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
+            const targetTest = testProgress.find(t => t.test_id === parseInt(test_id));
+            if (!targetTest) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ข้อสอบนี้ไม่ได้กำหนดไว้สำหรับตำแหน่งของคุณ'
+                });
+            }
+
+            // Check if already completed
+            if (targetTest.status === 'completed') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'คุณได้ทำข้อสอบนี้ไปแล้ว'
+                });
+            }
+
+            // Get test data
+            const test = await Test.findById(test_id, true);
+            if (!test) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'ไม่พบข้อสอบ'
+                });
+            }
+
+            // Create or get attempt
+            let attempt;
+            if (targetTest.attempt_id) {
+                attempt = await Test.getApplicantAttemptById(targetTest.attempt_id);
+            }
+
+            if (!attempt || attempt.status === 'Completed') {
+                // Create new attempt
+                const attemptResult = await Test.createApplicantAttempt({
+                    test_id: test_id,
+                    applicant_id: applicant.applicant_id,
+                    start_time: new Date(),
+                    status: 'In_Progress'
+                });
+
+                if (!attemptResult.success) {
+                    return res.status(400).json(attemptResult);
+                }
+
+                attempt = attemptResult.data;
+
+                // Update progress
+                await PositionTestSet.updateApplicantTestStatus(
+                    applicant.applicant_id,
+                    test_id,
+                    {
+                        status: 'in_progress',
+                        attempt_id: attempt.attempt_id,
+                        started_at: new Date()
+                    }
+                );
+            }
+
+            // Get questions
+            const questions = await Question.findByTestId(test_id);
+
+            res.json({
+                success: true,
+                data: {
+                    attempt: attempt,
+                    test: {
+                        test_id: test.test_id,
+                        title: test.title,
+                        description: test.description,
+                        time_limit: test.time_limit,
+                        passing_score: targetTest.passing_score_override || test.passing_marks,
+                        total_marks: test.total_marks,
+                        total_questions: questions.length
+                    },
+                    questions: questions,
+                    applicant: {
+                        applicant_id: applicant.applicant_id,
+                        first_name: applicant.first_name,
+                        last_name: applicant.last_name
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('Start specific test error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการเริ่มข้อสอบ'
+            });
+        }
+    },
+
+    /**
+     * Submit a specific test from test set
+     */
+    async submitSpecificTest(req, res) {
+        try {
+            const { test_code } = req.params;
+            const { test_id, answers, time_taken } = req.body;
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'ไม่พบรหัสทดสอบ'
+                });
+            }
+
+            // Get test progress
+            const testProgress = await PositionTestSet.getApplicantTestProgress(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
+            const targetTest = testProgress.find(t => t.test_id === parseInt(test_id));
+            if (!targetTest || !targetTest.attempt_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ไม่พบข้อมูลการสอบ'
+                });
+            }
+
+            // Submit the attempt
+            const result = await Test.submitApplicantAttempt(
+                targetTest.attempt_id,
+                answers,
+                time_taken
+            );
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            // Update progress
+            await PositionTestSet.updateApplicantTestStatus(
+                applicant.applicant_id,
+                test_id,
+                {
+                    status: 'completed',
+                    score: result.data.total_score,
+                    percentage: result.data.percentage,
+                    passed: result.data.passed,
+                    completed_at: new Date(),
+                    time_spent_seconds: time_taken
+                }
+            );
+
+            // Log activity
+            await ActivityLog.create({
+                user_id: null,
+                action: 'Submit_Applicant_Test',
+                table_name: 'ApplicantTestProgress',
+                record_id: targetTest.progress_id,
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                session_id: req.sessionID,
+                description: `Applicant submitted test ${test_id}, Score: ${result.data.percentage}%`,
+                severity: 'Info',
+                module: 'HR Testing'
+            });
+
+            // Calculate overall result
+            const overallResult = await PositionTestSet.calculateApplicantOverallResult(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
+            res.json({
+                success: true,
+                message: 'ส่งข้อสอบสำเร็จ',
+                data: {
+                    test_result: {
+                        score: result.data.total_score,
+                        percentage: result.data.percentage,
+                        passed: result.data.passed,
+                        correct_count: result.data.correct_count,
+                        total_questions: result.data.total_questions
+                    },
+                    overall: overallResult.data
+                }
+            });
+
+        } catch (error) {
+            console.error('Submit specific test error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการส่งข้อสอบ'
+            });
+        }
+    },
+
+    /**
+     * Render overall result page (multi-test)
+     */
+    async renderOverallResult(req, res) {
+        try {
+            const { test_code } = req.params;
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.render('error/404', {
+                    title: 'ไม่พบข้อมูล - Rukchai Hongyen LearnHub',
+                    layout: false
+                });
+            }
+
+            res.render('applicants/overall-result', {
+                title: 'สรุปผลการทดสอบ - Rukchai Hongyen LearnHub',
+                layout: false,
+                applicant: applicant,
+                test_code: test_code
+            });
+
+        } catch (error) {
+            console.error('Render overall result error:', error);
+            res.render('error/500', {
+                title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+                message: 'ไม่สามารถโหลดหน้าผลการทดสอบได้',
+                layout: false,
+                error: error
+            });
+        }
+    },
+
+    /**
+     * Get applicant info with test_code (enhanced for dashboard with multi-test support)
+     */
+    async getApplicantInfoForDashboard(req, res) {
+        try {
+            const { test_code } = req.params;
+
+            const applicant = await Applicant.findByTestCode(test_code);
+            if (!applicant) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t ? req.t('testCodeNotFound') : 'ไม่พบรหัสทดสอบ'
+                });
+            }
+
+            // Get all test progress for this applicant's position (multi-test support)
+            const testProgress = await PositionTestSet.getApplicantTestProgress(
+                applicant.applicant_id,
+                applicant.position_id
+            );
+
+            // Check if ALL tests are completed
+            const totalTests = testProgress.length;
+            const completedTests = testProgress.filter(t => t.status === 'Completed').length;
+            const hasCompletedAllTests = totalTests > 0 && completedTests === totalTests;
+
+            // Calculate average score if any test is completed
+            let averageScore = null;
+            if (completedTests > 0) {
+                const totalScore = testProgress
+                    .filter(t => t.status === 'Completed' && t.score !== null)
+                    .reduce((sum, t) => sum + (t.score || 0), 0);
+                averageScore = Math.round(totalScore / completedTests);
+            }
+
+            // Check if status allows testing (allow if status is Pending and not all tests completed)
+            const canTakeTest = applicant.status === 'Pending' && !hasCompletedAllTests;
+
+            // Determine test status message
+            let testStatusMessage = null;
+            if (applicant.status !== 'Pending') {
+                testStatusMessage = req.t ? req.t('applicationStatusNotAllowTest') : 'สถานะใบสมัครไม่อนุญาตให้ทำแบบทดสอบ';
+            } else if (hasCompletedAllTests) {
+                testStatusMessage = req.t ? req.t('testAllCompleted') : 'คุณได้ทำแบบทดสอบทุกชุดเสร็จสิ้นแล้ว';
+            }
+
+            res.json({
+                success: true,
+                data: {
+                    applicant_id: applicant.applicant_id,
+                    first_name: applicant.first_name,
+                    last_name: applicant.last_name,
+                    position_id: applicant.position_id,
+                    position_name: applicant.position_name,
+                    department_name: applicant.department_name,
+                    test_code: test_code,
+                    status: applicant.status,
+                    test_completed: hasCompletedAllTests,
+                    total_tests: totalTests,
+                    completed_tests: completedTests,
+                    pending_tests: totalTests - completedTests,
+                    average_score: averageScore,
+                    can_take_test: canTakeTest,
+                    test_status_message: testStatusMessage
+                }
+            });
+
+        } catch (error) {
+            console.error('Get applicant info error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t ? req.t('errorSearchingData') : 'เกิดข้อผิดพลาดในการโหลดข้อมูล'
             });
         }
     }

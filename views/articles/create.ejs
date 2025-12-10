@@ -1,22 +1,20 @@
-<%- include('../partials/header') %>
-
-<div class="container mx-auto px-4 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-white">Create New Article</h1>
-                <p class="text-white/80 mt-2">Share knowledge and insights with the <%= typeof getSystemSetting === 'function' ? getSystemSetting('site_name', 'LearnHub').replace('Rukchai Hongyen ', '') : 'LearnHub' %> community</p>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-3xl font-bold text-white"><%= t('createNewArticle') || 'สร้างบทความใหม่' %></h1>
+                <p class="text-white/80 mt-2"><%= t('shareKnowledgeDesc') || 'แบ่งปันความรู้และประสบการณ์กับชุมชน' %></p>
             </div>
             <div class="flex space-x-3">
-                <button onclick="previewArticle()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-eye mr-2"></i>Preview
+                <button type="button" onclick="previewArticle()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-eye mr-2"></i><%= t('preview') || 'ดูตัวอย่าง' %>
                 </button>
-                <button onclick="saveDraft()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-save mr-2"></i>Save Draft
+                <button type="button" onclick="saveDraft()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-save mr-2"></i><%= t('saveDraft') || 'บันทึกแบบร่าง' %>
                 </button>
                 <a href="/articles" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Articles
+                    <i class="fas fa-arrow-left mr-2"></i><%= t('backToArticles') || 'กลับ' %>
                 </a>
             </div>
         </div>
@@ -27,22 +25,22 @@
         <div class="flex items-center space-x-4">
             <div class="step-indicator active" data-step="1">
                 <div class="step-circle">1</div>
-                <span class="step-label">Basic Information</span>
+                <span class="step-label"><%= t('basicInformation') || 'ข้อมูลพื้นฐาน' %></span>
             </div>
             <div class="step-line"></div>
             <div class="step-indicator" data-step="2">
                 <div class="step-circle">2</div>
-                <span class="step-label">Content & Media</span>
+                <span class="step-label"><%= t('contentAndMedia') || 'เนื้อหาและสื่อ' %></span>
             </div>
             <div class="step-line"></div>
             <div class="step-indicator" data-step="3">
                 <div class="step-circle">3</div>
-                <span class="step-label">Settings & Tags</span>
+                <span class="step-label"><%= t('settingsAndTags') || 'การตั้งค่าและแท็ก' %></span>
             </div>
             <div class="step-line"></div>
             <div class="step-indicator" data-step="4">
                 <div class="step-circle">4</div>
-                <span class="step-label">Review & Publish</span>
+                <span class="step-label"><%= t('reviewAndPublish') || 'ตรวจสอบและเผยแพร่' %></span>
             </div>
         </div>
     </div>
@@ -51,32 +49,32 @@
         <!-- Step 1: Basic Information -->
         <div id="step-1" class="step-content active">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('basicInformation') || 'ข้อมูลพื้นฐาน' %></h3>
 
                 <div class="space-y-6">
                     <!-- Article Title -->
                     <div>
                         <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                            Article Title <span class="text-red-500">*</span>
+                            <%= t('articleTitle') || 'หัวข้อบทความ' %> <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="title" name="title" required
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="Enter an engaging title for your article">
+                               placeholder="<%= t('enterEngagingTitle') || 'ใส่หัวข้อที่น่าสนใจสำหรับบทความของคุณ' %>">
                         <div class="mt-1 text-sm text-gray-500">
-                            <span id="title-count">0</span>/100 characters • A good title is clear and descriptive
+                            <span id="title-count">0</span>/100 <%= t('characters') || 'ตัวอักษร' %> • <%= t('goodTitleDesc') || 'หัวข้อที่ดีควรชัดเจนและอธิบายได้' %>
                         </div>
                     </div>
 
                     <!-- Article Summary -->
                     <div>
                         <label for="summary" class="block text-sm font-medium text-gray-700 mb-2">
-                            Summary <span class="text-red-500">*</span>
+                            <%= t('summary') || 'สรุปเนื้อหา' %> <span class="text-red-500">*</span>
                         </label>
                         <textarea id="summary" name="summary" rows="3" required
                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  placeholder="Write a brief summary of your article (will be shown in article listings)"></textarea>
+                                  placeholder="<%= t('writeBriefSummary') || 'เขียนสรุปสั้นๆ ของบทความ (จะแสดงในรายการบทความ)' %>"></textarea>
                         <div class="mt-1 text-sm text-gray-500">
-                            <span id="summary-count">0</span>/300 characters • This helps readers understand what your article is about
+                            <span id="summary-count">0</span>/300 <%= t('characters') || 'ตัวอักษร' %> • <%= t('summaryHelpDesc') || 'ช่วยให้ผู้อ่านเข้าใจว่าบทความของคุณเกี่ยวกับอะไร' %>
                         </div>
                     </div>
 
@@ -84,41 +82,41 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
-                                Category <span class="text-red-500">*</span>
+                                <%= t('category') || 'หมวดหมู่' %> <span class="text-red-500">*</span>
                             </label>
                             <select id="category" name="category" required
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <option value="">Select Category</option>
-                                <option value="technology">Technology</option>
-                                <option value="business">Business</option>
-                                <option value="design">Design</option>
-                                <option value="marketing">Marketing</option>
-                                <option value="development">Development</option>
-                                <option value="data-science">Data Science</option>
-                                <option value="project-management">Project Management</option>
-                                <option value="leadership">Leadership</option>
-                                <option value="career">Career Development</option>
-                                <option value="other">Other</option>
+                                <option value=""><%= t('selectCategory') || 'เลือกหมวดหมู่' %></option>
+                                <option value="technology"><%= t('technology') || 'เทคโนโลยี' %></option>
+                                <option value="business"><%= t('business') || 'ธุรกิจ' %></option>
+                                <option value="design"><%= t('design') || 'ดีไซน์' %></option>
+                                <option value="marketing"><%= t('marketing') || 'การตลาด' %></option>
+                                <option value="development"><%= t('development') || 'การพัฒนา' %></option>
+                                <option value="data-science"><%= t('dataScience') || 'วิทยาศาสตร์ข้อมูล' %></option>
+                                <option value="project-management"><%= t('projectManagement') || 'การจัดการโครงการ' %></option>
+                                <option value="leadership"><%= t('leadership') || 'ความเป็นผู้นำ' %></option>
+                                <option value="career"><%= t('careerDevelopment') || 'การพัฒนาอาชีพ' %></option>
+                                <option value="other"><%= t('other') || 'อื่นๆ' %></option>
                             </select>
                         </div>
 
                         <!-- Reading Time -->
                         <div>
                             <label for="reading_time" class="block text-sm font-medium text-gray-700 mb-2">
-                                Estimated Reading Time
+                                <%= t('estimatedReadingTime') || 'เวลาอ่านโดยประมาณ' %>
                             </label>
                             <div class="flex items-center space-x-2">
                                 <input type="number" id="reading_time" name="reading_time" min="1" max="60"
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <span class="text-sm text-gray-500">minutes</span>
+                                <span class="text-sm text-gray-500"><%= t('minutes') || 'นาที' %></span>
                             </div>
-                            <div class="mt-1 text-sm text-gray-500">Will be auto-calculated if left blank</div>
+                            <div class="mt-1 text-sm text-gray-500"><%= t('autoCalculatedIfBlank') || 'จะคำนวณอัตโนมัติหากไม่ได้กรอก' %></div>
                         </div>
                     </div>
 
                     <!-- Featured Image -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('featuredImage') || 'รูปปก' %></label>
                         <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors">
                             <div class="space-y-1 text-center">
                                 <div id="image-preview" class="hidden">
@@ -131,16 +129,16 @@
                                 </div>
                                 <div class="flex text-sm text-gray-600">
                                     <label for="featured_image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                        <span>Upload an image</span>
+                                        <span><%= t('uploadImage') || 'อัปโหลดรูปภาพ' %></span>
                                         <input id="featured_image" name="featured_image" type="file" class="sr-only" accept="image/*">
                                     </label>
-                                    <p class="pl-1">or drag and drop</p>
+                                    <p class="pl-1"><%= t('orDragAndDrop') || 'หรือลากและวาง' %></p>
                                 </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                                <p class="text-xs text-gray-500"><%= t('imageFormatSupport') || 'รองรับ PNG, JPG, GIF สูงสุด 5MB' %></p>
                             </div>
                         </div>
                         <button type="button" onclick="removeImage()" class="mt-2 text-sm text-red-600 hover:text-red-800 hidden" id="remove-image-btn">
-                            Remove image
+                            <%= t('removeImage') || 'ลบรูปภาพ' %>
                         </button>
                     </div>
                 </div>
@@ -148,7 +146,7 @@
                 <div class="flex justify-between mt-6">
                     <div></div>
                     <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                        Next <i class="fas fa-arrow-right ml-2"></i>
+                        <%= t('next') || 'ถัดไป' %> <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -157,44 +155,44 @@
         <!-- Step 2: Content & Media -->
         <div id="step-2" class="step-content">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Content & Media</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('contentAndMedia') || 'เนื้อหาและสื่อ' %></h3>
 
                 <!-- Editor Toolbar -->
                 <div class="border border-gray-300 rounded-t-lg bg-gray-50 p-3">
                     <div class="flex items-center space-x-2 flex-wrap">
-                        <button type="button" onclick="formatText('bold')" class="editor-btn" title="Bold">
+                        <button type="button" onclick="formatText('bold')" class="editor-btn" title="<%= t('bold') || 'ตัวหนา' %>">
                             <i class="fas fa-bold"></i>
                         </button>
-                        <button type="button" onclick="formatText('italic')" class="editor-btn" title="Italic">
+                        <button type="button" onclick="formatText('italic')" class="editor-btn" title="<%= t('italic') || 'ตัวเอียง' %>">
                             <i class="fas fa-italic"></i>
                         </button>
-                        <button type="button" onclick="formatText('underline')" class="editor-btn" title="Underline">
+                        <button type="button" onclick="formatText('underline')" class="editor-btn" title="<%= t('underline') || 'ขีดเส้นใต้' %>">
                             <i class="fas fa-underline"></i>
                         </button>
                         <div class="w-px h-6 bg-gray-300"></div>
-                        <button type="button" onclick="formatText('insertUnorderedList')" class="editor-btn" title="Bullet List">
+                        <button type="button" onclick="formatText('insertUnorderedList')" class="editor-btn" title="<%= t('bulletList') || 'รายการหัวข้อย่อย' %>">
                             <i class="fas fa-list-ul"></i>
                         </button>
-                        <button type="button" onclick="formatText('insertOrderedList')" class="editor-btn" title="Numbered List">
+                        <button type="button" onclick="formatText('insertOrderedList')" class="editor-btn" title="<%= t('numberedList') || 'รายการตัวเลข' %>">
                             <i class="fas fa-list-ol"></i>
                         </button>
                         <div class="w-px h-6 bg-gray-300"></div>
-                        <button type="button" onclick="insertLink()" class="editor-btn" title="Insert Link">
+                        <button type="button" onclick="insertLink()" class="editor-btn" title="<%= t('insertLink') || 'แทรกลิงก์' %>">
                             <i class="fas fa-link"></i>
                         </button>
-                        <button type="button" onclick="insertImage()" class="editor-btn" title="Insert Image">
+                        <button type="button" onclick="insertImage()" class="editor-btn" title="<%= t('insertImage') || 'แทรกรูปภาพ' %>">
                             <i class="fas fa-image"></i>
                         </button>
-                        <button type="button" onclick="insertCodeBlock()" class="editor-btn" title="Code Block">
+                        <button type="button" onclick="insertCodeBlock()" class="editor-btn" title="<%= t('codeBlock') || 'บล็อกโค้ด' %>">
                             <i class="fas fa-code"></i>
                         </button>
                         <div class="w-px h-6 bg-gray-300"></div>
                         <select onchange="formatHeading(this.value)" class="text-sm border border-gray-300 rounded px-2 py-1">
-                            <option value="">Heading</option>
-                            <option value="h1">Heading 1</option>
-                            <option value="h2">Heading 2</option>
-                            <option value="h3">Heading 3</option>
-                            <option value="h4">Heading 4</option>
+                            <option value=""><%= t('heading') || 'หัวข้อ' %></option>
+                            <option value="h1"><%= t('heading') || 'หัวข้อ' %> 1</option>
+                            <option value="h2"><%= t('heading') || 'หัวข้อ' %> 2</option>
+                            <option value="h3"><%= t('heading') || 'หัวข้อ' %> 3</option>
+                            <option value="h4"><%= t('heading') || 'หัวข้อ' %> 4</option>
                         </select>
                     </div>
                 </div>
@@ -203,23 +201,23 @@
                 <div>
                     <div id="content-editor" contenteditable="true"
                          class="w-full min-h-96 border border-t-0 border-gray-300 rounded-b-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 prose prose-blue max-w-none"
-                         placeholder="Start writing your article content here...">
+                         data-placeholder="<%= t('startWritingContent') || 'เริ่มเขียนเนื้อหาบทความของคุณที่นี่...' %>">
                     </div>
                     <input type="hidden" id="content" name="content">
                 </div>
 
                 <!-- Word Count -->
                 <div class="mt-2 flex justify-between text-sm text-gray-500">
-                    <span>Use the toolbar above to format your content</span>
-                    <span id="word-count">0 words</span>
+                    <span><%= t('useToolbarDesc') || 'ใช้แถบเครื่องมือด้านบนเพื่อจัดรูปแบบเนื้อหา' %></span>
+                    <span id="word-count">0 <%= t('words') || 'คำ' %></span>
                 </div>
 
                 <div class="flex justify-between mt-6">
                     <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
-                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') || 'ก่อนหน้า' %>
                     </button>
                     <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                        Next <i class="fas fa-arrow-right ml-2"></i>
+                        <%= t('next') || 'ถัดไป' %> <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -228,19 +226,19 @@
         <!-- Step 3: Settings & Tags -->
         <div id="step-3" class="step-content">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Settings & Tags</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('settingsAndTags') || 'การตั้งค่าและแท็ก' %></h3>
 
                 <div class="space-y-6">
                     <!-- Tags -->
                     <div>
-                        <label for="tags-input" class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                        <label for="tags-input" class="block text-sm font-medium text-gray-700 mb-2"><%= t('tags') || 'แท็ก' %></label>
                         <div class="border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
                             <div class="flex flex-wrap gap-2 mb-2" id="tags-container"></div>
                             <input type="text" id="tags-input"
                                    class="w-full border-0 focus:outline-none focus:ring-0 text-sm"
-                                   placeholder="Add tags (press Enter to add)">
+                                   placeholder="<%= t('addTagsPlaceholder') || 'เพิ่มแท็ก (กด Enter เพื่อเพิ่ม)' %>">
                         </div>
-                        <div class="mt-1 text-sm text-gray-500">Add relevant tags to help readers find your article</div>
+                        <div class="mt-1 text-sm text-gray-500"><%= t('addRelevantTags') || 'เพิ่มแท็กที่เกี่ยวข้องเพื่อช่วยให้ผู้อ่านค้นหาบทความของคุณ' %></div>
                         <input type="hidden" id="tags" name="tags">
                     </div>
 
@@ -248,22 +246,22 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Difficulty Level -->
                         <div>
-                            <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
+                            <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2"><%= t('difficultyLevel') || 'ระดับความยาก' %></label>
                             <select id="difficulty" name="difficulty"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <option value="beginner">Beginner</option>
-                                <option value="intermediate" selected>Intermediate</option>
-                                <option value="advanced">Advanced</option>
-                                <option value="expert">Expert</option>
+                                <option value="beginner"><%= t('beginner') || 'เริ่มต้น' %></option>
+                                <option value="intermediate" selected><%= t('intermediate') || 'ปานกลาง' %></option>
+                                <option value="advanced"><%= t('advanced') || 'ขั้นสูง' %></option>
+                                <option value="expert"><%= t('expert') || 'ผู้เชี่ยวชาญ' %></option>
                             </select>
                         </div>
 
                         <!-- Language -->
                         <div>
-                            <label for="language" class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                            <label for="language" class="block text-sm font-medium text-gray-700 mb-2"><%= t('language') || 'ภาษา' %></label>
                             <select id="language" name="language"
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <option value="th" selected><%= t('thaiLanguage') %></option>
+                                <option value="th" selected><%= t('thaiLanguage') || 'ไทย' %></option>
                                 <option value="en">English</option>
                                 <option value="zh">中文 (Chinese)</option>
                                 <option value="ja">日本語 (Japanese)</option>
@@ -273,27 +271,27 @@
 
                     <!-- Visibility Settings -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Visibility</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('visibility') || 'การมองเห็น' %></label>
                         <div class="space-y-3">
                             <label class="flex items-center">
                                 <input type="radio" name="visibility" value="public" checked class="mr-2">
                                 <div>
-                                    <span class="font-medium">Public</span>
-                                    <p class="text-sm text-gray-500">Anyone can view this article</p>
+                                    <span class="font-medium"><%= t('public') || 'สาธารณะ' %></span>
+                                    <p class="text-sm text-gray-500"><%= t('publicDesc') || 'ทุกคนสามารถดูบทความนี้ได้' %></p>
                                 </div>
                             </label>
                             <label class="flex items-center">
                                 <input type="radio" name="visibility" value="members" class="mr-2">
                                 <div>
-                                    <span class="font-medium">Members Only</span>
-                                    <p class="text-sm text-gray-500">Only registered members can view</p>
+                                    <span class="font-medium"><%= t('membersOnly') || 'สมาชิกเท่านั้น' %></span>
+                                    <p class="text-sm text-gray-500"><%= t('membersOnlyDesc') || 'เฉพาะสมาชิกที่ลงทะเบียนเท่านั้นที่สามารถดูได้' %></p>
                                 </div>
                             </label>
                             <label class="flex items-center">
                                 <input type="radio" name="visibility" value="private" class="mr-2">
                                 <div>
-                                    <span class="font-medium">Private</span>
-                                    <p class="text-sm text-gray-500">Only you can view this article</p>
+                                    <span class="font-medium"><%= t('private') || 'ส่วนตัว' %></span>
+                                    <p class="text-sm text-gray-500"><%= t('privateDesc') || 'เฉพาะคุณเท่านั้นที่สามารถดูบทความนี้ได้' %></p>
                                 </div>
                             </label>
                         </div>
@@ -301,34 +299,34 @@
 
                     <!-- Comments and Feedback -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Comments & Feedback</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('commentsAndFeedback') || 'ความคิดเห็นและข้อเสนอแนะ' %></label>
                         <div class="space-y-3">
                             <label class="flex items-center">
                                 <input type="checkbox" name="allow_comments" checked class="mr-2">
-                                <span class="text-sm">Allow comments on this article</span>
+                                <span class="text-sm"><%= t('allowComments') || 'อนุญาตให้แสดงความคิดเห็นในบทความนี้' %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="allow_likes" checked class="mr-2">
-                                <span class="text-sm">Allow likes/reactions</span>
+                                <span class="text-sm"><%= t('allowLikes') || 'อนุญาตให้กดถูกใจ/รีแอค' %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="moderate_comments" class="mr-2">
-                                <span class="text-sm">Moderate comments before publishing</span>
+                                <span class="text-sm"><%= t('moderateComments') || 'ตรวจสอบความคิดเห็นก่อนเผยแพร่' %></span>
                             </label>
                         </div>
                     </div>
 
                     <!-- SEO Settings -->
                     <div class="border-t border-gray-200 pt-6">
-                        <h4 class="text-md font-semibold text-gray-900 mb-3">SEO Settings</h4>
+                        <h4 class="text-md font-semibold text-gray-900 mb-3"><%= t('seoSettings') || 'การตั้งค่า SEO' %></h4>
                         <div class="space-y-4">
                             <div>
-                                <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                                <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-2"><%= t('metaDescription') || 'คำอธิบายสำหรับ SEO' %></label>
                                 <textarea id="meta_description" name="meta_description" rows="2"
                                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
-                                          placeholder="Brief description for search engines"></textarea>
+                                          placeholder="<%= t('descriptionForSearchEngines') || 'คำอธิบายสั้นๆ สำหรับเครื่องมือค้นหา' %>"></textarea>
                                 <div class="mt-1 text-sm text-gray-500">
-                                    <span id="meta-count">0</span>/160 characters recommended
+                                    <span id="meta-count">0</span>/160 <%= t('charactersRecommended') || 'ตัวอักษรที่แนะนำ' %>
                                 </div>
                             </div>
                             <div>
@@ -336,7 +334,7 @@
                                 <input type="text" id="slug" name="slug"
                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
                                        placeholder="article-url-slug">
-                                <div class="mt-1 text-sm text-gray-500">Will be auto-generated if left blank</div>
+                                <div class="mt-1 text-sm text-gray-500"><%= t('willBeUsedAsURL') || 'จะใช้เป็น URL ของบทความ' %></div>
                             </div>
                         </div>
                     </div>
@@ -344,10 +342,10 @@
 
                 <div class="flex justify-between mt-6">
                     <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
-                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') || 'ก่อนหน้า' %>
                     </button>
                     <button type="button" onclick="nextStep()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                        Next <i class="fas fa-arrow-right ml-2"></i>
+                        <%= t('next') || 'ถัดไป' %> <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
             </div>
@@ -356,7 +354,7 @@
         <!-- Step 4: Review & Publish -->
         <div id="step-4" class="step-content">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Review & Publish</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('reviewAndPublish') || 'ตรวจสอบและเผยแพร่' %></h3>
 
                 <!-- Article Preview -->
                 <div class="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50">
@@ -368,27 +366,27 @@
                 <!-- Publication Options -->
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Publication Status</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('publicationStatus') || 'สถานะการเผยแพร่' %></label>
                         <div class="space-y-3">
                             <label class="flex items-center">
                                 <input type="radio" name="status" value="published" class="mr-2">
                                 <div>
-                                    <span class="font-medium text-green-600">Publish Now</span>
-                                    <p class="text-sm text-gray-500">Make this article live immediately</p>
+                                    <span class="font-medium text-green-600"><%= t('publishNow') || 'เผยแพร่ทันที' %></span>
+                                    <p class="text-sm text-gray-500"><%= t('publishNowDesc') || 'ทำให้บทความนี้ใช้งานได้ทันที' %></p>
                                 </div>
                             </label>
                             <label class="flex items-center">
                                 <input type="radio" name="status" value="scheduled" class="mr-2">
                                 <div>
-                                    <span class="font-medium text-blue-600">Schedule for Later</span>
-                                    <p class="text-sm text-gray-500">Choose when to publish this article</p>
+                                    <span class="font-medium text-blue-600"><%= t('scheduleForLater') || 'กำหนดเวลาเผยแพร่' %></span>
+                                    <p class="text-sm text-gray-500"><%= t('scheduleForLaterDesc') || 'เลือกเวลาที่จะเผยแพร่บทความนี้' %></p>
                                 </div>
                             </label>
                             <label class="flex items-center">
                                 <input type="radio" name="status" value="draft" checked class="mr-2">
                                 <div>
-                                    <span class="font-medium text-gray-600">Save as Draft</span>
-                                    <p class="text-sm text-gray-500">Save for editing later</p>
+                                    <span class="font-medium text-gray-600"><%= t('saveAsDraft') || 'บันทึกเป็นร่าง' %></span>
+                                    <p class="text-sm text-gray-500"><%= t('saveAsDraftDesc') || 'บันทึกไว้แก้ไขภายหลัง' %></p>
                                 </div>
                             </label>
                         </div>
@@ -396,7 +394,7 @@
 
                     <!-- Scheduled Publication -->
                     <div id="schedule-options" class="hidden">
-                        <label for="publish_date" class="block text-sm font-medium text-gray-700 mb-2">Publish Date & Time</label>
+                        <label for="publish_date" class="block text-sm font-medium text-gray-700 mb-2"><%= t('publishDateTime') || 'วันและเวลาเผยแพร่' %></label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="date" id="publish_date" name="publish_date"
                                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
@@ -407,19 +405,19 @@
 
                     <!-- Notification Options -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Notifications</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('notifications') || 'การแจ้งเตือน' %></label>
                         <div class="space-y-3">
                             <label class="flex items-center">
                                 <input type="checkbox" name="notify_followers" checked class="mr-2">
-                                <span class="text-sm">Notify your followers</span>
+                                <span class="text-sm"><%= t('notifyFollowers') || 'แจ้งเตือนผู้ติดตามของคุณ' %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="share_social" class="mr-2">
-                                <span class="text-sm">Share on social media</span>
+                                <span class="text-sm"><%= t('shareOnSocial') || 'แชร์บนโซเชียลมีเดีย' %></span>
                             </label>
                             <label class="flex items-center">
                                 <input type="checkbox" name="feature_article" class="mr-2">
-                                <span class="text-sm">Submit for featured articles</span>
+                                <span class="text-sm"><%= t('submitForFeatured') || 'ส่งเพื่อติดบทความแนะนำ' %></span>
                             </label>
                         </div>
                     </div>
@@ -427,14 +425,14 @@
 
                 <div class="flex justify-between mt-6">
                     <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
-                        <i class="fas fa-arrow-left mr-2"></i>Previous
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') || 'ก่อนหน้า' %>
                     </button>
                     <div class="flex space-x-3">
                         <button type="button" onclick="saveDraft()" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700">
-                            <i class="fas fa-save mr-2"></i>Save Draft
+                            <i class="fas fa-save mr-2"></i><%= t('saveDraft') || 'บันทึกแบบร่าง' %>
                         </button>
                         <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
-                            <i class="fas fa-rocket mr-2"></i>Publish Article
+                            <i class="fas fa-rocket mr-2"></i><%= t('publishArticle') || 'เผยแพร่บทความ' %>
                         </button>
                     </div>
                 </div>
@@ -449,7 +447,7 @@
         <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">Article Preview</h3>
+                    <h3 class="text-lg font-semibold text-gray-900"><%= t('previewArticle') || 'ดูตัวอย่างบทความ' %></h3>
                     <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
                     </button>
@@ -469,7 +467,7 @@
     <div class="bg-white rounded-lg p-6">
         <div class="flex items-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3">Creating article...</span>
+            <span class="ml-3"><%= t('creatingArticle') || 'กำลังสร้างบทความ...' %></span>
         </div>
     </div>
 </div>
@@ -561,7 +559,7 @@
 }
 
 #content-editor:empty:before {
-    content: attr(placeholder);
+    content: attr(data-placeholder);
     color: #9ca3af;
 }
 
@@ -598,6 +596,26 @@
 </style>
 
 <script>
+// Translation strings for JavaScript
+const translations = {
+    pleaseAddContent: '<%= t("pleaseAddContent") || "กรุณาเพิ่มเนื้อหาในบทความของคุณ" %>',
+    pleaseFillRequired: '<%= t("pleaseFillRequired") || "กรุณากรอกข้อมูลในช่องที่จำเป็นทั้งหมด" %>',
+    articleSavedAsDraft: '<%= t("articleSavedAsDraft") || "บทความถูกบันทึกเป็นร่างแล้ว" %>',
+    failedToSaveDraft: '<%= t("failedToSaveDraft") || "บันทึกร่างไม่สำเร็จ" %>',
+    errorSavingDraft: '<%= t("errorSavingDraft") || "เกิดข้อผิดพลาดในการบันทึกร่าง" %>',
+    articlePublished: '<%= t("articlePublished") || "บทความถูกเผยแพร่เรียบร้อยแล้ว!" %>',
+    articleScheduled: '<%= t("articleScheduled") || "บทความถูกกำหนดเวลาเผยแพร่เรียบร้อยแล้ว!" %>',
+    articleSavedDraft: '<%= t("articleSavedDraft") || "บทความถูกบันทึกเป็นร่างแล้ว!" %>',
+    failedToCreate: '<%= t("failedToCreate") || "สร้างบทความไม่สำเร็จ" %>',
+    errorCreatingArticle: '<%= t("errorCreatingArticle") || "เกิดข้อผิดพลาดในการสร้างบทความ" %>',
+    enterURL: '<%= t("enterURL") || "ใส่ URL:" %>',
+    enterImageURL: '<%= t("enterImageURL") || "ใส่ URL รูปภาพ:" %>',
+    enterCode: '<%= t("enterCode") || "ใส่โค้ดของคุณ:" %>',
+    words: '<%= t("words") || "คำ" %>',
+    minRead: '<%= t("minRead") || "นาทีอ่าน" %>',
+    tagsLabel: '<%= t("tags") || "แท็ก" %>'
+};
+
 let currentStep = 1;
 let totalSteps = 4;
 let tags = [];
@@ -636,9 +654,7 @@ function initializeForm() {
 function nextStep() {
     if (validateCurrentStep()) {
         if (currentStep < totalSteps) {
-            // Mark current step as completed
             document.querySelector(`[data-step="${currentStep}"]`).classList.add('completed');
-
             currentStep++;
             updateStepDisplay();
 
@@ -653,22 +669,16 @@ function prevStep() {
     if (currentStep > 1) {
         currentStep--;
         updateStepDisplay();
-
-        // Remove completed class from next step
         document.querySelector(`[data-step="${currentStep + 1}"]`)?.classList.remove('completed');
     }
 }
 
 function updateStepDisplay() {
-    // Hide all step contents
     document.querySelectorAll('.step-content').forEach(content => {
         content.classList.remove('active');
     });
-
-    // Show current step content
     document.getElementById(`step-${currentStep}`).classList.add('active');
 
-    // Update step indicators
     document.querySelectorAll('.step-indicator').forEach(indicator => {
         indicator.classList.remove('active');
     });
@@ -689,17 +699,16 @@ function validateCurrentStep() {
         }
     });
 
-    // Additional validation for content editor
     if (currentStep === 2) {
         const content = document.getElementById('content-editor').innerHTML.trim();
         if (!content || content === '') {
-            showError('Please add some content to your article');
+            showError(translations.pleaseAddContent);
             isValid = false;
         }
     }
 
     if (!isValid) {
-        showError('Please fill in all required fields');
+        showError(translations.pleaseFillRequired);
     }
 
     return isValid;
@@ -723,10 +732,10 @@ function updateMetaCount() {
 function generateSlug() {
     const title = document.getElementById('title').value;
     const slug = title.toLowerCase()
-        .replace(/[^\w\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-') // Replace multiple hyphens with single
-        .trim('-'); // Remove leading/trailing hyphens
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
 
     if (!document.getElementById('slug').value) {
         document.getElementById('slug').value = slug;
@@ -754,7 +763,6 @@ function removeImage() {
     document.getElementById('remove-image-btn').classList.add('hidden');
 }
 
-// Rich Text Editor Functions
 function formatText(command) {
     document.execCommand(command, false, null);
     document.getElementById('content-editor').focus();
@@ -769,7 +777,7 @@ function formatHeading(tag) {
 }
 
 function insertLink() {
-    const url = prompt('Enter the URL:');
+    const url = prompt(translations.enterURL);
     if (url) {
         document.execCommand('createLink', false, url);
         document.getElementById('content-editor').focus();
@@ -777,7 +785,7 @@ function insertLink() {
 }
 
 function insertImage() {
-    const url = prompt('Enter the image URL:');
+    const url = prompt(translations.enterImageURL);
     if (url) {
         document.execCommand('insertImage', false, url);
         document.getElementById('content-editor').focus();
@@ -785,7 +793,7 @@ function insertImage() {
 }
 
 function insertCodeBlock() {
-    const code = prompt('Enter your code:');
+    const code = prompt(translations.enterCode);
     if (code) {
         const selection = window.getSelection();
         const range = selection.getRangeAt(0);
@@ -801,19 +809,16 @@ function insertCodeBlock() {
 function updateWordCount() {
     const content = document.getElementById('content-editor').innerText;
     const words = content.trim() ? content.trim().split(/\s+/).length : 0;
-    document.getElementById('word-count').textContent = words + ' words';
+    document.getElementById('word-count').textContent = words + ' ' + translations.words;
 
-    // Auto-calculate reading time if not set
     if (!document.getElementById('reading_time').value) {
-        const readingTime = Math.max(1, Math.ceil(words / 200)); // 200 words per minute
+        const readingTime = Math.max(1, Math.ceil(words / 200));
         document.getElementById('reading_time').value = readingTime;
     }
 
-    // Update hidden content field
     document.getElementById('content').value = document.getElementById('content-editor').innerHTML;
 }
 
-// Tag Management
 function handleTagInput(event) {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -836,10 +841,7 @@ function renderTags() {
     tags.forEach(tag => {
         const tagEl = document.createElement('div');
         tagEl.className = 'tag-item';
-        tagEl.innerHTML = `
-            ${tag}
-            <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
-        `;
+        tagEl.innerHTML = `${tag}<span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>`;
         container.appendChild(tagEl);
     });
 }
@@ -879,25 +881,20 @@ function generatePreview() {
             ${featuredImage && featuredImage !== window.location.href ? `
                 <img src="${featuredImage}" alt="${title}" class="w-full h-64 object-cover rounded-lg mb-6">
             ` : ''}
-
             <header class="mb-6">
                 <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">${category}</span>
-                    ${readingTime ? `<span><i class="fas fa-clock mr-1"></i>${readingTime} min read</span>` : ''}
-                    <span><i class="fas fa-calendar mr-1"></i>${new Date().toLocaleDateString()}</span>
+                    ${readingTime ? `<span><i class="fas fa-clock mr-1"></i>${readingTime} ${translations.minRead}</span>` : ''}
+                    <span><i class="fas fa-calendar mr-1"></i>${new Date().toLocaleDateString('th-TH')}</span>
                 </div>
                 <h1 class="text-4xl font-bold text-gray-900 mb-4">${title}</h1>
                 <p class="text-xl text-gray-600">${summary}</p>
             </header>
-
-            <div class="prose prose-blue max-w-none">
-                ${content}
-            </div>
-
+            <div class="prose prose-blue max-w-none">${content}</div>
             ${tags.length > 0 ? `
                 <footer class="mt-8 pt-6 border-t border-gray-200">
                     <div class="flex items-center space-x-2">
-                        <span class="text-sm font-medium text-gray-700">Tags:</span>
+                        <span class="text-sm font-medium text-gray-700">${translations.tagsLabel}:</span>
                         ${tags.map(tag => `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">${tag}</span>`).join('')}
                     </div>
                 </footer>
@@ -934,13 +931,13 @@ async function saveDraft() {
         const data = await response.json();
 
         if (data.success) {
-            showSuccess('Article saved as draft');
+            showSuccess(translations.articleSavedAsDraft);
         } else {
-            showError(data.message || 'Failed to save draft');
+            showError(data.message || translations.failedToSaveDraft);
         }
     } catch (error) {
         console.error('Error saving draft:', error);
-        showError('Error saving draft');
+        showError(translations.errorSavingDraft);
     } finally {
         showLoading(false);
     }
@@ -969,20 +966,20 @@ async function submitArticle(event) {
 
         if (data.success) {
             const status = document.querySelector('input[name="status"]:checked').value;
-            const message = status === 'published' ? 'Article published successfully!' :
-                           status === 'scheduled' ? 'Article scheduled for publication!' :
-                           'Article saved as draft!';
+            const message = status === 'published' ? translations.articlePublished :
+                           status === 'scheduled' ? translations.articleScheduled :
+                           translations.articleSavedDraft;
 
             showSuccess(message);
             setTimeout(() => {
                 window.location.href = '/articles';
             }, 2000);
         } else {
-            showError(data.message || 'Failed to create article');
+            showError(data.message || translations.failedToCreate);
         }
     } catch (error) {
         console.error('Error creating article:', error);
-        showError('Error creating article');
+        showError(translations.errorCreatingArticle);
     } finally {
         showLoading(false);
     }
@@ -994,12 +991,18 @@ function showLoading(show) {
 }
 
 function showSuccess(message) {
-    alert(message); // Replace with toast notification
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white bg-green-500 shadow-lg';
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+    setTimeout(() => messageDiv.remove(), 3000);
 }
 
 function showError(message) {
-    alert('Error: ' + message); // Replace with toast notification
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white bg-red-500 shadow-lg';
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+    setTimeout(() => messageDiv.remove(), 3000);
 }
 </script>
-
-<%- include('../partials/footer') %>

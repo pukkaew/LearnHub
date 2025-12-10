@@ -415,20 +415,12 @@
                     return;
                 }
 
-                // Check if applicant can take test
-                if (!checkData.data.can_take_test) {
-                    if (checkData.data.test_completed) {
-                        // Already completed - redirect to result page
-                        showSuccess(i18n.testCompleted || 'คุณได้ทำแบบทดสอบไปแล้ว กำลังไปหน้าผลสอบ...');
-                        setTimeout(() => {
-                            window.location.href = `/applicants/result/${testCode}`;
-                        }, 1500);
-                    } else {
-                        showError(checkData.data.test_status_message || i18n.cannotTakeTest || 'ไม่สามารถทำแบบทดสอบได้');
-                        submitBtn.disabled = false;
-                        btnText.style.display = 'inline';
-                        btnLoading.style.display = 'none';
-                    }
+                // Check application status - only block if status is not Pending
+                if (checkData.data.status && checkData.data.status !== 'Pending') {
+                    showError(checkData.data.test_status_message || 'สถานะใบสมัครไม่อนุญาตให้ทำแบบทดสอบ');
+                    submitBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
                     return;
                 }
 
@@ -436,7 +428,7 @@
                 showSuccess(i18n.success);
 
                 setTimeout(() => {
-                    window.location.href = `/applicants/test/${testCode}`;
+                    window.location.href = `/applicants/dashboard/${testCode}`;
                 }, 1000);
 
             } catch (error) {

@@ -17,134 +17,54 @@
             border-radius: 20px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .score-circle {
-            width: 200px;
-            height: 200px;
+        .success-icon {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
         }
-        .passed {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+        @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
-        .failed {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            box-shadow: 0 0 40px rgba(239, 68, 68, 0.4);
+        .animate-check {
+            animation: checkmark 0.5s ease-out forwards;
         }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .animate-fade-in {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.4s; }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
-    <div class="result-card max-w-lg w-full p-8 text-center animate-fade-in">
+    <div class="result-card max-w-md w-full p-8 text-center">
+        <!-- Success Icon -->
+        <div class="mb-6">
+            <div class="success-icon">
+                <i class="fas fa-check text-4xl text-white animate-check"></i>
+            </div>
+        </div>
+
         <!-- Header -->
-        <div class="mb-6 opacity-0 animate-fade-in delay-1">
-            <i class="fas fa-clipboard-check text-4xl text-blue-600 mb-2"></i>
-            <h1 class="text-2xl font-bold text-gray-800">ผลการทดสอบ</h1>
-            <p class="text-gray-500 mt-1">Test Result</p>
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">ทำแบบทดสอบเสร็จสิ้น</h1>
         </div>
 
-        <!-- Applicant Info -->
-        <div class="bg-gray-50 rounded-lg p-4 mb-6 opacity-0 animate-fade-in delay-2">
-            <p class="text-lg font-semibold text-gray-800">
-                <%= applicant.first_name %> <%= applicant.last_name %>
-            </p>
-            <p class="text-sm text-gray-500">
-                ตำแหน่ง: <%= applicant.position_name || 'N/A' %>
-            </p>
-        </div>
-
-        <!-- Score Circle -->
-        <div class="mb-8 opacity-0 animate-fade-in delay-3">
-            <div class="score-circle <%= result.passed ? 'passed' : 'failed' %>">
-                <span class="text-5xl font-bold text-white">
-                    <%= result.percentage ? result.percentage.toFixed(1) : '0' %>%
-                </span>
-                <span class="text-white text-sm mt-1">คะแนน</span>
-            </div>
-        </div>
-
-        <!-- Result Status -->
-        <div class="mb-6 opacity-0 animate-fade-in delay-4">
-            <% if (result.passed) { %>
-                <div class="inline-flex items-center px-6 py-3 bg-green-100 text-green-800 rounded-full">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    <span class="font-semibold">ผ่านการทดสอบ</span>
-                </div>
-            <% } else { %>
-                <div class="inline-flex items-center px-6 py-3 bg-red-100 text-red-800 rounded-full">
-                    <i class="fas fa-times-circle mr-2"></i>
-                    <span class="font-semibold">ไม่ผ่านการทดสอบ</span>
-                </div>
-            <% } %>
-        </div>
-
-        <!-- Details -->
-        <div class="grid grid-cols-2 gap-4 mb-8 text-left">
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-xs text-gray-500 uppercase tracking-wide">คะแนนที่ได้</p>
-                <p class="text-xl font-bold text-gray-800">
-                    <%= result.score ? result.score.toFixed(2) : '0' %> คะแนน
-                </p>
-            </div>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-xs text-gray-500 uppercase tracking-wide">เวลาที่ใช้</p>
-                <p class="text-xl font-bold text-gray-800">
-                    <%
-                    const minutes = Math.floor((result.time_spent || 0) / 60);
-                    const seconds = (result.time_spent || 0) % 60;
-                    %>
-                    <%= minutes %> นาที <%= seconds %> วินาที
-                </p>
-            </div>
-        </div>
-
-        <!-- Message -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p class="text-blue-800">
-                <i class="fas fa-info-circle mr-2"></i>
-                <% if (result.passed) { %>
-                    ขอบคุณที่ทำการทดสอบ ทางเราจะติดต่อกลับภายหลัง
-                <% } else { %>
-                    ขอบคุณที่ทำการทดสอบ กรุณาติดต่อ HR หากมีข้อสงสัย
-                <% } %>
-            </p>
-        </div>
-
-        <!-- Close Button -->
-        <button onclick="window.close(); window.location.href='/applicants/test/login';"
-                class="w-full py-3 px-6 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition font-semibold">
-            <i class="fas fa-times mr-2"></i>
-            ปิดหน้านี้
-        </button>
+        <!-- Back to Dashboard Button -->
+        <a href="/applicants/dashboard/<%= test_code %>"
+           class="block w-full py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+            <i class="fas fa-arrow-left mr-2"></i>
+            กลับหน้ารายการข้อสอบ
+        </a>
     </div>
 
     <script>
-        // Trigger animations
-        document.querySelectorAll('.opacity-0').forEach((el, i) => {
-            setTimeout(() => {
-                el.classList.remove('opacity-0');
-            }, 100 * i);
-        });
+        // Auto redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = '/applicants/dashboard/<%= test_code %>';
+        }, 2000);
     </script>
 </body>
 </html>

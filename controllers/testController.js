@@ -4,6 +4,7 @@ const TestBank = require('../models/TestBank');
 const ActivityLog = require('../models/ActivityLog');
 const Chapter = require('../models/Chapter');
 const Lesson = require('../models/Lesson');
+const PositionTestSet = require('../models/PositionTestSet');
 const { poolPromise, sql } = require('../config/database');
 
 // Helper function to update course progress after test submission
@@ -135,14 +136,17 @@ const testController = {
             const { page = 1, limit = 12, tab = 'all', search, category } = req.query;
             const offset = (parseInt(page) - 1) * parseInt(limit);
 
-            // Draft visibility: Admin sees all Draft, Owner sees their own Draft
+            // Draft/Inactive visibility: Admin sees all, Instructor sees their own
             let whereClause;
             if (userRole === 'Admin') {
-                // Admin sees all tests including all Drafts
-                whereClause = "WHERE t.status IN ('Active', 'Published', 'Draft')";
+                // Admin sees all tests including Draft and Inactive
+                whereClause = "WHERE t.status IN ('Active', 'Published', 'Draft', 'Inactive')";
+            } else if (userRole === 'Instructor') {
+                // Instructor sees Active/Published + their own Drafts and Inactive
+                whereClause = "WHERE (t.status IN ('Active', 'Published') OR (t.status IN ('Draft', 'Inactive') AND t.instructor_id = @userId))";
             } else {
-                // Others see Active/Published + their own Drafts (as owner)
-                whereClause = "WHERE (t.status IN ('Active', 'Published') OR (t.status = 'Draft' AND t.instructor_id = @userId))";
+                // Others see only Active/Published
+                whereClause = "WHERE t.status IN ('Active', 'Published')";
             }
 
             const request = pool.request()
@@ -192,7 +196,7 @@ const testController = {
                        (SELECT TOP 1 ta.percentage FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId ORDER BY ta.started_at DESC) as user_score,
                        (SELECT COUNT(*) FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId) as user_attempt_count,
                        (SELECT TOP 1 ta.attempt_id FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId AND ta.status = 'Completed' ORDER BY ta.started_at DESC) as last_attempt_id,
-                       (SELECT COUNT(*) FROM TestAttempts ta WHERE ta.test_id = t.test_id) as attempt_count
+                       (SELECT COUNT(DISTINCT ta.user_id) FROM TestAttempts ta WHERE ta.test_id = t.test_id) as attempt_count
                 FROM tests t
                 LEFT JOIN courses c ON t.course_id = c.course_id
                 ${whereClause}
@@ -351,6 +355,46 @@ const testController = {
         }
     },
 
+    // Get test positions (for recruitment tests)
+    async getTestPositions(req, res) {
+        try {
+            const { test_id } = req.params;
+            const testIdInt = parseInt(test_id);
+
+            if (isNaN(testIdInt)) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('invalidTestId')
+                });
+            }
+
+            const pool = await poolPromise;
+
+            // Get positions from TestPositions table
+            const result = await pool.request()
+                .input('test_id', sql.Int, testIdInt)
+                .query(`
+                    SELECT tp.*, p.position_name
+                    FROM TestPositions tp
+                    INNER JOIN Positions p ON tp.position_id = p.position_id
+                    WHERE tp.test_id = @test_id AND tp.is_active = 1
+                    ORDER BY tp.test_order, p.position_name
+                `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+
+        } catch (error) {
+            console.error('Get test positions error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorLoadingTestPositions') || 'Error loading test positions'
+            });
+        }
+    },
+
     async createTest(req, res) {
         try {
             const userRole = req.user.role_name;
@@ -396,10 +440,29 @@ const testController = {
                 show_score_breakdown: req.body.show_score_breakdown !== undefined ? req.body.show_score_breakdown : true,
                 randomize_options: req.body.randomize_options || false,
                 questions_to_show: req.body.questions_to_show || null,
-                position_id: req.body.position_id || null // For recruitment tests
+                position_id: req.body.position_id || null, // Legacy - For recruitment tests
+                is_global_applicant_test: req.body.is_global_applicant_test || false
             };
 
             const result = await Test.create(testData);
+
+            // Handle multi-position assignment for recruitment tests
+            if (result.success && result.data.test_id) {
+                const testId = result.data.test_id;
+
+                // Set global applicant test flag
+                if (req.body.is_global_applicant_test) {
+                    await Test.setGlobalApplicantTest(testId, true);
+                }
+
+                // Assign to multiple positions if provided
+                if (req.body.target_positions && Array.isArray(req.body.target_positions) && req.body.target_positions.length > 0) {
+                    await Test.setTestPositions(testId, req.body.target_positions, {
+                        is_required: true,
+                        weight_percent: 100
+                    });
+                }
+            }
 
             if (!result.success) {
                 return res.status(400).json(result);
@@ -1734,6 +1797,190 @@ const testController = {
             res.status(500).json({
                 success: false,
                 message: req.t('errorLoadingResults') || 'Error loading results'
+            });
+        }
+    },
+
+    // ============ Position Test Set Management ============
+
+    /**
+     * Render position test sets management page
+     */
+    async renderPositionTestSets(req, res) {
+        try {
+            res.render('tests/position-test-sets', {
+                title: 'จัดการชุดข้อสอบตามตำแหน่ง - Rukchai Hongyen LearnHub',
+                user: req.session.user
+            });
+        } catch (error) {
+            console.error('Render position test sets error:', error);
+            res.render('error/500', {
+                title: 'เกิดข้อผิดพลาด',
+                message: 'ไม่สามารถโหลดหน้าจัดการชุดข้อสอบได้',
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
+    /**
+     * Get tests in position test set
+     */
+    async getPositionTestSet(req, res) {
+        try {
+            const { position_id } = req.params;
+
+            const tests = await PositionTestSet.getTestsByPosition(position_id);
+
+            res.json({
+                success: true,
+                data: tests
+            });
+        } catch (error) {
+            console.error('Get position test set error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดข้อมูล'
+            });
+        }
+    },
+
+    /**
+     * Add test to position test set
+     */
+    async addTestToPositionSet(req, res) {
+        try {
+            const { position_id } = req.params;
+            const { test_id, test_category, weight_percent, passing_score_override, is_required } = req.body;
+
+            const result = await PositionTestSet.addTestToPosition({
+                position_id: parseInt(position_id),
+                test_id: parseInt(test_id),
+                test_category,
+                weight_percent,
+                passing_score_override,
+                is_required
+            });
+
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: 'เพิ่มข้อสอบสำเร็จ',
+                    data: result.data
+                });
+            } else {
+                res.status(400).json(result);
+            }
+        } catch (error) {
+            console.error('Add test to position set error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการเพิ่มข้อสอบ'
+            });
+        }
+    },
+
+    /**
+     * Update test order in position test set
+     */
+    async updateTestOrder(req, res) {
+        try {
+            const { set_id } = req.params;
+            const { test_order } = req.body;
+
+            const result = await PositionTestSet.updateTestOrder(parseInt(set_id), parseInt(test_order));
+
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: 'อัปเดตลำดับสำเร็จ'
+                });
+            } else {
+                res.status(400).json(result);
+            }
+        } catch (error) {
+            console.error('Update test order error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการอัปเดตลำดับ'
+            });
+        }
+    },
+
+    /**
+     * Remove test from position test set
+     */
+    async removeTestFromPositionSet(req, res) {
+        try {
+            const { set_id } = req.params;
+
+            const result = await PositionTestSet.removeTestFromPosition(parseInt(set_id));
+
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: 'ลบข้อสอบสำเร็จ'
+                });
+            } else {
+                res.status(400).json(result);
+            }
+        } catch (error) {
+            console.error('Remove test from position set error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการลบข้อสอบ'
+            });
+        }
+    },
+
+    /**
+     * Get position test config
+     */
+    async getPositionTestConfig(req, res) {
+        try {
+            const { position_id } = req.params;
+
+            const config = await PositionTestSet.getOrCreateConfig(parseInt(position_id));
+
+            res.json({
+                success: true,
+                data: config
+            });
+        } catch (error) {
+            console.error('Get position test config error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการโหลดการตั้งค่า'
+            });
+        }
+    },
+
+    /**
+     * Update position test config
+     */
+    async updatePositionTestConfig(req, res) {
+        try {
+            const { position_id } = req.params;
+            const configData = req.body;
+
+            // Ensure config exists first
+            await PositionTestSet.getOrCreateConfig(parseInt(position_id));
+
+            const result = await PositionTestSet.updateConfig(parseInt(position_id), configData);
+
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: 'บันทึกการตั้งค่าสำเร็จ'
+                });
+            } else {
+                res.status(400).json(result);
+            }
+        } catch (error) {
+            console.error('Update position test config error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการบันทึกการตั้งค่า'
             });
         }
     }

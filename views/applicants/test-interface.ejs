@@ -288,6 +288,10 @@
     <script>
     // Global variables
     const testCode = '<%= test_code %>';
+    // Get test_id from URL query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const testId = urlParams.get('test_id');
+
     let testData = {};
     let questions = [];
     let currentQuestionIndex = 0;
@@ -369,9 +373,13 @@
     // Initialize test
     async function initializeTest() {
         try {
-            const response = await fetch(`/applicants/api/test/${testCode}/start`, {
-                method: 'POST'
-            });
+            // Use startSpecificTest endpoint if test_id is provided
+            let response;
+            if (testId) {
+                response = await fetch(`/applicants/api/test/${testCode}/start-specific?test_id=${testId}`);
+            } else {
+                response = await fetch(`/applicants/api/test/${testCode}/start`, { method: 'POST' });
+            }
             const result = await response.json();
 
             if (result.success) {
@@ -757,23 +765,49 @@
             clearInterval(timerInterval);
             clearInterval(autoSaveInterval);
 
-            const response = await fetch(`/applicants/api/test/${testCode}/submit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    answers: answers,
-                    marked_questions: Array.from(markedQuestions),
-                    time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
-                    submission_type: 'manual'
-                })
-            });
+            // Use submitSpecificTest endpoint if test_id is provided
+            let response;
+            if (testId) {
+                response = await fetch(`/applicants/api/test/${testCode}/submit-specific`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        test_id: testId,
+                        answers: answers,
+                        marked_questions: Array.from(markedQuestions),
+                        time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
+                        submission_type: 'manual'
+                    })
+                });
+            } else {
+                response = await fetch(`/applicants/api/test/${testCode}/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        answers: answers,
+                        marked_questions: Array.from(markedQuestions),
+                        time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
+                        submission_type: 'manual'
+                    })
+                });
+            }
 
             const data = await response.json();
 
             if (data.success) {
                 showMessage('ส่งข้อสอบสำเร็จ!', 'success');
                 setTimeout(() => {
-                    window.location.href = data.redirect_url || `/applicants/result/${testCode}`;
+                    // เช็คว่าทำข้อสอบครบทุกชุดหรือยัง
+                    // Response structure: { success, data: { test_result, overall: { is_complete, ... } } }
+                    const overall = data.data && data.data.overall;
+                    const isAllComplete = overall && overall.is_complete;
+                    if (isAllComplete) {
+                        // ทำครบแล้ว → ไปหน้าผลรวม (แสดงข้อความ HR จะติดต่อกลับ)
+                        window.location.href = `/applicants/overall-result/${testCode}`;
+                    } else {
+                        // ยังไม่ครบ → ไปหน้าแสดง "ทำเสร็จแล้ว" แล้ว redirect กลับ dashboard
+                        window.location.href = `/applicants/result/${testCode}`;
+                    }
                 }, 2000);
             } else {
                 showMessage(data.message || 'เกิดข้อผิดพลาดในการส่งข้อสอบ', 'error');
@@ -791,21 +825,47 @@
             clearInterval(timerInterval);
             clearInterval(autoSaveInterval);
 
-            await fetch(`/applicants/api/test/${testCode}/submit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    answers: answers,
-                    marked_questions: Array.from(markedQuestions),
-                    time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
-                    submission_type: 'auto',
-                    reason: reason
-                })
-            });
+            // Use submitSpecificTest endpoint if test_id is provided
+            let response;
+            if (testId) {
+                response = await fetch(`/applicants/api/test/${testCode}/submit-specific`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        test_id: testId,
+                        answers: answers,
+                        marked_questions: Array.from(markedQuestions),
+                        time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
+                        submission_type: 'auto',
+                        reason: reason
+                    })
+                });
+            } else {
+                response = await fetch(`/applicants/api/test/${testCode}/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        answers: answers,
+                        marked_questions: Array.from(markedQuestions),
+                        time_taken: ((testData.time_limit || 60) * 60) - timeRemaining,
+                        submission_type: 'auto',
+                        reason: reason
+                    })
+                });
+            }
+
+            const data = await response.json();
 
             showMessage('ข้อสอบถูกส่งอัตโนมัติ', 'info');
             setTimeout(() => {
-                window.location.href = `/applicants/result/${testCode}`;
+                // เช็คว่าทำข้อสอบครบทุกชุดหรือยัง
+                const overall = data.data && data.data.overall;
+                const isAllComplete = overall && overall.is_complete;
+                if (isAllComplete) {
+                    window.location.href = `/applicants/overall-result/${testCode}`;
+                } else {
+                    window.location.href = `/applicants/result/${testCode}`;
+                }
             }, 3000);
         } catch (error) {
             console.error('Error auto-submitting test:', error);

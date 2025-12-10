@@ -1,21 +1,21 @@
-<%- include('../partials/header') %>
-
-<div class="container mx-auto px-4 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Knowledge Articles</h1>
-            <p class="text-gray-600 mt-2">Explore insights, tutorials, and best practices from our community</p>
-        </div>
-        <div class="flex space-x-3">
-            <% if (user && (user.role === 'instructor' || user.role === 'admin')) { %>
-                <a href="/articles/create" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                    <i class="fas fa-plus mr-2"></i>Write Article
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-3xl font-bold text-white"><%= t('knowledgeArticles') || 'บทความความรู้' %></h1>
+                <p class="text-white/80 mt-1"><%= t('exploreInsights') || 'สำรวจความรู้และประสบการณ์จากชุมชนของเรา' %></p>
+            </div>
+            <div class="flex space-x-3">
+                <% if (user && (user.role === 'instructor' || user.role === 'admin')) { %>
+                <a href="/articles/create" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-plus mr-2"></i><%= t('writeArticle') || 'เขียนบทความ' %>
                 </a>
-            <% } %>
-            <button onclick="toggleView()" id="view-toggle" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                <i class="fas fa-th-list mr-2"></i>List View
-            </button>
+                <% } %>
+                <button onclick="toggleView()" id="view-toggle" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-th-list mr-2"></i><%= t('listView') || 'มุมมองรายการ' %>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -23,35 +23,38 @@
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('search') || 'ค้นหา' %></label>
                 <div class="relative">
-                    <input type="text" id="search-articles" placeholder="Search articles..."
-                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="text" id="search-articles" placeholder="<%= t('searchArticlesPlaceholder') || 'ค้นหาบทความ...' %>"
+                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent form-input-ruxchai">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
                         <i class="fas fa-search text-gray-400"></i>
                     </div>
                 </div>
             </div>
             <div>
-                <select id="category-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="">All Categories</option>
-                    <option value="technology">Technology</option>
-                    <option value="business">Business</option>
-                    <option value="design">Design</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="development">Development</option>
-                    <option value="data-science">Data Science</option>
-                    <option value="project-management">Project Management</option>
-                    <option value="leadership">Leadership</option>
-                    <option value="career">Career Development</option>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('category') || 'หมวดหมู่' %></label>
+                <select id="category-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 form-select-ruxchai">
+                    <option value=""><%= t('allCategories') || 'ทุกหมวดหมู่' %></option>
+                    <option value="technology"><%= t('technology') || 'เทคโนโลยี' %></option>
+                    <option value="business"><%= t('business') || 'ธุรกิจ' %></option>
+                    <option value="design"><%= t('design') || 'ดีไซน์' %></option>
+                    <option value="marketing"><%= t('marketing') || 'การตลาด' %></option>
+                    <option value="development"><%= t('development') || 'การพัฒนา' %></option>
+                    <option value="data-science"><%= t('dataScience') || 'วิทยาศาสตร์ข้อมูล' %></option>
+                    <option value="project-management"><%= t('projectManagement') || 'การจัดการโครงการ' %></option>
+                    <option value="leadership"><%= t('leadership') || 'ความเป็นผู้นำ' %></option>
+                    <option value="career"><%= t('careerDevelopment') || 'การพัฒนาอาชีพ' %></option>
                 </select>
             </div>
             <div>
-                <select id="sort-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="popular">Most Popular</option>
-                    <option value="trending">Trending</option>
-                    <option value="title">Title A-Z</option>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('sortByLabel') || 'เรียงลำดับ' %></label>
+                <select id="sort-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 form-select-ruxchai">
+                    <option value="newest"><%= t('newestFirst') || 'ใหม่ล่าสุด' %></option>
+                    <option value="oldest"><%= t('oldestFirst') || 'เก่าสุด' %></option>
+                    <option value="popular"><%= t('mostPopular') || 'ยอดนิยม' %></option>
+                    <option value="trending"><%= t('trending') || 'กำลังมาแรง' %></option>
+                    <option value="title"><%= t('titleAZ') || 'ชื่อ ก-ฮ' %></option>
                 </select>
             </div>
         </div>
@@ -60,7 +63,7 @@
         <div class="mt-4">
             <button onclick="toggleAdvancedFilters()" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
                 <i class="fas fa-filter mr-1"></i>
-                <span id="advanced-toggle-text">Show Advanced Filters</span>
+                <span id="advanced-toggle-text"><%= t('showAdvancedFilters') || 'แสดงตัวกรองขั้นสูง' %></span>
                 <i class="fas fa-chevron-down ml-1" id="advanced-toggle-icon"></i>
             </button>
         </div>
@@ -69,40 +72,40 @@
         <div id="advanced-filters" class="hidden mt-4 pt-4 border-t border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label for="author-filter" class="block text-sm font-medium text-gray-700 mb-1">Author</label>
-                    <select id="author-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Authors</option>
+                    <label for="author-filter" class="block text-sm font-medium text-gray-700 mb-1"><%= t('author') || 'ผู้เขียน' %></label>
+                    <select id="author-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 form-select-ruxchai">
+                        <option value=""><%= t('allAuthors') || 'ผู้เขียนทั้งหมด' %></option>
                     </select>
                 </div>
                 <div>
-                    <label for="difficulty-filter" class="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
-                    <select id="difficulty-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Levels</option>
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                        <option value="expert">Expert</option>
+                    <label for="difficulty-filter" class="block text-sm font-medium text-gray-700 mb-1"><%= t('difficultyLevel') || 'ระดับความยาก' %></label>
+                    <select id="difficulty-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 form-select-ruxchai">
+                        <option value=""><%= t('allLevels') || 'ทุกระดับ' %></option>
+                        <option value="beginner"><%= t('beginner') || 'เริ่มต้น' %></option>
+                        <option value="intermediate"><%= t('intermediate') || 'ปานกลาง' %></option>
+                        <option value="advanced"><%= t('advanced') || 'ขั้นสูง' %></option>
+                        <option value="expert"><%= t('expert') || 'ผู้เชี่ยวชาญ' %></option>
                     </select>
                 </div>
                 <div>
-                    <label for="reading-time-filter" class="block text-sm font-medium text-gray-700 mb-1">Reading Time</label>
-                    <select id="reading-time-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                        <option value="">Any Length</option>
-                        <option value="short">Short (< 5 min)</option>
-                        <option value="medium">Medium (5-15 min)</option>
-                        <option value="long">Long (> 15 min)</option>
+                    <label for="reading-time-filter" class="block text-sm font-medium text-gray-700 mb-1"><%= t('readingTime') || 'เวลาอ่าน' %></label>
+                    <select id="reading-time-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 form-select-ruxchai">
+                        <option value=""><%= t('anyLength') || 'ทุกความยาว' %></option>
+                        <option value="short"><%= t('shortReading') || 'สั้น (< 5 นาที)' %></option>
+                        <option value="medium"><%= t('mediumReading') || 'ปานกลาง (5-15 นาที)' %></option>
+                        <option value="long"><%= t('longReading') || 'ยาว (> 15 นาที)' %></option>
                     </select>
                 </div>
                 <div>
-                    <label for="tags-filter" class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                    <input type="text" id="tags-filter" placeholder="Enter tags..."
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <label for="tags-filter" class="block text-sm font-medium text-gray-700 mb-1"><%= t('tags') || 'แท็ก' %></label>
+                    <input type="text" id="tags-filter" placeholder="<%= t('enterTags') || 'ใส่แท็ก...' %>"
+                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 form-input-ruxchai">
                 </div>
             </div>
             <div class="flex justify-end mt-4 space-x-2">
-                <button onclick="clearFilters()" class="text-sm text-gray-600 hover:text-gray-800">Clear All</button>
+                <button onclick="clearFilters()" class="text-sm text-gray-600 hover:text-gray-800"><%= t('clearAll') || 'ล้างทั้งหมด' %></button>
                 <button onclick="applyFilters()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
-                    Apply Filters
+                    <%= t('applyFilters') || 'ใช้ตัวกรอง' %>
                 </button>
             </div>
         </div>
@@ -112,7 +115,7 @@
     <div class="mb-6">
         <div class="flex items-center space-x-2 mb-3">
             <i class="fas fa-tags text-gray-500"></i>
-            <span class="text-sm font-medium text-gray-700">Popular Tags:</span>
+            <span class="text-sm font-medium text-gray-700"><%= t('popularTags') || 'แท็กยอดนิยม:' %></span>
         </div>
         <div class="flex flex-wrap gap-2" id="popular-tags">
             <!-- Popular tags will be loaded dynamically -->
@@ -122,11 +125,11 @@
     <!-- Results Summary -->
     <div class="flex justify-between items-center mb-6">
         <div class="text-sm text-gray-600">
-            Showing <span id="results-count">0</span> articles
-            <span id="search-query-display" class="hidden">for "<span id="search-term"></span>"</span>
+            <%= t('showing') || 'แสดง' %> <span id="results-count">0</span> <%= t('articlesText') || 'บทความ' %>
+            <span id="search-query-display" class="hidden"><%= t('forKeyword') || 'สำหรับ' %> "<span id="search-term"></span>"</span>
         </div>
         <div class="flex items-center space-x-2">
-            <span class="text-sm text-gray-600">View:</span>
+            <span class="text-sm text-gray-600"><%= t('view') || 'มุมมอง:' %></span>
             <div class="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button onclick="setView('grid')" id="grid-view-btn" class="px-3 py-1 text-sm bg-blue-600 text-white">
                     <i class="fas fa-th"></i>
@@ -154,19 +157,19 @@
     <!-- Load More / Pagination -->
     <div class="mt-8 text-center">
         <button id="load-more-btn" onclick="loadMoreArticles()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 inline-flex items-center">
-            <i class="fas fa-plus mr-2"></i>Load More Articles
+            <i class="fas fa-plus mr-2"></i><%= t('loadMore') || 'โหลดเพิ่มเติม' %>
         </button>
 
         <!-- Pagination (alternative to load more) -->
         <div id="pagination" class="hidden flex justify-center items-center space-x-2 mt-4">
             <button onclick="previousPage()" id="prev-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50" disabled>
-                <i class="fas fa-chevron-left mr-1"></i>Previous
+                <i class="fas fa-chevron-left mr-1"></i><%= t('previous') || 'ก่อนหน้า' %>
             </button>
             <span class="px-4 py-2 text-sm text-gray-600">
-                Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+                <%= t('page') || 'หน้า' %> <span id="current-page">1</span> <%= t('of') || 'จาก' %> <span id="total-pages">1</span>
             </span>
             <button onclick="nextPage()" id="next-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                Next<i class="fas fa-chevron-right ml-1"></i>
+                <%= t('next') || 'ถัดไป' %><i class="fas fa-chevron-right ml-1"></i>
             </button>
         </div>
     </div>
@@ -177,10 +180,10 @@
             <div class="text-gray-400 text-6xl mb-4">
                 <i class="fas fa-search"></i>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">No articles found</h3>
-            <p class="text-gray-600 mb-4">Try adjusting your search criteria or browse by category</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2"><%= t('noArticlesFound') || 'ไม่พบบทความ' %></h3>
+            <p class="text-gray-600 mb-4"><%= t('noArticlesFoundDesc') || 'ลองปรับเงื่อนไขการค้นหา หรือเลือกดูตามหมวดหมู่' %></p>
             <button onclick="clearFilters()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                Clear Filters
+                <%= t('clearFilters') || 'ล้างตัวกรอง' %>
             </button>
         </div>
     </div>
@@ -200,7 +203,7 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         <button onclick="viewFullArticle()" id="view-full-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
-                            Read Full Article
+                            <%= t('readFullArticle') || 'อ่านบทความเต็ม' %>
                         </button>
                         <button onclick="closeArticleModal()" class="text-gray-400 hover:text-gray-600">
                             <i class="fas fa-times"></i>
@@ -221,7 +224,7 @@
 <div id="loading" class="hidden text-center py-12">
     <div class="inline-flex items-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span class="ml-3 text-gray-600">Loading articles...</span>
+        <span class="ml-3 text-gray-600"><%= t('loadingArticles') || 'กำลังโหลดบทความ...' %></span>
     </div>
 </div>
 
@@ -311,6 +314,38 @@
 </style>
 
 <script>
+// Translation strings for JavaScript
+const translations = {
+    failedToLoad: '<%= t("failedToLoad") || "โหลดบทความไม่สำเร็จ" %>',
+    errorLoading: '<%= t("errorLoading") || "เกิดข้อผิดพลาดในการโหลดบทความ" %>',
+    articleBookmarked: '<%= t("articleBookmarked") || "บุ๊คมาร์คบทความแล้ว" %>',
+    bookmarkRemoved: '<%= t("bookmarkRemoved") || "ลบบุ๊คมาร์คแล้ว" %>',
+    linkCopied: '<%= t("linkCopied") || "คัดลอกลิงก์แล้ว" %>',
+    gridView: '<%= t("gridView") || "มุมมองตาราง" %>',
+    listView: '<%= t("listView") || "มุมมองรายการ" %>',
+    hideAdvancedFilters: '<%= t("hideAdvancedFilters") || "ซ่อนตัวกรองขั้นสูง" %>',
+    showAdvancedFilters: '<%= t("showAdvancedFilters") || "แสดงตัวกรองขั้นสูง" %>',
+    minRead: '<%= t("minRead") || "นาทีอ่าน" %>',
+    views: '<%= t("views") || "ครั้ง" %>',
+    likes: '<%= t("likes") || "ถูกใจ" %>',
+    comments: '<%= t("comments") || "ความคิดเห็น" %>',
+    more: '<%= t("more") || "เพิ่มเติม" %>',
+    tags: '<%= t("tags") || "แท็ก" %>'
+};
+
+// Category translations
+const categoryTranslations = {
+    'technology': '<%= t("technology") || "เทคโนโลยี" %>',
+    'business': '<%= t("business") || "ธุรกิจ" %>',
+    'design': '<%= t("design") || "ดีไซน์" %>',
+    'marketing': '<%= t("marketing") || "การตลาด" %>',
+    'development': '<%= t("development") || "การพัฒนา" %>',
+    'data-science': '<%= t("dataScience") || "วิทยาศาสตร์ข้อมูล" %>',
+    'project-management': '<%= t("projectManagement") || "การจัดการโครงการ" %>',
+    'leadership': '<%= t("leadership") || "ความเป็นผู้นำ" %>',
+    'career': '<%= t("careerDevelopment") || "การพัฒนาอาชีพ" %>'
+};
+
 let articlesData = [];
 let filteredArticles = [];
 let currentView = 'grid';
@@ -353,11 +388,11 @@ async function loadArticles() {
             loadAuthors();
             applyFilters();
         } else {
-            showError('Failed to load articles');
+            showError(translations.failedToLoad);
         }
     } catch (error) {
         console.error('Error loading articles:', error);
-        showError('Error loading articles');
+        showError(translations.errorLoading);
     } finally {
         isLoading = false;
         showLoading(false);
@@ -371,7 +406,7 @@ function loadAuthors() {
     })).filter(Boolean))];
 
     const authorSelect = document.getElementById('author-filter');
-    authorSelect.innerHTML = '<option value="">All Authors</option>';
+    authorSelect.innerHTML = '<option value=""><%= t("allAuthors") || "ผู้เขียนทั้งหมด" %></option>';
 
     authors.forEach(author => {
         const option = document.createElement('option');
@@ -412,7 +447,6 @@ function applyFilters() {
     const tags = document.getElementById('tags-filter').value.toLowerCase();
     const sortBy = document.getElementById('sort-filter').value;
 
-    // Update search query display
     if (searchTerm) {
         document.getElementById('search-term').textContent = searchTerm;
         document.getElementById('search-query-display').classList.remove('hidden');
@@ -435,17 +469,10 @@ function applyFilters() {
         return matchesSearch && matchesCategory && matchesAuthor && matchesDifficulty && matchesReadingTime && matchesTags;
     });
 
-    // Sort articles
     sortArticles(sortBy);
-
-    // Update results count
     document.getElementById('results-count').textContent = filteredArticles.length;
-
-    // Reset pagination
     currentPage = 1;
     loadedArticles = 0;
-
-    // Render articles
     renderArticles();
 }
 
@@ -473,7 +500,7 @@ function sortArticles(sortBy) {
             filteredArticles.sort((a, b) => (b.likes + b.comments || 0) - (a.likes + a.comments || 0));
             break;
         case 'title':
-            filteredArticles.sort((a, b) => a.title.localeCompare(b.title));
+            filteredArticles.sort((a, b) => a.title.localeCompare(b.title, 'th'));
             break;
     }
 }
@@ -482,7 +509,6 @@ function renderArticles() {
     const gridContainer = document.getElementById('grid-view');
     const listContainer = document.getElementById('list-view');
 
-    // Clear containers
     gridContainer.innerHTML = '';
     listContainer.innerHTML = '';
 
@@ -505,7 +531,6 @@ function renderArticles() {
         }
     });
 
-    // Show/hide load more button
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadedArticles >= filteredArticles.length) {
         loadMoreBtn.classList.add('hidden');
@@ -520,12 +545,13 @@ function createArticleCard(article) {
     card.onclick = () => quickViewArticle(article.article_id);
 
     const imageUrl = article.featured_image || '/images/default-article.jpg';
+    const categoryName = categoryTranslations[article.category] || article.category;
 
     card.innerHTML = `
         <div class="article-image h-48" style="background-image: url('${imageUrl}')">
             <div class="absolute top-3 left-3">
                 <span class="bg-white bg-opacity-90 px-2 py-1 rounded text-xs font-medium text-blue-600">
-                    ${getCategoryName(article.category)}
+                    ${categoryName}
                 </span>
             </div>
             <div class="absolute top-3 right-3">
@@ -540,9 +566,9 @@ function createArticleCard(article) {
                      class="w-6 h-6 rounded-full">
                 <span>${article.author.name}</span>
                 <span>•</span>
-                <span>${new Date(article.created_at).toLocaleDateString()}</span>
+                <span>${new Date(article.created_at).toLocaleDateString('th-TH')}</span>
                 <span>•</span>
-                <span><i class="fas fa-clock"></i> ${article.reading_time}m</span>
+                <span><i class="fas fa-clock"></i> ${article.reading_time} ${translations.minRead}</span>
             </div>
             <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">${article.title}</h3>
             <p class="text-gray-600 text-sm mb-4 line-clamp-3">${article.summary}</p>
@@ -551,7 +577,7 @@ function createArticleCard(article) {
                 ${article.tags.slice(0, 3).map(tag => `
                     <span class="tag-item" onclick="event.stopPropagation(); filterByTag('${tag}')">${tag}</span>
                 `).join('')}
-                ${article.tags.length > 3 ? `<span class="tag-item">+${article.tags.length - 3} more</span>` : ''}
+                ${article.tags.length > 3 ? `<span class="tag-item">+${article.tags.length - 3} ${translations.more}</span>` : ''}
             </div>
 
             <div class="article-stats justify-between">
@@ -587,6 +613,7 @@ function createArticleListItem(article) {
     item.onclick = () => quickViewArticle(article.article_id);
 
     const imageUrl = article.featured_image || '/images/default-article.jpg';
+    const categoryName = categoryTranslations[article.category] || article.category;
 
     item.innerHTML = `
         <div class="flex space-x-6">
@@ -594,13 +621,13 @@ function createArticleListItem(article) {
             <div class="flex-1">
                 <div class="flex items-center space-x-2 text-sm text-gray-500 mb-2">
                     <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-medium">
-                        ${getCategoryName(article.category)}
+                        ${categoryName}
                     </span>
                     <span class="difficulty-badge difficulty-${article.difficulty}">
                         ${article.difficulty}
                     </span>
                     <span>•</span>
-                    <span><i class="fas fa-clock"></i> ${article.reading_time}m</span>
+                    <span><i class="fas fa-clock"></i> ${article.reading_time} ${translations.minRead}</span>
                 </div>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">${article.title}</h3>
                 <p class="text-gray-600 mb-3 line-clamp-2">${article.summary}</p>
@@ -612,7 +639,7 @@ function createArticleListItem(article) {
                             <span>${article.author.name}</span>
                         </div>
                         <span>•</span>
-                        <span>${new Date(article.created_at).toLocaleDateString()}</span>
+                        <span>${new Date(article.created_at).toLocaleDateString('th-TH')}</span>
                     </div>
                     <div class="article-stats">
                         <span><i class="fas fa-eye"></i> ${article.views || 0}</span>
@@ -625,21 +652,6 @@ function createArticleListItem(article) {
     `;
 
     return item;
-}
-
-function getCategoryName(category) {
-    const categories = {
-        'technology': 'Technology',
-        'business': 'Business',
-        'design': 'Design',
-        'marketing': 'Marketing',
-        'development': 'Development',
-        'data-science': 'Data Science',
-        'project-management': 'Project Management',
-        'leadership': 'Leadership',
-        'career': 'Career'
-    };
-    return categories[category] || category;
 }
 
 function toggleView() {
@@ -661,13 +673,13 @@ function setView(view) {
         listView.classList.add('hidden');
         gridBtn.className = 'px-3 py-1 text-sm bg-blue-600 text-white';
         listBtn.className = 'px-3 py-1 text-sm bg-white text-gray-600 hover:bg-gray-50';
-        toggleBtn.innerHTML = '<i class="fas fa-th-list mr-2"></i>List View';
+        toggleBtn.innerHTML = `<i class="fas fa-th-list mr-2"></i>${translations.listView}`;
     } else {
         gridView.classList.add('hidden');
         listView.classList.remove('hidden');
         gridBtn.className = 'px-3 py-1 text-sm bg-white text-gray-600 hover:bg-gray-50';
         listBtn.className = 'px-3 py-1 text-sm bg-blue-600 text-white';
-        toggleBtn.innerHTML = '<i class="fas fa-th mr-2"></i>Grid View';
+        toggleBtn.innerHTML = `<i class="fas fa-th mr-2"></i>${translations.gridView}`;
     }
 
     renderArticles();
@@ -680,11 +692,11 @@ function toggleAdvancedFilters() {
 
     if (filters.classList.contains('hidden')) {
         filters.classList.remove('hidden');
-        toggleText.textContent = 'Hide Advanced Filters';
+        toggleText.textContent = translations.hideAdvancedFilters;
         toggleIcon.className = 'fas fa-chevron-up ml-1';
     } else {
         filters.classList.add('hidden');
-        toggleText.textContent = 'Show Advanced Filters';
+        toggleText.textContent = translations.showAdvancedFilters;
         toggleIcon.className = 'fas fa-chevron-down ml-1';
     }
 }
@@ -721,11 +733,11 @@ async function quickViewArticle(articleId) {
             const article = data.article;
             displayArticleModal(article);
         } else {
-            showError('Failed to load article');
+            showError(translations.failedToLoad);
         }
     } catch (error) {
         console.error('Error loading article:', error);
-        showError('Error loading article');
+        showError(translations.errorLoading);
     }
 }
 
@@ -740,9 +752,9 @@ function displayArticleModal(article) {
             <span>${article.author.name}</span>
         </div>
         <span>•</span>
-        <span>${new Date(article.created_at).toLocaleDateString()}</span>
+        <span>${new Date(article.created_at).toLocaleDateString('th-TH')}</span>
         <span>•</span>
-        <span><i class="fas fa-clock"></i> ${article.reading_time}m read</span>
+        <span><i class="fas fa-clock"></i> ${article.reading_time} ${translations.minRead}</span>
         <span>•</span>
         <span class="difficulty-badge difficulty-${article.difficulty}">${article.difficulty}</span>
     `;
@@ -764,7 +776,7 @@ function displayArticleModal(article) {
 
         ${article.tags.length > 0 ? `
             <div class="border-t border-gray-200 pt-6">
-                <h4 class="font-medium text-gray-700 mb-2">Tags:</h4>
+                <h4 class="font-medium text-gray-700 mb-2">${translations.tags}:</h4>
                 <div class="flex flex-wrap gap-2">
                     ${article.tags.map(tag => `
                         <span class="tag-item" onclick="filterByTag('${tag}'); closeArticleModal();">${tag}</span>
@@ -797,7 +809,6 @@ async function likeArticle(articleId) {
         const data = await response.json();
 
         if (data.success) {
-            // Update likes count in the UI
             const article = articlesData.find(a => a.article_id === articleId);
             if (article) {
                 article.likes = data.likes;
@@ -818,7 +829,7 @@ async function bookmarkArticle(articleId) {
         const data = await response.json();
 
         if (data.success) {
-            showSuccess(data.bookmarked ? 'Article bookmarked' : 'Bookmark removed');
+            showSuccess(data.bookmarked ? translations.articleBookmarked : translations.bookmarkRemoved);
         }
     } catch (error) {
         console.error('Error bookmarking article:', error);
@@ -834,10 +845,9 @@ function shareArticle(articleId) {
             url: `${window.location.origin}/articles/${articleId}`
         });
     } else {
-        // Fallback: copy to clipboard
         const url = `${window.location.origin}/articles/${articleId}`;
         navigator.clipboard.writeText(url).then(() => {
-            showSuccess('Article link copied to clipboard');
+            showSuccess(translations.linkCopied);
         });
     }
 }
@@ -845,7 +855,6 @@ function shareArticle(articleId) {
 function previousPage() {
     if (currentPage > 1) {
         currentPage--;
-        // Implement pagination logic
     }
 }
 
@@ -853,7 +862,6 @@ function nextPage() {
     const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
     if (currentPage < totalPages) {
         currentPage++;
-        // Implement pagination logic
     }
 }
 
@@ -863,13 +871,19 @@ function showLoading(show) {
 }
 
 function showSuccess(message) {
-    // Implement toast notification
-    console.log(message);
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white bg-green-500 shadow-lg';
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+    setTimeout(() => messageDiv.remove(), 3000);
 }
 
 function showError(message) {
-    // Implement toast notification
-    console.error(message);
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white bg-red-500 shadow-lg';
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+    setTimeout(() => messageDiv.remove(), 3000);
 }
 
 function debounce(func, wait) {
@@ -902,5 +916,3 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 </script>
-
-<%- include('../partials/footer') %>

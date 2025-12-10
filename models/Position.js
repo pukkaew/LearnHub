@@ -524,14 +524,14 @@ class Position {
 
             const result = await pool.request().query(`
                 SELECT p.position_id,
-                       p.position_name_th as title,
-                       p.position_code as code,
+                       p.position_name as title,
+                       p.position_id as code,
                        p.position_type,
                        ou.unit_name_th as department_name
                 FROM Positions p
                 LEFT JOIN OrganizationUnits ou ON p.unit_id = ou.unit_id
                 WHERE p.is_active = 1
-                ORDER BY p.position_type, ou.unit_name_th, p.position_name_th
+                ORDER BY p.position_type, ou.unit_name_th, p.position_name
             `);
 
             return result.recordset;
@@ -595,17 +595,17 @@ class Position {
         }
     }
 
-    // Check if position code exists
-    static async existsByCode(positionCode, excludeId = null) {
+    // Check if position name exists (position_code column removed)
+    static async existsByCode(positionName, excludeId = null) {
         try {
             const pool = await poolPromise;
             const request = pool.request()
-                .input('positionCode', sql.NVarChar(20), positionCode);
+                .input('positionName', sql.NVarChar(100), positionName);
 
             let query = `
                 SELECT COUNT(*) as count
                 FROM Positions
-                WHERE position_code = @positionCode
+                WHERE position_name = @positionName
             `;
 
             if (excludeId) {
@@ -616,7 +616,7 @@ class Position {
             const result = await request.query(query);
             return result.recordset[0].count > 0;
         } catch (error) {
-            console.error('Error checking position code:', error);
+            console.error('Error checking position name:', error);
             return false;
         }
     }

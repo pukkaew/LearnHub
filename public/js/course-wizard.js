@@ -800,6 +800,8 @@ async function loadCategories() {
 
 // Store all positions for filtering
 let allPositions = [];
+// Store selected positions persistently across department changes
+let persistentSelectedPositions = new Set();
 
 async function loadPositions() {
     try {
@@ -808,25 +810,131 @@ async function loadPositions() {
 
         if (result.success) {
             allPositions = result.data; // Store for cascading
-            const select = document.getElementById('target_positions');
-            select.innerHTML = '';
-
-            // Add all positions initially
-            result.data.forEach(position => {
-                const option = document.createElement('option');
-                option.value = position.position_id;
-                option.textContent = position.position_name;
-                option.dataset.unitId = position.unit_id || '';
-                option.dataset.level = position.level || '';
-                select.appendChild(option);
-            });
-
+            populatePositionsSelect(result.data);
             console.log(`✅ Loaded ${result.data.length} positions`);
         }
     } catch (error) {
         console.error('❌ Error loading positions:', error);
         const select = document.getElementById('target_positions');
-        select.innerHTML = '<option value="" disabled>ไม่สามารถโหลดข้อมูลได้</option>';
+        if (select) {
+            select.innerHTML = '<option value="" disabled>ไม่สามารถโหลดข้อมูลได้</option>';
+        }
+    }
+}
+
+function populatePositionsSelect(positions, filterByDepts = []) {
+    const select = document.getElementById('target_positions');
+    if (!select) return;
+
+    // Update persistent selection with current selections before clearing
+    Array.from(select.selectedOptions).forEach(opt => {
+        persistentSelectedPositions.add(opt.value);
+    });
+    // Remove deselected ones from current view
+    Array.from(select.options).forEach(opt => {
+        if (!opt.selected) {
+            persistentSelectedPositions.delete(opt.value);
+        }
+    });
+
+    select.innerHTML = '';
+
+    // Filter by selected departments if any
+    let filteredPositions = positions;
+    if (filterByDepts.length > 0) {
+        filteredPositions = positions.filter(pos => {
+            const posUnitId = pos.unit_id;
+            return filterByDepts.includes(String(posUnitId));
+        });
+    }
+
+    // Also include previously selected positions that might be from other departments
+    const selectedFromOtherDepts = positions.filter(pos => {
+        const isSelected = persistentSelectedPositions.has(String(pos.position_id));
+        const isInCurrentFilter = filteredPositions.some(fp => fp.position_id === pos.position_id);
+        return isSelected && !isInCurrentFilter;
+    });
+
+    // Combine: selected from other depts first, then filtered
+    const combinedPositions = [...selectedFromOtherDepts, ...filteredPositions];
+
+    if (combinedPositions.length === 0) {
+        if (filterByDepts.length > 0) {
+            select.innerHTML = '<option value="" disabled>ไม่พบตำแหน่งในแผนกที่เลือก</option>';
+        } else {
+            select.innerHTML = '<option value="" disabled>ไม่พบข้อมูลตำแหน่ง</option>';
+        }
+        return;
+    }
+
+    // Add selected from other departments first (with marker)
+    selectedFromOtherDepts.forEach(pos => {
+        const option = document.createElement('option');
+        option.value = pos.position_id;
+        option.textContent = `★ ${pos.position_name} (เลือกไว้แล้ว)`;
+        option.dataset.unitId = pos.unit_id || '';
+        option.dataset.level = pos.level || '';
+        option.selected = true;
+        option.style.backgroundColor = '#e8f5e9';
+        select.appendChild(option);
+    });
+
+    // Add filtered positions
+    filteredPositions.forEach(pos => {
+        const option = document.createElement('option');
+        option.value = pos.position_id;
+        option.textContent = pos.position_name;
+        option.dataset.unitId = pos.unit_id || '';
+        option.dataset.level = pos.level || '';
+        // Re-select if was selected before
+        if (persistentSelectedPositions.has(String(pos.position_id))) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+}
+
+function filterPositionsByDepartments() {
+    const deptSelect = document.getElementById('target_departments');
+    if (!deptSelect) return;
+
+    const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => opt.value);
+    populatePositionsSelect(allPositions, selectedDepts);
+}
+
+function clearAllPositions() {
+    const select = document.getElementById('target_positions');
+    if (select) {
+        Array.from(select.options).forEach(opt => opt.selected = false);
+        persistentSelectedPositions.clear();
+        filterPositionsByDepartments();
+    }
+}
+
+function clearAllDepartments() {
+    const select = document.getElementById('target_departments');
+    if (select) {
+        Array.from(select.options).forEach(opt => opt.selected = false);
+        filterPositionsByDepartments();
+    }
+}
+
+// Toggle global course (for all departments/positions)
+function toggleGlobalCourse() {
+    const checkbox = document.getElementById('is_global_course');
+    const targetAudienceSection = document.getElementById('target-audience-selection');
+
+    if (!checkbox || !targetAudienceSection) return;
+
+    if (checkbox.checked) {
+        // Hide department/position selection and disable
+        targetAudienceSection.classList.add('opacity-50', 'pointer-events-none');
+        // Clear all selections
+        clearAllDepartments();
+        clearAllPositions();
+    } else {
+        // Show department/position selection
+        targetAudienceSection.classList.remove('opacity-50', 'pointer-events-none');
     }
 }
 
@@ -837,6 +945,8 @@ async function loadDepartments() {
 
         if (result.success) {
             const select = document.getElementById('target_departments');
+            if (!select) return;
+
             // Clear loading message
             select.innerHTML = '';
 
@@ -862,12 +972,17 @@ async function loadDepartments() {
                 });
             });
 
+            // Add change event to filter positions
+            select.addEventListener('change', filterPositionsByDepartments);
+
             console.log(`✅ Loaded ${result.data.length} departments`);
         }
     } catch (error) {
         console.error('❌ Error loading departments:', error);
         const select = document.getElementById('target_departments');
-        select.innerHTML = '<option value="" disabled>ไม่สามารถโหลดข้อมูลได้</option>';
+        if (select) {
+            select.innerHTML = '<option value="" disabled>ไม่สามารถโหลดข้อมูลได้</option>';
+        }
     }
 }
 
@@ -1402,14 +1517,24 @@ function collectFormData(videoPaths = []) {
     const deptSelect = document.getElementById('target_departments');
     const posSelect = document.getElementById('target_positions');
 
-    if (deptSelect) {
-        const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => opt.value);
-        data.target_departments = selectedDepts.length > 0 ? selectedDepts : undefined;
-    }
+    // Check if global course checkbox is checked
+    const isGlobalCourse = document.getElementById('is_global_course');
+    if (isGlobalCourse && isGlobalCourse.checked) {
+        data.is_global_course = true;
+        // Clear target selections when global is checked
+        data.target_departments = undefined;
+        data.target_positions = undefined;
+    } else {
+        data.is_global_course = false;
+        if (deptSelect) {
+            const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => opt.value);
+            data.target_departments = selectedDepts.length > 0 ? selectedDepts : undefined;
+        }
 
-    if (posSelect) {
-        const selectedPos = Array.from(posSelect.selectedOptions).map(opt => opt.value);
-        data.target_positions = selectedPos.length > 0 ? selectedPos : undefined;
+        if (posSelect) {
+            const selectedPos = Array.from(posSelect.selectedOptions).map(opt => opt.value);
+            data.target_positions = selectedPos.length > 0 ? selectedPos : undefined;
+        }
     }
 
     // Convert Thai date format to ISO
@@ -1472,14 +1597,7 @@ function setupEventListeners() {
     setupEnhancedMultiSelect();
 
     // Cascading dropdown: Department → Position
-    const deptSelect = document.getElementById('target_departments');
-    const posSelect = document.getElementById('target_positions');
-
-    if (deptSelect && posSelect) {
-        deptSelect.addEventListener('change', function() {
-            filterPositionsByDepartment();
-        });
-    }
+    // Event listener is now added in loadDepartments() using filterPositionsByDepartments()
 }
 
 // Enhanced multi-select: Click to toggle selection
@@ -1524,80 +1642,20 @@ function setupEnhancedMultiSelect() {
 
     if (clearDeptBtn) {
         clearDeptBtn.addEventListener('click', function() {
-            const deptSelect = document.getElementById('target_departments');
-            if (deptSelect) {
-                // Deselect all options and clear colors
-                Array.from(deptSelect.options).forEach(opt => {
-                    opt.selected = false;
-                    opt.style.backgroundColor = '';
-                    opt.style.color = '';
-                });
-                // Trigger change for cascading
-                deptSelect.dispatchEvent(new Event('change'));
-                console.log('✅ Cleared all departments');
-            }
+            clearAllDepartments();
+            console.log('✅ Cleared all departments');
         });
     }
 
     if (clearPosBtn) {
         clearPosBtn.addEventListener('click', function() {
-            const posSelect = document.getElementById('target_positions');
-            if (posSelect) {
-                // Deselect all options and clear colors
-                Array.from(posSelect.options).forEach(opt => {
-                    opt.selected = false;
-                    opt.style.backgroundColor = '';
-                    opt.style.color = '';
-                });
-                console.log('✅ Cleared all positions');
-            }
+            clearAllPositions();
+            console.log('✅ Cleared all positions');
         });
     }
 }
 
-// Filter positions based on selected departments
-function filterPositionsByDepartment() {
-    const deptSelect = document.getElementById('target_departments');
-    const posSelect = document.getElementById('target_positions');
-
-    if (!deptSelect || !posSelect || allPositions.length === 0) return;
-
-    const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => parseInt(opt.value));
-
-    // Clear current positions
-    posSelect.innerHTML = '';
-
-    if (selectedDepts.length === 0) {
-        // No department selected → show all positions
-        allPositions.forEach(position => {
-            const option = document.createElement('option');
-            option.value = position.position_id;
-            option.textContent = position.position_name;
-            option.dataset.unitId = position.unit_id || '';
-            posSelect.appendChild(option);
-        });
-        console.log('✅ Showing all positions (no department filter)');
-    } else {
-        // Filter positions by selected departments
-        const filteredPositions = allPositions.filter(p =>
-            p.unit_id && selectedDepts.includes(parseInt(p.unit_id))
-        );
-
-        if (filteredPositions.length === 0) {
-            posSelect.innerHTML = '<option value="" disabled>ไม่มีตำแหน่งในหน่วยงานที่เลือก</option>';
-            console.log('⚠️ No positions found for selected departments');
-        } else {
-            filteredPositions.forEach(position => {
-                const option = document.createElement('option');
-                option.value = position.position_id;
-                option.textContent = position.position_name;
-                option.dataset.unitId = position.unit_id || '';
-                posSelect.appendChild(option);
-            });
-            console.log(`✅ Filtered to ${filteredPositions.length} positions for selected departments`);
-        }
-    }
-}
+// Old filterPositionsByDepartment removed - now using filterPositionsByDepartments with persistent selection
 
 // Utility functions
 function showSuccess(message, persistent = true) {

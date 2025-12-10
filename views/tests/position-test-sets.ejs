@@ -1,0 +1,571 @@
+<%- include('../layouts/header') %>
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-clipboard-list text-ruxchai-primary mr-3"></i>
+                    จัดการชุดข้อสอบตามตำแหน่ง
+                </h1>
+                <p class="mt-1 text-gray-600">กำหนดข้อสอบหลายชุดสำหรับแต่ละตำแหน่งงาน</p>
+            </div>
+            <a href="/tests" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>กลับ
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Position List -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-4 border-b border-gray-200 bg-gray-50">
+                        <h2 class="font-semibold text-gray-900">
+                            <i class="fas fa-briefcase mr-2"></i>ตำแหน่งงาน
+                        </h2>
+                    </div>
+                    <div class="p-4">
+                        <input type="text" id="positionSearch" placeholder="ค้นหาตำแหน่ง..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
+
+                        <div id="positionList" class="space-y-2 max-h-96 overflow-y-auto">
+                            <!-- Loading -->
+                            <div class="text-center py-8 text-gray-500">
+                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-ruxchai-primary mx-auto mb-2"></div>
+                                กำลังโหลด...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Set Configuration -->
+            <div class="lg:col-span-2">
+                <!-- Position Detail -->
+                <div id="positionDetail" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-hand-pointer text-4xl mb-3"></i>
+                        <p>เลือกตำแหน่งจากรายการทางซ้ายเพื่อจัดการชุดข้อสอบ</p>
+                    </div>
+                </div>
+
+                <!-- Test Set List (hidden until position selected) -->
+                <div id="testSetSection" class="hidden">
+                    <!-- Config Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                        <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                            <h2 class="font-semibold text-gray-900">
+                                <i class="fas fa-cog mr-2"></i>การตั้งค่าเกณฑ์ผ่าน
+                            </h2>
+                            <button onclick="toggleConfigEdit()" class="text-sm text-ruxchai-primary hover:underline">
+                                <i class="fas fa-edit mr-1"></i>แก้ไข
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <div id="configDisplay" class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                                <!-- Config will be displayed here -->
+                            </div>
+                            <div id="configEdit" class="hidden space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">เกณฑ์การผ่าน</label>
+                                        <select id="passingCriteria" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                            <option value="all_pass">ต้องผ่านทุกข้อสอบบังคับ</option>
+                                            <option value="average">คะแนนเฉลี่ยถึงเกณฑ์</option>
+                                            <option value="min_tests">ผ่านจำนวนข้อสอบขั้นต่ำ</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">คะแนนเฉลี่ยขั้นต่ำ (%)</label>
+                                        <input type="number" id="minAverageScore" min="0" max="100" value="60"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนข้อสอบขั้นต่ำที่ต้องผ่าน</label>
+                                        <input type="number" id="minTestsToPass" min="1" value="1"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนครั้งที่สอบได้ต่อข้อสอบ</label>
+                                        <input type="number" id="maxAttempts" min="1" value="1"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button onclick="toggleConfigEdit()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">ยกเลิก</button>
+                                    <button onclick="saveConfig()" class="px-4 py-2 bg-ruxchai-primary text-white rounded-lg">บันทึก</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tests in Set -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                            <h2 class="font-semibold text-gray-900">
+                                <i class="fas fa-list-check mr-2"></i>ข้อสอบในชุด
+                            </h2>
+                            <button onclick="showAddTestModal()" class="px-4 py-2 bg-ruxchai-primary text-white rounded-lg text-sm">
+                                <i class="fas fa-plus mr-2"></i>เพิ่มข้อสอบ
+                            </button>
+                        </div>
+                        <div id="testSetList" class="p-4">
+                            <!-- Tests will be listed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Test Modal -->
+<div id="addTestModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-plus-circle text-ruxchai-primary mr-2"></i>
+                    เพิ่มข้อสอบในชุด
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เลือกข้อสอบ</label>
+                    <select id="selectTest" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="">-- เลือกข้อสอบ --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">หมวดหมู่</label>
+                    <select id="testCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="">ไม่ระบุ</option>
+                        <option value="language">ภาษา</option>
+                        <option value="general">ความรู้ทั่วไป</option>
+                        <option value="specific">เฉพาะตำแหน่ง</option>
+                        <option value="personality">บุคลิกภาพ</option>
+                        <option value="aptitude">ความถนัด</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">น้ำหนักคะแนน (%)</label>
+                        <input type="number" id="weightPercent" min="1" max="100" value="100"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เกณฑ์ผ่านเฉพาะ (%)</label>
+                        <input type="number" id="passingScoreOverride" min="0" max="100" placeholder="ใช้ค่าเริ่มต้น"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="isRequired" checked class="mr-2">
+                    <label for="isRequired" class="text-sm text-gray-700">ข้อสอบบังคับ</label>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="hideAddTestModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">ยกเลิก</button>
+                <button onclick="addTestToSet()" class="px-4 py-2 bg-ruxchai-primary text-white rounded-lg">เพิ่มข้อสอบ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global state
+let positions = [];
+let availableTests = [];
+let selectedPositionId = null;
+let currentTestSet = [];
+let currentConfig = null;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadPositions();
+    loadAvailableTests();
+
+    // Search filter
+    document.getElementById('positionSearch').addEventListener('input', filterPositions);
+});
+
+// Load positions
+async function loadPositions() {
+    try {
+        const response = await fetch('/api/positions');
+        const data = await response.json();
+
+        if (data.success) {
+            positions = data.data || [];
+            renderPositionList();
+        }
+    } catch (error) {
+        console.error('Error loading positions:', error);
+    }
+}
+
+// Load available tests
+async function loadAvailableTests() {
+    try {
+        const response = await fetch('/tests/api/all?status=Published');
+        const data = await response.json();
+
+        if (data.success) {
+            availableTests = data.data || [];
+        }
+    } catch (error) {
+        console.error('Error loading tests:', error);
+    }
+}
+
+// Render position list
+function renderPositionList() {
+    const container = document.getElementById('positionList');
+    const searchTerm = document.getElementById('positionSearch').value.toLowerCase();
+
+    const filtered = positions.filter(p =>
+        p.position_name?.toLowerCase().includes(searchTerm) ||
+        p.unit_name_th?.toLowerCase().includes(searchTerm)
+    );
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-inbox text-3xl mb-2"></i>
+                <p>ไม่พบตำแหน่ง</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = filtered.map(p => `
+        <div onclick="selectPosition(${p.position_id})"
+             class="p-3 rounded-lg cursor-pointer transition-all hover:bg-gray-100 ${selectedPositionId === p.position_id ? 'bg-ruxchai-primary/10 border border-ruxchai-primary' : 'border border-gray-200'}">
+            <div class="font-medium text-gray-900">${p.position_name || 'ไม่ระบุชื่อ'}</div>
+            <div class="text-sm text-gray-500">${p.unit_name_th || ''}</div>
+        </div>
+    `).join('');
+}
+
+// Filter positions
+function filterPositions() {
+    renderPositionList();
+}
+
+// Select position
+async function selectPosition(positionId) {
+    selectedPositionId = positionId;
+    renderPositionList();
+
+    const position = positions.find(p => p.position_id === positionId);
+
+    // Update detail section
+    document.getElementById('positionDetail').innerHTML = `
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
+            <h2 class="font-semibold text-gray-900">
+                <i class="fas fa-briefcase mr-2"></i>${position?.position_name || 'ตำแหน่ง'}
+            </h2>
+            <p class="text-sm text-gray-500">${position?.unit_name_th || ''}</p>
+        </div>
+    `;
+
+    document.getElementById('testSetSection').classList.remove('hidden');
+
+    // Load test set and config
+    await loadTestSet(positionId);
+    await loadConfig(positionId);
+}
+
+// Load test set for position
+async function loadTestSet(positionId) {
+    try {
+        const response = await fetch(`/tests/api/position-test-sets/${positionId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            currentTestSet = data.data || [];
+            renderTestSetList();
+        }
+    } catch (error) {
+        console.error('Error loading test set:', error);
+        currentTestSet = [];
+        renderTestSetList();
+    }
+}
+
+// Load config for position
+async function loadConfig(positionId) {
+    try {
+        const response = await fetch(`/tests/api/position-test-config/${positionId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            currentConfig = data.data;
+            renderConfig();
+        }
+    } catch (error) {
+        console.error('Error loading config:', error);
+    }
+}
+
+// Render test set list
+function renderTestSetList() {
+    const container = document.getElementById('testSetList');
+
+    if (currentTestSet.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-inbox text-3xl mb-2"></i>
+                <p>ยังไม่มีข้อสอบในชุด</p>
+                <p class="text-sm">คลิก "เพิ่มข้อสอบ" เพื่อเพิ่มข้อสอบ</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="space-y-3">
+            ${currentTestSet.map((test, index) => `
+                <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-all" data-set-id="${test.set_id}">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 w-8 h-8 bg-ruxchai-primary text-white rounded-full flex items-center justify-center font-bold">
+                            ${test.test_order || index + 1}
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900">
+                                ${test.test_title}
+                                ${test.is_required ? '<span class="text-red-500 ml-1">*</span>' : ''}
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-gray-500">
+                                ${test.test_category ? `
+                                    <span class="px-2 py-0.5 bg-gray-100 rounded-full">${getCategoryLabel(test.test_category)}</span>
+                                ` : ''}
+                                <span><i class="fas fa-question-circle mr-1"></i>${test.question_count || 0} ข้อ</span>
+                                <span><i class="fas fa-clock mr-1"></i>${test.time_limit || 0} นาที</span>
+                                <span><i class="fas fa-balance-scale mr-1"></i>${test.weight_percent || 100}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="moveTestUp(${test.set_id})" class="p-2 text-gray-400 hover:text-gray-600" title="เลื่อนขึ้น" ${index === 0 ? 'disabled' : ''}>
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button onclick="moveTestDown(${test.set_id})" class="p-2 text-gray-400 hover:text-gray-600" title="เลื่อนลง" ${index === currentTestSet.length - 1 ? 'disabled' : ''}>
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                        <button onclick="removeTest(${test.set_id})" class="p-2 text-red-400 hover:text-red-600" title="ลบ">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Render config
+function renderConfig() {
+    if (!currentConfig) return;
+
+    const criteriaLabels = {
+        'all_pass': 'ต้องผ่านทุกข้อสอบบังคับ',
+        'average': 'คะแนนเฉลี่ยถึงเกณฑ์',
+        'min_tests': 'ผ่านจำนวนข้อสอบขั้นต่ำ'
+    };
+
+    document.getElementById('configDisplay').innerHTML = `
+        <div class="p-3 bg-blue-50 rounded-lg">
+            <div class="text-xs text-blue-600 mb-1">เกณฑ์การผ่าน</div>
+            <div class="font-medium text-blue-900">${criteriaLabels[currentConfig.passing_criteria] || currentConfig.passing_criteria}</div>
+        </div>
+        <div class="p-3 bg-green-50 rounded-lg">
+            <div class="text-xs text-green-600 mb-1">คะแนนเฉลี่ยขั้นต่ำ</div>
+            <div class="font-medium text-green-900">${currentConfig.min_average_score || 60}%</div>
+        </div>
+        <div class="p-3 bg-purple-50 rounded-lg">
+            <div class="text-xs text-purple-600 mb-1">สอบได้ต่อข้อสอบ</div>
+            <div class="font-medium text-purple-900">${currentConfig.max_attempts_per_test || 1} ครั้ง</div>
+        </div>
+    `;
+
+    // Update form values
+    document.getElementById('passingCriteria').value = currentConfig.passing_criteria || 'all_pass';
+    document.getElementById('minAverageScore').value = currentConfig.min_average_score || 60;
+    document.getElementById('minTestsToPass').value = currentConfig.min_tests_to_pass || 1;
+    document.getElementById('maxAttempts').value = currentConfig.max_attempts_per_test || 1;
+}
+
+// Toggle config edit
+function toggleConfigEdit() {
+    document.getElementById('configDisplay').classList.toggle('hidden');
+    document.getElementById('configEdit').classList.toggle('hidden');
+}
+
+// Save config
+async function saveConfig() {
+    try {
+        const configData = {
+            passing_criteria: document.getElementById('passingCriteria').value,
+            min_average_score: parseInt(document.getElementById('minAverageScore').value),
+            min_tests_to_pass: parseInt(document.getElementById('minTestsToPass').value),
+            max_attempts_per_test: parseInt(document.getElementById('maxAttempts').value)
+        };
+
+        const response = await fetch(`/tests/api/position-test-config/${selectedPositionId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(configData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('บันทึกการตั้งค่าสำเร็จ', 'success');
+            await loadConfig(selectedPositionId);
+            toggleConfigEdit();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving config:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Show add test modal
+function showAddTestModal() {
+    // Populate test select
+    const select = document.getElementById('selectTest');
+    const usedTestIds = currentTestSet.map(t => t.test_id);
+
+    select.innerHTML = '<option value="">-- เลือกข้อสอบ --</option>' +
+        availableTests
+            .filter(t => !usedTestIds.includes(t.test_id))
+            .map(t => `<option value="${t.test_id}">${t.title}</option>`)
+            .join('');
+
+    document.getElementById('addTestModal').classList.remove('hidden');
+}
+
+// Hide add test modal
+function hideAddTestModal() {
+    document.getElementById('addTestModal').classList.add('hidden');
+}
+
+// Add test to set
+async function addTestToSet() {
+    const testId = document.getElementById('selectTest').value;
+    if (!testId) {
+        showMessage('กรุณาเลือกข้อสอบ', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/tests/api/position-test-sets/${selectedPositionId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                test_id: parseInt(testId),
+                test_category: document.getElementById('testCategory').value || null,
+                weight_percent: parseInt(document.getElementById('weightPercent').value) || 100,
+                passing_score_override: document.getElementById('passingScoreOverride').value
+                    ? parseInt(document.getElementById('passingScoreOverride').value)
+                    : null,
+                is_required: document.getElementById('isRequired').checked
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('เพิ่มข้อสอบสำเร็จ', 'success');
+            hideAddTestModal();
+            await loadTestSet(selectedPositionId);
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding test:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Move test up
+async function moveTestUp(setId) {
+    const index = currentTestSet.findIndex(t => t.set_id === setId);
+    if (index <= 0) return;
+
+    await updateTestOrder(setId, currentTestSet[index - 1].test_order);
+    await loadTestSet(selectedPositionId);
+}
+
+// Move test down
+async function moveTestDown(setId) {
+    const index = currentTestSet.findIndex(t => t.set_id === setId);
+    if (index >= currentTestSet.length - 1) return;
+
+    await updateTestOrder(setId, currentTestSet[index + 1].test_order);
+    await loadTestSet(selectedPositionId);
+}
+
+// Update test order
+async function updateTestOrder(setId, newOrder) {
+    try {
+        await fetch(`/tests/api/position-test-sets/${setId}/order`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ test_order: newOrder })
+        });
+    } catch (error) {
+        console.error('Error updating order:', error);
+    }
+}
+
+// Remove test from set
+async function removeTest(setId) {
+    if (!confirm('ต้องการลบข้อสอบนี้ออกจากชุดหรือไม่?')) return;
+
+    try {
+        const response = await fetch(`/tests/api/position-test-sets/${setId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('ลบข้อสอบสำเร็จ', 'success');
+            await loadTestSet(selectedPositionId);
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error removing test:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Helper functions
+function getCategoryLabel(category) {
+    const labels = {
+        'language': 'ภาษา',
+        'general': 'ความรู้ทั่วไป',
+        'specific': 'เฉพาะตำแหน่ง',
+        'personality': 'บุคลิกภาพ',
+        'aptitude': 'ความถนัด'
+    };
+    return labels[category] || category;
+}
+
+function showMessage(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
+
+<%- include('../layouts/footer') %>

@@ -142,15 +142,20 @@ const authMiddleware = {
 
     // Set user data in request
     setUserData: async (req, res, next) => {
+        console.log('🔐 setUserData - req.session exists:', !!req.session);
+        console.log('🔐 setUserData - req.session.user exists:', !!req.session?.user);
         if (req.session && req.session.user) {
             try {
+                console.log('🔐 setUserData - Fetching user from DB for user_id:', req.session.user.user_id);
                 // Get fresh user data
                 const user = await User.findById(req.session.user.user_id);
+                console.log('🔐 setUserData - User found:', !!user, 'is_active:', user?.is_active);
                 if (user && user.is_active) {
                     req.session.user = user;
                     req.user = user;
                     res.locals.user = user;
                     res.locals.isAuthenticated = true;
+                    console.log('🔐 setUserData - req.user set with role_name:', user.role_name);
                 } else {
                     // User no longer exists or is inactive
                     if (req.session && typeof req.session.destroy === 'function') {

@@ -132,7 +132,7 @@ class Test {
                            c.title as course_name,
                            CONCAT(u.first_name, ' ', u.last_name) as instructor_name,
                            (SELECT COUNT(*) FROM questions WHERE test_id = t.test_id) as question_count,
-                           (SELECT COUNT(*) FROM TestAttempts WHERE test_id = t.test_id) as attempt_count,
+                           (SELECT COUNT(DISTINCT user_id) FROM TestAttempts WHERE test_id = t.test_id) as attempt_count,
                            (SELECT AVG(CAST(score AS FLOAT)) FROM TestAttempts WHERE test_id = t.test_id AND status = 'Completed') as avg_score
                     FROM tests t
                     LEFT JOIN courses c ON t.course_id = c.course_id
@@ -187,14 +187,24 @@ class Test {
             const result = await pool.request()
                 .input('positionId', sql.Int, positionId)
                 .query(`
-                    SELECT t.*,
+                    SELECT DISTINCT t.*,
                            p.position_name,
-                           (SELECT COUNT(*) FROM questions WHERE test_id = t.test_id) as question_count
+                           (SELECT COUNT(*) FROM questions WHERE test_id = t.test_id) as question_count,
+                           COALESCE(tp.test_order, 999) as test_order
                     FROM tests t
                     LEFT JOIN positions p ON t.position_id = p.position_id
-                    WHERE t.position_id = @positionId
-                      AND t.status = 'Published'
-                    ORDER BY t.created_at DESC
+                    LEFT JOIN TestPositions tp ON t.test_id = tp.test_id AND tp.position_id = @positionId AND tp.is_active = 1
+                    WHERE t.status = 'Published'
+                      AND t.type IN ('job_application_test', 'aptitude_test', 'personality_test')
+                      AND (
+                          -- Global tests (for all positions)
+                          t.is_global_applicant_test = 1
+                          -- Tests assigned via TestPositions table (many-to-many)
+                          OR tp.position_id IS NOT NULL
+                          -- Legacy: Tests with direct position_id (old column)
+                          OR t.position_id = @positionId
+                      )
+                    ORDER BY test_order, t.created_at DESC
                 `);
 
             return result.recordset;
@@ -358,7 +368,7 @@ class Test {
         }
     }
 
-    // Get attempt by ID
+    // Get attempt by ID (for users)
     static async getAttemptById(attemptId) {
         try {
             const pool = await poolPromise;
@@ -383,6 +393,36 @@ class Test {
         } catch (error) {
             console.error('Error getting attempt:', error);
             throw new Error(`Error getting attempt: ${error.message}`);
+        }
+    }
+
+    // Get applicant attempt by ID (for applicants)
+    static async getApplicantAttemptById(attemptId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('attemptId', sql.Int, attemptId)
+                .query(`
+                    SELECT ata.*,
+                           t.title as test_name,
+                           t.time_limit,
+                           t.passing_marks,
+                           t.total_marks,
+                           CONCAT(a.first_name, ' ', a.last_name) as applicant_name
+                    FROM ApplicantTestAttempts ata
+                    JOIN Tests t ON ata.test_id = t.test_id
+                    JOIN Applicants a ON ata.applicant_id = a.applicant_id
+                    WHERE ata.attempt_id = @attemptId
+                `);
+
+            if (result.recordset.length === 0) {
+                return null;
+            }
+
+            return result.recordset[0];
+        } catch (error) {
+            console.error('Error getting applicant attempt:', error);
+            throw new Error(`Error getting applicant attempt: ${error.message}`);
         }
     }
 
@@ -1092,6 +1132,171 @@ class Test {
         }
     }
 
+    // ============ Test Positions Management ============
+
+    /**
+     * Get positions assigned to a test
+     */
+    static async getTestPositions(testId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('testId', sql.Int, testId)
+                .query(`
+                    SELECT tp.*, p.position_name, p.position_type
+                    FROM TestPositions tp
+                    JOIN Positions p ON tp.position_id = p.position_id
+                    WHERE tp.test_id = @testId AND tp.is_active = 1
+                    ORDER BY tp.test_order
+                `);
+            return result.recordset;
+        } catch (error) {
+            console.error('Error getting test positions:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Set positions for a test (replaces existing)
+     */
+    static async setTestPositions(testId, positionIds, options = {}) {
+        try {
+            const pool = await poolPromise;
+
+            // Deactivate existing positions
+            await pool.request()
+                .input('testId', sql.Int, testId)
+                .query(`UPDATE TestPositions SET is_active = 0 WHERE test_id = @testId`);
+
+            if (!positionIds || positionIds.length === 0) {
+                return { success: true, message: 'All positions removed' };
+            }
+
+            // Add new positions
+            for (let i = 0; i < positionIds.length; i++) {
+                const positionId = positionIds[i];
+
+                // Check if exists (inactive)
+                const existCheck = await pool.request()
+                    .input('testId', sql.Int, testId)
+                    .input('positionId', sql.Int, positionId)
+                    .query(`
+                        SELECT id FROM TestPositions
+                        WHERE test_id = @testId AND position_id = @positionId
+                    `);
+
+                if (existCheck.recordset.length > 0) {
+                    // Reactivate
+                    await pool.request()
+                        .input('testId', sql.Int, testId)
+                        .input('positionId', sql.Int, positionId)
+                        .input('testOrder', sql.Int, i + 1)
+                        .input('isRequired', sql.Bit, options.is_required !== false ? 1 : 0)
+                        .query(`
+                            UPDATE TestPositions
+                            SET is_active = 1, test_order = @testOrder, is_required = @isRequired
+                            WHERE test_id = @testId AND position_id = @positionId
+                        `);
+                } else {
+                    // Insert new
+                    await pool.request()
+                        .input('testId', sql.Int, testId)
+                        .input('positionId', sql.Int, positionId)
+                        .input('testOrder', sql.Int, i + 1)
+                        .input('isRequired', sql.Bit, options.is_required !== false ? 1 : 0)
+                        .input('weightPercent', sql.Int, options.weight_percent || 100)
+                        .query(`
+                            INSERT INTO TestPositions (test_id, position_id, test_order, is_required, weight_percent)
+                            VALUES (@testId, @positionId, @testOrder, @isRequired, @weightPercent)
+                        `);
+                }
+            }
+
+            return { success: true, message: `${positionIds.length} positions assigned` };
+        } catch (error) {
+            console.error('Error setting test positions:', error);
+            return { success: false, message: error.message };
+        }
+    }
+
+    /**
+     * Set test as global (all positions must take this test)
+     */
+    static async setGlobalApplicantTest(testId, isGlobal) {
+        try {
+            const pool = await poolPromise;
+            await pool.request()
+                .input('testId', sql.Int, testId)
+                .input('isGlobal', sql.Bit, isGlobal ? 1 : 0)
+                .query(`
+                    UPDATE Tests
+                    SET is_global_applicant_test = @isGlobal
+                    WHERE test_id = @testId
+                `);
+            return { success: true };
+        } catch (error) {
+            console.error('Error setting global test:', error);
+            return { success: false, message: error.message };
+        }
+    }
+
+    /**
+     * Get all tests for a position (including global tests)
+     */
+    static async getTestsForPosition(positionId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('positionId', sql.Int, positionId)
+                .query(`
+                    SELECT DISTINCT
+                        t.*,
+                        tp.test_order,
+                        tp.is_required as position_required,
+                        tp.passing_score_override,
+                        tp.weight_percent,
+                        CASE WHEN t.is_global_applicant_test = 1 THEN 'global'
+                             WHEN tp.id IS NOT NULL THEN 'position'
+                             ELSE 'none' END as assignment_type,
+                        (SELECT COUNT(*) FROM Questions WHERE test_id = t.test_id AND is_active = 1) as question_count
+                    FROM Tests t
+                    LEFT JOIN TestPositions tp ON t.test_id = tp.test_id
+                        AND tp.position_id = @positionId AND tp.is_active = 1
+                    WHERE t.status = 'Published'
+                      AND t.type IN ('job_application_test', 'aptitude_test', 'pre_employment_test')
+                      AND (t.is_global_applicant_test = 1 OR tp.id IS NOT NULL)
+                    ORDER BY
+                        CASE WHEN t.is_global_applicant_test = 1 THEN 0 ELSE 1 END,
+                        ISNULL(tp.test_order, 999),
+                        t.created_at
+                `);
+            return result.recordset;
+        } catch (error) {
+            console.error('Error getting tests for position:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get all global applicant tests
+     */
+    static async getGlobalApplicantTests() {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request().query(`
+                SELECT t.*,
+                       (SELECT COUNT(*) FROM Questions WHERE test_id = t.test_id AND is_active = 1) as question_count
+                FROM Tests t
+                WHERE t.is_global_applicant_test = 1
+                  AND t.status = 'Published'
+                ORDER BY t.created_at
+            `);
+            return result.recordset;
+        } catch (error) {
+            console.error('Error getting global tests:', error);
+            return [];
+        }
+    }
 }
 
 module.exports = Test;

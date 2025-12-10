@@ -410,21 +410,33 @@ class Applicant {
             `);
 
             // Get paginated data - use ApplicantTestAttempts for test results
+            // Use subquery to aggregate test results (avoid duplicate rows when multiple tests completed)
             const result = await request.query(`
                 SELECT a.*,
                        p.position_name,
                        d.department_name,
-                       ata.percentage as test_score,
-                       ata.percentage,
-                       CASE WHEN ata.percentage >= ISNULL(t.passing_marks, 60) THEN 1 ELSE 0 END as passed,
-                       ata.started_at as test_start_time,
-                       ata.completed_at as test_end_time,
-                       CASE WHEN ata.status = 'Completed' THEN 1 ELSE 0 END as test_completed
+                       test_summary.avg_score as test_score,
+                       test_summary.avg_score as percentage,
+                       CASE WHEN test_summary.avg_score >= 60 THEN 1 ELSE 0 END as passed,
+                       test_summary.first_start as test_start_time,
+                       test_summary.last_complete as test_end_time,
+                       CASE WHEN test_summary.completed_count > 0 THEN 1 ELSE 0 END as test_completed,
+                       test_summary.completed_count,
+                       test_summary.total_tests
                 FROM Applicants a
                 LEFT JOIN positions p ON a.position_id = p.position_id
                 LEFT JOIN Departments d ON p.department_id = d.department_id
-                LEFT JOIN ApplicantTestAttempts ata ON a.applicant_id = ata.applicant_id AND ata.status = 'Completed'
-                LEFT JOIN Tests t ON ata.test_id = t.test_id
+                LEFT JOIN (
+                    SELECT
+                        applicant_id,
+                        AVG(percentage) as avg_score,
+                        MIN(started_at) as first_start,
+                        MAX(completed_at) as last_complete,
+                        COUNT(CASE WHEN status = 'Completed' THEN 1 END) as completed_count,
+                        COUNT(*) as total_tests
+                    FROM ApplicantTestAttempts
+                    GROUP BY applicant_id
+                ) test_summary ON a.applicant_id = test_summary.applicant_id
                 ${whereClause}
                 ORDER BY a.created_at DESC
                 OFFSET @offset ROWS

@@ -1,231 +1,196 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header Section -->
-        <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div class="mb-4 md:mb-0">
-                    <h1 class="text-3xl font-bold text-white mb-2">Knowledge Sharing Hub</h1>
-                    <p class="text-white/80"><%= t('knowledgeSharingHubDesc') %></p>
-                </div>
-                <button id="createArticleBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-plus mr-2"></i><%= t('writeNewArticle') %>
-                </button>
+    <!-- Header Section -->
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-3xl font-bold text-white mb-2"><%= t('knowledgeSharingHub') || 'ศูนย์แบ่งปันความรู้' %></h1>
+                <p class="text-white/80"><%= t('knowledgeSharingHubDesc') || 'แบ่งปันความรู้และประสบการณ์กับเพื่อนร่วมงาน' %></p>
             </div>
+            <a href="/articles/create" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                <i class="fas fa-plus mr-2"></i><%= t('writeNewArticle') || 'เขียนบทความใหม่' %>
+            </a>
         </div>
+    </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <div class="flex items-center">
-                    <div class="bg-blue-100 p-3 rounded-lg">
-                        <i class="fas fa-newspaper text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500"><%= t('allArticles') %></h3>
-                        <p id="totalArticles" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center">
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <i class="fas fa-newspaper text-blue-600 text-xl"></i>
                 </div>
-            </div>
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <div class="flex items-center">
-                    <div class="bg-green-100 p-3 rounded-lg">
-                        <i class="fas fa-eye text-green-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500"><%= t('totalViews') %></h3>
-                        <p id="totalViews" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <div class="flex items-center">
-                    <div class="bg-purple-100 p-3 rounded-lg">
-                        <i class="fas fa-heart text-purple-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500"><%= t('totalLikes') %></h3>
-                        <p id="totalLikes" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <div class="flex items-center">
-                    <div class="bg-orange-100 p-3 rounded-lg">
-                        <i class="fas fa-comments text-orange-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500"><%= t('comments') %></h3>
-                        <p id="totalComments" class="text-2xl font-bold text-gray-900">0</p>
-                    </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500"><%= t('allArticles') || 'บทความทั้งหมด' %></h3>
+                    <p id="totalArticles" class="text-2xl font-bold text-gray-900">0</p>
                 </div>
             </div>
         </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center">
+                <div class="bg-green-100 p-3 rounded-lg">
+                    <i class="fas fa-eye text-green-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500"><%= t('totalViews') || 'ยอดเข้าชม' %></h3>
+                    <p id="totalViews" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center">
+                <div class="bg-purple-100 p-3 rounded-lg">
+                    <i class="fas fa-heart text-purple-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500"><%= t('totalLikes') || 'ถูกใจ' %></h3>
+                    <p id="totalLikes" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center">
+                <div class="bg-orange-100 p-3 rounded-lg">
+                    <i class="fas fa-comments text-orange-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500"><%= t('comments') || 'ความคิดเห็น' %></h3>
+                    <p id="totalComments" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Filters and Search -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-<%= (userRole === 'Admin' || userRole === 'Instructor') ? '4' : '3' %> gap-4">
+            <div class="<%= (userRole === 'Admin' || userRole === 'Instructor') ? '' : 'md:col-span-1' %>">
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('search') || 'ค้นหา' %></label>
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchArticles" placeholder="<%= t('searchArticlesPlaceholder') %>"
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
+                    <input type="text" id="searchArticles" placeholder="<%= t('searchArticlesPlaceholder') || 'ค้นหาบทความ...' %>"
+                           class="form-input-ruxchai pl-10"
+                           maxlength="200"
+                           autocomplete="off">
                 </div>
-                <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value=""><%= t('allCategories') %></option>
-                    <option value="technology"><%= t('technology') %></option>
-                    <option value="business"><%= t('business') %></option>
-                    <option value="management"><%= t('management') %></option>
-                    <option value="development"><%= t('development') %></option>
-                    <option value="design"><%= t('design') %></option>
-                    <option value="marketing"><%= t('marketing') %></option>
-                    <option value="finance"><%= t('finance') %></option>
-                    <option value="other"><%= t('other') %></option>
-                </select>
-                <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value="latest"><%= t('latest') %></option>
-                    <option value="popular"><%= t('popular') %></option>
-                    <option value="most_viewed"><%= t('mostViewed') %></option>
-                    <option value="most_liked"><%= t('mostLiked') %></option>
-                    <option value="oldest"><%= t('oldest') %></option>
-                </select>
-                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                    <option value=""><%= t('allStatuses') %></option>
-                    <option value="published"><%= t('publishedStatus') %></option>
-                    <option value="draft"><%= t('draft') %></option>
-                    <option value="pending"><%= t('pending') %></option>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('category') || 'หมวดหมู่' %></label>
+                <select id="categoryFilter" class="form-select-ruxchai">
+                    <option value=""><%= t('allCategories') || 'ทุกหมวดหมู่' %></option>
+                    <option value="technology"><%= t('technology') || 'เทคโนโลยี' %></option>
+                    <option value="business"><%= t('business') || 'ธุรกิจ' %></option>
+                    <option value="management"><%= t('management') || 'การจัดการ' %></option>
+                    <option value="development"><%= t('development') || 'การพัฒนา' %></option>
+                    <option value="design"><%= t('design') || 'การออกแบบ' %></option>
+                    <option value="marketing"><%= t('marketing') || 'การตลาด' %></option>
+                    <option value="finance"><%= t('finance') || 'การเงิน' %></option>
+                    <option value="other"><%= t('other') || 'อื่นๆ' %></option>
                 </select>
             </div>
-        </div>
-
-        <!-- View Toggle -->
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex space-x-2">
-                <button id="gridViewBtn" class="view-toggle-btn active px-4 py-2 rounded-lg transition-colors">
-                    <i class="fas fa-th mr-2"></i><%= t('gridView') %>
-                </button>
-                <button id="listViewBtn" class="view-toggle-btn px-4 py-2 rounded-lg transition-colors">
-                    <i class="fas fa-list mr-2"></i><%= t('listView') %>
-                </button>
+            <% if (userRole === 'Admin' || userRole === 'Instructor') { %>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('status') || 'สถานะ' %></label>
+                <select id="statusFilter" class="form-select-ruxchai">
+                    <option value=""><%= t('allStatuses') || 'ทุกสถานะ' %></option>
+                    <option value="published"><%= t('published') || 'เผยแพร่แล้ว' %></option>
+                    <option value="draft"><%= t('draft') || 'แบบร่าง' %></option>
+                    <option value="pending"><%= t('pending') || 'รอตรวจสอบ' %></option>
+                </select>
             </div>
-            <div class="text-sm text-gray-500">
-                <%= t('showing') %><span id="articlesCount">0</span> <%= t('articlesText') %>
+            <% } %>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('sortByLabel') || 'เรียงลำดับ' %></label>
+                <select id="sortBy" class="form-select-ruxchai">
+                    <option value="latest"><%= t('latest') || 'ใหม่ล่าสุด' %></option>
+                    <option value="popular"><%= t('popular') || 'ยอดนิยม' %></option>
+                    <option value="most_viewed"><%= t('mostViewed') || 'ดูมากสุด' %></option>
+                    <option value="most_liked"><%= t('mostLiked') || 'ถูกใจมากสุด' %></option>
+                    <option value="oldest"><%= t('oldest') || 'เก่าสุด' %></option>
+                </select>
             </div>
         </div>
-
-        <!-- Articles Grid/List -->
-        <div id="articlesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Articles will be loaded here -->
-        </div>
-
-        <!-- Pagination -->
-        <div id="pagination" class="flex justify-center space-x-2">
-            <!-- Pagination will be loaded here -->
-        </div>
-</div>
-
-<!-- Create Article Modal -->
-<div id="createArticleModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-900"><%= t('writeNewArticle') %></h3>
-                <button id="closeCreateModal" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+        <div class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <button id="clearFiltersBtn" class="text-gray-500 hover:text-gray-700 transition-colors text-sm">
+                <i class="fas fa-times mr-1"></i><%= t('clearFilters') || 'ล้างตัวกรอง' %>
+            </button>
+            <div class="flex items-center space-x-4">
+                <!-- View Mode Toggle -->
+                <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                    <button id="listViewBtn" class="view-mode-btn active px-3 py-2 text-sm" title="<%= t('listView') || 'มุมมองรายการ' %>">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button id="gridViewBtn" class="view-mode-btn px-3 py-2 text-sm" title="<%= t('gridView') || 'มุมมองตาราง' %>">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+                <div class="text-sm text-gray-500">
+                    <span class="font-medium text-gray-700" id="articlesCount">0</span> <%= t('articlesText') || 'บทความ' %>
+                </div>
             </div>
-            <form id="createArticleForm" class="p-6 space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('articleTitle') %> *</label>
-                    <input type="text" name="title" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('category') %> *</label>
-                    <select name="category" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                        <option value=""><%= t('selectCategory') %></option>
-                        <option value="technology"><%= t('technology') %></option>
-                        <option value="business"><%= t('business') %></option>
-                        <option value="management"><%= t('management') %></option>
-                        <option value="development"><%= t('development') %></option>
-                        <option value="design"><%= t('design') %></option>
-                        <option value="marketing"><%= t('marketing') %></option>
-                        <option value="finance"><%= t('finance') %></option>
-                        <option value="other"><%= t('other') %></option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('summary') %></label>
-                    <textarea name="summary" rows="3"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                              placeholder="<%= t('briefSummaryArticle') %>"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('articleContent') %> *</label>
-                    <div id="articleEditor" class="border border-gray-300 rounded-lg" style="height: 300px;"></div>
-                    <input type="hidden" name="content" id="articleContent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('tags') %></label>
-                    <input type="text" name="tags"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent"
-                           placeholder="<%= t('separateTagsWithCommaExample') %>">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('featuredImage') %></label>
-                    <input type="file" name="featured_image" accept="image/*"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent">
-                </div>
-                <div class="flex justify-between items-center pt-4 border-t">
-                    <div class="flex space-x-4">
-                        <label class="flex items-center">
-                            <input type="radio" name="status" value="draft" checked class="mr-2">
-                            <span class="text-sm text-gray-700"><%= t('saveAsDraft') %></span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="status" value="published" class="mr-2">
-                            <span class="text-sm text-gray-700"><%= t('publishNow') %></span>
-                        </label>
-                    </div>
-                    <div class="flex space-x-3">
-                        <button type="button" id="cancelCreate" class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                            <%= t('cancel') %>
-                        </button>
-                        <button type="submit" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90">
-                            <%= t('saveArticle') %>
-                        </button>
-                    </div>
-                </div>
-            </form>
         </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16">
+        <div class="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-newspaper text-gray-400 text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2"><%= t('noArticlesFound') || 'ไม่พบบทความ' %></h3>
+        <p class="text-gray-500 mb-6"><%= t('noArticlesFoundDesc') || 'ยังไม่มีบทความในระบบ หรือไม่พบบทความที่ตรงกับเงื่อนไขการค้นหา' %></p>
+        <a href="/articles/create" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i><%= t('writeFirstArticle') || 'เขียนบทความแรก' %>
+        </a>
+    </div>
+
+    <!-- Articles Grid/List -->
+    <div id="articlesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 hidden">
+        <!-- Articles will be loaded here -->
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center space-x-2">
+        <!-- Pagination will be loaded here -->
     </div>
 </div>
 
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+.view-mode-btn {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+.view-mode-btn:hover {
+    background-color: #e5e7eb;
+}
+.view-mode-btn.active {
+    background-color: var(--primary-color, #3b82f6);
+    color: white;
+}
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
 
 <script>
-// Initialize Quill editor
-let quill;
-document.addEventListener('DOMContentLoaded', function() {
-    quill = new Quill('#articleEditor', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                ['blockquote', 'code-block'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'script': 'sub'}, { 'script': 'super' }],
-                [{ 'indent': '-1'}, { 'indent': '+1' }],
-                ['link', 'image'],
-                ['clean']
-            ]
-        }
-    });
-});
-
 // Global variables
+const userRole = '<%= userRole || "User" %>';
+const currentUserId = <%= user?.user_id || 0 %>;
 let currentPage = 1;
-let currentView = 'grid';
+let currentView = 'list';
 let articles = [];
 
 // Initialize page
@@ -236,63 +201,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Event listeners
 function setupEventListeners() {
-    // Create article modal
-    document.getElementById('createArticleBtn').addEventListener('click', () => {
-        document.getElementById('createArticleModal').classList.remove('hidden');
-    });
-
-    document.getElementById('closeCreateModal').addEventListener('click', closeCreateModal);
-    document.getElementById('cancelCreate').addEventListener('click', closeCreateModal);
-
-    // Form submission
-    document.getElementById('createArticleForm').addEventListener('submit', handleCreateArticle);
-
     // Search and filters
     document.getElementById('searchArticles').addEventListener('input', debounce(loadArticles, 300));
-    document.getElementById('categoryFilter').addEventListener('change', loadArticles);
-    document.getElementById('sortBy').addEventListener('change', loadArticles);
-    document.getElementById('statusFilter').addEventListener('change', loadArticles);
+    document.getElementById('categoryFilter').addEventListener('change', () => { currentPage = 1; loadArticles(); });
+    document.getElementById('sortBy').addEventListener('change', () => { currentPage = 1; loadArticles(); });
+
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', () => { currentPage = 1; loadArticles(); });
+    }
+
+    // Clear filters
+    document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
 
     // View toggle
     document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
     document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
 }
 
+// Clear all filters
+function clearFilters() {
+    document.getElementById('searchArticles').value = '';
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('sortBy').value = 'latest';
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.value = '';
+    }
+    currentPage = 1;
+    loadArticles();
+}
+
 // Load articles
 async function loadArticles() {
     try {
+        showLoading(true);
+
         const search = document.getElementById('searchArticles').value;
         const category = document.getElementById('categoryFilter').value;
         const sort = document.getElementById('sortBy').value;
-        const status = document.getElementById('statusFilter').value;
+        const statusFilter = document.getElementById('statusFilter');
+        const status = statusFilter ? statusFilter.value : '';
 
         const params = new URLSearchParams({
             page: currentPage,
-            search,
-            category,
-            sort,
-            status
+            limit: 12
         });
+
+        if (search) params.append('search', search);
+        if (category) params.append('category', category);
+        if (sort) params.append('sort', sort);
+        if (status) params.append('status', status);
 
         const response = await fetch(`/articles/api/list?${params}`);
         const data = await response.json();
 
         if (data.success) {
-            articles = data.articles;
+            articles = data.data || [];
             displayArticles();
-            updateStats(data.stats);
-            updatePagination(data.pagination);
-            document.getElementById('articlesCount').textContent = data.pagination.total;
+            updateStats(data.stats || {});
+            updatePagination(data.pagination || { page: 1, totalPages: 1, total: 0 });
+            document.getElementById('articlesCount').textContent = data.pagination?.total || articles.length;
+        } else {
+            showError(data.message || '<%= t("errorLoadingData") || "เกิดข้อผิดพลาดในการโหลดข้อมูล" %>');
         }
     } catch (error) {
         console.error('Error loading articles:', error);
-        showMessage('<%= t('errorLoadingData') %>', 'error');
+        showError('<%= t("errorLoadingData") || "เกิดข้อผิดพลาดในการโหลดข้อมูล" %>');
+    } finally {
+        showLoading(false);
     }
+}
+
+// Show/hide loading state
+function showLoading(show) {
+    document.getElementById('loadingState').classList.toggle('hidden', !show);
+    document.getElementById('articlesContainer').classList.toggle('hidden', show);
 }
 
 // Display articles
 function displayArticles() {
     const container = document.getElementById('articlesContainer');
+    const emptyState = document.getElementById('emptyState');
+
+    if (articles.length === 0) {
+        container.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+    container.classList.remove('hidden');
 
     if (currentView === 'grid') {
         container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8';
@@ -307,12 +306,15 @@ function displayArticles() {
 function createArticleCard(article) {
     const statusBadge = getStatusBadge(article.status);
     const categoryBadge = getCategoryBadge(article.category);
+    const canEdit = userRole === 'Admin' || article.author_id === currentUserId;
+    const canDelete = userRole === 'Admin' || article.author_id === currentUserId;
 
     return `
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group">
             <div class="relative">
                 <img src="${article.featured_image || '/images/default-article.jpg'}"
-                     alt="${article.title}" class="w-full h-48 object-cover">
+                     alt="${escapeHtml(article.title)}" class="w-full h-48 object-cover"
+                     onerror="this.src='/images/default-article.jpg'">
                 <div class="absolute top-4 left-4">
                     ${statusBadge}
                 </div>
@@ -321,42 +323,45 @@ function createArticleCard(article) {
                 </div>
             </div>
             <div class="p-6">
-                <h3 class="font-bold text-gray-900 mb-2 group-hover:text-ruxchai-primary transition-colors line-clamp-2">
-                    <a href="/articles/${article.article_id}">${article.title}</a>
+                <h3 class="font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <a href="/articles/${article.article_id}">${escapeHtml(article.title)}</a>
                 </h3>
-                <p class="text-gray-600 text-sm mb-4 line-clamp-3">${article.summary || ''}</p>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-3">${escapeHtml(article.excerpt || article.summary || '')}</p>
 
                 <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                     <div class="flex items-center space-x-4">
-                        <span><i class="fas fa-eye mr-1"></i>${article.views || 0}</span>
-                        <span><i class="fas fa-heart mr-1"></i>${article.likes || 0}</span>
-                        <span><i class="fas fa-comment mr-1"></i>${article.comments || 0}</span>
+                        <span><i class="fas fa-eye mr-1"></i>${article.views_count || 0}</span>
+                        <span><i class="fas fa-heart mr-1"></i>${article.likes_count || 0}</span>
+                        <span><i class="fas fa-comment mr-1"></i>${article.comments_count || 0}</span>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
-                        <img src="${article.author_avatar || '/images/default-avatar.png'}"
-                             alt="${article.author_name}" class="w-8 h-8 rounded-full">
+                        <img src="${article.author_image || '/images/default-avatar.png'}"
+                             alt="${escapeHtml(article.author_name || '')}" class="w-8 h-8 rounded-full"
+                             onerror="this.src='/images/default-avatar.png'">
                         <div>
-                            <p class="text-sm font-medium text-gray-900">${article.author_name}</p>
+                            <p class="text-sm font-medium text-gray-900">${escapeHtml(article.author_name || 'ไม่ระบุ')}</p>
                             <p class="text-xs text-gray-500">${formatDate(article.created_at)}</p>
                         </div>
                     </div>
+                    ${canEdit || canDelete ? `
                     <div class="flex space-x-2">
-                        ${article.can_edit ? `
-                            <button onclick="editArticle(${article.article_id})"
-                                    class="text-blue-600 hover:text-blue-800 p-1">
+                        ${canEdit ? `
+                            <a href="/articles/${article.article_id}/edit"
+                               class="text-blue-600 hover:text-blue-800 p-1" title="<%= t('edit') || 'แก้ไข' %>">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </a>
                         ` : ''}
-                        ${article.can_delete ? `
+                        ${canDelete ? `
                             <button onclick="deleteArticle(${article.article_id})"
-                                    class="text-red-600 hover:text-red-800 p-1">
+                                    class="text-red-600 hover:text-red-800 p-1" title="<%= t('delete') || 'ลบ' %>">
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : ''}
                     </div>
+                    ` : ''}
                 </div>
             </div>
         </div>
@@ -367,18 +372,21 @@ function createArticleCard(article) {
 function createArticleListItem(article) {
     const statusBadge = getStatusBadge(article.status);
     const categoryBadge = getCategoryBadge(article.category);
+    const canEdit = userRole === 'Admin' || article.author_id === currentUserId;
+    const canDelete = userRole === 'Admin' || article.author_id === currentUserId;
 
     return `
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
             <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-6">
                 <div class="md:w-48 flex-shrink-0">
                     <img src="${article.featured_image || '/images/default-article.jpg'}"
-                         alt="${article.title}" class="w-full h-32 object-cover rounded-lg">
+                         alt="${escapeHtml(article.title)}" class="w-full h-32 object-cover rounded-lg"
+                         onerror="this.src='/images/default-article.jpg'">
                 </div>
                 <div class="flex-1">
                     <div class="flex items-start justify-between mb-2">
-                        <h3 class="font-bold text-xl text-gray-900 hover:text-ruxchai-primary transition-colors">
-                            <a href="/articles/${article.article_id}">${article.title}</a>
+                        <h3 class="font-bold text-xl text-gray-900 hover:text-blue-600 transition-colors">
+                            <a href="/articles/${article.article_id}">${escapeHtml(article.title)}</a>
                         </h3>
                         <div class="flex space-x-2 ml-4">
                             ${statusBadge}
@@ -386,32 +394,33 @@ function createArticleListItem(article) {
                         </div>
                     </div>
 
-                    <p class="text-gray-600 mb-4 line-clamp-2">${article.summary || ''}</p>
+                    <p class="text-gray-600 mb-4 line-clamp-2">${escapeHtml(article.excerpt || article.summary || '')}</p>
 
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-2">
-                            <img src="${article.author_avatar || '/images/default-avatar.png'}"
-                                 alt="${article.author_name}" class="w-8 h-8 rounded-full">
+                            <img src="${article.author_image || '/images/default-avatar.png'}"
+                                 alt="${escapeHtml(article.author_name || '')}" class="w-8 h-8 rounded-full"
+                                 onerror="this.src='/images/default-avatar.png'">
                             <div>
-                                <p class="text-sm font-medium text-gray-900">${article.author_name}</p>
+                                <p class="text-sm font-medium text-gray-900">${escapeHtml(article.author_name || 'ไม่ระบุ')}</p>
                                 <p class="text-xs text-gray-500">${formatDate(article.created_at)}</p>
                             </div>
                         </div>
 
                         <div class="flex items-center space-x-6 text-sm text-gray-500">
-                            <span><i class="fas fa-eye mr-1"></i>${article.views || 0}</span>
-                            <span><i class="fas fa-heart mr-1"></i>${article.likes || 0}</span>
-                            <span><i class="fas fa-comment mr-1"></i>${article.comments || 0}</span>
+                            <span><i class="fas fa-eye mr-1"></i>${article.views_count || 0}</span>
+                            <span><i class="fas fa-heart mr-1"></i>${article.likes_count || 0}</span>
+                            <span><i class="fas fa-comment mr-1"></i>${article.comments_count || 0}</span>
 
-                            ${article.can_edit || article.can_delete ? `
+                            ${canEdit || canDelete ? `
                                 <div class="flex space-x-2 ml-4">
-                                    ${article.can_edit ? `
-                                        <button onclick="editArticle(${article.article_id})"
-                                                class="text-blue-600 hover:text-blue-800 p-1">
+                                    ${canEdit ? `
+                                        <a href="/articles/${article.article_id}/edit"
+                                           class="text-blue-600 hover:text-blue-800 p-1">
                                             <i class="fas fa-edit"></i>
-                                        </button>
+                                        </a>
                                     ` : ''}
-                                    ${article.can_delete ? `
+                                    ${canDelete ? `
                                         <button onclick="deleteArticle(${article.article_id})"
                                                 class="text-red-600 hover:text-red-800 p-1">
                                             <i class="fas fa-trash"></i>
@@ -430,33 +439,33 @@ function createArticleListItem(article) {
 // Status badge
 function getStatusBadge(status) {
     const badges = {
-        published: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><%= t('publishedStatus') %></span>',
-        draft: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"><%= t('draft') %></span>',
-        pending: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full"><%= t('pending') %></span>'
+        published: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><%= t("published") || "เผยแพร่" %></span>',
+        draft: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"><%= t("draft") || "แบบร่าง" %></span>',
+        pending: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full"><%= t("pending") || "รอตรวจสอบ" %></span>'
     };
-    return badges[status] || '';
+    return badges[status?.toLowerCase()] || '';
 }
 
 // Category badge
 function getCategoryBadge(category) {
     const badges = {
-        technology: '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"><%= t('technology') %></span>',
-        business: '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"><%= t('business') %></span>',
-        management: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><%= t('management') %></span>',
-        development: '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full"><%= t('development') %></span>',
-        design: '<span class="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded-full"><%= t('design') %></span>',
-        marketing: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"><%= t('marketing') %></span>',
-        finance: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full"><%= t('finance') %></span>',
-        other: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"><%= t('other') %></span>'
+        technology: '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"><%= t("technology") || "เทคโนโลยี" %></span>',
+        business: '<span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"><%= t("business") || "ธุรกิจ" %></span>',
+        management: '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"><%= t("management") || "การจัดการ" %></span>',
+        development: '<span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full"><%= t("development") || "การพัฒนา" %></span>',
+        design: '<span class="px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded-full"><%= t("design") || "การออกแบบ" %></span>',
+        marketing: '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"><%= t("marketing") || "การตลาด" %></span>',
+        finance: '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full"><%= t("finance") || "การเงิน" %></span>',
+        other: '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"><%= t("other") || "อื่นๆ" %></span>'
     };
-    return badges[category] || '';
+    return badges[category?.toLowerCase()] || '';
 }
 
 // Switch view
 function switchView(view) {
     currentView = view;
 
-    document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 
@@ -469,77 +478,35 @@ function switchView(view) {
     displayArticles();
 }
 
-// Handle create article
-async function handleCreateArticle(e) {
-    e.preventDefault();
-
-    try {
-        const formData = new FormData(e.target);
-        formData.set('content', quill.root.innerHTML);
-
-        const response = await fetch('/articles/create', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showMessage('<%= t('articleSavedSuccessfully') %>', 'success');
-            closeCreateModal();
-            loadArticles();
-        } else {
-            showMessage(data.message || '<%= t('errorOccurred') %>', 'error');
-        }
-    } catch (error) {
-        console.error('Error creating article:', error);
-        showMessage('<%= t('errorSaving') %>', 'error');
-    }
-}
-
-// Close create modal
-function closeCreateModal() {
-    document.getElementById('createArticleModal').classList.add('hidden');
-    document.getElementById('createArticleForm').reset();
-    if (quill) {
-        quill.setContents([]);
-    }
-}
-
-// Edit article
-function editArticle(articleId) {
-    window.location.href = `/articles/${articleId}/edit`;
-}
-
 // Delete article
 async function deleteArticle(articleId) {
-    if (!confirm('<%= t('confirmDeleteArticle') %>')) return;
+    if (!confirm('<%= t("confirmDeleteArticle") || "คุณต้องการลบบทความนี้หรือไม่?" %>')) return;
 
     try {
-        const response = await fetch(`/articles/${articleId}`, {
+        const response = await fetch(`/articles/api/${articleId}`, {
             method: 'DELETE'
         });
 
         const data = await response.json();
 
         if (data.success) {
-            showMessage('<%= t('articleDeletedSuccessfully') %>', 'success');
+            showMessage('<%= t("articleDeletedSuccessfully") || "ลบบทความเรียบร้อยแล้ว" %>', 'success');
             loadArticles();
         } else {
-            showMessage(data.message || '<%= t('errorOccurred') %>', 'error');
+            showMessage(data.message || '<%= t("errorOccurred") || "เกิดข้อผิดพลาด" %>', 'error');
         }
     } catch (error) {
         console.error('Error deleting article:', error);
-        showMessage('<%= t('errorDeleting') %>', 'error');
+        showMessage('<%= t("errorDeleting") || "เกิดข้อผิดพลาดในการลบ" %>', 'error');
     }
 }
 
 // Update stats
 function updateStats(stats) {
-    document.getElementById('totalArticles').textContent = stats.total_articles || 0;
-    document.getElementById('totalViews').textContent = stats.total_views || 0;
-    document.getElementById('totalLikes').textContent = stats.total_likes || 0;
-    document.getElementById('totalComments').textContent = stats.total_comments || 0;
+    document.getElementById('totalArticles').textContent = formatNumber(stats.total_articles || 0);
+    document.getElementById('totalViews').textContent = formatNumber(stats.total_views || 0);
+    document.getElementById('totalLikes').textContent = formatNumber(stats.total_likes || 0);
+    document.getElementById('totalComments').textContent = formatNumber(stats.total_comments || 0);
 }
 
 // Update pagination
@@ -547,23 +514,23 @@ function updatePagination(pagination) {
     const container = document.getElementById('pagination');
     container.innerHTML = '';
 
-    if (pagination.total_pages <= 1) return;
+    const totalPages = pagination.totalPages || 1;
+    if (totalPages <= 1) return;
 
     // Previous button
-    if (pagination.current_page > 1) {
+    if (currentPage > 1) {
         const prevBtn = document.createElement('button');
         prevBtn.className = 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
         prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
-        prevBtn.onclick = () => goToPage(pagination.current_page - 1);
+        prevBtn.onclick = () => goToPage(currentPage - 1);
         container.appendChild(prevBtn);
     }
 
     // Page numbers
-    for (let i = Math.max(1, pagination.current_page - 2);
-         i <= Math.min(pagination.total_pages, pagination.current_page + 2); i++) {
+    for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
         const pageBtn = document.createElement('button');
-        pageBtn.className = i === pagination.current_page
-            ? 'px-3 py-2 bg-ruxchai-primary text-white rounded-lg'
+        pageBtn.className = i === currentPage
+            ? 'px-3 py-2 bg-blue-600 text-white rounded-lg'
             : 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
         pageBtn.textContent = i;
         pageBtn.onclick = () => goToPage(i);
@@ -571,11 +538,11 @@ function updatePagination(pagination) {
     }
 
     // Next button
-    if (pagination.current_page < pagination.total_pages) {
+    if (currentPage < totalPages) {
         const nextBtn = document.createElement('button');
         nextBtn.className = 'px-3 py-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg';
         nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        nextBtn.onclick = () => goToPage(pagination.current_page + 1);
+        nextBtn.onclick = () => goToPage(currentPage + 1);
         container.appendChild(nextBtn);
     }
 }
@@ -584,18 +551,35 @@ function updatePagination(pagination) {
 function goToPage(page) {
     currentPage = page;
     loadArticles();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Utility functions
 function formatDate(dateString) {
+    if (!dateString) return '-';
     const options = {
         year: 'numeric',
         month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        day: 'numeric'
     };
     return new Date(dateString).toLocaleDateString('th-TH', options);
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    }
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function debounce(func, wait) {
@@ -611,9 +595,8 @@ function debounce(func, wait) {
 }
 
 function showMessage(message, type = 'info') {
-    // Create and show message notification
     const messageDiv = document.createElement('div');
-    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white ${
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white shadow-lg ${
         type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
     }`;
     messageDiv.textContent = message;
@@ -625,30 +608,7 @@ function showMessage(message, type = 'info') {
     }, 3000);
 }
 
-// Add CSS for view toggle buttons
-const style = document.createElement('style');
-style.textContent = `
-    .view-toggle-btn {
-        background-color: #f3f4f6;
-        color: #6b7280;
-    }
-    .view-toggle-btn.active {
-        background-color: var(--ruxchai-primary);
-        color: white;
-    }
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-`;
-document.head.appendChild(style);
+function showError(message) {
+    showMessage(message, 'error');
+}
 </script>
-

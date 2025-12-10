@@ -651,6 +651,11 @@ function createManageButtons(test) {
 
     const hasAttempts = test.attempt_count && test.attempt_count > 0;
 
+    const currentStatus = test.status;
+    const isPublished = currentStatus === 'Published' || currentStatus === 'Active';
+    const isDraft = currentStatus === 'Draft';
+    const isInactive = currentStatus === 'Inactive';
+
     return `
         <div class="relative inline-block" onclick="event.stopPropagation()">
             <button onclick="toggleTestMenu(${test.test_id})" class="btn-ruxchai-outline text-sm px-2 py-1.5">
@@ -658,16 +663,22 @@ function createManageButtons(test) {
             </button>
             <div id="test-menu-${test.test_id}" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                 <div class="py-1">
-                    <button onclick="quickUpdateStatus(${test.test_id}, 'Published')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-eye mr-2 text-green-500"></i>${i18n.published}
+                    <button onclick="quickUpdateStatus(${test.test_id}, 'Published')" class="flex items-center w-full text-left px-4 py-2 text-sm ${isPublished ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'} hover:bg-gray-100">
+                        <i class="fas fa-eye mr-2 text-green-500"></i>
+                        <span class="flex-1">${i18n.published}</span>
+                        ${isPublished ? '<i class="fas fa-check text-blue-600 text-xs"></i>' : ''}
                     </button>
                     ${!hasAttempts ? `
-                    <button onclick="quickUpdateStatus(${test.test_id}, 'Draft')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-file-alt mr-2 text-yellow-500"></i>${i18n.draft}
+                    <button onclick="quickUpdateStatus(${test.test_id}, 'Draft')" class="flex items-center w-full text-left px-4 py-2 text-sm ${isDraft ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'} hover:bg-gray-100">
+                        <i class="fas fa-file-alt mr-2 text-yellow-500"></i>
+                        <span class="flex-1">${i18n.draft}</span>
+                        ${isDraft ? '<i class="fas fa-check text-blue-600 text-xs"></i>' : ''}
                     </button>
                     ` : ''}
-                    <button onclick="quickUpdateStatus(${test.test_id}, 'Inactive')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <i class="fas fa-eye-slash mr-2 text-gray-500"></i>${i18n.inactive}
+                    <button onclick="quickUpdateStatus(${test.test_id}, 'Inactive')" class="flex items-center w-full text-left px-4 py-2 text-sm ${isInactive ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'} hover:bg-gray-100">
+                        <i class="fas fa-eye-slash mr-2 text-gray-500"></i>
+                        <span class="flex-1">${i18n.inactive}</span>
+                        ${isInactive ? '<i class="fas fa-check text-blue-600 text-xs"></i>' : ''}
                     </button>
                     ${userRole === 'Admin' && !hasAttempts ? `
                     <hr class="my-1">
@@ -1248,7 +1259,9 @@ async function quickUpdateStatus(testId, newStatus) {
 
         if (result.success) {
             showSuccess(i18n.updateSuccess);
-            loadTests(1); // Reload the list
+            // Force reload from page 1 to refresh all data
+            currentPage = 1;
+            loadTests(1);
         } else {
             showError(result.message || i18n.updateError);
         }

@@ -70,9 +70,15 @@
 
                         <div>
                             <label for="test_code" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testCode') %> <span class="text-red-500">*</span></label>
-                            <input type="text" id="test_code" name="test_code" required
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                   placeholder="TEST-001">
+                            <div class="flex items-center">
+                                <input type="text" id="test_code" name="test_code" required readonly
+                                       class="flex-1 rounded-md border-gray-300 bg-gray-50 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                       value="TEST-2025-0001">
+                                <button type="button" onclick="generateTestCode()" class="ml-2 px-3 py-2 text-sm text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-sync-alt"></i> สร้างใหม่
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">รหัสถูกสร้างอัตโนมัติ</p>
                         </div>
 
                         <div>
@@ -124,20 +130,80 @@
 
                         <!-- Position Selection for Recruitment Tests -->
                         <div id="position-selection" class="md:col-span-2 hidden">
-                            <label for="position_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-briefcase text-ruxchai-primary mr-1"></i>
-                                <%= t('selectPosition') || 'Select Job Position' %> <span class="text-red-500">*</span>
-                            </label>
-                            <select id="position_id" name="position_id"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value=""><%= t('selectPositionPlaceholder') || 'Select job position for this test' %></option>
-                                <% if (typeof positions !== 'undefined' && positions && positions.length > 0) { %>
-                                    <% positions.forEach(position => { %>
-                                        <option value="<%= position.position_id %>"><%= position.name %></option>
-                                    <% }); %>
-                                <% } %>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1"><%= t('positionTestHint') || 'This test will be used for applicants applying to this position' %></p>
+                            <!-- Global Test Checkbox -->
+                            <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" id="is_global_applicant_test" name="is_global_applicant_test"
+                                           class="w-5 h-5 rounded border-amber-300 text-amber-600 focus:ring-amber-500 mr-3"
+                                           onchange="toggleGlobalTest()">
+                                    <div>
+                                        <span class="font-medium text-amber-900">
+                                            <i class="fas fa-globe mr-1"></i>
+                                            ข้อสอบกลาง (ทุกตำแหน่งต้องสอบ)
+                                        </span>
+                                        <p class="text-xs text-amber-700 mt-1">เลือกตัวเลือกนี้หากต้องการให้ผู้สมัครทุกตำแหน่งต้องสอบข้อสอบนี้</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Department & Position Selection (Course Style) -->
+                            <div id="position-multi-select" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Department Selection -->
+                                <div>
+                                    <label for="target_departments" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span class="inline-flex items-center">
+                                            <span class="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">1</span>
+                                            แผนก/หน่วยงาน
+                                        </span>
+                                        <span class="text-gray-400 text-xs ml-7">(เลือกก่อน เพื่อกรองตำแหน่ง)</span>
+                                    </label>
+                                    <select id="target_departments" name="target_departments[]" multiple size="8"
+                                            class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2"
+                                            style="height: auto;">
+                                        <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
+                                    </select>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <p class="text-xs text-gray-600">
+                                            <i class="fas fa-mouse-pointer text-blue-500"></i> <strong>คลิก</strong> เพื่อเลือก/ยกเลิก
+                                        </p>
+                                        <button type="button" id="clear-departments-btn"
+                                                class="text-xs text-red-600 hover:text-red-800 hover:underline">
+                                            <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Position Selection -->
+                                <div>
+                                    <label for="target_positions" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span class="inline-flex items-center">
+                                            <span class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2">2</span>
+                                            ตำแหน่งที่ต้องสอบ
+                                        </span>
+                                        <span class="text-gray-400 text-xs ml-7">(ไม่เลือก = ทุกตำแหน่ง)</span>
+                                    </label>
+                                    <select id="target_positions" name="target_positions[]" multiple size="8"
+                                            class="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-2 focus:ring-green-200 p-2"
+                                            style="height: auto;">
+                                        <option value="" disabled class="text-gray-400">กำลังโหลดข้อมูล...</option>
+                                    </select>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <p class="text-xs text-gray-600">
+                                            <i class="fas fa-filter text-green-500"></i> กรองตามแผนกที่เลือก
+                                        </p>
+                                        <button type="button" id="clear-positions-btn"
+                                                class="text-xs text-red-600 hover:text-red-800 hover:underline">
+                                            <i class="fas fa-times-circle"></i> ล้างทั้งหมด
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        <span id="selected-positions-count">เลือกแล้ว 0 ตำแหน่ง</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Hidden field for legacy support -->
+                            <input type="hidden" id="position_id" name="position_id" value="">
                         </div>
 
                         <!-- Course Assessment Structure Display -->
@@ -605,6 +671,19 @@ let questions = [];
 let editingQuestionIndex = -1;
 let autoSaveTimer = null;
 
+// Generate test code automatically (like course code)
+function generateTestCode() {
+    const year = new Date().getFullYear();
+    const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+    const code = `TEST-${year}-${random}`;
+
+    const input = document.getElementById('test_code');
+    if (input) {
+        input.value = code;
+    }
+    return code;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Note: Courses are already loaded server-side via EJS template
     // No need to call loadCourses() which would create duplicate options
@@ -613,12 +692,46 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDraftFromStorage();
     enableAutoSave();
     setupBeforeUnloadWarning();
+
+    // Generate initial test code
+    generateTestCode();
 });
 
 function handleCourseChange() {
     loadChapters();
     loadCourseAssessmentStructure();
     updateRequiredFields();
+    updatePositionSelectionVisibility();
+}
+
+// Show/hide position selection based on course selection
+function updatePositionSelectionVisibility() {
+    const testType = document.getElementById('test_type').value;
+    const courseId = document.getElementById('course_id').value;
+    const positionSelection = document.getElementById('position-selection');
+
+    // Types that require course (chapter_test, lesson_test) - don't show position selection
+    const courseRequiredTypes = ['chapter_test', 'lesson_test'];
+
+    // Recruitment types - always show position selection (no course)
+    const recruitmentTestTypes = ['job_application_test', 'aptitude_test', 'personality_test'];
+
+    if (courseRequiredTypes.includes(testType)) {
+        // Course-required tests: no position selection needed
+        positionSelection.classList.add('hidden');
+    } else if (recruitmentTestTypes.includes(testType)) {
+        // Recruitment tests: always show position selection
+        positionSelection.classList.remove('hidden');
+    } else {
+        // Other test types: show position selection only if NO course selected
+        if (courseId && courseId !== '') {
+            // Course selected - hide position selection (use course's target audience)
+            positionSelection.classList.add('hidden');
+        } else {
+            // No course selected - show position selection
+            positionSelection.classList.remove('hidden');
+        }
+    }
 }
 
 // Handle test type change - enforce course/chapter selection for chapter_test/lesson_test
@@ -674,13 +787,21 @@ function handleTestTypeChange() {
     chapterField.classList.remove('hidden');
     lessonField.classList.remove('hidden');
 
-    // Recruitment test types that need position selection
+    // Recruitment test types that need position selection (no course relation)
     const recruitmentTestTypes = ['job_application_test', 'aptitude_test', 'personality_test'];
+
+    // Training & Evaluation test types that can optionally select positions (with optional course)
+    const trainingTestTypes = ['pre_training_assessment', 'post_training_assessment'];
+    const evaluationTestTypes = ['knowledge_check', 'progress_assessment', 'midcourse_assessment', 'final_assessment'];
+    const otherTestTypes = ['assessment', 'practice_exercise', 'certification_assessment'];
+
+    // All test types that need position selection
+    const positionSelectableTypes = [...recruitmentTestTypes, ...trainingTestTypes, ...evaluationTestTypes, ...otherTestTypes];
 
     if (recruitmentTestTypes.includes(testType)) {
         // Show position selection for recruitment tests
         positionSelection.classList.remove('hidden');
-        positionSelect.setAttribute('required', 'required');
+        // No longer require single position_id - now using multi-select or global
 
         // Hide course-related fields (not needed for recruitment tests)
         courseField.classList.add('hidden');
@@ -695,6 +816,17 @@ function handleTestTypeChange() {
 
         // Show info message for recruitment tests
         showTestTypeInfo('recruitmentTestInfo');
+    } else if (trainingTestTypes.includes(testType) || evaluationTestTypes.includes(testType) || otherTestTypes.includes(testType)) {
+        // Show course-related fields (optional for these types)
+        courseField.classList.remove('hidden');
+        chapterField.classList.remove('hidden');
+        lessonField.classList.remove('hidden');
+
+        // Show info message
+        showTestTypeInfo('generalTestInfo');
+
+        // Check if course is selected to determine position selection visibility
+        updatePositionSelectionVisibility();
     } else if (testType === 'chapter_test') {
         // Chapter test requires course and chapter
         addRequired(courseLabel);
@@ -752,6 +884,15 @@ function showTestTypeInfo(infoType) {
                 <i class="fas fa-briefcase mr-2"></i>
                 <strong><%= t('recruitmentTestNote') || 'Recruitment Test' %>:</strong>
                 <%= t('recruitmentTestDescription') || 'This test will be used for job applicants. Please select the job position this test is for.' %>
+            </p>
+        `;
+    } else if (infoType === 'generalTestInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-clipboard-check mr-2"></i>
+                <strong>ข้อสอบทั่วไป:</strong>
+                หากเลือกหลักสูตร ข้อสอบจะใช้กลุ่มเป้าหมายของหลักสูตรนั้น (ไม่ต้องเลือกตำแหน่งอีก)<br>
+                <span class="text-blue-600">หากไม่เลือกหลักสูตร สามารถกำหนดตำแหน่งเป้าหมายเองได้</span>
             </p>
         `;
     }
@@ -1128,10 +1269,24 @@ function saveToLocalStorage() {
         return;
     }
 
+    // Create a serializable copy of questions (without File objects)
+    const serializableQuestions = questions.map(q => {
+        const cleanQuestion = { ...q };
+        // Remove File objects which can't be serialized to JSON
+        cleanQuestion.question_image = null;
+        if (cleanQuestion.options) {
+            cleanQuestion.options = cleanQuestion.options.map(opt => ({
+                ...opt,
+                image: null // Remove File object from options
+            }));
+        }
+        return cleanQuestion;
+    });
+
     const testDraft = {
         currentStep: currentStep,
         formData: collectFormData(),
-        questions: questions,
+        questions: serializableQuestions,
         timestamp: new Date().toISOString()
     };
 
@@ -1370,20 +1525,24 @@ function populateQuestionForm(question) {
     document.getElementById('question-explanation').value = question.explanation || '';
 
     // Restore question image if exists
-    if (question.question_image) {
-        const questionImageInput = document.getElementById('question-image');
-        const preview = document.getElementById('question-image-preview');
-        const img = preview.querySelector('img');
-        const fileName = document.getElementById('question-image-name');
+    if (question.question_image && question.question_image instanceof File) {
+        try {
+            const questionImageInput = document.getElementById('question-image');
+            const preview = document.getElementById('question-image-preview');
+            const img = preview.querySelector('img');
+            const fileName = document.getElementById('question-image-name');
 
-        img.src = URL.createObjectURL(question.question_image);
-        preview.classList.remove('hidden');
-        fileName.textContent = question.question_image.name;
+            img.src = URL.createObjectURL(question.question_image);
+            preview.classList.remove('hidden');
+            fileName.textContent = question.question_image.name;
 
-        // Create a new FileList with the existing file
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(question.question_image);
-        questionImageInput.files = dataTransfer.files;
+            // Create a new FileList with the existing file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(question.question_image);
+            questionImageInput.files = dataTransfer.files;
+        } catch (e) {
+            console.warn('Could not restore question image:', e);
+        }
     }
 
     // Clear and setup question type
@@ -1397,22 +1556,34 @@ function populateQuestionForm(question) {
         // Clear default options first
         optionsContainer.innerHTML = '';
         question.options.forEach((option, index) => {
-            const imageUrl = option.image ? URL.createObjectURL(option.image) : '';
+            let imageUrl = '';
+            // Only create object URL if option.image is a valid File object
+            if (option.image && option.image instanceof File) {
+                try {
+                    imageUrl = URL.createObjectURL(option.image);
+                } catch (e) {
+                    console.warn('Could not create URL for option image:', e);
+                }
+            }
             addOption(option.text, option.is_correct, imageUrl);
 
-            // If option has image, restore it to the file input
-            if (option.image) {
-                const optionImageInput = document.getElementById(`option_image_${index}`);
-                const fileName = document.getElementById(`option_image_name_${index}`);
-                const preview = document.getElementById(`option_image_preview_${index}`);
+            // If option has image (valid File), restore it to the file input
+            if (option.image && option.image instanceof File) {
+                try {
+                    const optionImageInput = document.getElementById(`option_image_${index}`);
+                    const fileName = document.getElementById(`option_image_name_${index}`);
+                    const preview = document.getElementById(`option_image_preview_${index}`);
 
-                fileName.textContent = option.image.name;
-                preview.classList.remove('hidden');
+                    fileName.textContent = option.image.name;
+                    preview.classList.remove('hidden');
 
-                // Create a new FileList with the existing file
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(option.image);
-                optionImageInput.files = dataTransfer.files;
+                    // Create a new FileList with the existing file
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(option.image);
+                    optionImageInput.files = dataTransfer.files;
+                } catch (e) {
+                    console.warn('Could not restore option image:', e);
+                }
             }
         });
     } else if (question.question_type === 'true_false') {
@@ -1638,18 +1809,22 @@ function updateQuestionsDisplay() {
         const imagePlaceholder = questionDiv.querySelector('.question-image-placeholder');
         const previewPlaceholder = questionDiv.querySelector('.question-preview-placeholder');
 
-        // Add question image if exists
-        if (question.question_image) {
+        // Add question image if exists (only if it's a valid File object)
+        if (question.question_image && question.question_image instanceof File) {
             console.log('Creating image element for question', index);
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(question.question_image);
-            img.alt = `Question ${index + 1}`;
-            img.className = 'mb-3 max-w-md max-h-48 rounded border border-gray-300';
-            img.onload = () => console.log('Image loaded successfully for question', index);
-            img.onerror = (e) => console.error('Image failed to load for question', index, e);
-            imagePlaceholder.appendChild(img);
+            try {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(question.question_image);
+                img.alt = `Question ${index + 1}`;
+                img.className = 'mb-3 max-w-md max-h-48 rounded border border-gray-300';
+                img.onload = () => console.log('Image loaded successfully for question', index);
+                img.onerror = (e) => console.error('Image failed to load for question', index, e);
+                imagePlaceholder.appendChild(img);
+            } catch (e) {
+                console.warn('Could not create image URL for question', index, e);
+            }
         } else {
-            console.log('No question image for question', index);
+            console.log('No valid question image for question', index);
         }
 
         // Add question preview
@@ -1671,13 +1846,17 @@ function updateQuestionsDisplay() {
                 `;
                 optionDiv.appendChild(textDiv);
 
-                // Add option image if exists
-                if (option.image) {
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(option.image);
-                    img.alt = `Option ${optIndex + 1}`;
-                    img.className = 'mt-1 ml-4 max-w-xs max-h-24 rounded border border-gray-300';
-                    optionDiv.appendChild(img);
+                // Add option image if exists (only if it's a valid File object)
+                if (option.image && option.image instanceof File) {
+                    try {
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(option.image);
+                        img.alt = `Option ${optIndex + 1}`;
+                        img.className = 'mt-1 ml-4 max-w-xs max-h-24 rounded border border-gray-300';
+                        optionDiv.appendChild(img);
+                    } catch (e) {
+                        console.warn('Could not create image URL for option', optIndex, e);
+                    }
                 }
 
                 optionsDiv.appendChild(optionDiv);
@@ -1738,7 +1917,9 @@ async function submitTest() {
         instructions: formData.get('instructions'),
         type: formData.get('type'),
         course_id: formData.get('course_id') || null,
-        position_id: formData.get('position_id') || null, // For recruitment tests
+        position_id: formData.get('position_id') || null, // Legacy - For recruitment tests
+        is_global_applicant_test: document.getElementById('is_global_applicant_test')?.checked || false,
+        target_positions: getSelectedPositions(), // Multi-select positions
         difficulty_level: formData.get('difficulty_level'),
         language: formData.get('language'),
         time_limit: formData.get('time_limit') ? parseInt(formData.get('time_limit')) : null,
@@ -1803,6 +1984,215 @@ async function saveDraft() {
     // Implementation for saving draft
     showSuccess(i18n.draftSaved);
 }
+
+// ============ Position Multi-Select Functions ============
+
+// Store all positions data
+let allPositionsData = [];
+let allDepartmentsData = [];
+
+function toggleGlobalTest() {
+    const isGlobal = document.getElementById('is_global_applicant_test').checked;
+    const multiSelect = document.getElementById('position-multi-select');
+
+    if (isGlobal) {
+        // Disable position selection when global is checked
+        multiSelect.classList.add('opacity-50', 'pointer-events-none');
+        // Clear all selections
+        clearAllDepartments();
+        clearAllPositions();
+    } else {
+        multiSelect.classList.remove('opacity-50', 'pointer-events-none');
+    }
+}
+
+function clearAllDepartments() {
+    const select = document.getElementById('target_departments');
+    if (select) {
+        Array.from(select.options).forEach(opt => opt.selected = false);
+        // Also filter positions
+        filterPositionsByDepartments();
+    }
+}
+
+// Store selected positions persistently (moved here so it's available before use)
+let persistentSelectedPositions = new Set();
+
+function clearAllPositions() {
+    const select = document.getElementById('target_positions');
+    if (select) {
+        Array.from(select.options).forEach(opt => opt.selected = false);
+        // Clear persistent selection too
+        persistentSelectedPositions.clear();
+        // Refresh the list to remove "selected" markers
+        filterPositionsByDepartments();
+        updatePositionCount();
+    }
+}
+
+function updatePositionCount() {
+    const select = document.getElementById('target_positions');
+    if (select) {
+        const selectedCount = Array.from(select.selectedOptions).length;
+        const countEl = document.getElementById('selected-positions-count');
+        if (countEl) {
+            countEl.textContent = `เลือกแล้ว ${selectedCount} ตำแหน่ง`;
+        }
+    }
+}
+
+function getSelectedPositions() {
+    const select = document.getElementById('target_positions');
+    if (select) {
+        return Array.from(select.selectedOptions).map(opt => parseInt(opt.value));
+    }
+    return [];
+}
+
+// Load departments and positions
+async function loadDepartmentsAndPositions() {
+    try {
+        // Load departments (org units) - use same endpoint as Course
+        const deptResponse = await fetch('/courses/api/target-departments');
+        const deptData = await deptResponse.json();
+
+        if (deptData.success && deptData.data) {
+            allDepartmentsData = deptData.data;
+            populateDepartmentsSelect(deptData.data);
+        }
+
+        // Load positions - use same endpoint as Course
+        const posResponse = await fetch('/courses/api/target-positions');
+        const posData = await posResponse.json();
+
+        if (posData.success && posData.data) {
+            allPositionsData = posData.data;
+            populatePositionsSelect(posData.data);
+        }
+    } catch (error) {
+        console.error('Error loading departments/positions:', error);
+    }
+}
+
+function populateDepartmentsSelect(departments) {
+    const select = document.getElementById('target_departments');
+    if (!select) return;
+
+    select.innerHTML = '';
+
+    if (departments.length === 0) {
+        select.innerHTML = '<option value="" disabled>ไม่พบข้อมูลแผนก</option>';
+        return;
+    }
+
+    departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept.unit_id;
+        option.textContent = dept.unit_name_th || dept.unit_name_en || dept.unit_code;
+        option.dataset.levelId = dept.level_id || '';
+        select.appendChild(option);
+    });
+}
+
+function populatePositionsSelect(positions, filterByDepts = []) {
+    const select = document.getElementById('target_positions');
+    if (!select) return;
+
+    // Update persistent selection with current selections before clearing
+    Array.from(select.selectedOptions).forEach(opt => {
+        persistentSelectedPositions.add(opt.value);
+    });
+    // Remove deselected ones from current view
+    Array.from(select.options).forEach(opt => {
+        if (!opt.selected) {
+            persistentSelectedPositions.delete(opt.value);
+        }
+    });
+
+    select.innerHTML = '';
+
+    // Filter by selected departments if any
+    let filteredPositions = positions;
+    if (filterByDepts.length > 0) {
+        filteredPositions = positions.filter(pos => {
+            const posUnitId = pos.unit_id;
+            return filterByDepts.includes(String(posUnitId));
+        });
+    }
+
+    // Also include previously selected positions that might be from other departments
+    const selectedFromOtherDepts = positions.filter(pos => {
+        const isSelected = persistentSelectedPositions.has(String(pos.position_id));
+        const isInCurrentFilter = filteredPositions.some(fp => fp.position_id === pos.position_id);
+        return isSelected && !isInCurrentFilter;
+    });
+
+    // Combine: selected from other depts first, then filtered
+    const combinedPositions = [...selectedFromOtherDepts, ...filteredPositions];
+
+    if (combinedPositions.length === 0) {
+        if (filterByDepts.length > 0) {
+            select.innerHTML = '<option value="" disabled>ไม่พบตำแหน่งในแผนกที่เลือก</option>';
+        } else {
+            select.innerHTML = '<option value="" disabled>ไม่พบข้อมูลตำแหน่ง</option>';
+        }
+        return;
+    }
+
+    // Add selected from other departments first (with marker)
+    selectedFromOtherDepts.forEach(pos => {
+        const option = document.createElement('option');
+        option.value = pos.position_id;
+        option.textContent = `★ ${pos.position_name} (เลือกไว้แล้ว)`;
+        option.dataset.unitId = pos.unit_id || '';
+        option.dataset.level = pos.level || '';
+        option.selected = true;
+        option.style.backgroundColor = '#e8f5e9';
+        select.appendChild(option);
+    });
+
+    // Add filtered positions
+    filteredPositions.forEach(pos => {
+        const option = document.createElement('option');
+        option.value = pos.position_id;
+        option.textContent = pos.position_name;
+        option.dataset.unitId = pos.unit_id || '';
+        option.dataset.level = pos.level || '';
+        // Re-select if was selected before
+        if (persistentSelectedPositions.has(String(pos.position_id))) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+
+    updatePositionCount();
+}
+
+function filterPositionsByDepartments() {
+    const deptSelect = document.getElementById('target_departments');
+    const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => opt.value);
+
+    populatePositionsSelect(allPositionsData, selectedDepts);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const deptSelect = document.getElementById('target_departments');
+    const posSelect = document.getElementById('target_positions');
+
+    if (deptSelect) {
+        deptSelect.addEventListener('change', filterPositionsByDepartments);
+        document.getElementById('clear-departments-btn')?.addEventListener('click', clearAllDepartments);
+    }
+
+    if (posSelect) {
+        posSelect.addEventListener('change', updatePositionCount);
+        document.getElementById('clear-positions-btn')?.addEventListener('click', clearAllPositions);
+    }
+
+    // Load data when position selection is shown
+    loadDepartmentsAndPositions();
+});
 
 // Image handling functions
 function previewQuestionImage(input) {

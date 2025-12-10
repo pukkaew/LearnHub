@@ -99,7 +99,8 @@
       "Bash(npx eslint:*)",
       "WebFetch(domain:www.youtube.com)",
       "WebFetch(domain:localhost)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(perl -i -pe:*)"
     ],
     "deny": [],
     "ask": []

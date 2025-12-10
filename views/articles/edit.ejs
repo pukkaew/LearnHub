@@ -1,34 +1,27 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= t('editArticle') %></h1>
-                <p class="text-gray-600"><%= t('updateArticleContent') %></p>
+    <!-- Header -->
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="mb-4 md:mb-0">
+                <h1 class="text-3xl font-bold text-white"><%= t('editArticle') || 'แก้ไขบทความ' %></h1>
+                <p class="text-white/80 mt-1"><%= t('updateArticleContent') || 'อัพเดทเนื้อหาบทความของคุณ' %></p>
             </div>
-            <a href="/articles" class="text-ruxchai-primary hover:text-ruxchai-primary/80 transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i><%= t('backToArticles') %>
-            </a>
+            <div class="flex space-x-3">
+                <button type="button" id="previewBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-eye mr-2"></i><%= t('preview') || 'ดูตัวอย่าง' %>
+                </button>
+                <button type="button" id="saveBtn" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-save mr-2"></i><%= t('save') || 'บันทึก' %>
+                </button>
+                <a href="/articles" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i><%= t('backToArticles') || 'กลับ' %>
+                </a>
+            </div>
         </div>
+    </div>
 
-        <!-- Edit Form -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <!-- Form Header -->
-            <div class="p-6" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#2563eb' %>, <%= systemSettings.secondary_color || '#0891b2' %>);">
-                <div class="flex items-center justify-between">
-                    <div class="text-white">
-                        <h2 class="text-xl font-bold mb-1"><%= t('editContent') %></h2>
-                        <p class="opacity-90"><%= t('updateArticleData') %></p>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <button id="previewBtn" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors">
-                            <i class="fas fa-eye mr-2"></i><%= t('preview') %>
-                        </button>
-                        <button id="saveBtn" class="px-4 py-2 bg-white text-ruxchai-primary rounded-lg hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-save mr-2"></i><%= t('save') %>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <!-- Edit Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
             <form id="editArticleForm" class="p-8">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -695,4 +688,3 @@ window.addEventListener('beforeunload', function(e) {
     }
 });
 </script>
-

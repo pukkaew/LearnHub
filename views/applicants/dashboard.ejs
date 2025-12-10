@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        :root { --primary-color: #0090D3; --secondary-color: #3AAA35; }
+        .bg-ruxchai-primary { background-color: var(--primary-color); }
+        .text-ruxchai-primary { color: var(--primary-color); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+
+<div class="bg-gradient-to-br from-ruxchai-primary/5 to-ruxchai-secondary/5 min-h-screen">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                        <i class="fas fa-clipboard-list text-ruxchai-primary mr-3"></i>
+                        ศูนย์ทดสอบผู้สมัครงาน
+                    </h1>
+                    <p class="text-gray-600">
+                        สวัสดี <span id="applicantName" class="font-medium text-ruxchai-primary">-</span>
+                        | ตำแหน่ง: <span id="positionName" class="font-medium">-</span>
+                    </p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-500 mb-1">รหัสทดสอบ</div>
+                    <div id="testCode" class="text-lg font-mono font-bold text-ruxchai-primary">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-pie text-blue-500 mr-2"></i>
+                ภาพรวมความคืบหน้า
+            </h2>
+
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <div id="totalTests" class="text-3xl font-bold text-blue-600">0</div>
+                    <div class="text-sm text-blue-800">ข้อสอบทั้งหมด</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 text-center">
+                    <div id="completedTests" class="text-3xl font-bold text-green-600">0</div>
+                    <div class="text-sm text-green-800">ทำเสร็จแล้ว</div>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                    <div id="pendingTests" class="text-3xl font-bold text-yellow-600">0</div>
+                    <div class="text-sm text-yellow-800">รอดำเนินการ</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-2">
+                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>ความคืบหน้า</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="bg-gradient-to-r from-ruxchai-primary to-ruxchai-secondary h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Result (shown when all tests completed) -->
+        <div id="overallResult" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8 hidden">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                ผลการทดสอบรวม
+            </h2>
+            <div id="overallResultContent" class="text-center py-6">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Test List -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-list-check text-ruxchai-primary mr-2"></i>
+                รายการข้อสอบ
+            </h2>
+
+            <div id="testList" class="space-y-4">
+                <!-- Loading -->
+                <div class="flex items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-ruxchai-primary"></div>
+                    <span class="ml-3 text-gray-600">กำลังโหลดรายการข้อสอบ...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-amber-50 rounded-xl border border-amber-200 p-6 mt-8">
+            <h3 class="text-lg font-semibold text-amber-800 mb-3">
+                <i class="fas fa-info-circle mr-2"></i>
+                คำแนะนำการสอบ
+            </h3>
+            <ul class="text-amber-700 space-y-2 text-sm">
+                <li><i class="fas fa-check mr-2"></i>กรุณาทำข้อสอบให้ครบทุกชุด</li>
+                <li><i class="fas fa-check mr-2"></i>สามารถเลือกทำข้อสอบชุดใดก่อนก็ได้</li>
+                <li><i class="fas fa-check mr-2"></i>ตรวจสอบเวลาที่กำหนดก่อนเริ่มทำข้อสอบ</li>
+                <li><i class="fas fa-check mr-2"></i>เมื่อเริ่มทำข้อสอบแล้ว ไม่สามารถหยุดพักได้</li>
+                <li><i class="fas fa-check mr-2"></i>หากพบปัญหา กรุณาติดต่อฝ่ายบุคคล</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global data
+let applicantData = null;
+let testProgress = [];
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+});
+
+// Load dashboard data
+async function loadDashboardData() {
+    try {
+        const testCode = getTestCodeFromUrl();
+        if (!testCode) {
+            showError('ไม่พบรหัสทดสอบ');
+            return;
+        }
+
+        // Load applicant info
+        const infoResponse = await fetch(`/applicants/api/${testCode}/info`);
+        const infoData = await infoResponse.json();
+
+        if (!infoData.success) {
+            showError(infoData.message || 'ไม่พบข้อมูลผู้สมัคร');
+            return;
+        }
+
+        applicantData = infoData.data;
+        updateApplicantInfo();
+
+        // Load test progress
+        const progressResponse = await fetch(`/applicants/api/${testCode}/progress`);
+        const progressData = await progressResponse.json();
+
+        if (progressData.success) {
+            testProgress = progressData.data.tests || [];
+            updateProgress(progressData.data);
+            renderTestList();
+
+            // Check if all completed
+            if (progressData.data.is_complete) {
+                showOverallResult(progressData.data);
+            }
+        } else {
+            showError(progressData.message || 'ไม่สามารถโหลดข้อมูลได้');
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    }
+}
+
+// Update applicant info
+function updateApplicantInfo() {
+    document.getElementById('applicantName').textContent =
+        `${applicantData.first_name} ${applicantData.last_name}`;
+    document.getElementById('positionName').textContent =
+        applicantData.position_name || '-';
+    document.getElementById('testCode').textContent =
+        applicantData.test_code || '-';
+}
+
+// Update progress (ไม่แสดงคะแนน)
+function updateProgress(data) {
+    const total = data.total_tests || 0;
+    const completed = data.completed_tests || 0;
+    const pending = total - completed;
+    const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    document.getElementById('totalTests').textContent = total;
+    document.getElementById('completedTests').textContent = completed;
+    document.getElementById('pendingTests').textContent = pending;
+    document.getElementById('progressPercent').textContent = `${progressPercent}%`;
+    document.getElementById('progressBar').style.width = `${progressPercent}%`;
+}
+
+// Render test list
+function renderTestList() {
+    const container = document.getElementById('testList');
+
+    if (testProgress.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-3"></i>
+                <p>ไม่พบรายการข้อสอบ</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = testProgress.map((test, index) => {
+        const statusInfo = getStatusInfo(test.status);
+        // ไม่ lock - ผู้สมัครสามารถทำข้อสอบชุดใดก็ได้
+        const canStart = test.status === 'pending';
+        const canView = test.status === 'completed';
+
+        return `
+            <div class="border rounded-xl p-5 ${statusInfo.borderClass} transition-all hover:shadow-md">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4">
+                        <!-- Order number -->
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full ${statusInfo.bgClass} flex items-center justify-center">
+                            ${test.status === 'completed'
+                                ? `<i class="fas fa-check text-green-600"></i>`
+                                : `<span class="font-bold ${statusInfo.textClass}">${index + 1}</span>`
+                            }
+                        </div>
+
+                        <!-- Test info -->
+                        <div class="flex-grow">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h3 class="font-semibold text-gray-900">${test.test_title}</h3>
+                                ${test.is_required ? '<span class="text-red-500 text-sm">*</span>' : ''}
+                                ${test.test_category ? `
+                                    <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                        ${getCategoryLabel(test.test_category)}
+                                    </span>
+                                ` : ''}
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">${test.test_description || ''}</p>
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                                <span><i class="fas fa-question-circle mr-1"></i>${test.question_count || 0} ข้อ</span>
+                                <span><i class="fas fa-clock mr-1"></i>${test.time_limit || 0} นาที</span>
+                                ${test.weight_percent && test.weight_percent !== 100 ? `
+                                    <span><i class="fas fa-balance-scale mr-1"></i>น้ำหนัก ${test.weight_percent}%</span>
+                                ` : ''}
+                            </div>
+
+                            <!-- Status if completed (ไม่แสดงคะแนน) -->
+                            ${test.status === 'completed' ? `
+                                <div class="mt-3 flex items-center space-x-4">
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>ทำเสร็จแล้ว
+                                    </span>
+                                    ${test.time_spent_seconds ? `
+                                        <span class="text-sm text-gray-500">
+                                            <i class="fas fa-stopwatch mr-1"></i>
+                                            ใช้เวลา ${formatTime(test.time_spent_seconds)}
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Action button -->
+                    <div class="flex-shrink-0 ml-4">
+                        ${canStart ? `
+                            <a href="/applicants/test/${applicantData.test_code}?test_id=${test.test_id}"
+                               class="px-4 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors inline-block">
+                                <i class="fas fa-play mr-2"></i>เริ่มสอบ
+                            </a>
+                        ` : test.status === 'in_progress' ? `
+                            <a href="/applicants/test/${applicantData.test_code}?test_id=${test.test_id}"
+                               class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors inline-block">
+                                <i class="fas fa-play mr-2"></i>ทำต่อ
+                            </a>
+                        ` : canView ? `
+                            <span class="px-4 py-2 bg-green-100 text-green-700 rounded-lg inline-block">
+                                <i class="fas fa-check mr-2"></i>เสร็จสิ้น
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Show overall result (ไม่แสดงผ่าน/ไม่ผ่าน - HR จะเป็นผู้ประเมิน)
+function showOverallResult(data) {
+    const container = document.getElementById('overallResult');
+    const content = document.getElementById('overallResultContent');
+
+    container.classList.remove('hidden');
+
+    content.innerHTML = `
+        <div class="mb-4">
+            <div class="w-24 h-24 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-4">
+                <i class="fas fa-clipboard-check text-5xl text-blue-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-blue-600 mb-2">
+                ทำแบบทดสอบครบแล้ว
+            </h3>
+            <p class="text-gray-600">ขอบคุณที่ทำแบบทดสอบครบทุกชุด</p>
+        </div>
+
+        <div class="text-center max-w-md mx-auto">
+            <div class="text-2xl font-bold text-gray-900">${data.completed_tests}/${data.total_tests}</div>
+            <div class="text-sm text-gray-500">ข้อสอบที่ทำ</div>
+        </div>
+
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-blue-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                ทางฝ่ายบุคคลจะตรวจสอบผลการทดสอบและติดต่อกลับภายหลัง
+            </p>
+        </div>
+    `;
+}
+
+// Helper functions
+function getTestCodeFromUrl() {
+    const pathParts = window.location.pathname.split('/');
+    const dashboardIndex = pathParts.indexOf('dashboard');
+    return dashboardIndex !== -1 ? pathParts[dashboardIndex + 1] : null;
+}
+
+function getStatusInfo(status) {
+    switch (status) {
+        case 'completed':
+            // ทำเสร็จแล้ว - ไม่แยกสีตามผ่าน/ไม่ผ่าน
+            return { borderClass: 'border-green-200 bg-green-50/50', bgClass: 'bg-green-100', textClass: 'text-green-600' };
+        case 'in_progress':
+            return { borderClass: 'border-yellow-200 bg-yellow-50/50', bgClass: 'bg-yellow-100', textClass: 'text-yellow-600' };
+        default:
+            return { borderClass: 'border-gray-200', bgClass: 'bg-gray-100', textClass: 'text-gray-600' };
+    }
+}
+
+function getCategoryLabel(category) {
+    const labels = {
+        'language': 'ภาษา',
+        'general': 'ความรู้ทั่วไป',
+        'specific': 'เฉพาะตำแหน่ง',
+        'personality': 'บุคลิกภาพ',
+        'aptitude': 'ความถนัด'
+    };
+    return labels[category] || category;
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins} นาที ${secs} วินาที`;
+}
+
+function showError(message) {
+    document.getElementById('testList').innerHTML = `
+        <div class="text-center py-12 text-red-500">
+            <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+            <p>${message}</p>
+            <a href="/applicants/test/login" class="mt-4 inline-block px-4 py-2 bg-ruxchai-primary text-white rounded-lg">
+                กลับหน้าเข้าสู่ระบบ
+            </a>
+        </div>
+    `;
+}
+</script>
+
+</body></html>
