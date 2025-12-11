@@ -734,37 +734,11 @@ async function saveDraft() {
 }
 
 // DateTime Pickers Setup
+// NOTE: Date/Time pickers are now auto-initialized by Air Datepicker in layout.ejs
+// This function is kept for compatibility but does nothing
 function setupDateTimePickers() {
-    // Initialize Flatpickr for enrollment start date
-    flatpickr("#enrollment_start", {
-        enableTime: true,
-        dateFormat: "d/m/Y H:i",
-        time_24hr: true,
-        minDate: "today",
-        locale: {
-            firstDayOfWeek: 1
-        },
-        onChange: function(selectedDates, dateStr, instance) {
-            // Update minDate for enrollment_end
-            const endPicker = document.getElementById('enrollment_end')._flatpickr;
-            if (endPicker && selectedDates.length > 0) {
-                endPicker.set('minDate', selectedDates[0]);
-            }
-        }
-    });
-
-    // Initialize Flatpickr for enrollment end date
-    flatpickr("#enrollment_end", {
-        enableTime: true,
-        dateFormat: "d/m/Y H:i",
-        time_24hr: true,
-        minDate: "today",
-        locale: {
-            firstDayOfWeek: 1
-        }
-    });
-
-    console.log('✅ DateTime pickers initialized');
+    // Air Datepicker auto-init handles datetime-local inputs globally
+    console.log('✅ DateTime pickers handled by Air Datepicker (layout.ejs)');
 }
 
 // Data Loading

@@ -1,5 +1,3 @@
-<%- include('../partials/header') %>
-
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -143,8 +141,8 @@
         </div>
         <div class="p-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                    <canvas id="rankingChart" width="400" height="300"></canvas>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="rankingChart"></canvas>
                 </div>
                 <div class="space-y-4" id="ranking-list">
                     <!-- Dynamic ranking content -->
@@ -158,25 +156,33 @@
         <!-- Completion Rates Comparison -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Course Completion Rates</h3>
-            <canvas id="completionChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="completionChart"></canvas>
+            </div>
         </div>
 
         <!-- Engagement Trends -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Engagement Trends Over Time</h3>
-            <canvas id="engagementChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="engagementChart"></canvas>
+            </div>
         </div>
 
         <!-- Test Performance -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Test Performance by Department</h3>
-            <canvas id="testChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="testChart"></canvas>
+            </div>
         </div>
 
         <!-- Certification Progress -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Certification Achievement</h3>
-            <canvas id="certificationChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="certificationChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -230,8 +236,8 @@
                 <p class="text-sm text-gray-600">Most enrolled learning paths by department</p>
             </div>
             <div class="p-6">
-                <div id="learning-paths-chart">
-                    <canvas id="learningPathsChart" width="400" height="300"></canvas>
+                <div id="learning-paths-chart" style="position: relative; height: 300px;">
+                    <canvas id="learningPathsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -1041,5 +1047,3 @@ function showError(message) {
     alert('Error: ' + message); // Replace with toast notification
 }
 </script>
-
-<%- include('../partials/footer') %>

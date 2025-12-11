@@ -885,7 +885,7 @@ function generatePreview() {
                 <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">${category}</span>
                     ${readingTime ? `<span><i class="fas fa-clock mr-1"></i>${readingTime} ${translations.minRead}</span>` : ''}
-                    <span><i class="fas fa-calendar mr-1"></i>${new Date().toLocaleDateString('th-TH')}</span>
+                    <span><i class="fas fa-calendar mr-1"></i>${formatDate(new Date())}</span>
                 </div>
                 <h1 class="text-4xl font-bold text-gray-900 mb-4">${title}</h1>
                 <p class="text-xl text-gray-600">${summary}</p>

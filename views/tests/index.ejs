@@ -1188,9 +1188,7 @@ function getScoreTextColor(score) {
     return 'text-red-600';
 }
 
-function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('th-TH');
-}
+// Use global formatDate from layout.ejs
 
 function debounce(func, wait) {
     let timeout;

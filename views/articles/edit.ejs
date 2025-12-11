@@ -420,7 +420,7 @@ function populateForm(article) {
     document.getElementById('viewsCount').textContent = article.views || 0;
     document.getElementById('likesCount').textContent = article.likes || 0;
     document.getElementById('commentsCount').textContent = article.comments || 0;
-    document.getElementById('lastModified').textContent = formatDate(article.updated_at);
+    document.getElementById('lastModified').textContent = formatDateTime(article.updated_at);
 
     updateMetaCharCount();
 }
@@ -643,16 +643,7 @@ function getCategoryName(category) {
     return categories[category] || category;
 }
 
-function formatDate(dateString) {
-    const options = {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString('th-TH', options);
-}
+// Use global formatDateTime from layout.ejs
 
 function showMessage(message, type = 'info') {
     const messageDiv = document.createElement('div');

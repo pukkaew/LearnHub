@@ -340,10 +340,8 @@
                         <label for="enrollment_start" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="far fa-calendar-alt mr-1"></i><%= t('enrollmentStartLabel') %>
                         </label>
-                        <input type="text" id="enrollment_start" name="enrollment_start"
-                               placeholder="<%= t('selectDateAndTime') %>"
-                               class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                               readonly>
+                        <input type="datetime-local" id="enrollment_start" name="enrollment_start"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                         <p class="text-xs text-gray-500 mt-1"><%= t('clickToSelectDateTime') %></p>
                     </div>
 
@@ -351,10 +349,8 @@
                         <label for="enrollment_end" class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="far fa-calendar-alt mr-1"></i><%= t('enrollmentEndLabel') %>
                         </label>
-                        <input type="text" id="enrollment_end" name="enrollment_end"
-                               placeholder="<%= t('selectDateAndTime') %>"
-                               class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                               readonly>
+                        <input type="datetime-local" id="enrollment_end" name="enrollment_end"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                         <p class="text-xs text-gray-500 mt-1"><%= t('clickToSelectDateTime') %></p>
                     </div>
                 </div>
@@ -461,10 +457,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Example: /courses/1/edit → split('/') → ['', 'courses', '1', 'edit']
     courseId = window.location.pathname.split('/')[2]; // Get course_id (index 2)
 
-    // Initialize flatpickr FIRST before loading data
-    initializeFlatpickr();
-
     // Load dropdown data first, then load course data
+    // Note: Air Datepicker is auto-initialized from layout.ejs for datetime-local inputs
     await Promise.all([
         loadCategories(),
         loadTargetPositions(),
@@ -535,21 +529,7 @@ function updateObjectivesJSON() {
     document.getElementById('learning_objectives').value = JSON.stringify(objectives);
 }
 
-// Helper function to format date for flatpickr (d/m/Y H:i) - kept for reference
-function formatDateForFlatpickr(date) {
-    if (!date) return '';
-
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-}
-
-// Helper function to format date for flatpickr ISO format (Y-m-d H:i:S)
+// Helper function to format date for ISO format (Y-m-d H:i:S)
 function formatDateForISO(date) {
     if (!date) return '';
 
@@ -676,25 +656,31 @@ function populateForm(course) {
     // If no target_audience data, leave selects empty (which is fine - optional field)
 
     // Set datetime fields - handle multiple field names
-    // Use flatpickr's setDate() method instead of setting value directly
+    // Use Air Datepicker's selectDate() method or set hidden input directly
     if (course.enrollment_start || course.start_date) {
         const startDate = new Date(course.enrollment_start || course.start_date);
         const startElement = document.getElementById('enrollment_start');
-        if (startElement._flatpickr) {
-            startElement._flatpickr.setDate(startDate, false);
-        } else {
-            // Fallback if flatpickr not initialized yet
-            startElement.value = formatDateForISO(startDate);
+        if (startElement && startElement.airDatepicker) {
+            startElement.airDatepicker.selectDate(startDate);
+        } else if (startElement) {
+            // Set the hidden input value for form submission
+            const hiddenInput = document.getElementById('enrollment_start_hidden');
+            if (hiddenInput) {
+                hiddenInput.value = formatDateForISO(startDate);
+            }
         }
     }
     if (course.enrollment_end || course.end_date) {
         const endDate = new Date(course.enrollment_end || course.end_date);
         const endElement = document.getElementById('enrollment_end');
-        if (endElement._flatpickr) {
-            endElement._flatpickr.setDate(endDate, false);
-        } else {
-            // Fallback if flatpickr not initialized yet
-            endElement.value = formatDateForISO(endDate);
+        if (endElement && endElement.airDatepicker) {
+            endElement.airDatepicker.selectDate(endDate);
+        } else if (endElement) {
+            // Set the hidden input value for form submission
+            const hiddenInput = document.getElementById('enrollment_end_hidden');
+            if (hiddenInput) {
+                hiddenInput.value = formatDateForISO(endDate);
+            }
         }
     }
 
@@ -1263,48 +1249,3 @@ function setupVideoHandlers() {
 }
 </script>
 
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
-<script>
-// Initialize Flatpickr for datetime fields (same as create page)
-function initializeFlatpickr() {
-    // Initialize Flatpickr for enrollment start date
-    flatpickr("#enrollment_start", {
-        enableTime: true,
-        dateFormat: "Y-m-d H:i:S",  // ISO format for backend
-        altInput: true,              // Show alternative format to user
-        altFormat: "d/m/Y H:i",      // Thai format for display
-        time_24hr: true,
-        minDate: "today",
-        locale: {
-            firstDayOfWeek: 1
-        },
-        onChange: function(selectedDates, dateStr, instance) {
-            // Update minDate for enrollment_end
-            const endPicker = document.getElementById('enrollment_end')._flatpickr;
-            if (endPicker && selectedDates.length > 0) {
-                endPicker.set('minDate', selectedDates[0]);
-            }
-        }
-    });
-
-    // Initialize Flatpickr for enrollment end date
-    flatpickr("#enrollment_end", {
-        enableTime: true,
-        dateFormat: "Y-m-d H:i:S",  // ISO format for backend
-        altInput: true,              // Show alternative format to user
-        altFormat: "d/m/Y H:i",      // Thai format for display
-        time_24hr: true,
-        minDate: "today",
-        locale: {
-            firstDayOfWeek: 1
-        }
-    });
-
-    console.log('✅ DateTime pickers initialized');
-}
-</script>

@@ -185,7 +185,7 @@
                                         <% if (question.success_rate !== null) { %>
                                             <span><i class="fas fa-chart-bar mr-1"></i> <%= (question.success_rate || 0).toFixed(1) %>% success</span>
                                         <% } %>
-                                        <span><i class="fas fa-clock mr-1"></i> <%= new Date(question.created_at).toLocaleDateString() %></span>
+                                        <span><i class="fas fa-clock mr-1"></i> <%= formatDate(question.created_at) %></span>
                                     </div>
                                 </div>
 

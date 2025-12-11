@@ -572,11 +572,5 @@ function formatDuration(minutes) {
     return `${hours}h ${mins}m`;
 }
 
-function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('th-TH', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
+// Use global formatDate from layout.ejs
 </script>

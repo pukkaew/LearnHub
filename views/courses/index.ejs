@@ -180,6 +180,7 @@ const translations = <%- JSON.stringify({
     notSpecified: t('notSpecified'),
     progress: t('progress'),
     enrolling: t('enrolling'),
+    inProgress: t('inProgress'),
     enterCourse: t('enterCourse'),
     completed: t('completed'),
     retake: t('retake'),
@@ -591,23 +592,27 @@ function createCourseListItem(course) {
 }
 
 function getEnrollmentStatus(course) {
+    // ตรวจสอบสถานะการลงทะเบียน
     if (course.enrollment_status === 'active') {
+        // ลงทะเบียนแล้วและกำลังเรียนอยู่
         return {
-            badge: `<span class="badge-success">${t('enrolling')}</span>`,
+            badge: `<span class="badge-success">${t('inProgress')}</span>`,
             button: `<a href="/courses/${course.course_id}/content" class="btn-ruxchai-primary text-sm">${t('enterCourse')}</a>`
         };
     } else if (course.enrollment_status === 'completed') {
+        // เรียนจบแล้ว
         return {
             badge: `<span class="badge-primary">${t('completed')}</span>`,
             button: `<a href="/courses/${course.course_id}/content" class="btn-ruxchai-outline text-sm">${t('retake')}</a>`
         };
     } else if (course.course_type === 'mandatory') {
-        // Mandatory courses: direct access (auto-enroll on enter)
+        // หลักสูตรบังคับ: แสดงปุ่มลงทะเบียน (ระบบจะ auto-enroll เมื่อกดเข้าเรียน)
         return {
-            badge: '',
-            button: `<a href="/courses/${course.course_id}/content" class="btn-ruxchai-primary text-sm">${t('startLearning')}</a>`
+            badge: `<span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-full">${t('mandatory')}</span>`,
+            button: `<button onclick="showEnrollmentModal('${course.course_id}')" class="btn-ruxchai-primary text-sm">${t('enroll')}</button>`
         };
     } else {
+        // ยังไม่ลงทะเบียน: แสดงปุ่มลงทะเบียน
         return {
             badge: '',
             button: `<button onclick="showEnrollmentModal('${course.course_id}')" class="btn-ruxchai-outline text-sm">${t('enroll')}</button>`

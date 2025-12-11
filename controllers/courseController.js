@@ -307,7 +307,7 @@ const courseController = {
             const userRole = req.user.role_name;
             const userId = req.user.user_id;
 
-            if (userRole !== 'Admin') {
+            if (userRole !== 'Admin' && userRole !== 'HR') {
                 return res.status(403).json({
                     success: false,
                     message: req.t('noPermissionDeleteCourse')

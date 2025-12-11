@@ -214,9 +214,9 @@
                                     <%= t('courseAssessmentStructure') %>
                                 </h4>
                                 <div id="assessment-structure-content">
-                                    <div class="text-center py-4">
-                                        <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
-                                        <p class="text-sm text-gray-600 mt-2"><%= t('loading') %></p>
+                                    <div class="text-center py-3 bg-white rounded border border-gray-200">
+                                        <i class="fas fa-hand-pointer text-gray-400 text-xl mb-2"></i>
+                                        <p class="text-sm text-gray-600">เลือกหลักสูตรเพื่อดูโครงสร้างการประเมิน</p>
                                     </div>
                                 </div>
                             </div>
@@ -786,67 +786,125 @@ function handleTestTypeChange() {
     courseField.classList.remove('hidden');
     chapterField.classList.remove('hidden');
     lessonField.classList.remove('hidden');
+    if (courseAssessmentStructure) courseAssessmentStructure.classList.remove('hidden');
 
-    // Recruitment test types that need position selection (no course relation)
-    const recruitmentTestTypes = ['job_application_test', 'aptitude_test', 'personality_test'];
+    /*
+     * Test Type Categories and Field Requirements:
+     *
+     * 1. Course-based (ต้องเลือกหลักสูตร):
+     *    - chapter_test: หลักสูตร(บังคับ) + บท(บังคับ)
+     *    - lesson_test: หลักสูตร(บังคับ) + บท(บังคับ) + บทเรียน(บังคับ)
+     *    - midcourse_assessment: หลักสูตร(บังคับ)
+     *    - final_assessment: หลักสูตร(บังคับ)
+     *
+     * 2. Position-based (ต้องเลือกตำแหน่ง, ไม่ต้องเลือกหลักสูตร):
+     *    - job_application_test: ตำแหน่ง(บังคับ) - ข้อสอบสมัครงาน
+     *    - aptitude_test: ตำแหน่ง(บังคับ) - ข้อสอบความถนัด
+     *    - personality_test: ตำแหน่ง(บังคับ) - ข้อสอบบุคลิกภาพ
+     *    - pre_training_assessment: ตำแหน่ง(บังคับ) - ประเมินก่อนอบรม
+     *    - post_training_assessment: ตำแหน่ง(บังคับ) - ประเมินหลังอบรม
+     *
+     * 3. Flexible (เลือกหลักสูตร หรือ ตำแหน่ง ก็ได้):
+     *    - knowledge_check: หลักสูตร(เลือกได้) หรือ ตำแหน่ง(เลือกได้)
+     *    - progress_assessment: หลักสูตร(เลือกได้) หรือ ตำแหน่ง(เลือกได้)
+     *    - assessment: หลักสูตร(เลือกได้) หรือ ตำแหน่ง(เลือกได้)
+     *    - certification_assessment: หลักสูตร(เลือกได้) หรือ ตำแหน่ง(เลือกได้)
+     *
+     * 4. No position (ไม่ต้องเลือกตำแหน่ง):
+     *    - practice_exercise: หลักสูตร(เลือกได้)
+     */
 
-    // Training & Evaluation test types that can optionally select positions (with optional course)
-    const trainingTestTypes = ['pre_training_assessment', 'post_training_assessment'];
-    const evaluationTestTypes = ['knowledge_check', 'progress_assessment', 'midcourse_assessment', 'final_assessment'];
-    const otherTestTypes = ['assessment', 'practice_exercise', 'certification_assessment'];
+    // Types that REQUIRE course (ต้องเลือกหลักสูตร)
+    const courseRequiredTypes = ['chapter_test', 'lesson_test', 'midcourse_assessment', 'final_assessment'];
 
-    // All test types that need position selection
-    const positionSelectableTypes = [...recruitmentTestTypes, ...trainingTestTypes, ...evaluationTestTypes, ...otherTestTypes];
+    // Types that REQUIRE position and hide course (ข้อสอบที่ต้องเลือกตำแหน่ง ไม่ต้องเลือกหลักสูตร)
+    const positionRequiredTypes = ['job_application_test', 'aptitude_test', 'personality_test', 'pre_training_assessment', 'post_training_assessment'];
 
-    if (recruitmentTestTypes.includes(testType)) {
-        // Show position selection for recruitment tests
+    // Types that can use EITHER course OR position (เลือกได้ทั้งหลักสูตรและตำแหน่ง)
+    const flexibleTypes = ['knowledge_check', 'progress_assessment', 'assessment', 'certification_assessment'];
+
+    // Types that only use course, no position selection
+    const courseOnlyTypes = ['practice_exercise'];
+
+    if (positionRequiredTypes.includes(testType)) {
+        // === Position-based tests (Recruitment & Training assessments) ===
+        // Show position selection, hide course fields
         positionSelection.classList.remove('hidden');
-        // No longer require single position_id - now using multi-select or global
 
-        // Hide course-related fields (not needed for recruitment tests)
+        // Hide course-related fields completely
         courseField.classList.add('hidden');
         chapterField.classList.add('hidden');
         lessonField.classList.add('hidden');
-        courseAssessmentStructure.classList.add('hidden');
+        if (courseAssessmentStructure) courseAssessmentStructure.classList.add('hidden');
 
         // Reset course-related values
         courseSelect.value = '';
         chapterSelect.value = '';
         lessonSelect.value = '';
 
-        // Show info message for recruitment tests
-        showTestTypeInfo('recruitmentTestInfo');
-    } else if (trainingTestTypes.includes(testType) || evaluationTestTypes.includes(testType) || otherTestTypes.includes(testType)) {
-        // Show course-related fields (optional for these types)
+        // Show appropriate info message
+        if (['job_application_test', 'aptitude_test', 'personality_test'].includes(testType)) {
+            showTestTypeInfo('recruitmentTestInfo');
+        } else {
+            showTestTypeInfo('trainingTestInfo');
+        }
+
+    } else if (courseRequiredTypes.includes(testType)) {
+        // === Course-based tests ===
+        // Show course fields, hide position selection
         courseField.classList.remove('hidden');
-        chapterField.classList.remove('hidden');
-        lessonField.classList.remove('hidden');
 
-        // Show info message
-        showTestTypeInfo('generalTestInfo');
+        if (testType === 'chapter_test') {
+            // Chapter test requires course and chapter
+            chapterField.classList.remove('hidden');
+            lessonField.classList.add('hidden');
+            addRequired(courseLabel);
+            addRequired(chapterLabel);
+            courseSelect.setAttribute('required', 'required');
+            chapterSelect.setAttribute('required', 'required');
+            showTestTypeInfo('chapterTestInfo');
 
-        // Check if course is selected to determine position selection visibility
-        updatePositionSelectionVisibility();
-    } else if (testType === 'chapter_test') {
-        // Chapter test requires course and chapter
-        addRequired(courseLabel);
-        addRequired(chapterLabel);
-        courseSelect.setAttribute('required', 'required');
-        chapterSelect.setAttribute('required', 'required');
+        } else if (testType === 'lesson_test') {
+            // Lesson test requires course, chapter, and lesson
+            chapterField.classList.remove('hidden');
+            lessonField.classList.remove('hidden');
+            addRequired(courseLabel);
+            addRequired(chapterLabel);
+            addRequired(lessonLabel);
+            courseSelect.setAttribute('required', 'required');
+            chapterSelect.setAttribute('required', 'required');
+            lessonSelect.setAttribute('required', 'required');
+            showTestTypeInfo('lessonTestInfo');
 
-        // Show info message
-        showTestTypeInfo('chapterTestInfo');
-    } else if (testType === 'lesson_test') {
-        // Lesson test requires course, chapter, and lesson
-        addRequired(courseLabel);
-        addRequired(chapterLabel);
-        addRequired(lessonLabel);
-        courseSelect.setAttribute('required', 'required');
-        chapterSelect.setAttribute('required', 'required');
-        lessonSelect.setAttribute('required', 'required');
+        } else {
+            // midcourse_assessment, final_assessment - require course only
+            chapterField.classList.add('hidden');
+            lessonField.classList.add('hidden');
+            addRequired(courseLabel);
+            courseSelect.setAttribute('required', 'required');
+            showTestTypeInfo('courseAssessmentInfo');
+        }
 
-        showTestTypeInfo('lessonTestInfo');
+    } else if (flexibleTypes.includes(testType)) {
+        // === Flexible tests (can use course OR position) ===
+        // Show both options
+        courseField.classList.remove('hidden');
+        chapterField.classList.add('hidden');
+        lessonField.classList.add('hidden');
+        positionSelection.classList.remove('hidden');
+
+        showTestTypeInfo('flexibleTestInfo');
+
+    } else if (courseOnlyTypes.includes(testType)) {
+        // === Course-only tests (no position needed) ===
+        courseField.classList.remove('hidden');
+        chapterField.classList.add('hidden');
+        lessonField.classList.add('hidden');
+
+        showTestTypeInfo('practiceTestInfo');
+
     } else {
+        // Default - no type selected
         hideTestTypeInfo();
     }
 
@@ -893,6 +951,43 @@ function showTestTypeInfo(infoType) {
                 <strong>ข้อสอบทั่วไป:</strong>
                 หากเลือกหลักสูตร ข้อสอบจะใช้กลุ่มเป้าหมายของหลักสูตรนั้น (ไม่ต้องเลือกตำแหน่งอีก)<br>
                 <span class="text-blue-600">หากไม่เลือกหลักสูตร สามารถกำหนดตำแหน่งเป้าหมายเองได้</span>
+            </p>
+        `;
+    } else if (infoType === 'trainingTestInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-graduation-cap mr-2"></i>
+                <strong>ข้อสอบการฝึกอบรม:</strong>
+                ใช้สำหรับทดสอบก่อน/หลังการฝึกอบรม<br>
+                <span class="text-blue-600"><i class="fas fa-building mr-1"></i>เลือกแผนก/หน่วยงาน และตำแหน่งที่ต้องสอบได้โดยตรง</span>
+            </p>
+        `;
+    } else if (infoType === 'courseAssessmentInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-book mr-2"></i>
+                <strong>ข้อสอบประจำหลักสูตร:</strong>
+                ใช้สำหรับประเมินความรู้ตามบทเรียน/บท<br>
+                <span class="text-blue-600"><i class="fas fa-list mr-1"></i>กรุณาเลือกหลักสูตร และบท/บทเรียน ที่เกี่ยวข้อง</span>
+            </p>
+        `;
+    } else if (infoType === 'flexibleTestInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-random mr-2"></i>
+                <strong>ข้อสอบแบบยืดหยุ่น:</strong>
+                สามารถเลือกกำหนดเป้าหมายได้ 2 แบบ<br>
+                <span class="text-blue-600"><i class="fas fa-book mr-1"></i>ผูกกับหลักสูตร - ใช้กลุ่มเป้าหมายของหลักสูตร</span><br>
+                <span class="text-green-600"><i class="fas fa-building mr-1"></i>ผูกกับตำแหน่ง - เลือกแผนก/หน่วยงาน และตำแหน่งโดยตรง</span>
+            </p>
+        `;
+    } else if (infoType === 'practiceTestInfo') {
+        infoDiv.innerHTML = `
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-pencil-alt mr-2"></i>
+                <strong>แบบฝึกหัด:</strong>
+                ใช้สำหรับฝึกฝนทักษะประกอบการเรียน<br>
+                <span class="text-blue-600"><i class="fas fa-book mr-1"></i>กรุณาเลือกหลักสูตรที่ต้องการผูกแบบฝึกหัด</span>
             </p>
         `;
     }

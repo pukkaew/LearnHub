@@ -714,20 +714,16 @@
                                 <label for="enrollment_start" class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="far fa-calendar-alt mr-1"></i>วันเริ่มลงทะเบียน
                                 </label>
-                                <input type="text" id="enrollment_start" name="enrollment_start"
-                                       placeholder="เลือกวันที่และเวลา"
-                                       class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                       readonly>
+                                <input type="datetime-local" id="enrollment_start" name="enrollment_start"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
                             </div>
                             <div>
                                 <label for="enrollment_end" class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="far fa-calendar-alt mr-1"></i>วันสิ้นสุดการลงทะเบียน
                                 </label>
-                                <input type="text" id="enrollment_end" name="enrollment_end"
-                                       placeholder="เลือกวันที่และเวลา"
-                                       class="flatpickr-datetime w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                       readonly>
+                                <input type="datetime-local" id="enrollment_end" name="enrollment_end"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                 <p class="text-xs text-gray-500 mt-1">คลิกเพื่อเลือกวันที่และเวลา</p>
                             </div>
                         </div>
@@ -769,10 +765,4 @@
     </div>
 </div>
 
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-<script src="/js/course-wizard.js"></script>
+<script src="/js/course-wizard.js?v=20251211"></script>

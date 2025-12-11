@@ -1,5 +1,3 @@
-<%- include('../partials/header') %>
-
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -175,25 +173,33 @@
         <!-- Score Distribution Chart -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Score Distribution</h3>
-            <canvas id="scoreDistributionChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="scoreDistributionChart"></canvas>
+            </div>
         </div>
 
         <!-- Pass/Fail Trend Chart -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Pass/Fail Trend</h3>
-            <canvas id="passTrendChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="passTrendChart"></canvas>
+            </div>
         </div>
 
         <!-- Performance by Department -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance by Department</h3>
-            <canvas id="departmentChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="departmentChart"></canvas>
+            </div>
         </div>
 
         <!-- Test Difficulty Analysis -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Test Difficulty Analysis</h3>
-            <canvas id="difficultyChart" width="400" height="300"></canvas>
+            <div style="position: relative; height: 300px;">
+                <canvas id="difficultyChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -677,7 +683,7 @@ function loadResultsTable() {
                 ${formatDuration(result.duration)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${new Date(result.completed_at).toLocaleDateString()}
+                ${formatDate(result.completed_at)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button onclick="viewDetails('${result.attempt_id}')" class="text-blue-600 hover:text-blue-900 mr-3">
@@ -918,5 +924,3 @@ function debounce(func, wait) {
     };
 }
 </script>
-
-<%- include('../partials/footer') %>

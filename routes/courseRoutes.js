@@ -33,7 +33,7 @@ router.post('/api/create', authMiddleware.requireRole(['Admin', 'Instructor', 'H
 // Dynamic routes MUST come after static routes
 router.get('/api/:course_id', courseController.getCourseById);
 router.put('/api/:course_id', authMiddleware.requireRole(['Admin', 'Instructor', 'HR']), courseController.updateCourse);
-router.delete('/api/:course_id', authMiddleware.requireRole(['Admin']), courseController.deleteCourse);
+router.delete('/api/:course_id', authMiddleware.requireRole(['Admin', 'HR']), courseController.deleteCourse);
 
 // Course enrollment management (using existing functions)
 router.post('/api/:course_id/enroll', courseController.enrollInCourse);

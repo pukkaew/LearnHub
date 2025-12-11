@@ -853,20 +853,20 @@ class Course {
         try {
             const pool = await poolPromise;
 
-            // Check if there are active enrollments
+            // Check if there are ANY enrollments (not just active ones)
             const enrollmentCheck = await pool.request()
                 .input('courseId', sql.Int, courseId)
                 .query(`
                     SELECT COUNT(*) as count
                     FROM user_courses
                     WHERE course_id = @courseId
-                    AND status IN ('IN_PROGRESS', 'NOT_STARTED', 'enrolled')
                 `);
 
             if (enrollmentCheck.recordset[0].count > 0) {
                 return {
                     success: false,
-                    message: 'Cannot delete course with active enrollments'
+                    message: 'Cannot delete course with enrollments',
+                    enrollmentCount: enrollmentCheck.recordset[0].count
                 };
             }
 

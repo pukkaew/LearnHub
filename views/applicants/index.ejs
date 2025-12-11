@@ -1181,14 +1181,7 @@ function closeAddPositionModal() {
 }
 
 // Utility functions
-function formatDate(dateString) {
-    const options = {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    };
-    return new Date(dateString).toLocaleDateString('<%= language === "th" ? "th-TH" : "en-US" %>', options);
-}
+// Use global formatDate from layout.ejs
 
 function debounce(func, wait) {
     let timeout;

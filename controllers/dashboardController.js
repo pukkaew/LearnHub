@@ -133,7 +133,7 @@ const dashboardController = {
     async getQuickStats(req, res) {
         try {
             const userId = req.user.user_id;
-            const userRole = req.user.role;
+            const userRole = req.user.role_name || req.user.role;
             const pool = await poolPromise;
 
             let stats = {};
@@ -144,7 +144,7 @@ const dashboardController = {
                     const adminStats = await pool.request().query(`
                         SELECT
                             (SELECT COUNT(*) FROM users WHERE is_active = 1) as active_users,
-                            (SELECT COUNT(*) FROM courses WHERE status = 'active') as active_courses,
+                            (SELECT COUNT(*) FROM courses WHERE status IN ('active', 'Active', 'Published') OR is_active = 1) as active_courses,
                             (SELECT COUNT(*) FROM user_courses) as active_enrollments,
                             (SELECT COUNT(*) FROM notifications WHERE is_read = 0) as unread_notifications,
                             CAST(
@@ -156,7 +156,7 @@ const dashboardController = {
                             (SELECT COUNT(*) FROM users WHERE is_active = 1
                              AND created_at >= DATEADD(week, -1, GETDATE())) as new_users_week,
                             (SELECT COUNT(*) FROM user_courses
-                             WHERE enrolled_at >= DATEADD(month, -1, GETDATE())) as new_enrollments_month
+                             WHERE enrollment_date >= DATEADD(month, -1, GETDATE())) as new_enrollments_month
                     `);
                     stats = adminStats.recordset[0];
                     break;
@@ -388,7 +388,7 @@ const dashboardController = {
                 .input('user_id', require('mssql').Int, userId)
                 .query(`
                     SELECT
-                        (SELECT COUNT(*) FROM courses WHERE status = 'active') as totalCourses,
+                        (SELECT COUNT(*) FROM courses WHERE status IN ('active', 'Active', 'Published') OR is_active = 1) as totalCourses,
                         (SELECT COUNT(*) FROM tests WHERE status = 'active') as totalTests,
                         (SELECT COUNT(*) FROM users WHERE is_active = 1) as totalUsers,
                         (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id AND status = 'completed') as completedCourses,
@@ -535,7 +535,7 @@ const dashboardController = {
                     INNER JOIN courses c ON t.course_id = c.course_id
                     LEFT JOIN user_courses uc ON c.course_id = uc.course_id AND uc.user_id = @user_id
                     LEFT JOIN test_results tr ON t.test_id = tr.test_id AND tr.user_id = @user_id
-                    WHERE t.status = 'active'
+                    WHERE (t.status IN ('active', 'Active', 'Published') OR t.is_active = 1)
                     AND t.start_date > GETDATE()
                     AND (uc.user_id IS NOT NULL OR c.is_public = 1)
                     AND tr.test_id IS NULL
@@ -554,7 +554,7 @@ const dashboardController = {
                         'bg-green-100 text-green-800' as badgeClass
                     FROM courses c
                     LEFT JOIN user_courses uc ON c.course_id = uc.course_id AND uc.user_id = @user_id
-                    WHERE c.status = 'active'
+                    WHERE (c.status IN ('active', 'Active', 'Published') OR c.is_active = 1)
                     AND c.start_date > GETDATE()
                     AND (uc.user_id IS NULL OR uc.status = 'not_started')
                     AND (c.is_public = 1 OR uc.user_id IS NOT NULL)
@@ -590,15 +590,15 @@ const dashboardController = {
                         c.thumbnail,
                         c.description,
                         CONCAT(u.first_name, ' ', u.last_name) as instructor_name,
-                        uc.progress_percentage,
+                        uc.progress as progress_percentage,
                         uc.status,
-                        uc.last_accessed_at
+                        uc.last_access_date as last_accessed_at
                     FROM user_courses uc
                     INNER JOIN courses c ON uc.course_id = c.course_id
                     LEFT JOIN users u ON c.instructor_id = u.user_id
                     WHERE uc.user_id = @user_id
                         AND uc.status IN ('enrolled', 'in_progress')
-                    ORDER BY uc.last_accessed_at DESC, uc.enrolled_at DESC
+                    ORDER BY uc.last_access_date DESC, uc.enrollment_date DESC
                 `);
 
             res.json({
@@ -606,7 +606,7 @@ const dashboardController = {
                 data: result.recordset.map(c => ({
                     course_id: c.course_id,
                     title: c.title || 'Untitled Course',
-                    thumbnail: c.thumbnail || '/images/course-default.jpg',
+                    thumbnail: c.thumbnail || '/images/course-default.svg',
                     instructor_name: c.instructor_name || '',
                     progress_percentage: c.progress_percentage || 0,
                     status: c.status
@@ -633,10 +633,10 @@ const dashboardController = {
                     SELECT TOP 5
                         c.course_id,
                         c.title,
-                        uc.progress_percentage,
+                        uc.progress as progress_percentage,
                         uc.status,
-                        uc.enrolled_at,
-                        uc.completed_at
+                        uc.enrollment_date,
+                        uc.completion_date as completed_at
                     FROM user_courses uc
                     INNER JOIN courses c ON uc.course_id = c.course_id
                     WHERE uc.user_id = @user_id
@@ -645,7 +645,7 @@ const dashboardController = {
                         CASE WHEN uc.status = 'in_progress' THEN 1
                              WHEN uc.status = 'enrolled' THEN 2
                              ELSE 3 END,
-                        uc.progress_percentage DESC
+                        uc.progress DESC
                 `);
 
             res.json({
@@ -782,7 +782,7 @@ const dashboardController = {
                     AS INT) as completion_rate
                 FROM courses c
                 LEFT JOIN user_courses uc ON c.course_id = uc.course_id
-                WHERE c.status = 'active'
+                WHERE (c.status IN ('active', 'Active', 'Published') OR c.is_active = 1)
                 GROUP BY c.course_id, c.title, c.thumbnail
                 ORDER BY COUNT(uc.user_id) DESC
             `);

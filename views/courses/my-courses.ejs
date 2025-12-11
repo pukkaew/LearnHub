@@ -247,15 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function formatDate(dateStr) {
-        if (!dateStr) return '-';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('<%= currentLang === "th" ? "th-TH" : "en-US" %>', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    }
+    // Use global formatDate from layout.ejs
 
     // Event listeners
     document.getElementById('status-filter').addEventListener('change', loadMyCourses);

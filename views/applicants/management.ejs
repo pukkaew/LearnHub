@@ -471,11 +471,7 @@ function exportApplicants() {
 }
 
 // Utility functions
-function formatDate(dateString) {
-    if (!dateString) return '-';
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('th-TH', options);
-}
+// Use global formatDate from layout.ejs
 
 function debounce(func, wait) {
     let timeout;

@@ -905,6 +905,7 @@ function updateEnrollmentStatus(course) {
     const container = document.getElementById('enrollment-status');
     const userRole = '<%= userRole || "" %>';
     const canEdit = userRole && ['Admin', 'Instructor', 'HR'].includes(userRole);
+    const canDelete = userRole && ['Admin', 'HR'].includes(userRole);
 
     if (course.enrollment_status === 'active') {
         container.innerHTML = `
@@ -978,6 +979,11 @@ function updateEnrollmentStatus(course) {
                     <a href="/courses/${course.course_id}/edit" class="btn-ruxchai-outline w-full text-center block">
                         <i class="fas fa-edit mr-2"></i>${t('editCourse')}
                     </a>
+                ` : ''}
+                ${canDelete && course.enrolled_count === 0 ? `
+                    <button onclick="confirmDeleteCourse(${course.course_id}, '${(course.title || course.course_name || '').replace(/'/g, "\\'")}')" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors w-full">
+                        <i class="fas fa-trash mr-2"></i>${t('deleteCourse') || 'ลบหลักสูตร'}
+                    </button>
                 ` : ''}
             </div>
         `;
@@ -1477,7 +1483,7 @@ function updateRelatedCoursesDisplay(courses) {
 
     container.innerHTML = courses.map(course => `
         <div class="flex space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <img src="${course.thumbnail || '/images/course-default.jpg'}"
+            <img src="${course.thumbnail || '/images/course-default.svg'}"
                  alt="${course.title}"
                  class="w-16 h-12 object-cover rounded">
             <div class="flex-1 min-w-0">
@@ -1516,6 +1522,56 @@ function showEnrollmentModal() {
 
 function closeEnrollmentModal() {
     document.getElementById('enrollment-modal').classList.add('hidden');
+}
+
+// Delete course confirmation and execution
+function confirmDeleteCourse(courseId, courseName) {
+    const confirmMsg = t('confirmDeleteCourse') || `ยืนยันการลบหลักสูตร "${courseName}"?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้`;
+    if (confirm(confirmMsg)) {
+        deleteCourse(courseId);
+    }
+}
+
+async function deleteCourse(courseId) {
+    try {
+        const response = await fetch(`/courses/api/${courseId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Show success message
+            if (typeof showSuccess === 'function') {
+                showSuccess(t('courseDeletedSuccess') || 'ลบหลักสูตรเรียบร้อยแล้ว');
+            } else {
+                alert(t('courseDeletedSuccess') || 'ลบหลักสูตรเรียบร้อยแล้ว');
+            }
+            // Redirect to courses list
+            setTimeout(() => {
+                window.location.href = '/courses';
+            }, 1500);
+        } else {
+            const errorMsg = data.message || t('errorDeletingCourse') || 'เกิดข้อผิดพลาดในการลบหลักสูตร';
+            if (typeof showError === 'function') {
+                showError(errorMsg);
+            } else {
+                alert(errorMsg);
+            }
+        }
+    } catch (error) {
+        console.error('Delete course error:', error);
+        const errorMsg = t('errorDeletingCourse') || 'เกิดข้อผิดพลาดในการลบหลักสูตร';
+        if (typeof showError === 'function') {
+            showError(errorMsg);
+        } else {
+            alert(errorMsg);
+        }
+    }
 }
 
 async function enrollInCourse() {

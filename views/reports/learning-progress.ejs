@@ -1,124 +1,169 @@
 
-
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between">
+    <!-- Professional HR Report Header -->
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= typeof systemSettings !== 'undefined' && systemSettings.primary_color ? systemSettings.primary_color : '#3b82f6' %>, <%= typeof systemSettings !== 'undefined' && systemSettings.secondary_color ? systemSettings.secondary_color : '#10b981' %>);">
+        <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">
-                    <i class="fas fa-graduation-cap mr-3 text-ruxchai-primary"></i>รายงานความก้าวหน้าการเรียน
-                </h1>
-                <p class="mt-2 text-gray-600">ติดตามและวิเคราะห์ความก้าวหน้าการเรียนรู้ของพนักงาน</p>
+                <h1 class="text-3xl font-bold text-white"><i class="fas fa-graduation-cap mr-3"></i>รายงานความก้าวหน้าการเรียน</h1>
+                <p class="text-white/80 mt-1">Learning Progress Report - HR Analytics Dashboard</p>
             </div>
             <div class="flex space-x-3">
+                <button onclick="window.print()"
+                        class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-print mr-2"></i>พิมพ์
+                </button>
                 <button onclick="exportCSV()"
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-download mr-2"></i>ส่งออก CSV
+                        class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-file-excel mr-2"></i>Excel
                 </button>
                 <button onclick="refreshData()"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                        class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
                     <i class="fas fa-sync mr-2"></i>รีเฟรช
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Filters -->
+    <!-- Report Info Bar -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6 flex items-center justify-between border-l-4 border-blue-500">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-calendar-alt mr-2 text-blue-500"></i>
+                <span>ข้อมูล ณ วันที่: <strong id="report-date" class="text-gray-900"></strong></span>
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-clock mr-2 text-green-500"></i>
+                <span>อัปเดตล่าสุด: <strong id="last-update" class="text-gray-900"></strong></span>
+            </div>
+        </div>
+        <div class="flex items-center text-sm">
+            <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800">
+                <i class="fas fa-check-circle mr-1"></i>ข้อมูลเป็นปัจจุบัน
+            </span>
+        </div>
+    </div>
+
+    <!-- Filters Panel -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">ตัวกรองข้อมูล</h3>
-        <form id="filter-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-filter mr-2 text-blue-500"></i>ตัวกรองรายงาน
+            </h3>
+            <button onclick="clearFilters()" class="text-sm text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times mr-1"></i>ล้างตัวกรอง
+            </button>
+        </div>
+        <form id="filter-form" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
-                <label for="department" class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
-                <select id="department" name="department" class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                <label for="department" class="block text-sm font-medium text-gray-700 mb-2">แผนก/ฝ่าย</label>
+                <select id="department" name="department" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                     <option value="">ทุกแผนก</option>
-                    <option value="IT">IT</option>
-                    <option value="HR">HR</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Operations">Operations</option>
                 </select>
             </div>
             <div>
-                <label for="date_from" class="block text-sm font-medium text-gray-700 mb-2">วันที่เริ่มต้น</label>
-                <input type="date" id="date_from" name="date_from"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                <label for="course" class="block text-sm font-medium text-gray-700 mb-2">หลักสูตร</label>
+                <select id="course" name="course" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    <option value="">ทุกหลักสูตร</option>
+                </select>
             </div>
             <div>
-                <label for="date_to" class="block text-sm font-medium text-gray-700 mb-2">วันที่สิ้นสุด</label>
+                <label for="date_from" class="block text-sm font-medium text-gray-700 mb-2">ตั้งแต่วันที่</label>
+                <input type="date" id="date_from" name="date_from"
+                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            </div>
+            <div>
+                <label for="date_to" class="block text-sm font-medium text-gray-700 mb-2">ถึงวันที่</label>
                 <input type="date" id="date_to" name="date_to"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
             </div>
             <div class="flex items-end">
                 <button type="submit"
-                        class="w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
-                    <i class="fas fa-filter mr-2"></i>กรองข้อมูล
+                        class="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center">
+                    <i class="fas fa-search mr-2"></i>ค้นหา
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-users text-ruxchai-primary text-2xl"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">พนักงานทั้งหมด</dt>
-                            <dd class="text-2xl font-bold text-gray-900" id="total-employees">-</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-user-graduate text-green-500 text-2xl"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">จบหลักสูตรแล้ว</dt>
-                            <dd class="text-2xl font-bold text-green-600" id="completed-courses">-</dd>
-                        </dl>
+    <!-- Executive Summary KPIs -->
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-chart-line mr-2 text-blue-500"></i>สรุปภาพรวม (Executive Summary)
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Employees KPI -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">พนักงานในระบบ</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" id="total-employees">0</p>
+                            <p class="text-xs text-gray-500 mt-1">Total Employees</p>
+                        </div>
+                        <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600 text-2xl"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-clock text-yellow-500 text-2xl"></i>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">กำลังเรียน</dt>
-                            <dd class="text-2xl font-bold text-yellow-600" id="in-progress-courses">-</dd>
-                        </dl>
-                    </div>
+                <div class="bg-blue-50 px-5 py-2">
+                    <span class="text-xs text-blue-600"><i class="fas fa-info-circle mr-1"></i>ผู้ใช้งานที่ active ในระบบ</span>
                 </div>
             </div>
-        </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-percentage text-blue-500 text-2xl"></i>
+            <!-- Completed Courses KPI -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">เรียนจบแล้ว</p>
+                            <p class="text-3xl font-bold text-green-600 mt-2" id="completed-courses">0</p>
+                            <p class="text-xs text-gray-500 mt-1">Completed Enrollments</p>
+                        </div>
+                        <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-award text-green-600 text-2xl"></i>
+                        </div>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">อัตราผ่าน</dt>
-                            <dd class="text-2xl font-bold text-blue-600" id="pass-rate">-</dd>
-                        </dl>
+                </div>
+                <div class="bg-green-50 px-5 py-2">
+                    <span class="text-xs text-green-600"><i class="fas fa-check-circle mr-1"></i>หลักสูตรที่จบ 100%</span>
+                </div>
+            </div>
+
+            <!-- In Progress KPI -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">กำลังเรียน</p>
+                            <p class="text-3xl font-bold text-amber-600 mt-2" id="in-progress-courses">0</p>
+                            <p class="text-xs text-gray-500 mt-1">In Progress</p>
+                        </div>
+                        <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-spinner text-amber-600 text-2xl"></i>
+                        </div>
                     </div>
+                </div>
+                <div class="bg-amber-50 px-5 py-2">
+                    <span class="text-xs text-amber-600"><i class="fas fa-clock mr-1"></i>อยู่ระหว่างการเรียน</span>
+                </div>
+            </div>
+
+            <!-- Completion Rate KPI -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">อัตราสำเร็จ</p>
+                            <p class="text-3xl font-bold text-purple-600 mt-2"><span id="pass-rate">0</span>%</p>
+                            <p class="text-xs text-gray-500 mt-1">Completion Rate</p>
+                        </div>
+                        <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-percentage text-purple-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-purple-50 px-5 py-2">
+                    <span class="text-xs text-purple-600"><i class="fas fa-chart-pie mr-1"></i>จากการลงทะเบียนทั้งหมด</span>
                 </div>
             </div>
         </div>
@@ -126,237 +171,640 @@
 
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Progress Chart -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                <i class="fas fa-chart-pie mr-2 text-ruxchai-primary"></i>สัดส่วนความก้าวหน้า
-            </h3>
-            <canvas id="progressChart" width="400" height="200"></canvas>
+        <!-- Progress Distribution Chart -->
+        <div class="bg-white shadow rounded-xl p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-chart-pie mr-2 text-blue-500"></i>สัดส่วนสถานะการเรียน
+                </h3>
+                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Status Distribution</span>
+            </div>
+            <div class="flex items-center">
+                <div style="position: relative; width: 200px; height: 200px;">
+                    <canvas id="progressChart"></canvas>
+                </div>
+                <div class="ml-8 space-y-4">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">เรียนจบแล้ว</p>
+                            <p class="text-2xl font-bold text-green-600"><span id="chart-completed">0</span> <span class="text-sm font-normal text-gray-500">คน</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-amber-500 rounded-full mr-3"></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">กำลังเรียน</p>
+                            <p class="text-2xl font-bold text-amber-600"><span id="chart-inprogress">0</span> <span class="text-sm font-normal text-gray-500">คน</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-gray-400 rounded-full mr-3"></div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">ยังไม่เริ่ม</p>
+                            <p class="text-2xl font-bold text-gray-600"><span id="chart-notstarted">0</span> <span class="text-sm font-normal text-gray-500">คน</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Department Comparison -->
-        <div class="bg-white shadow rounded-lg p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                <i class="fas fa-chart-bar mr-2 text-ruxchai-primary"></i>เปรียบเทียบแผนก
-            </h3>
-            <canvas id="departmentChart" width="400" height="200"></canvas>
+        <!-- Department Performance Chart -->
+        <div class="bg-white shadow rounded-xl p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-building mr-2 text-blue-500"></i>อัตราสำเร็จตามแผนก
+                </h3>
+                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Dept. Completion Rate</span>
+            </div>
+            <div style="position: relative; height: 280px;">
+                <canvas id="departmentChart"></canvas>
+            </div>
         </div>
     </div>
 
-    <!-- Data Table -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
-                <i class="fas fa-table mr-2 text-ruxchai-primary"></i>รายละเอียดความก้าวหน้า
+    <!-- Department Rankings -->
+    <div class="bg-white shadow rounded-xl p-6 border border-gray-100 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-trophy mr-2 text-yellow-500"></i>อันดับแผนกที่มีผลการเรียนดีที่สุด
             </h3>
+            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Top Performing Departments</span>
+        </div>
+        <div id="department-rankings" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Rankings will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Individual Progress Table -->
+    <div class="bg-white shadow rounded-xl overflow-hidden border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-users mr-2 text-blue-500"></i>รายละเอียดความก้าวหน้ารายบุคคล
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <input type="text" id="table-search" placeholder="ค้นหาพนักงาน..."
+                               class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500 w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <select id="table-sort" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
+                        <option value="name">เรียงตามชื่อ</option>
+                        <option value="progress">เรียงตามความก้าวหน้า</option>
+                        <option value="department">เรียงตามแผนก</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">พนักงาน</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แผนก</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หลักสูตรที่ลงทะเบียน</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">หลักสูตรที่จบ</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ความก้าวหน้า</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อัปเดทล่าสุด</th>
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-100 border-b border-gray-200">
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">รหัส</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">แผนก/ฝ่าย</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">ลงทะเบียน</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">จบแล้ว</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider" style="min-width: 180px;">ความก้าวหน้า</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">สถานะ</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">เข้าเรียนล่าสุด</th>
                     </tr>
                 </thead>
-                <tbody id="progress-table-body" class="bg-white divide-y divide-gray-200">
+                <tbody id="progress-table-body" class="divide-y divide-gray-100">
                     <!-- Data will be loaded here -->
                 </tbody>
             </table>
         </div>
-        <div id="table-pagination" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
-            <!-- Pagination will be loaded here -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    แสดง <span class="font-semibold text-gray-900" id="showing-from">0</span> - <span class="font-semibold text-gray-900" id="showing-to">0</span> จากทั้งหมด <span class="font-semibold text-gray-900" id="total-records">0</span> รายการ
+                </div>
+                <div class="flex items-center space-x-2" id="pagination-container">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Print Styles -->
+<style>
+@media print {
+    .no-print, button, form, input, select { display: none !important; }
+    .shadow, .shadow-sm, .shadow-lg { box-shadow: none !important; }
+    .rounded-2xl { border-radius: 0 !important; }
+    body { font-size: 12px; }
+}
+
+/* Professional Table Hover */
+#progress-table-body tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Progress Bar Animation */
+.progress-bar-animated {
+    animation: progressAnimation 1s ease-out forwards;
+}
+
+@keyframes progressAnimation {
+    from { width: 0%; }
+}
+</style>
+
 <script>
+// Utility functions
+function showError(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+    toast.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>' + message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+function showSuccess(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center';
+    toast.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Use global formatDate and formatDateTime from layout.ejs
+
+let progressChart, departmentChart;
+let allData = [];
+let originalData = [];
+let currentPage = 1;
+const pageSize = 15;
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Set report date
+    document.getElementById('report-date').textContent = formatDate(new Date());
+    document.getElementById('last-update').textContent = formatDateTime(new Date());
+
+    initializeCharts();
+    loadDepartmentOptions();
+    loadCourseOptions();
     loadProgressData();
 
-    // Initialize charts
-    initializeCharts();
-
-    // Form submit handler
     document.getElementById('filter-form').addEventListener('submit', function(e) {
         e.preventDefault();
+        currentPage = 1;
         loadProgressData();
     });
+
+    document.getElementById('table-search').addEventListener('input', debounce(filterTable, 300));
+    document.getElementById('table-sort').addEventListener('change', sortTable);
 });
 
-async function loadProgressData() {
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+function clearFilters() {
+    document.getElementById('filter-form').reset();
+    currentPage = 1;
+    loadProgressData();
+}
+
+async function loadDepartmentOptions() {
     try {
-        const formData = new FormData(document.getElementById('filter-form'));
-        const params = new URLSearchParams(formData);
-
-        const response = await fetch(`/reports/api/learning-progress?${params}`);
+        const response = await fetch('/organization/api/departments');
         const data = await response.json();
-
-        if (data.success) {
-            updateSummaryCards(data.summary);
-            updateCharts(data.charts);
-            updateTable(data.tableData);
-        } else {
-            showError(data.message);
+        const select = document.getElementById('department');
+        if (data.success && data.data) {
+            data.data.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept.department_name;
+                option.textContent = dept.department_name;
+                select.appendChild(option);
+            });
         }
     } catch (error) {
-        showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+        console.error('Error loading departments:', error);
     }
 }
 
-function updateSummaryCards(summary) {
-    document.getElementById('total-employees').textContent = summary.totalEmployees || 0;
-    document.getElementById('completed-courses').textContent = summary.completedCourses || 0;
-    document.getElementById('in-progress-courses').textContent = summary.inProgressCourses || 0;
-    document.getElementById('pass-rate').textContent = (summary.passRate || 0) + '%';
+async function loadCourseOptions() {
+    try {
+        const response = await fetch('/courses/api/all');
+        const data = await response.json();
+        const select = document.getElementById('course');
+        if (data.success && data.data) {
+            data.data.forEach(course => {
+                const option = document.createElement('option');
+                option.value = course.course_id;
+                option.textContent = course.title;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
 }
 
-let progressChart, departmentChart;
-
 function initializeCharts() {
-    // Progress Chart
+    // Progress Chart - Doughnut
     const progressCtx = document.getElementById('progressChart').getContext('2d');
     progressChart = new Chart(progressCtx, {
         type: 'doughnut',
         data: {
-            labels: ['จบแล้ว', 'กำลังเรียน', 'ยังไม่เริ่ม'],
+            labels: ['เรียนจบแล้ว', 'กำลังเรียน', 'ยังไม่เริ่ม'],
             datasets: [{
                 data: [0, 0, 0],
-                backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
-                borderWidth: 2
+                backgroundColor: ['#10B981', '#F59E0B', '#9CA3AF'],
+                borderWidth: 0,
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
+            cutout: '70%',
             plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+                legend: { display: false }
             }
         }
     });
 
-    // Department Chart
+    // Department Chart - Horizontal Bar
     const departmentCtx = document.getElementById('departmentChart').getContext('2d');
     departmentChart = new Chart(departmentCtx, {
         type: 'bar',
         data: {
             labels: [],
             datasets: [{
-                label: 'อัตราการจบหลักสูตร (%)',
+                label: 'อัตราสำเร็จ (%)',
                 data: [],
-                backgroundColor: '#3B82F6',
-                borderColor: '#1D4ED8',
-                borderWidth: 1
+                backgroundColor: function(context) {
+                    const value = context.raw || 0;
+                    if (value >= 80) return '#10B981';
+                    if (value >= 60) return '#3B82F6';
+                    if (value >= 40) return '#F59E0B';
+                    return '#EF4444';
+                },
+                borderRadius: 6,
+                barThickness: 24
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            indexAxis: 'y',
             scales: {
-                y: {
+                x: {
                     beginAtZero: true,
-                    max: 100
+                    max: 100,
+                    grid: { color: '#f3f4f6' },
+                    ticks: {
+                        callback: value => value + '%',
+                        font: { size: 11 }
+                    }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 12 } }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'อัตราสำเร็จ: ' + context.raw + '%';
+                        }
+                    }
                 }
             }
         }
     });
 }
 
-function updateCharts(chartData) {
-    // Update progress chart
-    if (chartData.progress) {
-        progressChart.data.datasets[0].data = [
-            chartData.progress.completed,
-            chartData.progress.inProgress,
-            chartData.progress.notStarted
-        ];
-        progressChart.update();
-    }
-
-    // Update department chart
-    if (chartData.departments) {
-        departmentChart.data.labels = chartData.departments.map(d => d.name);
-        departmentChart.data.datasets[0].data = chartData.departments.map(d => d.completion_rate);
-        departmentChart.update();
-    }
-}
-
-function updateTable(tableData) {
-    const tbody = document.getElementById('progress-table-body');
-    tbody.innerHTML = '';
-
-    if (tableData && tableData.data) {
-        tableData.data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 flex-shrink-0">
-                            <img class="h-10 w-10 rounded-full" src="${row.profile_image || '/images/default-avatar.png'}" alt="">
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">${row.full_name}</div>
-                            <div class="text-sm text-gray-500">${row.employee_id}</div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.department}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.enrolled_courses}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.completed_courses}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
-                            <div class="bg-ruxchai-primary h-2 rounded-full" style="width: ${row.progress_percentage}%"></div>
-                        </div>
-                        <span class="text-sm text-gray-900">${row.progress_percentage}%</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(row.last_activity).toLocaleDateString('th-TH')}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-}
-
-async function exportCSV() {
+async function loadProgressData() {
     try {
         const formData = new FormData(document.getElementById('filter-form'));
         const params = new URLSearchParams(formData);
 
-        const response = await fetch(`/reports/export/learning-progress?${params}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'text/csv'
-            }
-        });
+        const response = await fetch('/reports/api/learning-progress?' + params);
+        const data = await response.json();
 
-        if (response.ok) {
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `learning-progress-${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
+        if (data.success) {
+            updateSummaryCards(data.summary);
+            updateCharts(data.charts);
+            originalData = data.tableData?.data || [];
+            allData = [...originalData];
+            updateTable();
+            updateDepartmentRankings(data.charts.departments);
 
-            showSuccess('ส่งออกรายงานสำเร็จ');
+            // Update last update time
+            document.getElementById('last-update').textContent = formatDateTime(new Date());
         } else {
-            throw new Error('ไม่สามารถส่งออกรายงานได้');
+            showError(data.message || 'ไม่สามารถโหลดข้อมูลได้');
         }
     } catch (error) {
-        showError(error.message);
+        showError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        console.error(error);
+    }
+}
+
+function updateSummaryCards(summary) {
+    document.getElementById('total-employees').textContent = (summary.totalEmployees || 0).toLocaleString();
+    document.getElementById('completed-courses').textContent = (summary.completedCourses || 0).toLocaleString();
+    document.getElementById('in-progress-courses').textContent = (summary.inProgressCourses || 0).toLocaleString();
+    document.getElementById('pass-rate').textContent = (summary.passRate || 0);
+}
+
+function updateCharts(chartData) {
+    if (chartData.progress) {
+        const completed = chartData.progress.completed || 0;
+        const inProgress = chartData.progress.inProgress || 0;
+        const notStarted = chartData.progress.notStarted || 0;
+
+        progressChart.data.datasets[0].data = [completed, inProgress, notStarted];
+        progressChart.update();
+
+        document.getElementById('chart-completed').textContent = completed.toLocaleString();
+        document.getElementById('chart-inprogress').textContent = inProgress.toLocaleString();
+        document.getElementById('chart-notstarted').textContent = notStarted.toLocaleString();
+    }
+
+    if (chartData.departments && chartData.departments.length > 0) {
+        const sortedDepts = [...chartData.departments].sort((a, b) => b.completion_rate - a.completion_rate).slice(0, 8);
+        departmentChart.data.labels = sortedDepts.map(d => d.name);
+        departmentChart.data.datasets[0].data = sortedDepts.map(d => parseFloat(d.completion_rate) || 0);
+        departmentChart.update();
+    }
+}
+
+function updateDepartmentRankings(departments) {
+    const container = document.getElementById('department-rankings');
+    if (!departments || departments.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 col-span-3 text-center py-4">ไม่มีข้อมูล</p>';
+        return;
+    }
+
+    const sortedDepts = [...departments].sort((a, b) => b.completion_rate - a.completion_rate).slice(0, 3);
+    const medals = ['🥇', '🥈', '🥉'];
+    const bgColors = ['bg-yellow-50 border-yellow-200', 'bg-gray-50 border-gray-200', 'bg-orange-50 border-orange-200'];
+
+    container.innerHTML = sortedDepts.map((dept, index) => `
+        <div class="rounded-xl p-4 border-2 ${bgColors[index]}">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="text-3xl mr-3">${medals[index]}</span>
+                    <div>
+                        <p class="font-semibold text-gray-900">${dept.name}</p>
+                        <p class="text-xs text-gray-500">อันดับที่ ${index + 1}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-gray-900">${parseFloat(dept.completion_rate).toFixed(1)}%</p>
+                    <p class="text-xs text-gray-500">Completion Rate</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateTable() {
+    const tbody = document.getElementById('progress-table-body');
+    tbody.innerHTML = '';
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pageData = allData.slice(startIndex, endIndex);
+
+    if (pageData.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-inbox text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500 text-lg">ไม่พบข้อมูลพนักงาน</p>
+                        <p class="text-gray-400 text-sm">ลองเปลี่ยนเงื่อนไขการค้นหา</p>
+                    </div>
+                </td>
+            </tr>`;
+        document.getElementById('showing-from').textContent = '0';
+        document.getElementById('showing-to').textContent = '0';
+        document.getElementById('total-records').textContent = '0';
+        return;
+    }
+
+    pageData.forEach((row, index) => {
+        const progress = row.progress_percentage || 0;
+        let progressColor = 'bg-gray-400';
+        let progressBg = 'bg-gray-100';
+        if (progress >= 80) { progressColor = 'bg-green-500'; progressBg = 'bg-green-100'; }
+        else if (progress >= 60) { progressColor = 'bg-blue-500'; progressBg = 'bg-blue-100'; }
+        else if (progress >= 40) { progressColor = 'bg-amber-500'; progressBg = 'bg-amber-100'; }
+        else if (progress > 0) { progressColor = 'bg-red-500'; progressBg = 'bg-red-100'; }
+
+        let statusBadge = '';
+        const enrolled = row.enrolled_courses || 0;
+        const completed = row.completed_courses || 0;
+
+        if (completed > 0 && completed === enrolled) {
+            statusBadge = '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i>จบครบ</span>';
+        } else if (progress > 0) {
+            statusBadge = '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800"><i class="fas fa-spinner mr-1"></i>กำลังเรียน</span>';
+        } else if (enrolled > 0) {
+            statusBadge = '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"><i class="fas fa-pause-circle mr-1"></i>ยังไม่เริ่ม</span>';
+        } else {
+            statusBadge = '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500"><i class="fas fa-minus-circle mr-1"></i>ไม่มีหลักสูตร</span>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-blue-50/50 transition-colors';
+        tr.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm font-mono text-gray-600">${row.employee_id || '-'}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <img class="h-10 w-10 rounded-full object-cover border-2 border-gray-200"
+                         src="${row.profile_image || '/images/default-avatar.png'}"
+                         alt=""
+                         onerror="this.src='/images/default-avatar.png'">
+                    <div class="ml-3">
+                        <p class="text-sm font-semibold text-gray-900">${row.full_name || '-'}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-building mr-1"></i>${row.department || '-'}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="text-sm font-semibold text-gray-900">${enrolled}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="text-sm font-semibold text-green-600">${completed}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="flex-1 ${progressBg} rounded-full h-2.5 mr-3" style="min-width: 100px;">
+                        <div class="${progressColor} h-2.5 rounded-full progress-bar-animated" style="width: ${progress}%"></div>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-700 w-12 text-right">${progress}%</span>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">${statusBadge}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm text-gray-500">${formatDate(row.last_activity)}</span>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('showing-from').textContent = allData.length > 0 ? startIndex + 1 : 0;
+    document.getElementById('showing-to').textContent = Math.min(endIndex, allData.length);
+    document.getElementById('total-records').textContent = allData.length;
+
+    updatePagination();
+}
+
+function updatePagination() {
+    const totalPages = Math.ceil(allData.length / pageSize);
+    const container = document.getElementById('pagination-container');
+    container.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'px-3 py-2 rounded-lg border text-sm font-medium transition-colors ' +
+        (currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300');
+    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; updateTable(); } };
+    container.appendChild(prevBtn);
+
+    // Page numbers
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    if (startPage > 1) {
+        addPageButton(container, 1);
+        if (startPage > 2) {
+            const dots = document.createElement('span');
+            dots.className = 'px-2 text-gray-400';
+            dots.textContent = '...';
+            container.appendChild(dots);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        addPageButton(container, i);
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const dots = document.createElement('span');
+            dots.className = 'px-2 text-gray-400';
+            dots.textContent = '...';
+            container.appendChild(dots);
+        }
+        addPageButton(container, totalPages);
+    }
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'px-3 py-2 rounded-lg border text-sm font-medium transition-colors ' +
+        (currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300');
+    nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; updateTable(); } };
+    container.appendChild(nextBtn);
+}
+
+function addPageButton(container, pageNum) {
+    const btn = document.createElement('button');
+    btn.className = 'px-3 py-2 rounded-lg border text-sm font-medium transition-colors ' +
+        (pageNum === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300');
+    btn.textContent = pageNum;
+    btn.onclick = () => { currentPage = pageNum; updateTable(); };
+    container.appendChild(btn);
+}
+
+function filterTable() {
+    const searchTerm = document.getElementById('table-search').value.toLowerCase().trim();
+
+    if (searchTerm) {
+        allData = originalData.filter(row =>
+            (row.full_name && row.full_name.toLowerCase().includes(searchTerm)) ||
+            (row.employee_id && row.employee_id.toLowerCase().includes(searchTerm)) ||
+            (row.department && row.department.toLowerCase().includes(searchTerm))
+        );
+    } else {
+        allData = [...originalData];
+    }
+
+    currentPage = 1;
+    updateTable();
+}
+
+function sortTable() {
+    const sortBy = document.getElementById('table-sort').value;
+
+    allData.sort((a, b) => {
+        if (sortBy === 'name') {
+            return (a.full_name || '').localeCompare(b.full_name || '', 'th');
+        } else if (sortBy === 'progress') {
+            return (b.progress_percentage || 0) - (a.progress_percentage || 0);
+        } else if (sortBy === 'department') {
+            return (a.department || '').localeCompare(b.department || '', 'th');
+        }
+        return 0;
+    });
+
+    currentPage = 1;
+    updateTable();
+}
+
+async function exportCSV() {
+    try {
+        const BOM = '\uFEFF';
+        let csv = BOM;
+        csv += 'รหัสพนักงาน,ชื่อ-นามสกุล,แผนก,หลักสูตรลงทะเบียน,หลักสูตรจบแล้ว,ความก้าวหน้า(%),สถานะ,เข้าเรียนล่าสุด\n';
+
+        originalData.forEach(row => {
+            const status = (row.completed_courses > 0 && row.completed_courses === row.enrolled_courses) ? 'จบครบ' :
+                          (row.progress_percentage > 0) ? 'กำลังเรียน' :
+                          (row.enrolled_courses > 0) ? 'ยังไม่เริ่ม' : 'ไม่มีหลักสูตร';
+
+            csv += `"${row.employee_id || ''}","${row.full_name || ''}","${row.department || ''}",${row.enrolled_courses || 0},${row.completed_courses || 0},${row.progress_percentage || 0},"${status}","${formatDate(row.last_activity)}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'รายงานความก้าวหน้าการเรียน_' + new Date().toISOString().split('T')[0] + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+
+        showSuccess('ส่งออกไฟล์ Excel/CSV สำเร็จ');
+    } catch (error) {
+        showError('ไม่สามารถส่งออกไฟล์ได้');
     }
 }
 
 function refreshData() {
     loadProgressData();
-    showSuccess('รีเฟรชข้อมูลแล้ว');
+    showSuccess('รีเฟรชข้อมูลเรียบร้อย');
 }
 </script>

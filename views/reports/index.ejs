@@ -1,236 +1,376 @@
 
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">
-            <i class="fas fa-chart-bar mr-3 text-ruxchai-primary"></i>รายงานผลการเรียนรู้
-        </h1>
-        <p class="mt-2 text-gray-600">รายงานความก้าวหน้าและสถิติการเรียนรู้ของพนักงาน</p>
+    <!-- Page Header - Gradient Style -->
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-white">
+                    <i class="fas fa-chart-bar mr-3"></i>รายงานและวิเคราะห์
+                </h1>
+                <p class="text-white/80 mt-1">รายงานความก้าวหน้า สถิติการเรียนรู้ และวิเคราะห์ข้อมูลพนักงาน</p>
+            </div>
+            <div class="hidden md:flex items-center space-x-3">
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <p class="text-white/70 text-xs">อัปเดตล่าสุด</p>
+                    <p class="text-white font-semibold text-sm" id="lastUpdate">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase">หลักสูตรทั้งหมด</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statCourses">-</p>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <i class="fas fa-book text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase">ผู้ลงทะเบียน</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statEnrollments">-</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full">
+                    <i class="fas fa-users text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase">อัตราสำเร็จ</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statCompletion">-</p>
+                </div>
+                <div class="p-3 bg-purple-100 rounded-full">
+                    <i class="fas fa-trophy text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 uppercase">ผู้ใช้งานวันนี้</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statActiveUsers">-</p>
+                </div>
+                <div class="p-3 bg-orange-100 rounded-full">
+                    <i class="fas fa-user-check text-orange-600"></i>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Report Categories -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+            <i class="fas fa-folder-open mr-2 text-gray-400"></i>รายงานทั้งหมด
+        </h2>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Learning Progress Report -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <!-- Course Enrollments Report - NEW -->
+        <a href="/reports/course-enrollments" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
             <div class="p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-graduation-cap text-ruxchai-primary text-2xl"></i>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 p-3 bg-indigo-100 rounded-xl group-hover:bg-indigo-200 transition-colors">
+                        <i class="fas fa-user-graduate text-indigo-600 text-2xl"></i>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
-                                ความก้าวหน้าการเรียน
-                            </dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                <a href="/reports/learning-progress" class="hover:text-ruxchai-primary">
-                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
-                            </dd>
-                        </dl>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                            การลงทะเบียนหลักสูตร
+                            <span class="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full">NEW</span>
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">ดูรายละเอียดผู้ลงทะเบียนและความก้าวหน้าของแต่ละหลักสูตร</p>
                     </div>
+                    <i class="fas fa-arrow-right text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all"></i>
                 </div>
             </div>
-            <div class="bg-gray-50 px-6 py-3">
-                <div class="text-sm text-gray-500">
-                    ติดตามความคืบหน้าการเรียนของพนักงานแต่ละคน
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-3 border-t border-gray-100">
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-chart-pie mr-1"></i>
+                    <span>กราฟวิเคราะห์ • ตารางรายละเอียด • Export Excel</span>
                 </div>
             </div>
-        </div>
+        </a>
+
+        <!-- Learning Progress Report -->
+        <a href="/reports/learning-progress" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+            <div class="p-6">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 p-3 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                            ความก้าวหน้าการเรียน
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">ติดตามความคืบหน้าการเรียนของพนักงานแต่ละคน</p>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"></i>
+                </div>
+            </div>
+            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 px-6 py-3 border-t border-gray-100">
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-user mr-1"></i>
+                    <span>รายบุคคล • รายแผนก • Export CSV</span>
+                </div>
+            </div>
+        </a>
 
         <!-- Test Results Report -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <a href="/reports/test-results" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
             <div class="p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-clipboard-list text-green-500 text-2xl"></i>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 p-3 bg-green-100 rounded-xl group-hover:bg-green-200 transition-colors">
+                        <i class="fas fa-clipboard-list text-green-600 text-2xl"></i>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
-                                ผลการทดสอบ
-                            </dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                <a href="/reports/test-results" class="hover:text-green-500">
-                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
-                            </dd>
-                        </dl>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
+                            ผลการทดสอบ
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">สรุปผลคะแนนและสถิติการทดสอบทั้งหมด</p>
                     </div>
+                    <i class="fas fa-arrow-right text-gray-300 group-hover:text-green-500 group-hover:translate-x-1 transition-all"></i>
                 </div>
             </div>
-            <div class="bg-gray-50 px-6 py-3">
-                <div class="text-sm text-gray-500">
-                    สรุปผลคะแนนและสถิติการทดสอบ
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-3 border-t border-gray-100">
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-percentage mr-1"></i>
+                    <span>คะแนน • อัตราผ่าน • เวลาเฉลี่ย</span>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Course Analytics -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <a href="/reports/course-analytics" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
             <div class="p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-chart-line text-blue-500 text-2xl"></i>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 p-3 bg-cyan-100 rounded-xl group-hover:bg-cyan-200 transition-colors">
+                        <i class="fas fa-chart-line text-cyan-600 text-2xl"></i>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
-                                วิเคราะห์หลักสูตร
-                            </dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                <a href="/reports/course-analytics" class="hover:text-blue-500">
-                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
-                            </dd>
-                        </dl>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors">
+                            วิเคราะห์หลักสูตร
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">วิเคราะห์ประสิทธิภาพและความนิยมของหลักสูตร</p>
                     </div>
+                    <i class="fas fa-arrow-right text-gray-300 group-hover:text-cyan-500 group-hover:translate-x-1 transition-all"></i>
                 </div>
             </div>
-            <div class="bg-gray-50 px-6 py-3">
-                <div class="text-sm text-gray-500">
-                    วิเคราะห์ประสิทธิภาพและความนิยมของหลักสูตร
+            <div class="bg-gradient-to-r from-cyan-50 to-sky-50 px-6 py-3 border-t border-gray-100">
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-star mr-1"></i>
+                    <span>Rating • Engagement • Trends</span>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Department Performance -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <a href="/reports/department-performance" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
             <div class="p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-building text-purple-500 text-2xl"></i>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
+                        <i class="fas fa-building text-purple-600 text-2xl"></i>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
-                                ผลงานแผนก
-                            </dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                <a href="/reports/department-performance" class="hover:text-purple-500">
-                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
-                            </dd>
-                        </dl>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                            ผลงานแผนก
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">เปรียบเทียบผลงานการเรียนรู้ระหว่างแผนก</p>
                     </div>
+                    <i class="fas fa-arrow-right text-gray-300 group-hover:text-purple-500 group-hover:translate-x-1 transition-all"></i>
                 </div>
             </div>
-            <div class="bg-gray-50 px-6 py-3">
-                <div class="text-sm text-gray-500">
-                    เปรียบเทียบผลงานการเรียนรู้ระหว่างแผนก
+            <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 px-6 py-3 border-t border-gray-100">
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-ranking-star mr-1"></i>
+                    <span>Ranking • Comparison • Skills</span>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- User Activity -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <a href="/reports/user-activity" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
             <div class="p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-user-clock text-orange-500 text-2xl"></i>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 p-3 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors">
+                        <i class="fas fa-user-clock text-orange-600 text-2xl"></i>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
-                                กิจกรรมผู้ใช้
-                            </dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                <a href="/reports/user-activity" class="hover:text-orange-500">
-                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
-                            </dd>
-                        </dl>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
+                            กิจกรรมผู้ใช้
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">ติดตามการเข้าใช้งานและกิจกรรมต่างๆ</p>
                     </div>
+                    <i class="fas fa-arrow-right text-gray-300 group-hover:text-orange-500 group-hover:translate-x-1 transition-all"></i>
                 </div>
             </div>
-            <div class="bg-gray-50 px-6 py-3">
-                <div class="text-sm text-gray-500">
-                    ติดตามการเข้าใช้งานและกิจกรรมต่างๆ
+            <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-6 py-3 border-t border-gray-100">
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span>Login • Session • Activity Log</span>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Certification Report -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <a href="/reports/certifications" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
             <div class="p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-certificate text-yellow-500 text-2xl"></i>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 p-3 bg-yellow-100 rounded-xl group-hover:bg-yellow-200 transition-colors">
+                        <i class="fas fa-certificate text-yellow-600 text-2xl"></i>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">
-                                ใบประกาศนียบัตร
-                            </dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                <a href="/reports/certifications" class="hover:text-yellow-500">
-                                    ดูรายงาน <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
-                            </dd>
-                        </dl>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors">
+                            ใบประกาศนียบัตร
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">รายงานการออกใบประกาศนียบัตรและสถิติ</p>
                     </div>
+                    <i class="fas fa-arrow-right text-gray-300 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all"></i>
                 </div>
             </div>
-            <div class="bg-gray-50 px-6 py-3">
-                <div class="text-sm text-gray-500">
-                    รายงานการออกใบประกาศนียบัตรและสถิติ
+            <div class="bg-gradient-to-r from-yellow-50 to-lime-50 px-6 py-3 border-t border-gray-100">
+                <div class="flex items-center text-xs text-gray-500">
+                    <i class="fas fa-award mr-1"></i>
+                    <span>Issued • Validated • Top Earners</span>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- Quick Export Options -->
-    <div class="bg-white shadow rounded-lg p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">
-            <i class="fas fa-download mr-2 text-ruxchai-primary"></i>ส่งออกรายงานแบบด่วน
+    <div class="bg-white shadow-sm rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-download mr-2 text-gray-400"></i>ส่งออกรายงานแบบด่วน
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button onclick="exportReport('course-enrollments')"
+                    class="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 transition-all">
+                <i class="fas fa-file-excel mr-2 text-green-500"></i>
+                การลงทะเบียน
+            </button>
             <button onclick="exportReport('learning-progress')"
-                    class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    class="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all">
                 <i class="fas fa-file-csv mr-2 text-green-500"></i>
-                ส่งออกความก้าวหน้า CSV
+                ความก้าวหน้า
             </button>
             <button onclick="exportReport('test-results')"
-                    class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    class="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-green-50 hover:border-green-300 hover:text-green-700 transition-all">
                 <i class="fas fa-file-csv mr-2 text-green-500"></i>
-                ส่งออกผลการทดสอบ CSV
+                ผลการทดสอบ
             </button>
             <button onclick="exportReport('user-activity')"
-                    class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    class="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-all">
                 <i class="fas fa-file-csv mr-2 text-green-500"></i>
-                ส่งออกกิจกรรมผู้ใช้ CSV
+                กิจกรรมผู้ใช้
             </button>
         </div>
     </div>
 </div>
 
+<style>
+.report-card {
+    cursor: pointer;
+}
+.report-card:hover {
+    transform: translateY(-2px);
+}
+</style>
+
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadQuickStats();
+    updateLastUpdate();
+});
+
+async function loadQuickStats() {
+    try {
+        const response = await fetch('/reports/api/course-analytics?timePeriod=30');
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('statCourses').textContent = data.data.overview.totalCourses || 0;
+            document.getElementById('statEnrollments').textContent = data.data.overview.totalEnrollments || 0;
+            document.getElementById('statCompletion').textContent = (data.data.overview.completionRate || 0) + '%';
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+
+    try {
+        const activityResponse = await fetch('/reports/api/user-activity?timePeriod=today');
+        const activityData = await activityResponse.json();
+
+        if (activityData.success) {
+            document.getElementById('statActiveUsers').textContent = activityData.data.overview.activeUsers || 0;
+        }
+    } catch (error) {
+        console.error('Error loading activity stats:', error);
+    }
+}
+
+function updateLastUpdate() {
+    const now = new Date();
+    const options = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('lastUpdate').textContent = now.toLocaleDateString('th-TH', options);
+}
+
 async function exportReport(reportType) {
     try {
-        const response = await fetch(`/reports/export/${reportType}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'text/csv'
-            }
-        });
+        let url = '';
+        switch(reportType) {
+            case 'course-enrollments':
+                url = '/reports/api/export/course-enrollments';
+                break;
+            case 'learning-progress':
+                url = '/reports/api/export/learning-progress';
+                break;
+            default:
+                url = `/reports/export/${reportType}`;
+        }
+
+        const response = await fetch(url);
 
         if (response.ok) {
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+            const downloadUrl = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
-            a.href = url;
+            a.href = downloadUrl;
             a.download = `${reportType}-${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(downloadUrl);
 
-            showSuccess(`ส่งออกรายงาน ${reportType} สำเร็จ`);
+            showSuccess(`ส่งออกรายงานสำเร็จ`);
         } else {
             throw new Error('ไม่สามารถส่งออกรายงานได้');
         }
     } catch (error) {
         showError(error.message);
     }
+}
+
+function showSuccess(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
+}
+
+function showError(message) {
+    const alert = document.createElement('div');
+    alert.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    alert.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
 }
 </script>

@@ -850,6 +850,69 @@
     <% if (locals.additionalCSS) { %>
         <%- additionalCSS %>
     <% } %>
+
+    <!-- Air Datepicker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css">
+    <style>
+        /* Air Datepicker Thai Theme */
+        .air-datepicker {
+            font-family: var(--font-family);
+            --adp-font-family: var(--font-family);
+            --adp-accent-color: var(--primary-color);
+            --adp-color-secondary: var(--secondary-color);
+            --adp-day-cell-height: 38px;
+            --adp-cell-border-radius: 8px;
+            --adp-btn-border-radius: 8px;
+            --adp-nav-arrow-color: var(--primary-color);
+            --adp-nav-action-size: 32px;
+            --adp-pointer-size: 10px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .air-datepicker-nav--title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .air-datepicker-cell.-selected- {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        }
+        .air-datepicker-cell.-current- {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        .air-datepicker-cell.-focus- {
+            background: rgba(var(--primary-color), 0.1);
+        }
+        .air-datepicker--buttons {
+            border-top: 1px solid #e5e7eb;
+            padding: 12px;
+        }
+        .air-datepicker-button {
+            color: var(--primary-color) !important;
+            font-weight: 500;
+            border-radius: 6px;
+            padding: 8px 16px;
+        }
+        .air-datepicker-button:hover {
+            background: rgba(0,144,211,0.1);
+        }
+        .air-datepicker--time {
+            border-top: 1px solid #e5e7eb;
+            padding: 12px;
+        }
+        .air-datepicker-time--current {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        /* Input styling */
+        input.air-datepicker-input {
+            cursor: pointer;
+        }
+        input.air-datepicker-input::placeholder {
+            color: #9ca3af;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-thai">
     <!-- Comprehensive Responsive Navigation -->
@@ -1348,6 +1411,62 @@
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
+        // Global Date Format Functions - DD/MM/YYYY
+        window.formatDate = function(date) {
+            if (!date) return '-';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return '-';
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear() + 543; // Buddhist year
+            return `${day}/${month}/${year}`;
+        };
+
+        window.formatDateTime = function(date) {
+            if (!date) return '-';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return '-';
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear() + 543; // Buddhist year
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        };
+
+        window.formatDateShort = function(date) {
+            if (!date) return '-';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return '-';
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = String(d.getFullYear() + 543).slice(-2); // Short Buddhist year
+            return `${day}/${month}/${year}`;
+        };
+
+        // Convert DD/MM/YYYY to Date object
+        window.parseDateDMY = function(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('/');
+            if (parts.length !== 3) return null;
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            let year = parseInt(parts[2], 10);
+            if (year > 2500) year -= 543; // Convert Buddhist year to CE
+            return new Date(year, month, day);
+        };
+
+        // Convert Date to YYYY-MM-DD for form submission
+        window.formatDateISO = function(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return '';
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
         // Comprehensive Navigation JavaScript
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -1897,6 +2016,260 @@
             setupMobileMenuToggle();
         });
 
+    </script>
+
+    <!-- Air Datepicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.js"></script>
+    <script>
+        // Thai locale for Air Datepicker
+        const localeThBuddhist = {
+            days: ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'],
+            daysShort: ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'],
+            daysMin: ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'],
+            months: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'],
+            monthsShort: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
+            today: 'วันนี้',
+            clear: 'ล้าง',
+            dateFormat: 'dd/MM/yyyy',
+            timeFormat: 'HH:mm',
+            firstDay: 0
+        };
+
+        // Custom buttons for Air Datepicker
+        const todayButton = {
+            content: 'วันนี้',
+            onClick: (dp) => {
+                dp.selectDate(new Date());
+                dp.setViewDate(new Date());
+            }
+        };
+        const clearButton = {
+            content: 'ล้าง',
+            onClick: (dp) => {
+                dp.clear();
+            }
+        };
+
+        // Format date to DD/MM/YYYY with Buddhist year for display
+        function formatToBuddhistDate(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear() + 543;
+            return `${day}/${month}/${year}`;
+        }
+
+        // Format datetime to DD/MM/YYYY HH:mm with Buddhist year
+        function formatToBuddhistDateTime(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear() + 543;
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        // Global Air Datepicker initialization
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Initialize all date inputs
+            document.querySelectorAll('input[type="date"]').forEach(function(input) {
+                const originalValue = input.value;
+
+                // Change type to text
+                input.type = 'text';
+                input.classList.add('air-datepicker-input');
+                input.placeholder = 'DD/MM/YYYY';
+                input.readOnly = true;
+
+                // Create hidden input for form submission
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = input.name;
+                input.name = input.name + '_display';
+                input.parentNode.insertBefore(hiddenInput, input.nextSibling);
+
+                // Initialize Air Datepicker
+                const dp = new AirDatepicker(input, {
+                    locale: localeThBuddhist,
+                    dateFormat: function(date) {
+                        return formatToBuddhistDate(date);
+                    },
+                    autoClose: true,
+                    position: 'bottom center',
+                    animation: true,
+                    buttons: [todayButton, clearButton],
+                    navTitles: {
+                        days: function(dp) {
+                            const date = dp.viewDate;
+                            const month = localeThBuddhist.months[date.getMonth()];
+                            const year = date.getFullYear() + 543;
+                            return `${month} ${year}`;
+                        },
+                        months: function(dp) {
+                            return dp.viewDate.getFullYear() + 543;
+                        },
+                        years: function(dp) {
+                            const startYear = dp.viewDate.getFullYear() - 5 + 543;
+                            const endYear = dp.viewDate.getFullYear() + 6 + 543;
+                            return `${startYear} - ${endYear}`;
+                        }
+                    },
+                    onSelect: function({date, formattedDate, datepicker}) {
+                        if (date) {
+                            hiddenInput.value = formatDateISO(date);
+                            input.value = formatToBuddhistDate(date);
+                        } else {
+                            hiddenInput.value = '';
+                            input.value = '';
+                        }
+                    },
+                    onRenderCell: function({date, cellType}) {
+                        if (cellType === 'year') {
+                            return {
+                                html: date.getFullYear() + 543
+                            };
+                        }
+                    }
+                });
+
+                // Set initial value
+                if (originalValue) {
+                    const date = new Date(originalValue);
+                    dp.selectDate(date);
+                    hiddenInput.value = originalValue;
+                }
+            });
+
+            // Initialize all datetime-local inputs
+            document.querySelectorAll('input[type="datetime-local"]').forEach(function(input) {
+                const originalValue = input.value;
+
+                // Change type to text
+                input.type = 'text';
+                input.classList.add('air-datepicker-input');
+                input.placeholder = 'DD/MM/YYYY HH:mm';
+                input.readOnly = true;
+
+                // Create hidden input for form submission
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = input.name;
+                input.name = input.name + '_display';
+                input.parentNode.insertBefore(hiddenInput, input.nextSibling);
+
+                // Format to ISO datetime
+                function formatDateTimeISO(date) {
+                    if (!date) return '';
+                    const d = new Date(date);
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const hours = String(d.getHours()).padStart(2, '0');
+                    const minutes = String(d.getMinutes()).padStart(2, '0');
+                    return `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+
+                // Initialize Air Datepicker with time
+                const dp = new AirDatepicker(input, {
+                    locale: localeThBuddhist,
+                    timepicker: true,
+                    dateFormat: function(date) {
+                        return formatToBuddhistDateTime(date);
+                    },
+                    timeFormat: 'HH:mm',
+                    position: 'bottom center',
+                    animation: true,
+                    buttons: [todayButton, clearButton],
+                    navTitles: {
+                        days: function(dp) {
+                            const date = dp.viewDate;
+                            const month = localeThBuddhist.months[date.getMonth()];
+                            const year = date.getFullYear() + 543;
+                            return `${month} ${year}`;
+                        },
+                        months: function(dp) {
+                            return dp.viewDate.getFullYear() + 543;
+                        },
+                        years: function(dp) {
+                            const startYear = dp.viewDate.getFullYear() - 5 + 543;
+                            const endYear = dp.viewDate.getFullYear() + 6 + 543;
+                            return `${startYear} - ${endYear}`;
+                        }
+                    },
+                    onSelect: function({date, formattedDate, datepicker}) {
+                        if (date) {
+                            hiddenInput.value = formatDateTimeISO(date);
+                            input.value = formatToBuddhistDateTime(date);
+                        } else {
+                            hiddenInput.value = '';
+                            input.value = '';
+                        }
+                    },
+                    onRenderCell: function({date, cellType}) {
+                        if (cellType === 'year') {
+                            return {
+                                html: date.getFullYear() + 543
+                            };
+                        }
+                    }
+                });
+
+                // Set initial value
+                if (originalValue) {
+                    const date = new Date(originalValue);
+                    dp.selectDate(date);
+                    hiddenInput.value = originalValue;
+                }
+            });
+        });
+
+        // Global function to initialize date picker on dynamic elements
+        window.initDatePicker = function(element, options = {}) {
+            return new AirDatepicker(element, {
+                locale: localeThBuddhist,
+                dateFormat: function(date) {
+                    return formatToBuddhistDate(date);
+                },
+                autoClose: true,
+                animation: true,
+                buttons: [todayButton, clearButton],
+                navTitles: {
+                    days: function(dp) {
+                        const date = dp.viewDate;
+                        const month = localeThBuddhist.months[date.getMonth()];
+                        const year = date.getFullYear() + 543;
+                        return `${month} ${year}`;
+                    }
+                },
+                ...options
+            });
+        };
+
+        // Global function to initialize datetime picker on dynamic elements
+        window.initDateTimePicker = function(element, options = {}) {
+            return new AirDatepicker(element, {
+                locale: localeThBuddhist,
+                timepicker: true,
+                dateFormat: function(date) {
+                    return formatToBuddhistDateTime(date);
+                },
+                animation: true,
+                buttons: [todayButton, clearButton],
+                navTitles: {
+                    days: function(dp) {
+                        const date = dp.viewDate;
+                        const month = localeThBuddhist.months[date.getMonth()];
+                        const year = date.getFullYear() + 543;
+                        return `${month} ${year}`;
+                    }
+                },
+                ...options
+            });
+        };
     </script>
 
     <% if (locals.additionalJS) { %>
