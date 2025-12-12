@@ -2,6 +2,43 @@ const express = require('express');
 const router = express.Router();
 const testController = require('../controllers/testController');
 const authMiddleware = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const crypto = require('crypto');
+
+// Configure multer for question image uploads
+const questionImageStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../uploads/images'));
+    },
+    filename: (req, file, cb) => {
+        const timestamp = Date.now();
+        const randomString = crypto.randomBytes(8).toString('hex');
+        const ext = path.extname(file.originalname);
+        cb(null, `question_${timestamp}_${randomString}${ext}`);
+    }
+});
+
+const questionImageUpload = multer({
+    storage: questionImageStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed (JPG, PNG, GIF, WEBP)'), false);
+        }
+    }
+});
+
+// Debug middleware to see all requests
+router.use((req, res, next) => {
+    if (req.path.includes('questions')) {
+        console.log('>>> testRoutes DEBUG:', req.method, req.path, req.params);
+    }
+    next();
+});
 
 // Apply authentication to all test routes
 router.use(authMiddleware.requireAuth);
@@ -39,9 +76,24 @@ router.delete('/api/position-test-sets/:set_id', authMiddleware.requireRole(['Ad
 router.get('/api/position-test-config/:position_id', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.getPositionTestConfig);
 router.put('/api/position-test-config/:position_id', authMiddleware.requireRole(['Admin', 'HR', 'Instructor']), testController.updatePositionTestConfig);
 
+// Question image upload API
+router.post('/api/questions/upload-image', authMiddleware.requireRole(['Admin', 'Instructor']), questionImageUpload.single('image'), testController.uploadQuestionImage);
+
+// Question API endpoints for a specific test (MUST come before :test_id routes)
+router.put('/api/:test_id/questions/:question_id', (req, res, next) => {
+    console.log('>>> BEFORE AUTH - question update route:', req.params, req.body);
+    next();
+}, authMiddleware.requireRole(['Admin', 'Instructor']), (req, res, next) => {
+    console.log('>>> AFTER AUTH - question update route:', req.params);
+    next();
+}, testController.updateQuestion);
+
 // Test-specific API endpoints (with :test_id)
 router.get('/api/:test_id', testController.getTestById);
-router.put('/api/:test_id', authMiddleware.requireRole(['Admin', 'Instructor']), testController.updateTest);
+router.put('/api/:test_id', (req, res, next) => {
+    console.log('>>> HIT /api/:test_id PUT route:', req.params, 'path:', req.path);
+    next();
+}, authMiddleware.requireRole(['Admin', 'Instructor']), testController.updateTest);
 router.delete('/api/:test_id', authMiddleware.requireRole(['Admin']), testController.deleteTest);
 router.get('/api/:test_id/my-attempts', testController.getMyAttempts);
 router.post('/api/:test_id/start', testController.startTest);
@@ -63,6 +115,7 @@ router.get('/:test_id/start', testController.startTestAndRedirect);
 router.get('/:test_id/take', testController.startTestAndRedirect);
 router.get('/:test_id/results', testController.renderTestResults);
 router.get('/:test_id/analytics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderTestAnalytics);
+router.get('/:test_id/questions/:question_id/edit', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderEditQuestion);
 router.get('/:test_id/:attempt_id/taking', testController.renderTestTaking);
 
 module.exports = router;

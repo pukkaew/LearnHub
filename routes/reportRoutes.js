@@ -3,6 +3,63 @@ const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const { poolPromise, sql } = require('../config/database');
 
+// Helper function to convert date to ISO format, handling Buddhist Era dates
+function convertToISODate(dateStr) {
+    if (!dateStr) return null;
+
+    // If already in ISO format (YYYY-MM-DD), check for Buddhist Era year
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const year = parseInt(dateStr.substring(0, 4));
+        // Buddhist Era years are 543 years ahead of Christian Era
+        // If year > 2400, it's likely Buddhist Era
+        if (year > 2400) {
+            const ceYear = year - 543;
+            return ceYear + dateStr.substring(4);
+        }
+        return dateStr;
+    }
+
+    // Handle DD/MM/YYYY or D/M/YYYY format (Thai locale)
+    if (dateStr.includes('/')) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+            let day = parts[0].padStart(2, '0');
+            let month = parts[1].padStart(2, '0');
+            let year = parseInt(parts[2]);
+
+            // Convert Buddhist Era to Christian Era if needed
+            if (year > 2400) {
+                year = year - 543;
+            }
+
+            // Validate the result is a valid date
+            const testDate = new Date(`${year}-${month}-${day}`);
+            if (!isNaN(testDate.getTime())) {
+                return `${year}-${month}-${day}`;
+            }
+        }
+    }
+
+    // Try parsing as a date object
+    try {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+            let year = date.getFullYear();
+            // Check if it's Buddhist Era
+            if (year > 2400) {
+                year = year - 543;
+            }
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+    } catch (e) {
+        // Ignore parsing errors
+    }
+
+    return null;
+}
+
 // Render reports main page
 router.get('/', authMiddleware.requireAuth, async (req, res) => {
     try {
@@ -40,16 +97,18 @@ router.get('/learning-progress', authMiddleware.requireAuth, async (req, res) =>
 // Render test results page
 router.get('/test-results', authMiddleware.requireAuth, async (req, res) => {
     try {
+        const t = req.t || res.locals.t;
         res.render('reports/test-results', {
-            title: 'รายงานผลการทดสอบ - Rukchai Hongyen LearnHub',
+            title: `${t('reportTestResults')} - LearnHub`,
             user: req.session.user
         });
     } catch (error) {
         console.error('Render test results error:', error);
+        const t = req.t || res.locals.t;
         res.render('error', {
-            title: 'เกิดข้อผิดพลาด - Rukchai Hongyen LearnHub',
+            title: `${t('error')} - LearnHub`,
             user: req.session.user,
-            error: 'ไม่สามารถโหลดหน้ารายงานได้'
+            error: t('cannotLoadData')
         });
     }
 });
@@ -265,6 +324,51 @@ router.get('/api/learning-progress', authMiddleware.requireAuth, async (req, res
         res.status(500).json({
             success: false,
             message: 'เกิดข้อผิดพลาดในการสร้างรายงาน'
+        });
+    }
+});
+
+// API: Get filter options for test results
+router.get('/api/filter-options', authMiddleware.requireAuth, async (req, res) => {
+    try {
+        const pool = await poolPromise;
+
+        // Get courses list
+        const coursesResult = await pool.request().query(`
+            SELECT course_id, title
+            FROM Courses
+            WHERE is_active = 1
+            ORDER BY title
+        `);
+
+        // Get tests list
+        const testsResult = await pool.request().query(`
+            SELECT test_id, title
+            FROM tests
+            ORDER BY title
+        `);
+
+        // Get departments list
+        const departmentsResult = await pool.request().query(`
+            SELECT department_id, department_name
+            FROM Departments
+            WHERE is_active = 1
+            ORDER BY department_name
+        `);
+
+        res.json({
+            success: true,
+            options: {
+                courses: coursesResult.recordset || [],
+                tests: testsResult.recordset || [],
+                departments: departmentsResult.recordset || []
+            }
+        });
+    } catch (error) {
+        console.error('Filter options error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'เกิดข้อผิดพลาดในการโหลดตัวกรอง'
         });
     }
 });
@@ -1202,11 +1306,19 @@ router.get('/api/course-enrollments', authMiddleware.requireAuth, authMiddleware
         }
 
         if (date_from) {
-            enrollmentWhereClause += ` AND uc.enrollment_date >= '${date_from}'`;
+            // Validate and convert date format (handle Buddhist Era dates)
+            const validDateFrom = convertToISODate(date_from);
+            if (validDateFrom) {
+                enrollmentWhereClause += ` AND uc.enrollment_date >= '${validDateFrom}'`;
+            }
         }
 
         if (date_to) {
-            enrollmentWhereClause += ` AND uc.enrollment_date <= '${date_to}'`;
+            // Validate and convert date format (handle Buddhist Era dates)
+            const validDateTo = convertToISODate(date_to);
+            if (validDateTo) {
+                enrollmentWhereClause += ` AND uc.enrollment_date <= '${validDateTo}'`;
+            }
         }
 
         if (search) {

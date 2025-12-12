@@ -123,10 +123,8 @@ class Question {
                 .input('questionId', sql.Int, questionId)
                 .query(`
                     SELECT q.*,
-                           tb.bank_name,
                            CONCAT(u.first_name, ' ', u.last_name) as creator_name
                     FROM Questions q
-                    LEFT JOIN TestBanks tb ON q.bank_id = tb.bank_id
                     LEFT JOIN Users u ON q.created_by = u.user_id
                     WHERE q.question_id = @questionId
                 `);
@@ -137,8 +135,9 @@ class Question {
 
             const question = result.recordset[0];
 
-            // Get options if multiple choice or similar
-            if (['MULTIPLE_CHOICE', 'TRUE_FALSE', 'MATCHING'].includes(question.question_type)) {
+            // Get options if multiple choice or similar (check both upper and lower case)
+            const questionType = (question.question_type || '').toUpperCase();
+            if (['MULTIPLE_CHOICE', 'TRUE_FALSE', 'MATCHING'].includes(questionType)) {
                 const optionResult = await pool.request()
                     .input('questionId', sql.Int, questionId)
                     .query(`
@@ -211,11 +210,9 @@ class Question {
             // Get paginated data
             const result = await request.query(`
                 SELECT q.*,
-                       tb.bank_name,
                        CONCAT(u.first_name, ' ', u.last_name) as creator_name,
                        (SELECT COUNT(*) FROM QuestionOptions WHERE question_id = q.question_id) as option_count
                 FROM Questions q
-                LEFT JOIN TestBanks tb ON q.bank_id = tb.bank_id
                 LEFT JOIN Users u ON q.created_by = u.user_id
                 ${whereClause}
                 ORDER BY q.created_date DESC
@@ -239,6 +236,8 @@ class Question {
         try {
             const pool = await poolPromise;
 
+            console.log('Question.update called with:', { questionId, updateData });
+
             const updateFields = [];
             const request = pool.request()
                 .input('questionId', sql.Int, questionId);
@@ -247,6 +246,10 @@ class Question {
                 updateFields.push('question_text = @questionText');
                 request.input('questionText', sql.NVarChar(sql.MAX), updateData.question_text);
             }
+            if (updateData.question_type !== undefined) {
+                updateFields.push('question_type = @questionType');
+                request.input('questionType', sql.NVarChar(20), updateData.question_type);
+            }
             if (updateData.points !== undefined) {
                 updateFields.push('points = @points');
                 request.input('points', sql.Decimal(5, 2), updateData.points);
@@ -254,6 +257,10 @@ class Question {
             if (updateData.difficulty_level !== undefined) {
                 updateFields.push('difficulty_level = @difficultyLevel');
                 request.input('difficultyLevel', sql.Int, updateData.difficulty_level);
+            }
+            if (updateData.time_estimate_seconds !== undefined) {
+                updateFields.push('time_estimate_seconds = @timeEstimate');
+                request.input('timeEstimate', sql.Int, updateData.time_estimate_seconds);
             }
             if (updateData.explanation !== undefined) {
                 updateFields.push('explanation = @explanation');
@@ -267,10 +274,21 @@ class Question {
                 updateFields.push('question_image = @questionImage');
                 request.input('questionImage', sql.NVarChar(500), updateData.question_image);
             }
+            if (updateData.correct_answer !== undefined) {
+                updateFields.push('correct_answer = @correctAnswer');
+                request.input('correctAnswer', sql.NVarChar(50), updateData.correct_answer);
+            }
+            if (updateData.sample_answer !== undefined) {
+                updateFields.push('sample_answer = @sampleAnswer');
+                request.input('sampleAnswer', sql.NVarChar(sql.MAX), updateData.sample_answer);
+            }
 
             if (updateFields.length === 0) {
+                console.log('Question.update: No fields to update!', { updateData });
                 return { success: false, message: 'No fields to update' };
             }
+
+            console.log('Question.update: Fields to update:', updateFields);
 
             updateFields.push('modified_date = GETDATE()');
             updateFields.push('version = version + 1');

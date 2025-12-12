@@ -4,16 +4,16 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
                 <h1 class="text-3xl font-bold text-white">
-                    <i class="fas fa-clipboard-list mr-3"></i>รายงานการลงทะเบียนหลักสูตร
+                    <i class="fas fa-clipboard-list mr-3"></i><%= typeof t === 'function' ? t('courseEnrollmentsReport') : 'รายงานการลงทะเบียนหลักสูตร' %>
                 </h1>
-                <p class="text-white/80 mt-1">ติดตามการลงทะเบียนและความก้าวหน้าของผู้เรียนในแต่ละหลักสูตร</p>
+                <p class="text-white/80 mt-1"><%= typeof t === 'function' ? t('courseEnrollmentsSubtitle') : 'ติดตามการลงทะเบียนและความก้าวหน้าของผู้เรียนในแต่ละหลักสูตร' %></p>
             </div>
             <div class="flex space-x-3 mt-4 md:mt-0">
                 <button onclick="exportReport()" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-file-excel mr-2"></i>Export Excel
+                    <i class="fas fa-file-excel mr-2"></i><%= typeof t === 'function' ? t('exportExcel') : 'Export Excel' %>
                 </button>
                 <button onclick="refreshData()" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
+                    <i class="fas fa-sync-alt mr-2"></i><%= typeof t === 'function' ? t('refresh') : 'รีเฟรช' %>
                 </button>
             </div>
         </div>
@@ -21,359 +21,396 @@
 
     <!-- Selected Course Hero Section (Hidden by default) -->
     <div id="selectedCourseHero" class="hidden mb-8">
-        <div class="rounded-2xl shadow-2xl overflow-hidden" style="background: linear-gradient(135deg, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
-            <!-- Back Button & Course Badge -->
-            <div class="px-6 pt-4 flex justify-between items-center">
-                <button onclick="clearFilters()" class="flex items-center text-white/80 hover:text-white transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    <span>กลับไปดูทุกหลักสูตร</span>
-                </button>
-                <span id="heroBadge" class="px-3 py-1 bg-white/20 rounded-full text-white text-sm font-medium"></span>
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Top Banner with Gradient -->
+            <div class="relative px-6 py-5" style="background: linear-gradient(135deg, <%= systemSettings.primary_color || '#3b82f6' %> 0%, <%= systemSettings.secondary_color || '#10b981' %> 100%);">
+                <div class="flex justify-between items-center">
+                    <button onclick="clearFilters()" class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white font-medium transition-all">
+                        <i class="fas fa-arrow-left"></i>
+                        <span><%= typeof t === 'function' ? t('backToAllCourses') : 'กลับไปดูทุกหลักสูตร' %></span>
+                    </button>
+                    <span id="heroBadge" class="px-4 py-1.5 bg-white/20 rounded-full text-white text-sm font-medium"></span>
+                </div>
             </div>
 
-            <!-- Course Info -->
-            <div class="p-6 md:p-8">
+            <!-- Course Info Section -->
+            <div class="p-6">
                 <div class="flex flex-col lg:flex-row gap-6">
-                    <!-- Course Thumbnail -->
+                    <!-- Left: Thumbnail -->
                     <div class="flex-shrink-0">
-                        <div class="w-full lg:w-64 h-40 lg:h-36 rounded-xl overflow-hidden bg-white/10 backdrop-blur">
+                        <div class="w-full lg:w-56 h-36 rounded-xl overflow-hidden shadow-lg border border-gray-200">
                             <img id="heroThumbnail" src="/images/course-default.svg" alt="Course" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/images/course-default.svg'">
                         </div>
                     </div>
 
-                    <!-- Course Details -->
-                    <div class="flex-1 text-white">
-                        <h2 id="heroTitle" class="text-2xl md:text-3xl font-bold mb-2"></h2>
-                        <div class="flex flex-wrap gap-4 text-white/80 text-sm mb-4">
-                            <span id="heroInstructor"><i class="fas fa-user-tie mr-1"></i></span>
-                            <span id="heroDuration"><i class="fas fa-clock mr-1"></i></span>
-                            <span id="heroLevel"><i class="fas fa-signal mr-1"></i></span>
+                    <!-- Right: Course Details -->
+                    <div class="flex-1">
+                        <!-- Title -->
+                        <h2 id="heroTitle" class="text-2xl font-bold text-gray-800 mb-3"></h2>
+
+                        <!-- Meta Info -->
+                        <div class="flex flex-wrap gap-3 mb-4">
+                            <span id="heroInstructor" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-700">
+                                <i class="fas fa-user-tie" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i>
+                                <span></span>
+                            </span>
+                            <span id="heroDuration" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-700">
+                                <i class="fas fa-clock" style="color: <%= systemSettings.secondary_color || '#10b981' %>;"></i>
+                                <span></span>
+                            </span>
+                            <span id="heroLevel" class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-700">
+                                <i class="fas fa-signal" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i>
+                                <span></span>
+                            </span>
                         </div>
 
-                        <!-- Progress Overview -->
-                        <div class="bg-white/10 backdrop-blur rounded-xl p-4 mb-4">
+                        <!-- Progress Bar -->
+                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-white/80">ความก้าวหน้าเฉลี่ยของผู้เรียน</span>
-                                <span id="heroProgress" class="text-2xl font-bold">0%</span>
+                                <span class="text-sm font-medium text-gray-600"><%= typeof t === 'function' ? t('avgLearnerProgress') : 'ความก้าวหน้าเฉลี่ยของผู้เรียน' %></span>
+                                <span id="heroProgress" class="text-xl font-bold" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;">0%</span>
                             </div>
-                            <div class="h-3 bg-white/20 rounded-full overflow-hidden">
-                                <div id="heroProgressBar" class="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div id="heroProgressBar" class="h-full rounded-full transition-all duration-500" style="width: 0%; background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);"></div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Quick Stats Grid -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div class="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                                <p id="heroEnrollments" class="text-2xl font-bold">0</p>
-                                <p class="text-xs text-white/70">ลงทะเบียนทั้งหมด</p>
-                            </div>
-                            <div class="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                                <p id="heroInProgress" class="text-2xl font-bold text-yellow-300">0</p>
-                                <p class="text-xs text-white/70">กำลังเรียน</p>
-                            </div>
-                            <div class="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                                <p id="heroCompleted" class="text-2xl font-bold text-green-300">0</p>
-                                <p class="text-xs text-white/70">เรียนจบแล้ว</p>
-                            </div>
-                            <div class="bg-white/10 backdrop-blur rounded-lg p-3 text-center">
-                                <p id="heroCompletionRate" class="text-2xl font-bold text-blue-300">0%</p>
-                                <p class="text-xs text-white/70">อัตราสำเร็จ</p>
-                            </div>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                    <div class="bg-blue-50 rounded-xl p-4 text-center border border-blue-100">
+                        <div class="w-10 h-10 mx-auto mb-2 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600"></i>
                         </div>
+                        <p id="heroEnrollments" class="text-2xl font-bold text-blue-700">0</p>
+                        <p class="text-xs text-blue-600 font-medium mt-1"><%= typeof t === 'function' ? t('totalEnrollments') : 'ลงทะเบียนทั้งหมด' %></p>
+                    </div>
+                    <div class="bg-yellow-50 rounded-xl p-4 text-center border border-yellow-100">
+                        <div class="w-10 h-10 mx-auto mb-2 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-spinner text-yellow-600"></i>
+                        </div>
+                        <p id="heroInProgress" class="text-2xl font-bold text-yellow-700">0</p>
+                        <p class="text-xs text-yellow-600 font-medium mt-1"><%= typeof t === 'function' ? t('activeEnrollments') : 'กำลังเรียน' %></p>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-4 text-center border border-green-100">
+                        <div class="w-10 h-10 mx-auto mb-2 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                        </div>
+                        <p id="heroCompleted" class="text-2xl font-bold text-green-700">0</p>
+                        <p class="text-xs text-green-600 font-medium mt-1"><%= typeof t === 'function' ? t('completedEnrollments') : 'เรียนจบแล้ว' %></p>
+                    </div>
+                    <div class="bg-purple-50 rounded-xl p-4 text-center border border-purple-100">
+                        <div class="w-10 h-10 mx-auto mb-2 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-trophy text-purple-600"></i>
+                        </div>
+                        <p id="heroCompletionRate" class="text-2xl font-bold text-purple-700">0%</p>
+                        <p class="text-xs text-purple-600 font-medium mt-1"><%= typeof t === 'function' ? t('completionRate') : 'อัตราสำเร็จ' %></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Overview Cards (Show when no course selected) -->
-    <div id="overviewCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+    <!-- Overview Cards - Dashboard Style -->
+    <div id="overviewCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">หลักสูตรทั้งหมด</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="totalCourses">0</p>
+                    <p class="text-xs font-medium text-gray-500 mb-1"><%= typeof t === 'function' ? t('totalCourses') : 'หลักสูตรทั้งหมด' %></p>
+                    <p class="text-xl font-bold text-gray-900" id="totalCourses">0</p>
                 </div>
-                <div class="p-3 bg-blue-100 rounded-full">
-                    <i class="fas fa-book text-blue-600"></i>
+                <div class="icon-box bg-blue-100" style="width: 36px; height: 36px;">
+                    <i class="fas fa-book text-blue-600 text-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">ลงทะเบียนทั้งหมด</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="totalEnrollments">0</p>
+                    <p class="text-xs font-medium text-gray-500 mb-1"><%= typeof t === 'function' ? t('totalEnrollments') : 'ลงทะเบียนทั้งหมด' %></p>
+                    <p class="text-xl font-bold text-gray-900" id="totalEnrollments">0</p>
                 </div>
-                <div class="p-3 bg-green-100 rounded-full">
-                    <i class="fas fa-user-plus text-green-600"></i>
+                <div class="icon-box bg-green-100" style="width: 36px; height: 36px;">
+                    <i class="fas fa-user-plus text-green-600 text-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-yellow-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">กำลังเรียน</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="activeEnrollments">0</p>
+                    <p class="text-xs font-medium text-gray-500 mb-1"><%= typeof t === 'function' ? t('activeEnrollments') : 'กำลังเรียน' %></p>
+                    <p class="text-xl font-bold text-gray-900" id="activeEnrollments">0</p>
                 </div>
-                <div class="p-3 bg-yellow-100 rounded-full">
-                    <i class="fas fa-spinner text-yellow-600"></i>
+                <div class="icon-box bg-yellow-100" style="width: 36px; height: 36px;">
+                    <i class="fas fa-spinner text-yellow-600 text-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-emerald-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">เรียนจบแล้ว</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="completedEnrollments">0</p>
+                    <p class="text-xs font-medium text-gray-500 mb-1"><%= typeof t === 'function' ? t('completedEnrollments') : 'เรียนจบแล้ว' %></p>
+                    <p class="text-xl font-bold text-gray-900" id="completedEnrollments">0</p>
                 </div>
-                <div class="p-3 bg-emerald-100 rounded-full">
-                    <i class="fas fa-check-circle text-emerald-600"></i>
+                <div class="icon-box bg-emerald-100" style="width: 36px; height: 36px;">
+                    <i class="fas fa-check-circle text-emerald-600 text-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">ความก้าวหน้าเฉลี่ย</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="avgProgress">0%</p>
+                    <p class="text-xs font-medium text-gray-500 mb-1"><%= typeof t === 'function' ? t('avgProgress') : 'ความก้าวหน้าเฉลี่ย' %></p>
+                    <p class="text-xl font-bold text-gray-900" id="avgProgress">0%</p>
                 </div>
-                <div class="p-3 bg-purple-100 rounded-full">
-                    <i class="fas fa-chart-line text-purple-600"></i>
+                <div class="icon-box bg-purple-100" style="width: 36px; height: 36px;">
+                    <i class="fas fa-chart-line text-purple-600 text-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-indigo-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">อัตราสำเร็จ</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="completionRate">0%</p>
+                    <p class="text-xs font-medium text-gray-500 mb-1"><%= typeof t === 'function' ? t('completionRate') : 'อัตราสำเร็จ' %></p>
+                    <p class="text-xl font-bold text-gray-900" id="completionRate">0%</p>
                 </div>
-                <div class="p-3 bg-indigo-100 rounded-full">
-                    <i class="fas fa-trophy text-indigo-600"></i>
+                <div class="icon-box bg-indigo-100" style="width: 36px; height: 36px;">
+                    <i class="fas fa-trophy text-indigo-600 text-sm"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-filter mr-2 text-gray-400"></i>ตัวกรองข้อมูล</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+        <h3 class="text-sm font-semibold text-gray-900 mb-3"><i class="fas fa-filter mr-1 text-gray-400" style="font-size: 12px;"></i><%= typeof t === 'function' ? t('filterData') : 'ตัวกรองข้อมูล' %></h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">หลักสูตร</label>
-                <select id="filterCourse" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">ทุกหลักสูตร</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1"><%= typeof t === 'function' ? t('course') : 'หลักสูตร' %></label>
+                <select id="filterCourse" class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value=""><%= typeof t === 'function' ? t('allCourses') : 'ทุกหลักสูตร' %></option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
-                <select id="filterDepartment" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">ทุกแผนก</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1"><%= typeof t === 'function' ? t('department') : 'แผนก' %></label>
+                <select id="filterDepartment" class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value=""><%= typeof t === 'function' ? t('allDepartments') : 'ทุกแผนก' %></option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">สถานะ</label>
-                <select id="filterStatus" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">ทุกสถานะ</option>
-                    <option value="Active">กำลังเรียน</option>
-                    <option value="In Progress">กำลังดำเนินการ</option>
-                    <option value="Completed">เสร็จสิ้น</option>
-                    <option value="Dropped">ยกเลิก</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1"><%= typeof t === 'function' ? t('status') : 'สถานะ' %></label>
+                <select id="filterStatus" class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value=""><%= typeof t === 'function' ? t('allStatuses') : 'ทุกสถานะ' %></option>
+                    <option value="Active"><%= typeof t === 'function' ? t('statusActive') : 'กำลังเรียน' %></option>
+                    <option value="In Progress"><%= typeof t === 'function' ? t('statusInProgress') : 'กำลังดำเนินการ' %></option>
+                    <option value="Completed"><%= typeof t === 'function' ? t('statusCompleted') : 'เสร็จสิ้น' %></option>
+                    <option value="Dropped"><%= typeof t === 'function' ? t('statusDropped') : 'ยกเลิก' %></option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">วันที่เริ่มต้น</label>
-                <input type="date" id="filterDateFrom" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <label class="block text-xs font-medium text-gray-700 mb-1"><%= typeof t === 'function' ? t('startDate') : 'วันที่เริ่มต้น' %></label>
+                <input type="date" id="filterDateFrom" class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">วันที่สิ้นสุด</label>
-                <input type="date" id="filterDateTo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <label class="block text-xs font-medium text-gray-700 mb-1"><%= typeof t === 'function' ? t('endDate') : 'วันที่สิ้นสุด' %></label>
+                <input type="date" id="filterDateTo" class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
             </div>
         </div>
-        <div class="mt-4 flex justify-between items-center">
-            <div class="flex-1 max-w-md">
+        <div class="mt-3 flex justify-between items-center">
+            <div class="flex-1 max-w-sm">
                 <div class="relative">
-                    <input type="text" id="searchInput" placeholder="ค้นหาชื่อ, รหัสพนักงาน หรืออีเมล..."
-                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="<%= typeof t === 'function' ? t('searchPlaceholder') : 'ค้นหาชื่อ, รหัสพนักงาน หรืออีเมล...' %>"
+                           class="w-full border border-gray-300 rounded pl-7 pr-3 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <i class="fas fa-search absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" style="font-size: 10px;"></i>
                 </div>
             </div>
-            <div class="flex space-x-3">
-                <button onclick="applyFilters()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200">
-                    <i class="fas fa-search mr-2"></i>กรองข้อมูล
+            <div class="flex space-x-2">
+                <button onclick="applyFilters()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 px-3 rounded text-xs transition-all duration-200">
+                    <i class="fas fa-search mr-1" style="font-size: 10px;"></i><%= typeof t === 'function' ? t('filter') : 'กรอง' %>
                 </button>
-                <button onclick="clearFilters()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition-all duration-200">
-                    <i class="fas fa-times mr-2"></i>ล้างตัวกรอง
+                <button onclick="clearFilters()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1.5 px-3 rounded text-xs transition-all duration-200">
+                    <i class="fas fa-times mr-1" style="font-size: 10px;"></i><%= typeof t === 'function' ? t('clear') : 'ล้าง' %>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Charts Section (Show when course selected) -->
-    <div id="courseDetailCharts" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div id="courseDetailCharts" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Enrollment Timeline Chart -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-chart-line mr-2 text-blue-500"></i>การลงทะเบียนรายเดือน</h3>
-            <div style="position: relative; height: 280px;">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-chart-line mr-2" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i><%= typeof t === 'function' ? t('monthlyEnrollments') : 'การลงทะเบียนรายเดือน' %></h3>
+            </div>
+            <div class="p-6" style="position: relative; height: 240px;">
                 <canvas id="enrollmentTimelineChart"></canvas>
             </div>
         </div>
 
         <!-- Progress Distribution for Selected Course -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>การกระจายความก้าวหน้า</h3>
-            <div style="position: relative; height: 280px;">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-chart-pie mr-2" style="color: <%= systemSettings.secondary_color || '#10b981' %>;"></i><%= typeof t === 'function' ? t('progressDistribution') : 'การกระจายความก้าวหน้า' %></h3>
+            </div>
+            <div class="p-6" style="position: relative; height: 240px;">
                 <canvas id="courseProgressChart"></canvas>
             </div>
         </div>
     </div>
 
     <!-- Charts Section (Show when no course selected) -->
-    <div id="overviewCharts" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div id="overviewCharts" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Progress Distribution Chart -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-chart-pie mr-2 text-indigo-500"></i>การกระจายความก้าวหน้า</h3>
-            <div style="position: relative; height: 280px;">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-chart-pie mr-2" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i><%= typeof t === 'function' ? t('progressDistribution') : 'การกระจายความก้าวหน้า' %></h3>
+            </div>
+            <div class="p-6" style="position: relative; height: 240px;">
                 <canvas id="progressChart"></canvas>
             </div>
         </div>
 
         <!-- Department Enrollments Chart -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-building mr-2 text-green-500"></i>การลงทะเบียนตามแผนก</h3>
-            <div style="position: relative; height: 280px;">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-building mr-2" style="color: <%= systemSettings.secondary_color || '#10b981' %>;"></i><%= typeof t === 'function' ? t('departmentEnrollments') : 'การลงทะเบียนตามแผนก' %></h3>
+            </div>
+            <div class="p-6" style="position: relative; height: 240px;">
                 <canvas id="departmentChart"></canvas>
             </div>
         </div>
     </div>
 
     <!-- Learner Progress Leaderboard (Show when course selected) -->
-    <div id="learnerLeaderboard" class="hidden bg-white rounded-xl shadow-sm p-6 mb-8">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-medal mr-2 text-yellow-500"></i>อันดับผู้เรียน</h3>
+    <div id="learnerLeaderboard" class="hidden bg-white rounded-xl border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-medal mr-2" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i><%= typeof t === 'function' ? t('learnerRanking') : 'อันดับผู้เรียน' %></h3>
             <div class="flex space-x-2">
-                <button onclick="sortLeaderboard('progress')" class="leaderboard-sort-btn active px-3 py-1 rounded-lg text-sm" data-sort="progress">
-                    ความก้าวหน้า
+                <button onclick="sortLeaderboard('progress')" class="leaderboard-sort-btn active px-3 py-1.5 rounded text-sm" data-sort="progress">
+                    <%= typeof t === 'function' ? t('progress') : 'ความก้าวหน้า' %>
                 </button>
-                <button onclick="sortLeaderboard('recent')" class="leaderboard-sort-btn px-3 py-1 rounded-lg text-sm" data-sort="recent">
-                    ล่าสุด
+                <button onclick="sortLeaderboard('recent')" class="leaderboard-sort-btn px-3 py-1.5 rounded text-sm" data-sort="recent">
+                    <%= typeof t === 'function' ? t('latest') : 'ล่าสุด' %>
                 </button>
             </div>
         </div>
-        <div id="leaderboardContainer" class="space-y-3">
+        <div id="leaderboardContainer" class="space-y-2 p-6 pt-0">
             <!-- Leaderboard items will be loaded here -->
         </div>
     </div>
 
     <!-- Course Summary Cards (Show when no course selected) -->
-    <div id="courseSummarySection" class="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-book-open mr-2 text-blue-500"></i>สรุปรายหลักสูตร</h3>
+    <div id="courseSummarySection" class="bg-white rounded-xl border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-book-open mr-2" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i><%= typeof t === 'function' ? t('courseSummary') : 'สรุปรายหลักสูตร' %></h3>
             <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-500">เรียงตาม:</span>
-                <select id="courseSortBy" class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-indigo-500" onchange="sortCourses()">
-                    <option value="enrollments">จำนวนลงทะเบียน</option>
-                    <option value="completion">อัตราสำเร็จ</option>
-                    <option value="progress">ความก้าวหน้า</option>
-                    <option value="name">ชื่อหลักสูตร</option>
+                <span class="text-sm text-gray-500"><%= typeof t === 'function' ? t('sortBy') : 'เรียงตาม' %>:</span>
+                <select id="courseSortBy" class="border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-indigo-500" onchange="sortCourses()">
+                    <option value="enrollments"><%= typeof t === 'function' ? t('enrollmentCount') : 'จำนวนลงทะเบียน' %></option>
+                    <option value="completion"><%= typeof t === 'function' ? t('completionRate') : 'อัตราสำเร็จ' %></option>
+                    <option value="progress"><%= typeof t === 'function' ? t('progress') : 'ความก้าวหน้า' %></option>
+                    <option value="name"><%= typeof t === 'function' ? t('courseName') : 'ชื่อหลักสูตร' %></option>
                 </select>
             </div>
         </div>
-        <div id="courseSummaryContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div id="courseSummaryContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
             <!-- Course cards will be loaded here -->
         </div>
     </div>
 
     <!-- Enrollment Timeline (Show when course selected) -->
-    <div id="enrollmentTimeline" class="hidden bg-white rounded-xl shadow-sm p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-6"><i class="fas fa-history mr-2 text-indigo-500"></i>ประวัติการลงทะเบียน</h3>
-        <div id="timelineContainer" class="relative">
+    <div id="enrollmentTimeline" class="hidden bg-white rounded-xl border border-gray-200 mb-6">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-history mr-3" style="color: <%= systemSettings.secondary_color || '#10b981' %>;"></i>
+                <%= typeof t === 'function' ? t('enrollmentHistory') : 'ประวัติการลงทะเบียน' %>
+            </h3>
+        </div>
+        <div id="timelineContainer" class="relative p-6">
             <!-- Timeline items will be loaded here -->
         </div>
     </div>
 
-    <!-- Detailed Enrollments Table -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-200">
+    <!-- Detailed Enrollments Table (Hidden by default, show when course selected) -->
+    <div id="enrollmentsTableSection" class="hidden bg-white rounded-xl border border-gray-200 overflow-hidden mt-6">
+        <!-- Header with system gradient -->
+        <div class="px-8 py-6" style="background: linear-gradient(135deg, <%= systemSettings.primary_color || '#3b82f6' %> 0%, <%= systemSettings.secondary_color || '#10b981' %> 100%);">
             <div class="flex justify-between items-center">
-                <div>
-                    <h3 id="tableTitle" class="text-lg font-semibold text-gray-900"><i class="fas fa-users mr-2 text-purple-500"></i>รายละเอียดผู้ลงทะเบียน</h3>
-                    <p class="text-sm text-gray-500 mt-1">แสดง <span id="showingCount">0</span> รายการ</p>
+                <div class="text-white">
+                    <h3 id="tableTitle" class="text-2xl font-bold flex items-center">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-users text-lg"></i>
+                        </div>
+                        <%= typeof t === 'function' ? t('enrollmentDetails') : 'รายละเอียดผู้ลงทะเบียน' %>
+                    </h3>
+                    <p class="text-white/80 text-base mt-2 ml-14"><span id="showingCount">0</span> <%= typeof t === 'function' ? t('items') : 'รายการ' %></p>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="toggleView('table')" id="viewTable" class="view-btn active px-3 py-2 rounded-lg text-sm">
-                        <i class="fas fa-list"></i>
-                    </button>
-                    <button onclick="toggleView('cards')" id="viewCards" class="view-btn px-3 py-2 rounded-lg text-sm">
-                        <i class="fas fa-th-large"></i>
-                    </button>
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-1 flex shadow-inner">
+                        <button onclick="toggleView('table')" id="viewTable" class="view-toggle-btn active px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-200">
+                            <i class="fas fa-list mr-2"></i><%= typeof t === 'function' ? t('tableView') : 'ตาราง' %>
+                        </button>
+                        <button onclick="toggleView('cards')" id="viewCards" class="view-toggle-btn px-4 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-all duration-200">
+                            <i class="fas fa-th-large mr-2"></i><%= typeof t === 'function' ? t('cardView') : 'การ์ด' %>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Table View -->
         <div id="tableView" class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-12">
-                            #
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                        <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider w-12">#</th>
+                        <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200/50 transition-all duration-200 rounded-lg" onclick="sortTable('employee_id')">
+                            <span class="flex items-center gap-2"><%= typeof t === 'function' ? t('employee') : 'พนักงาน' %> <i class="fas fa-sort text-gray-400 text-xs"></i></span>
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('employee_id')">
-                            พนักงาน <i class="fas fa-sort ml-1 text-gray-400"></i>
+                        <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200/50 transition-all duration-200 rounded-lg" onclick="sortTable('department')">
+                            <span class="flex items-center gap-2"><%= typeof t === 'function' ? t('affiliation') : 'สังกัด' %> <i class="fas fa-sort text-gray-400 text-xs"></i></span>
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('division')">
-                            ฝ่าย <i class="fas fa-sort ml-1 text-gray-400"></i>
+                        <th id="courseColumn" class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200/50 transition-all duration-200 rounded-lg" onclick="sortTable('course')">
+                            <span class="flex items-center gap-2"><%= typeof t === 'function' ? t('course') : 'หลักสูตร' %> <i class="fas fa-sort text-gray-400 text-xs"></i></span>
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('department')">
-                            แผนก <i class="fas fa-sort ml-1 text-gray-400"></i>
+                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200/50 transition-all duration-200 rounded-lg" onclick="sortTable('progress')">
+                            <span class="flex items-center justify-center gap-2"><%= typeof t === 'function' ? t('progress') : 'ความก้าวหน้า' %> <i class="fas fa-sort text-gray-400 text-xs"></i></span>
                         </th>
-                        <th id="courseColumn" class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('course')">
-                            หลักสูตร <i class="fas fa-sort ml-1 text-gray-400"></i>
+                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200/50 transition-all duration-200 rounded-lg" onclick="sortTable('status')">
+                            <span class="flex items-center justify-center gap-2"><%= typeof t === 'function' ? t('status') : 'สถานะ' %> <i class="fas fa-sort text-gray-400 text-xs"></i></span>
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('enrollment_date')">
-                            ลงทะเบียน <i class="fas fa-sort ml-1 text-gray-400"></i>
-                        </th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-32" onclick="sortTable('progress')">
-                            ความก้าวหน้า <i class="fas fa-sort ml-1 text-gray-400"></i>
-                        </th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
-                            สถานะ <i class="fas fa-sort ml-1 text-gray-400"></i>
-                        </th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-24">
-                            ดู
-                        </th>
+                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 w-16"></th>
                     </tr>
                 </thead>
-                <tbody id="enrollmentsTableBody" class="bg-white divide-y divide-gray-200">
+                <tbody id="enrollmentsTableBody" class="divide-y divide-gray-100 bg-white">
                     <!-- Data will be loaded here -->
                 </tbody>
             </table>
         </div>
 
         <!-- Cards View (Hidden by default) -->
-        <div id="cardsView" class="hidden p-6">
-            <div id="enrollmentsCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div id="cardsView" class="hidden p-4">
+            <div id="enrollmentsCardsContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                 <!-- Cards will be loaded here -->
             </div>
         </div>
 
         <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <div class="flex justify-between items-center">
-                <div class="text-sm text-gray-700">
-                    แสดง <span id="paginationFrom">0</span> - <span id="paginationTo">0</span> จาก <span id="paginationTotal">0</span> รายการ
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="previousPage()" id="prevBtn" disabled class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-chevron-left mr-1"></i>ก่อนหน้า
-                    </button>
-                    <span class="px-3 py-1 text-sm">หน้า <span id="currentPage">1</span> / <span id="totalPages">1</span></span>
-                    <button onclick="nextPage()" id="nextBtn" class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
-                        ถัดไป<i class="fas fa-chevron-right ml-1"></i>
-                    </button>
-                </div>
+        <div class="px-8 py-4 border-t-2 border-gray-100 bg-gradient-to-r from-gray-50 to-white flex justify-between items-center">
+            <p class="text-base text-gray-600 font-medium">
+                <%= typeof t === 'function' ? t('showing') : 'แสดง' %> <span id="paginationFrom" class="font-bold" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;">0</span>-<span id="paginationTo" class="font-bold" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;">0</span> <%= typeof t === 'function' ? t('of') : 'จาก' %> <span id="paginationTotal" class="font-bold" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;">0</span> <%= typeof t === 'function' ? t('items') : 'รายการ' %>
+            </p>
+            <div class="flex items-center gap-3">
+                <button onclick="previousPage()" id="prevBtn" disabled class="w-10 h-10 flex items-center justify-center rounded-xl border-2 border-gray-200 text-gray-500 hover:bg-gray-100 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-sm">
+                    <i class="fas fa-chevron-left text-sm"></i>
+                </button>
+                <span class="px-4 py-2 bg-white rounded-xl border-2 border-gray-200 text-base font-semibold text-gray-700 shadow-sm">
+                    <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                </span>
+                <button onclick="nextPage()" id="nextBtn" class="w-10 h-10 flex items-center justify-center rounded-xl border-2 border-gray-200 text-gray-500 hover:bg-gray-100 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-sm">
+                    <i class="fas fa-chevron-right text-sm"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -383,9 +420,9 @@
 <div id="userDetailModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onclick="closeUserModal()"></div>
-        <div class="relative bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl">
-            <button onclick="closeUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times text-xl"></i>
+        <div class="relative bg-white rounded-xl max-w-md w-full p-4 shadow-xl">
+            <button onclick="closeUserModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-base"></i>
             </button>
             <div id="userDetailContent">
                 <!-- User details will be loaded here -->
@@ -397,22 +434,21 @@
 <!-- Loading Overlay -->
 <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-xl p-6 flex items-center space-x-4">
-        <div class="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent"></div>
-        <span class="text-gray-700 font-medium">กำลังโหลดข้อมูล...</span>
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-t-transparent" style="border-color: <%= systemSettings.primary_color || '#3b82f6' %>; border-top-color: transparent;"></div>
+        <span class="text-gray-700 font-medium text-base"><%= typeof t === 'function' ? t('loadingData') : 'กำลังโหลดข้อมูล...' %></span>
     </div>
 </div>
 
 <style>
-.view-btn {
-    background: #f3f4f6;
-    color: #6b7280;
+/* View toggle buttons */
+.view-toggle-btn {
     transition: all 0.2s;
 }
-.view-btn:hover {
-    background: #e5e7eb;
+.view-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
-.view-btn.active {
-    background: #4f46e5;
+.view-toggle-btn.active {
+    background: rgba(255, 255, 255, 0.3);
     color: white;
 }
 
@@ -431,21 +467,21 @@
 
 .progress-bar-container {
     width: 100%;
-    height: 8px;
+    height: 6px;
     background: #e5e7eb;
-    border-radius: 4px;
+    border-radius: 3px;
     overflow: hidden;
 }
 .progress-bar-fill {
     height: 100%;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: width 0.3s ease;
 }
 
 .status-badge {
-    padding: 4px 12px;
+    padding: 2px 8px;
     border-radius: 9999px;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
 }
 .status-active { background: #fef3c7; color: #d97706; }
@@ -458,15 +494,15 @@
     border: 1px solid #e5e7eb;
 }
 .course-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
 }
 
 /* Timeline styles */
 .timeline-item {
     position: relative;
-    padding-left: 40px;
-    padding-bottom: 24px;
+    padding-left: 24px;
+    padding-bottom: 10px;
 }
 .timeline-item:last-child {
     padding-bottom: 0;
@@ -474,10 +510,10 @@
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: 15px;
-    top: 24px;
+    left: 9px;
+    top: 16px;
     bottom: 0;
-    width: 2px;
+    width: 1px;
     background: #e5e7eb;
 }
 .timeline-item:last-child::before {
@@ -485,12 +521,12 @@
 }
 .timeline-dot {
     position: absolute;
-    left: 8px;
-    top: 4px;
-    width: 16px;
-    height: 16px;
+    left: 5px;
+    top: 3px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    border: 3px solid;
+    border: 2px solid;
 }
 
 /* Leaderboard item styles */
@@ -498,17 +534,17 @@
     transition: all 0.2s;
 }
 .leaderboard-item:hover {
-    transform: translateX(4px);
+    transform: translateX(2px);
 }
 .rank-badge {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 11px;
 }
 .rank-1 { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; }
 .rank-2 { background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%); color: white; }
@@ -518,6 +554,47 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Translations for JavaScript
+const translations = {
+    noLearnerData: '<%= typeof t === "function" ? t("noLearnerData") : "ไม่มีข้อมูลผู้เรียน" %>',
+    noEnrollmentHistory: '<%= typeof t === "function" ? t("noEnrollmentHistory") : "ไม่มีประวัติการลงทะเบียน" %>',
+    noCourseData: '<%= typeof t === "function" ? t("noCourseData") : "ไม่พบข้อมูลหลักสูตร" %>',
+    noEnrollmentData: '<%= typeof t === "function" ? t("noEnrollmentData") : "ไม่พบข้อมูลการลงทะเบียน" %>',
+    enrollmentDetails: '<%= typeof t === "function" ? t("enrollmentDetails") : "รายละเอียดผู้ลงทะเบียน" %>',
+    learnersInCourse: '<%= typeof t === "function" ? t("learnersInCourse") : "ผู้เรียนในหลักสูตร" %>',
+    avgProgress: '<%= typeof t === "function" ? t("avgProgress") : "ความก้าวหน้าเฉลี่ย" %>',
+    statusActive: '<%= typeof t === "function" ? t("statusActive") : "กำลังเรียน" %>',
+    statusInProgress: '<%= typeof t === "function" ? t("statusInProgress") : "กำลังดำเนินการ" %>',
+    statusCompleted: '<%= typeof t === "function" ? t("statusCompleted") : "เสร็จสิ้น" %>',
+    statusDropped: '<%= typeof t === "function" ? t("statusDropped") : "ยกเลิก" %>',
+    allCourses: '<%= typeof t === "function" ? t("allCourses") : "ทุกหลักสูตร" %>',
+    allDepartments: '<%= typeof t === "function" ? t("allDepartments") : "ทุกแผนก" %>',
+    people: '<%= typeof t === "function" ? t("people") : "คน" %>',
+    inProgress: '<%= typeof t === "function" ? t("inProgress") : "กำลังเรียน" %>',
+    completed: '<%= typeof t === "function" ? t("completed") : "เสร็จสิ้น" %>',
+    dropped: '<%= typeof t === "function" ? t("dropped") : "ยกเลิก" %>',
+    notSpecified: '<%= typeof t === "function" ? t("notSpecified") : "ไม่ระบุ" %>',
+    completionRateLabel: '<%= typeof t === "function" ? t("completionRate") : "อัตราสำเร็จ" %>',
+    errorLoadingData: '<%= typeof t === "function" ? t("errorLoadingData") : "ไม่สามารถโหลดข้อมูลได้" %>',
+    errorOccurred: '<%= typeof t === "function" ? t("errorOccurred") : "เกิดข้อผิดพลาดในการโหลดข้อมูล" %>',
+    division: '<%= typeof t === "function" ? t("division") : "ฝ่าย" %>',
+    department: '<%= typeof t === "function" ? t("department") : "แผนก" %>',
+    position: '<%= typeof t === "function" ? t("position") : "ตำแหน่ง" %>',
+    enrollmentDate: '<%= typeof t === "function" ? t("enrollmentDate") : "วันที่ลงทะเบียน" %>',
+    status: '<%= typeof t === "function" ? t("status") : "สถานะ" %>',
+    progress: '<%= typeof t === "function" ? t("progress") : "ความก้าวหน้า" %>',
+    completionDate: '<%= typeof t === "function" ? t("completionDate") : "วันที่เสร็จสิ้น" %>',
+    lastAccess: '<%= typeof t === "function" ? t("lastAccess") : "เข้าใช้ล่าสุด" %>',
+    grade: '<%= typeof t === "function" ? t("grade") : "เกรด" %>',
+    certificate: '<%= typeof t === "function" ? t("certificate") : "ใบประกาศนียบัตร" %>',
+    received: '<%= typeof t === "function" ? t("received") : "ได้รับแล้ว" %>',
+    notReceived: '<%= typeof t === "function" ? t("notReceived") : "ยังไม่ได้รับ" %>',
+    hours: '<%= typeof t === "function" ? t("hours") : "ชั่วโมง" %>',
+    noCategory: '<%= typeof t === "function" ? t("noCategory") : "ไม่ระบุหมวดหมู่" %>',
+    noInstructor: '<%= typeof t === "function" ? t("noInstructor") : "ไม่ระบุผู้สอน" %>',
+    general: '<%= typeof t === "function" ? t("general") : "ทั่วไป" %>'
+};
+
 let reportData = null;
 let charts = {};
 let currentPage = 1;
@@ -589,6 +666,7 @@ function updateUIForCourseSelection() {
     document.getElementById('courseSummarySection').classList.toggle('hidden', isSpecificCourse);
     document.getElementById('learnerLeaderboard').classList.toggle('hidden', !isSpecificCourse);
     document.getElementById('enrollmentTimeline').classList.toggle('hidden', !isSpecificCourse);
+    document.getElementById('enrollmentsTableSection').classList.toggle('hidden', !isSpecificCourse);
 
     // Toggle course column in header
     document.getElementById('courseColumn').classList.toggle('hidden', isSpecificCourse);
@@ -601,22 +679,38 @@ function updateUIForCourseSelection() {
     // Update table title
     if (isSpecificCourse) {
         const course = reportData.courseSummary[0];
-        document.getElementById('tableTitle').innerHTML = `<i class="fas fa-users mr-2 text-purple-500"></i>ผู้เรียนในหลักสูตร: ${course.course_title}`;
+        document.getElementById('tableTitle').innerHTML = `<i class="fas fa-users mr-2"></i>${translations.learnersInCourse}: ${course.course_title}`;
 
         // Update hero section
         updateCourseHero(course);
     } else {
-        document.getElementById('tableTitle').innerHTML = '<i class="fas fa-users mr-2 text-purple-500"></i>รายละเอียดผู้ลงทะเบียน';
+        document.getElementById('tableTitle').innerHTML = '<i class="fas fa-users mr-2"></i>' + translations.enrollmentDetails;
     }
 }
 
 function updateCourseHero(course) {
     document.getElementById('heroTitle').textContent = course.course_title;
     document.getElementById('heroThumbnail').src = course.thumbnail || '/images/course-default.svg';
-    document.getElementById('heroBadge').textContent = course.category || 'ไม่ระบุหมวดหมู่';
-    document.getElementById('heroInstructor').innerHTML = `<i class="fas fa-user-tie mr-1"></i>${course.instructor_name || 'ไม่ระบุผู้สอน'}`;
-    document.getElementById('heroDuration').innerHTML = `<i class="fas fa-clock mr-1"></i>${course.duration_hours || 0} ชั่วโมง`;
-    document.getElementById('heroLevel').innerHTML = `<i class="fas fa-signal mr-1"></i>${course.difficulty_level || 'ทั่วไป'}`;
+    document.getElementById('heroBadge').textContent = course.category || translations.noCategory;
+
+    // Update meta info - find span inside each element
+    const instructorEl = document.getElementById('heroInstructor');
+    const instructorSpan = instructorEl.querySelector('span');
+    if (instructorSpan) {
+        instructorSpan.textContent = course.instructor_name || translations.noInstructor;
+    }
+
+    const durationEl = document.getElementById('heroDuration');
+    const durationSpan = durationEl.querySelector('span');
+    if (durationSpan) {
+        durationSpan.textContent = (course.duration_hours || 0) + ' ' + translations.hours;
+    }
+
+    const levelEl = document.getElementById('heroLevel');
+    const levelSpan = levelEl.querySelector('span');
+    if (levelSpan) {
+        levelSpan.textContent = course.difficulty_level || translations.general;
+    }
 
     document.getElementById('heroProgress').textContent = course.avg_progress + '%';
     document.getElementById('heroProgressBar').style.width = course.avg_progress + '%';
@@ -641,7 +735,7 @@ function updateFilters() {
     // Update course dropdown
     const courseSelect = document.getElementById('filterCourse');
     const currentValue = courseSelect.value;
-    courseSelect.innerHTML = '<option value="">ทุกหลักสูตร</option>';
+    courseSelect.innerHTML = `<option value="">${translations.allCourses}</option>`;
     reportData.courses.forEach(course => {
         const option = document.createElement('option');
         option.value = course.course_id;
@@ -654,7 +748,7 @@ function updateFilters() {
 
     // Update department dropdown
     const deptSelect = document.getElementById('filterDepartment');
-    deptSelect.innerHTML = '<option value="">ทุกแผนก</option>';
+    deptSelect.innerHTML = `<option value="">${translations.allDepartments}</option>`;
     reportData.departments.forEach(dept => {
         const option = document.createElement('option');
         option.value = dept;
@@ -820,29 +914,25 @@ function renderLeaderboard() {
     const top10 = sorted.slice(0, 10);
 
     if (top10.length === 0) {
-        container.innerHTML = '<div class="text-center py-8 text-gray-500">ไม่มีข้อมูลผู้เรียน</div>';
+        container.innerHTML = '<div class="text-center py-8 text-gray-500 text-sm">' + translations.noLearnerData + '</div>';
         return;
     }
 
     container.innerHTML = top10.map((user, index) => `
         <div class="leaderboard-item flex items-center bg-gray-50 rounded-xl p-3 cursor-pointer hover:bg-gray-100" onclick="viewUserDetail(${user.user_id}, ${user.course_id})">
-            <div class="rank-badge ${index < 3 ? 'rank-' + (index + 1) : 'rank-default'} mr-3 flex-shrink-0">
+            <div class="rank-badge ${index < 3 ? 'rank-' + (index + 1) : 'rank-default'} mr-3 flex-shrink-0" style="width: 28px; height: 28px; font-size: 13px;">
                 ${index + 1}
             </div>
             <img src="${user.profile_image || '/images/default-avatar.png'}"
                  alt="${user.full_name}"
-                 class="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0"
+                 class="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0 ring-2 ring-white shadow"
                  onerror="this.onerror=null; this.src='/images/default-avatar.png'">
             <div class="flex-1 min-w-0 mr-3">
-                <p class="font-semibold text-gray-900 truncate">${user.full_name}</p>
-                <div class="flex gap-2 text-xs">
-                    <span class="text-blue-600"><i class="fas fa-building mr-1"></i>${user.division_name || '-'}</span>
-                    <span class="text-green-600"><i class="fas fa-users mr-1"></i>${user.department_name || '-'}</span>
-                </div>
+                <p class="text-sm font-semibold text-gray-900 truncate">${user.full_name}</p>
+                <p class="text-sm text-gray-500 truncate">${user.department_name || '-'}</p>
             </div>
             <div class="text-right flex-shrink-0">
-                <p class="text-xl font-bold" style="color: ${getProgressColor(user.progress)}">${user.progress}%</p>
-                <span class="status-badge status-${getStatusClass(user.status)} text-xs">${getStatusText(user.status)}</span>
+                <p class="text-base font-bold" style="color: ${getProgressColor(user.progress)}">${user.progress}%</p>
             </div>
         </div>
     `).join('');
@@ -865,23 +955,19 @@ function sortLeaderboard(sortType) {
     const top10 = sorted.slice(0, 10);
     container.innerHTML = top10.map((user, index) => `
         <div class="leaderboard-item flex items-center bg-gray-50 rounded-xl p-3 cursor-pointer hover:bg-gray-100" onclick="viewUserDetail(${user.user_id}, ${user.course_id})">
-            <div class="rank-badge ${index < 3 ? 'rank-' + (index + 1) : 'rank-default'} mr-3 flex-shrink-0">
+            <div class="rank-badge ${index < 3 ? 'rank-' + (index + 1) : 'rank-default'} mr-3 flex-shrink-0" style="width: 28px; height: 28px; font-size: 13px;">
                 ${index + 1}
             </div>
             <img src="${user.profile_image || '/images/default-avatar.png'}"
                  alt="${user.full_name}"
-                 class="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0"
+                 class="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0 ring-2 ring-white shadow"
                  onerror="this.onerror=null; this.src='/images/default-avatar.png'">
             <div class="flex-1 min-w-0 mr-3">
-                <p class="font-semibold text-gray-900 truncate">${user.full_name}</p>
-                <div class="flex gap-2 text-xs">
-                    <span class="text-blue-600"><i class="fas fa-building mr-1"></i>${user.division_name || '-'}</span>
-                    <span class="text-green-600"><i class="fas fa-users mr-1"></i>${user.department_name || '-'}</span>
-                </div>
+                <p class="text-sm font-semibold text-gray-900 truncate">${user.full_name}</p>
+                <p class="text-sm text-gray-500 truncate">${user.department_name || '-'}</p>
             </div>
             <div class="text-right flex-shrink-0">
-                <p class="text-xl font-bold" style="color: ${getProgressColor(user.progress)}">${user.progress}%</p>
-                <span class="status-badge status-${getStatusClass(user.status)} text-xs">${getStatusText(user.status)}</span>
+                <p class="text-base font-bold" style="color: ${getProgressColor(user.progress)}">${user.progress}%</p>
             </div>
         </div>
     `).join('');
@@ -893,42 +979,32 @@ function renderEnrollmentTimeline() {
     const recent = sorted.slice(0, 8);
 
     if (recent.length === 0) {
-        container.innerHTML = '<div class="text-center py-8 text-gray-500">ไม่มีประวัติการลงทะเบียน</div>';
+        container.innerHTML = '<div class="text-center py-6 text-gray-500 text-sm">' + translations.noEnrollmentHistory + '</div>';
         return;
     }
 
     container.innerHTML = recent.map(user => {
         const statusColor = user.status === 'Completed' ? '#22c55e' : user.status === 'Active' || user.status === 'In Progress' ? '#f59e0b' : '#ef4444';
         return `
-            <div class="timeline-item">
-                <div class="timeline-dot" style="border-color: ${statusColor}; background: white;"></div>
+            <div class="timeline-item" style="padding-left: 32px; padding-bottom: 14px;">
+                <div class="timeline-dot" style="border-color: ${statusColor}; background: white; width: 12px; height: 12px; left: 5px; top: 4px;"></div>
                 <div class="bg-gray-50 rounded-xl p-3 cursor-pointer hover:bg-gray-100" onclick="viewUserDetail(${user.user_id}, ${user.course_id})">
-                    <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between">
                         <div class="flex items-center min-w-0 flex-1">
                             <img src="${user.profile_image || '/images/default-avatar.png'}"
                                  alt="${user.full_name}"
-                                 class="w-9 h-9 rounded-full object-cover mr-2 flex-shrink-0"
+                                 class="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0 ring-2 ring-white shadow"
                                  onerror="this.onerror=null; this.src='/images/default-avatar.png'">
                             <div class="min-w-0 flex-1">
-                                <p class="font-semibold text-gray-900 truncate">${user.full_name}</p>
-                                <div class="flex gap-2 text-xs">
-                                    <span class="text-blue-600 truncate"><i class="fas fa-building mr-1"></i>${user.division_name || '-'}</span>
-                                    <span class="text-green-600 truncate"><i class="fas fa-users mr-1"></i>${user.department_name || '-'}</span>
-                                </div>
+                                <p class="text-sm font-semibold text-gray-900 truncate">${user.full_name}</p>
+                                <p class="text-sm text-gray-500">${user.department_name || '-'}</p>
                             </div>
                         </div>
-                        <div class="text-right flex-shrink-0 ml-2">
-                            <p class="text-xs text-gray-500">${formatDate(user.enrollment_date)}</p>
-                            <span class="status-badge status-${getStatusClass(user.status)} text-xs">${getStatusText(user.status)}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-gray-600">ความก้าวหน้า</span>
-                            <span class="font-medium">${user.progress}%</span>
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar-fill" style="width: ${user.progress}%; background: ${getProgressColor(user.progress)};"></div>
+                        <div class="text-right flex-shrink-0 ml-3">
+                            <p class="text-sm text-gray-500">${formatDate(user.enrollment_date)}</p>
+                            <div class="flex items-center justify-end gap-1">
+                                <span class="text-sm font-medium" style="color: ${getProgressColor(user.progress)}">${user.progress}%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -943,56 +1019,56 @@ function renderCourseSummary() {
 
     if (courses.length === 0) {
         container.innerHTML = `
-            <div class="col-span-full text-center py-8">
-                <i class="fas fa-book-open text-gray-300 text-4xl mb-4"></i>
-                <p class="text-gray-500">ไม่พบข้อมูลหลักสูตร</p>
+            <div class="col-span-full text-center py-10">
+                <i class="fas fa-book-open text-gray-300 text-5xl mb-4"></i>
+                <p class="text-gray-500 text-base">${translations.noCourseData}</p>
             </div>
         `;
         return;
     }
 
     container.innerHTML = courses.map(course => `
-        <div class="course-card bg-white rounded-xl p-5 cursor-pointer" onclick="filterByCourse('${course.course_id}')">
+        <div class="course-card bg-white rounded-xl p-4 cursor-pointer" onclick="filterByCourse('${course.course_id}')">
             <div class="flex items-start justify-between mb-3">
                 <div class="flex-1">
-                    <h4 class="font-semibold text-gray-900 line-clamp-2">${course.course_title}</h4>
-                    <p class="text-sm text-gray-500 mt-1">${course.category}</p>
+                    <h4 class="text-sm font-semibold text-gray-900 line-clamp-2">${course.course_title}</h4>
+                    <p class="text-sm text-gray-500">${course.category}</p>
                 </div>
                 <span class="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
-                    ${course.total_enrollments} คน
+                    ${course.total_enrollments} ${translations.people}
                 </span>
             </div>
 
             <div class="space-y-3">
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <span class="text-gray-600">ความก้าวหน้าเฉลี่ย</span>
+                        <span class="text-gray-600">${translations.avgProgress}</span>
                         <span class="font-medium text-gray-900">${course.avg_progress}%</span>
                     </div>
-                    <div class="progress-bar-container">
+                    <div class="progress-bar-container" style="height: 8px;">
                         <div class="progress-bar-fill" style="width: ${course.avg_progress}%; background: ${getProgressColor(course.avg_progress)};"></div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="grid grid-cols-3 gap-2 text-center">
                     <div class="bg-yellow-50 rounded-lg p-2">
-                        <p class="font-bold text-yellow-600">${course.in_progress}</p>
-                        <p class="text-yellow-700">กำลังเรียน</p>
+                        <p class="text-sm font-bold text-yellow-600">${course.in_progress}</p>
+                        <p class="text-xs text-yellow-700">${translations.inProgress}</p>
                     </div>
                     <div class="bg-green-50 rounded-lg p-2">
-                        <p class="font-bold text-green-600">${course.completed}</p>
-                        <p class="text-green-700">เสร็จสิ้น</p>
+                        <p class="text-sm font-bold text-green-600">${course.completed}</p>
+                        <p class="text-xs text-green-700">${translations.completed}</p>
                     </div>
                     <div class="bg-red-50 rounded-lg p-2">
-                        <p class="font-bold text-red-600">${course.dropped}</p>
-                        <p class="text-red-700">ยกเลิก</p>
+                        <p class="text-sm font-bold text-red-600">${course.dropped}</p>
+                        <p class="text-xs text-red-700">${translations.dropped}</p>
                     </div>
                 </div>
 
-                <div class="text-xs text-gray-500 pt-2 border-t">
-                    <i class="fas fa-user mr-1"></i>${course.instructor_name || 'ไม่ระบุ'}
+                <div class="text-sm text-gray-500 pt-2 border-t">
+                    <i class="fas fa-user mr-1"></i>${course.instructor_name || translations.notSpecified}
                     <span class="mx-2">|</span>
-                    <i class="fas fa-trophy mr-1"></i>อัตราสำเร็จ ${course.completion_rate}%
+                    <i class="fas fa-trophy mr-1"></i>${translations.completionRateLabel} ${course.completion_rate}%
                 </div>
             </div>
         </div>
@@ -1012,58 +1088,56 @@ function renderEnrollmentsTable() {
     if (paginatedData.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-4 py-8 text-center text-gray-500">
-                    <i class="fas fa-users text-gray-300 text-4xl mb-4 block"></i>
-                    <p>ไม่พบข้อมูลการลงทะเบียน</p>
+                <td colspan="7" class="px-4 py-8 text-center">
+                    <div class="flex flex-col items-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                            <i class="fas fa-users text-gray-400"></i>
+                        </div>
+                        <p class="text-sm text-gray-500">ไม่พบข้อมูลการลงทะเบียน</p>
+                    </div>
                 </td>
             </tr>
         `;
     } else {
         tbody.innerHTML = paginatedData.map((enrollment, index) => `
-            <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-sm text-gray-500">
-                    ${start + index + 1}
-                </td>
+            <tr class="hover:bg-blue-50/50 transition-colors group cursor-pointer" onclick="viewUserDetail(${enrollment.user_id}, ${enrollment.course_id})">
+                <td class="px-4 py-3 text-gray-400 text-sm">${start + index + 1}</td>
                 <td class="px-4 py-3">
-                    <div class="flex items-center">
+                    <div class="flex items-center gap-3">
                         <img src="${enrollment.profile_image || '/images/default-avatar.png'}"
                              alt="${enrollment.full_name}"
-                             class="w-9 h-9 rounded-full object-cover mr-2 flex-shrink-0"
+                             class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
                              onerror="this.onerror=null; this.src='/images/default-avatar.png'">
                         <div class="min-w-0">
-                            <p class="font-medium text-gray-900 truncate">${enrollment.full_name}</p>
-                            <p class="text-xs text-gray-500">${enrollment.employee_id || '-'}</p>
+                            <p class="text-sm font-semibold text-gray-800 truncate group-hover:text-blue-600 transition">${enrollment.full_name}</p>
+                            <p class="text-sm text-gray-400">${enrollment.employee_id || '-'}</p>
                         </div>
                     </div>
                 </td>
                 <td class="px-4 py-3">
-                    <p class="text-sm text-gray-900">${enrollment.division_name || '-'}</p>
-                </td>
-                <td class="px-4 py-3">
-                    <p class="text-sm text-gray-900">${enrollment.department_name || '-'}</p>
-                    <p class="text-xs text-gray-500">${enrollment.position_name || '-'}</p>
+                    <div class="text-sm">
+                        <p class="text-gray-700 truncate">${enrollment.division_name || '-'}</p>
+                        <p class="text-gray-400 truncate">${enrollment.department_name || '-'}</p>
+                    </div>
                 </td>
                 <td class="px-4 py-3 course-column">
-                    <p class="text-sm text-gray-900 font-medium truncate max-w-xs">${enrollment.course_title}</p>
-                </td>
-                <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
-                    ${formatDate(enrollment.enrollment_date)}
+                    <p class="text-sm text-gray-700 font-medium truncate max-w-[180px]">${enrollment.course_title}</p>
+                    <p class="text-sm text-gray-400">${formatDate(enrollment.enrollment_date)}</p>
                 </td>
                 <td class="px-4 py-3">
-                    <div class="flex items-center">
-                        <div class="w-16 progress-bar-container mr-2">
-                            <div class="progress-bar-fill" style="width: ${enrollment.progress}%; background: ${getProgressColor(enrollment.progress)};"></div>
+                    <div class="flex items-center justify-center gap-2">
+                        <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all" style="width: ${enrollment.progress}%; background: ${getProgressColor(enrollment.progress)};"></div>
                         </div>
-                        <span class="text-xs font-medium text-gray-700 w-8">${enrollment.progress}%</span>
+                        <span class="text-sm font-bold min-w-[36px] text-right" style="color: ${getProgressColor(enrollment.progress)}">${enrollment.progress}%</span>
                     </div>
                 </td>
                 <td class="px-4 py-3 text-center">
-                    <span class="status-badge status-${getStatusClass(enrollment.status)} text-xs">${getStatusText(enrollment.status)}</span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium status-${getStatusClass(enrollment.status)}">${getStatusText(enrollment.status)}</span>
                 </td>
                 <td class="px-4 py-3 text-center">
-                    <button onclick="viewUserDetail(${enrollment.user_id}, ${enrollment.course_id})"
-                            class="text-indigo-600 hover:text-indigo-800" title="ดูรายละเอียด">
-                        <i class="fas fa-eye"></i>
+                    <button class="w-7 h-7 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <i class="fas fa-eye text-xs"></i>
                     </button>
                 </td>
             </tr>
@@ -1073,40 +1147,26 @@ function renderEnrollmentsTable() {
     // Update cards view
     const cardsContainer = document.getElementById('enrollmentsCardsContainer');
     cardsContainer.innerHTML = paginatedData.map(enrollment => `
-        <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onclick="viewUserDetail(${enrollment.user_id}, ${enrollment.course_id})">
-            <div class="flex items-center mb-3">
+        <div class="bg-white rounded-lg p-3 border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group" onclick="viewUserDetail(${enrollment.user_id}, ${enrollment.course_id})">
+            <div class="flex items-center gap-3 mb-2">
                 <img src="${enrollment.profile_image || '/images/default-avatar.png'}"
                      alt="${enrollment.full_name}"
-                     class="w-11 h-11 rounded-full object-cover mr-3 flex-shrink-0"
+                     class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow"
                      onerror="this.onerror=null; this.src='/images/default-avatar.png'">
                 <div class="min-w-0 flex-1">
-                    <p class="font-semibold text-gray-900 truncate">${enrollment.full_name}</p>
-                    <p class="text-xs text-gray-500">${enrollment.employee_id || '-'}</p>
-                </div>
-                <span class="status-badge status-${getStatusClass(enrollment.status)} text-xs flex-shrink-0">${getStatusText(enrollment.status)}</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2 text-xs mb-3">
-                <div class="bg-blue-50 rounded px-2 py-1">
-                    <span class="text-blue-600 font-medium">ฝ่าย:</span>
-                    <span class="text-blue-800 truncate block">${enrollment.division_name || '-'}</span>
-                </div>
-                <div class="bg-green-50 rounded px-2 py-1">
-                    <span class="text-green-600 font-medium">แผนก:</span>
-                    <span class="text-green-800 truncate block">${enrollment.department_name || '-'}</span>
+                    <p class="text-sm font-semibold text-gray-800 truncate group-hover:text-blue-600">${enrollment.full_name}</p>
+                    <p class="text-sm text-gray-400 truncate">${enrollment.department_name || '-'}</p>
                 </div>
             </div>
-            ${!isSpecificCourse ? `<div class="bg-gray-50 rounded-lg p-2 mb-3">
-                <p class="font-medium text-gray-900 text-sm truncate">${enrollment.course_title}</p>
-                <p class="text-xs text-gray-500 mt-1">ลงทะเบียน: ${formatDate(enrollment.enrollment_date)}</p>
-            </div>` : `<div class="text-xs text-gray-500 mb-3">ลงทะเบียน: ${formatDate(enrollment.enrollment_date)}</div>`}
-            <div>
-                <div class="flex justify-between text-xs mb-1">
-                    <span class="text-gray-600">ความก้าวหน้า</span>
-                    <span class="font-semibold">${enrollment.progress}%</span>
+            ${!isSpecificCourse ? `<p class="text-sm font-medium text-gray-700 truncate mb-2">${enrollment.course_title}</p>` : ''}
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-1">
+                    <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full" style="width: ${enrollment.progress}%; background: ${getProgressColor(enrollment.progress)};"></div>
+                    </div>
+                    <span class="text-sm font-bold" style="color: ${getProgressColor(enrollment.progress)}">${enrollment.progress}%</span>
                 </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" style="width: ${enrollment.progress}%; background: ${getProgressColor(enrollment.progress)};"></div>
-                </div>
+                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium status-${getStatusClass(enrollment.status)}">${getStatusText(enrollment.status)}</span>
             </div>
         </div>
     `).join('');
@@ -1147,12 +1207,20 @@ function nextPage() {
 }
 
 function applyFilters() {
+    // Get date values and ensure they are in ISO format (YYYY-MM-DD)
+    let dateFrom = document.getElementById('filterDateFrom').value;
+    let dateTo = document.getElementById('filterDateTo').value;
+
+    // Convert Buddhist Era (พ.ศ.) date to Christian Era (ค.ศ.) if needed
+    dateFrom = convertToISODate(dateFrom);
+    dateTo = convertToISODate(dateTo);
+
     currentFilters = {
         course_id: document.getElementById('filterCourse').value,
         department: document.getElementById('filterDepartment').value,
         status: document.getElementById('filterStatus').value,
-        date_from: document.getElementById('filterDateFrom').value,
-        date_to: document.getElementById('filterDateTo').value,
+        date_from: dateFrom,
+        date_to: dateTo,
         search: document.getElementById('searchInput').value
     };
 
@@ -1163,6 +1231,59 @@ function applyFilters() {
 
     currentPage = 1;
     loadReportData();
+}
+
+// Convert date to ISO format, handling Buddhist Era dates
+function convertToISODate(dateStr) {
+    if (!dateStr) return '';
+
+    // If already in ISO format (YYYY-MM-DD), check for Buddhist Era year
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const year = parseInt(dateStr.substring(0, 4));
+        // Buddhist Era years are 543 years ahead of Christian Era
+        // If year > 2400, it's likely Buddhist Era
+        if (year > 2400) {
+            const ceYear = year - 543;
+            return ceYear + dateStr.substring(4);
+        }
+        return dateStr;
+    }
+
+    // Handle DD/MM/YYYY or D/M/YYYY format (Thai locale)
+    if (dateStr.includes('/')) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+            let day = parts[0].padStart(2, '0');
+            let month = parts[1].padStart(2, '0');
+            let year = parseInt(parts[2]);
+
+            // Convert Buddhist Era to Christian Era if needed
+            if (year > 2400) {
+                year = year - 543;
+            }
+
+            return `${year}-${month}-${day}`;
+        }
+    }
+
+    // Try parsing as a date object
+    try {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+            let year = date.getFullYear();
+            // Check if it's Buddhist Era
+            if (year > 2400) {
+                year = year - 543;
+            }
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+    } catch (e) {
+        // Ignore parsing errors
+    }
+
+    return dateStr;
 }
 
 function clearFilters() {
@@ -1232,8 +1353,27 @@ function sortTable(field) {
 }
 
 function toggleView(view) {
-    document.getElementById('viewTable').classList.toggle('active', view === 'table');
-    document.getElementById('viewCards').classList.toggle('active', view === 'cards');
+    const tableBtn = document.getElementById('viewTable');
+    const cardsBtn = document.getElementById('viewCards');
+
+    // Update button styles
+    if (view === 'table') {
+        tableBtn.classList.add('active');
+        tableBtn.classList.remove('text-white/70');
+        tableBtn.classList.add('text-white');
+        cardsBtn.classList.remove('active');
+        cardsBtn.classList.add('text-white/70');
+        cardsBtn.classList.remove('text-white');
+    } else {
+        cardsBtn.classList.add('active');
+        cardsBtn.classList.remove('text-white/70');
+        cardsBtn.classList.add('text-white');
+        tableBtn.classList.remove('active');
+        tableBtn.classList.add('text-white/70');
+        tableBtn.classList.remove('text-white');
+    }
+
+    // Toggle views
     document.getElementById('tableView').classList.toggle('hidden', view !== 'table');
     document.getElementById('cardsView').classList.toggle('hidden', view !== 'cards');
 }
@@ -1246,33 +1386,33 @@ function viewUserDetail(userId, courseId) {
     const content = document.getElementById('userDetailContent');
 
     content.innerHTML = `
-        <div class="text-center mb-6">
+        <div class="text-center mb-4">
             <img src="${enrollment.profile_image || '/images/default-avatar.png'}"
                  alt="${enrollment.full_name}"
-                 class="w-20 h-20 rounded-full object-cover mx-auto mb-3"
+                 class="w-14 h-14 rounded-full object-cover mx-auto mb-2"
                  onerror="this.onerror=null; this.src='/images/default-avatar.png'">
-            <h3 class="text-xl font-bold text-gray-900">${enrollment.full_name}</h3>
-            <p class="text-gray-500">${enrollment.employee_id || '-'} | ${enrollment.email}</p>
+            <h3 class="text-base font-bold text-gray-900">${enrollment.full_name}</h3>
+            <p class="text-xs text-gray-500">${enrollment.employee_id || '-'} | ${enrollment.email}</p>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-6">
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-sm text-gray-500">ฝ่าย</p>
-                <p class="font-semibold text-gray-900">${enrollment.division_name || '-'}</p>
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="bg-gray-50 rounded-lg p-2">
+                <p class="text-xs text-gray-500">ฝ่าย</p>
+                <p class="text-xs font-semibold text-gray-900 truncate">${enrollment.division_name || '-'}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-sm text-gray-500">แผนก</p>
-                <p class="font-semibold text-gray-900">${enrollment.department_name || '-'}</p>
+            <div class="bg-gray-50 rounded-lg p-2">
+                <p class="text-xs text-gray-500">แผนก</p>
+                <p class="text-xs font-semibold text-gray-900 truncate">${enrollment.department_name || '-'}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-sm text-gray-500">ตำแหน่ง</p>
-                <p class="font-semibold text-gray-900">${enrollment.position_name || '-'}</p>
+            <div class="bg-gray-50 rounded-lg p-2">
+                <p class="text-xs text-gray-500">ตำแหน่ง</p>
+                <p class="text-xs font-semibold text-gray-900 truncate">${enrollment.position_name || '-'}</p>
             </div>
         </div>
 
-        <div class="bg-indigo-50 rounded-lg p-4 mb-6">
-            <h4 class="font-semibold text-indigo-900 mb-2">${enrollment.course_title}</h4>
-            <div class="grid grid-cols-2 gap-4 text-sm">
+        <div class="bg-indigo-50 rounded-lg p-3 mb-4">
+            <h4 class="text-sm font-semibold text-indigo-900 mb-2 truncate">${enrollment.course_title}</h4>
+            <div class="grid grid-cols-2 gap-3 text-xs">
                 <div>
                     <p class="text-indigo-700">วันที่ลงทะเบียน</p>
                     <p class="font-medium text-indigo-900">${formatDate(enrollment.enrollment_date)}</p>
@@ -1284,30 +1424,30 @@ function viewUserDetail(userId, courseId) {
             </div>
         </div>
 
-        <div class="mb-6">
-            <div class="flex justify-between mb-2">
-                <span class="font-medium text-gray-700">ความก้าวหน้า</span>
-                <span class="font-bold text-indigo-600">${enrollment.progress}%</span>
+        <div class="mb-4">
+            <div class="flex justify-between mb-1">
+                <span class="text-xs font-medium text-gray-700">ความก้าวหน้า</span>
+                <span class="text-sm font-bold text-indigo-600">${enrollment.progress}%</span>
             </div>
-            <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div class="h-full rounded-full transition-all" style="width: ${enrollment.progress}%; background: ${getProgressColor(enrollment.progress)};"></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 text-sm">
-            <div class="bg-gray-50 rounded-lg p-3">
+        <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-gray-50 rounded-lg p-2">
                 <p class="text-gray-500">วันที่เสร็จสิ้น</p>
                 <p class="font-medium text-gray-900">${enrollment.completion_date ? formatDate(enrollment.completion_date) : '-'}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
+            <div class="bg-gray-50 rounded-lg p-2">
                 <p class="text-gray-500">เข้าใช้ล่าสุด</p>
                 <p class="font-medium text-gray-900">${enrollment.last_access_date ? formatDateTime(enrollment.last_access_date) : '-'}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
+            <div class="bg-gray-50 rounded-lg p-2">
                 <p class="text-gray-500">เกรด</p>
                 <p class="font-medium text-gray-900">${enrollment.grade || '-'}</p>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3">
+            <div class="bg-gray-50 rounded-lg p-2">
                 <p class="text-gray-500">ใบประกาศนียบัตร</p>
                 <p class="font-medium ${enrollment.certificate_issued ? 'text-green-600' : 'text-gray-900'}">
                     ${enrollment.certificate_issued ? '<i class="fas fa-check-circle mr-1"></i>ได้รับแล้ว' : 'ยังไม่ได้รับ'}
@@ -1342,24 +1482,28 @@ function getProgressColor(progress) {
 }
 
 function getStatusClass(status) {
-    switch (status) {
-        case 'Active': return 'active';
-        case 'In Progress': return 'in-progress';
-        case 'Completed': return 'completed';
-        case 'Dropped':
-        case 'Cancelled': return 'dropped';
+    const s = (status || '').toLowerCase();
+    switch (s) {
+        case 'active': return 'active';
+        case 'in progress':
+        case 'in_progress': return 'in-progress';
+        case 'completed': return 'completed';
+        case 'dropped':
+        case 'cancelled': return 'dropped';
         default: return 'active';
     }
 }
 
 function getStatusText(status) {
-    switch (status) {
-        case 'Active': return 'กำลังเรียน';
-        case 'In Progress': return 'กำลังดำเนินการ';
-        case 'Completed': return 'เสร็จสิ้น';
-        case 'Dropped': return 'ยกเลิก';
-        case 'Cancelled': return 'ยกเลิก';
-        default: return status || 'กำลังเรียน';
+    const s = (status || '').toLowerCase();
+    switch (s) {
+        case 'active': return translations.statusActive;
+        case 'in progress':
+        case 'in_progress': return translations.statusInProgress;
+        case 'completed': return translations.statusCompleted;
+        case 'dropped': return translations.statusDropped;
+        case 'cancelled': return translations.statusDropped;
+        default: return translations.statusActive;
     }
 }
 

@@ -1,0 +1,398 @@
+<%- contentFor('body') %>
+
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-medium text-gray-900">
+            <i class="fas fa-question-circle mr-2 text-ruxchai-primary"></i><%= t('addEditQuestion') || 'Add/Edit Question' %>
+        </h3>
+        <a href="<%= backUrl %>" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
+        </a>
+    </div>
+
+    <!-- Edit Form - Same layout as create modal -->
+    <div class="bg-white shadow-lg rounded-lg p-5 border">
+        <form id="question-form" class="space-y-4">
+            <input type="hidden" id="question-index" value="<%= question.question_id %>">
+
+            <div>
+                <label for="question-type" class="block text-sm font-medium text-gray-700 mb-2"><%= t('questionType') || 'Question Type' %></label>
+                <select id="question-type" name="question_type" onchange="changeQuestionType()"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                    <option value="multiple_choice" <%= question.question_type === 'multiple_choice' || question.question_type === 'MULTIPLE_CHOICE' ? 'selected' : '' %>><%= t('multipleChoice') || 'Multiple Choice' %></option>
+                    <option value="true_false" <%= question.question_type === 'true_false' || question.question_type === 'TRUE_FALSE' ? 'selected' : '' %>><%= t('trueFalse') || 'True/False' %></option>
+                    <option value="essay" <%= question.question_type === 'essay' || question.question_type === 'ESSAY' ? 'selected' : '' %>><%= t('essay') || 'Essay' %></option>
+                    <option value="fill_blank" <%= question.question_type === 'fill_blank' || question.question_type === 'FILL_IN_BLANK' || question.question_type === 'FILL_BLANK' ? 'selected' : '' %>><%= t('fillBlank') || 'Fill in the Blank' %></option>
+                </select>
+            </div>
+
+            <div>
+                <label for="question-text" class="block text-sm font-medium text-gray-700 mb-2"><%= t('question') || 'Question' %> <span class="text-red-500">*</span></label>
+                <textarea id="question-text" name="question_text" rows="3" required
+                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                          placeholder="<%= t('enterQuestion') || 'Enter your question...' %>"><%- question.question_text %></textarea>
+            </div>
+
+            <div>
+                <label for="question-image" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-image mr-1"></i><%= t('questionImage') || 'Question Image' %>
+                </label>
+                <div class="flex items-center space-x-3">
+                    <input type="file" id="question-image-file" name="question_image" accept="image/*"
+                           onchange="previewQuestionImage(this)"
+                           class="hidden">
+                    <label for="question-image-file"
+                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fas fa-upload mr-2"></i><%= t('selectImage') || 'Select Image' %>
+                    </label>
+                    <span id="question-image-name" class="text-sm text-gray-500">
+                        <%= question.question_image ? 'Image loaded' : (t('noImage') || 'No image selected') %>
+                    </span>
+                </div>
+                <div id="question-image-preview" class="mt-2 <%= question.question_image ? '' : 'hidden' %>">
+                    <img src="<%= question.question_image || '' %>" alt="Preview" class="max-w-xs rounded border border-gray-300">
+                    <button type="button" onclick="removeQuestionImage()"
+                            class="mt-2 text-sm text-red-600 hover:text-red-800">
+                        <i class="fas fa-times mr-1"></i><%= t('removeImage') || 'Remove Image' %>
+                    </button>
+                </div>
+                <input type="hidden" id="question-image-url" value="<%= question.question_image || '' %>">
+                <p class="text-xs text-gray-500 mt-1"><%= t('supportsImageFormat') || 'Supports JPG, PNG, GIF (max 5MB)' %></p>
+            </div>
+
+            <div>
+                <label for="question-points" class="block text-sm font-medium text-gray-700 mb-2"><%= t('points') || 'Points' %></label>
+                <input type="number" id="question-points" name="points" min="1" max="100" value="<%= question.points || 1 %>"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+            </div>
+
+            <!-- Answer Options (for multiple choice) -->
+            <div id="answer-options" class="space-y-3">
+                <label class="block text-sm font-medium text-gray-700"><%= t('options') || 'Answer Options' %></label>
+                <div id="options-container">
+                    <% if (question.options && question.options.length > 0) { %>
+                        <% question.options.forEach((option, index) => { %>
+                            <div class="option-item flex items-center space-x-2 mb-2">
+                                <input type="radio" name="correct_option" value="<%= index %>" <%= option.is_correct ? 'checked' : '' %>
+                                       class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                <input type="text" name="option_text[]" value="<%- option.option_text %>" required
+                                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                       placeholder="<%= t('optionN') || 'Option' %> <%= index + 1 %>">
+                                <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+                <button type="button" onclick="addOption()" class="text-sm text-ruxchai-primary hover:text-blue-700">
+                    <i class="fas fa-plus mr-1"></i><%= t('addOption') || 'Add Option' %>
+                </button>
+            </div>
+
+            <!-- True/False Options -->
+            <div id="true-false-options" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('trueFalseCorrectAnswer') || 'Correct Answer' %></label>
+                <div class="space-y-2">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="correct_answer" value="true" class="form-radio"
+                               <%= question.correct_answer === 'true' || (question.options && question.options.find(o => o.is_correct && o.option_text.toLowerCase() === 'true')) ? 'checked' : '' %>>
+                        <span class="ml-2"><%= t('true') || 'True' %></span>
+                    </label>
+                    <label class="inline-flex items-center ml-6">
+                        <input type="radio" name="correct_answer" value="false" class="form-radio"
+                               <%= question.correct_answer === 'false' || (question.options && question.options.find(o => o.is_correct && o.option_text.toLowerCase() === 'false')) ? 'checked' : '' %>>
+                        <span class="ml-2"><%= t('false') || 'False' %></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Essay Answer -->
+            <div id="essay-answer" class="hidden">
+                <label for="essay-sample" class="block text-sm font-medium text-gray-700 mb-2"><%= t('sampleAnswer') || 'Sample Answer' %></label>
+                <textarea id="essay-sample" name="sample_answer" rows="4"
+                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                          placeholder="<%= t('sampleAnswerPlaceholder') || 'Enter sample answer for grading reference...' %>"><%- question.sample_answer || '' %></textarea>
+            </div>
+
+            <!-- Fill Blank Answer -->
+            <div id="fill-blank-answer" class="hidden">
+                <label for="blank-answers" class="block text-sm font-medium text-gray-700 mb-2"><%= t('correctAnswersComma') || 'Correct Answers (comma separated)' %></label>
+                <input type="text" id="blank-answers" name="blank_answers"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                       placeholder="<%= t('correctAnswerExample') || 'answer1, answer2' %>"
+                       value="<%= question.correct_answer || '' %>">
+            </div>
+
+            <div>
+                <label for="question-explanation" class="block text-sm font-medium text-gray-700 mb-2"><%= t('additionalExplanation') || 'Explanation' %></label>
+                <textarea id="question-explanation" name="explanation" rows="2"
+                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                          placeholder="<%= t('explainCorrectAnswer') || 'Explain why this answer is correct...' %>"><%- question.explanation || '' %></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="<%= backUrl %>"
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <%= t('cancel') || 'Cancel' %>
+                </a>
+                <button type="submit"
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ruxchai-gradient hover:opacity-90">
+                    <i class="fas fa-save mr-2"></i><%= t('saveQuestion') || 'Save Question' %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const testId = '<%= testId %>';
+const questionId = '<%= question.question_id %>';
+const backUrl = '<%= backUrl %>';
+let optionCounter = <%= question.options ? question.options.length : 0 %>;
+
+const i18n = {
+    noImage: '<%= t("noImage") || "No image selected" %>',
+    questionSaved: '<%= t("questionSaved") || "Question saved successfully!" %>',
+    min2Options: '<%= t("min2Options") || "Please add at least 2 options" %>',
+    selectCorrectAnswer: '<%= t("selectCorrectAnswer") || "Please select the correct answer" %>',
+    enterCorrectAnswer: '<%= t("enterCorrectAnswer") || "Please enter the correct answer" %>',
+    optionN: '<%= t("optionN") || "Option" %>',
+    connectionError: '<%= t("connectionError") || "Connection error" %>'
+};
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+    changeQuestionType();
+});
+
+// Change question type - show/hide relevant sections
+function changeQuestionType() {
+    const type = document.getElementById('question-type').value;
+
+    // Hide all type-specific sections
+    document.getElementById('answer-options').classList.add('hidden');
+    document.getElementById('true-false-options').classList.add('hidden');
+    document.getElementById('essay-answer').classList.add('hidden');
+    document.getElementById('fill-blank-answer').classList.add('hidden');
+
+    // Show relevant section
+    switch(type) {
+        case 'multiple_choice':
+            document.getElementById('answer-options').classList.remove('hidden');
+            // Initialize with 4 options if empty
+            if (document.querySelectorAll('#options-container .option-item').length === 0) {
+                for (let i = 0; i < 4; i++) {
+                    addOption();
+                }
+            }
+            break;
+        case 'true_false':
+            document.getElementById('true-false-options').classList.remove('hidden');
+            break;
+        case 'essay':
+            document.getElementById('essay-answer').classList.remove('hidden');
+            break;
+        case 'fill_blank':
+            document.getElementById('fill-blank-answer').classList.remove('hidden');
+            break;
+    }
+}
+
+// Add option for multiple choice
+function addOption() {
+    optionCounter++;
+    const container = document.getElementById('options-container');
+    const optionHtml = `
+        <div class="option-item flex items-center space-x-2 mb-2">
+            <input type="radio" name="correct_option" value="${container.querySelectorAll('.option-item').length}"
+                   class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+            <input type="text" name="option_text[]" required
+                   class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                   placeholder="${i18n.optionN} ${container.querySelectorAll('.option-item').length + 1}">
+            <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', optionHtml);
+    updateOptionIndices();
+}
+
+// Remove option
+function removeOption(btn) {
+    const container = document.getElementById('options-container');
+    if (container.querySelectorAll('.option-item').length > 2) {
+        btn.closest('.option-item').remove();
+        updateOptionIndices();
+    } else {
+        alert(i18n.min2Options);
+    }
+}
+
+// Update option radio values after add/remove
+function updateOptionIndices() {
+    const options = document.querySelectorAll('#options-container .option-item');
+    options.forEach((option, index) => {
+        const radio = option.querySelector('input[type="radio"]');
+        radio.value = index;
+    });
+}
+
+// Preview and upload question image
+async function previewQuestionImage(input) {
+    const preview = document.getElementById('question-image-preview');
+    const nameSpan = document.getElementById('question-image-name');
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+
+        // Show preview immediately using FileReader
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.querySelector('img').src = e.target.result;
+            preview.classList.remove('hidden');
+            nameSpan.textContent = file.name + ' (uploading...)';
+        };
+        reader.readAsDataURL(file);
+
+        // Upload the file to server
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/tests/api/questions/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('question-image-url').value = result.data.url;
+                nameSpan.textContent = file.name;
+            } else {
+                alert(result.message || 'Error uploading image');
+                removeQuestionImage();
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert(i18n.connectionError);
+            removeQuestionImage();
+        }
+    }
+}
+
+// Remove question image
+function removeQuestionImage() {
+    document.getElementById('question-image-file').value = '';
+    document.getElementById('question-image-url').value = '';
+    document.getElementById('question-image-preview').classList.add('hidden');
+    document.getElementById('question-image-name').textContent = i18n.noImage;
+}
+
+// Form submission
+document.getElementById('question-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const questionType = document.getElementById('question-type').value;
+    const questionText = document.getElementById('question-text').value.trim();
+    const points = parseFloat(document.getElementById('question-points').value) || 1;
+    const explanation = document.getElementById('question-explanation').value.trim();
+    const questionImage = document.getElementById('question-image-url').value;
+
+    // Build question data
+    const questionData = {
+        question_text: questionText,
+        question_type: questionType,
+        question_image: questionImage || null,
+        points: points,
+        explanation: explanation || null
+    };
+
+    // Handle type-specific data
+    if (questionType === 'multiple_choice') {
+        const options = [];
+        const correctOption = document.querySelector('input[name="correct_option"]:checked');
+
+        if (!correctOption) {
+            alert(i18n.selectCorrectAnswer);
+            return;
+        }
+
+        document.querySelectorAll('#options-container .option-item').forEach((item, index) => {
+            const optionText = item.querySelector('input[name="option_text[]"]').value.trim();
+            if (optionText) {
+                options.push({
+                    option_text: optionText,
+                    is_correct: correctOption.value == index,
+                    option_order: index + 1
+                });
+            }
+        });
+
+        if (options.length < 2) {
+            alert(i18n.min2Options);
+            return;
+        }
+
+        questionData.options = options;
+
+    } else if (questionType === 'true_false') {
+        const correctAnswer = document.querySelector('input[name="correct_answer"]:checked');
+        if (!correctAnswer) {
+            alert(i18n.selectCorrectAnswer);
+            return;
+        }
+        questionData.correct_answer = correctAnswer.value;
+        questionData.options = [
+            { option_text: 'True', is_correct: correctAnswer.value === 'true', option_order: 1 },
+            { option_text: 'False', is_correct: correctAnswer.value === 'false', option_order: 2 }
+        ];
+
+    } else if (questionType === 'essay') {
+        questionData.sample_answer = document.getElementById('essay-sample').value.trim();
+
+    } else if (questionType === 'fill_blank') {
+        const blankAnswers = document.getElementById('blank-answers').value.trim();
+        if (!blankAnswers) {
+            alert(i18n.enterCorrectAnswer);
+            return;
+        }
+        questionData.correct_answer = blankAnswers;
+    }
+
+    // Submit
+    try {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+
+        const response = await fetch(`/tests/api/${testId}/questions/${questionId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(questionData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(i18n.questionSaved);
+            window.location.href = backUrl;
+        } else {
+            alert(result.message || 'Error saving question');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Question';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(i18n.connectionError);
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Question';
+    }
+});
+</script>

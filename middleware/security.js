@@ -151,7 +151,9 @@ class SecurityMiddleware {
             const skipPaths = [
                 '/settings',
                 '/api/create',
-                '/api/update'
+                '/api/update',
+                '/questions/',  // Question content may contain educational text like "select", "delete"
+                '/api/questions'
             ];
 
             const fullPath = req.baseUrl + req.path;

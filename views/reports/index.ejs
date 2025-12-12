@@ -19,49 +19,57 @@
         </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+    <!-- Quick Stats - Dashboard Style -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase">หลักสูตรทั้งหมด</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statCourses">-</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1">หลักสูตรทั้งหมด</p>
+                    <p class="text-3xl font-bold text-gray-900" id="statCourses">-</p>
                 </div>
-                <div class="p-3 bg-blue-100 rounded-full">
-                    <i class="fas fa-book text-blue-600"></i>
+                <div class="icon-box bg-blue-100">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase">ผู้ลงทะเบียน</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statEnrollments">-</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1">ผู้ลงทะเบียน</p>
+                    <p class="text-3xl font-bold text-gray-900" id="statEnrollments">-</p>
                 </div>
-                <div class="p-3 bg-green-100 rounded-full">
-                    <i class="fas fa-users text-green-600"></i>
+                <div class="icon-box bg-green-100">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase">อัตราสำเร็จ</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statCompletion">-</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1">อัตราสำเร็จ</p>
+                    <p class="text-3xl font-bold text-gray-900" id="statCompletion">-</p>
                 </div>
-                <div class="p-3 bg-purple-100 rounded-full">
-                    <i class="fas fa-trophy text-purple-600"></i>
+                <div class="icon-box bg-purple-100">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
                 </div>
             </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-orange-500">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase">ผู้ใช้งานวันนี้</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1" id="statActiveUsers">-</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1">ผู้ใช้งานวันนี้</p>
+                    <p class="text-3xl font-bold text-gray-900" id="statActiveUsers">-</p>
                 </div>
-                <div class="p-3 bg-orange-100 rounded-full">
-                    <i class="fas fa-user-check text-orange-600"></i>
+                <div class="icon-box bg-orange-100">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -76,7 +84,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <!-- Course Enrollments Report - NEW -->
-        <a href="/reports/course-enrollments" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        <a href="/reports/course-enrollments" class="report-card bg-white rounded-xl border border-gray-200 hover:border-indigo-300 transition-all duration-300 overflow-hidden group">
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0 p-3 bg-indigo-100 rounded-xl group-hover:bg-indigo-200 transition-colors">
@@ -85,7 +93,6 @@
                     <div class="ml-4 flex-1">
                         <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
                             การลงทะเบียนหลักสูตร
-                            <span class="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full">NEW</span>
                         </h3>
                         <p class="text-sm text-gray-500 mt-1">ดูรายละเอียดผู้ลงทะเบียนและความก้าวหน้าของแต่ละหลักสูตร</p>
                     </div>
@@ -101,7 +108,7 @@
         </a>
 
         <!-- Learning Progress Report -->
-        <a href="/reports/learning-progress" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        <a href="/reports/learning-progress" class="report-card bg-white rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-300 overflow-hidden group">
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0 p-3 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors">
@@ -125,7 +132,7 @@
         </a>
 
         <!-- Test Results Report -->
-        <a href="/reports/test-results" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        <a href="/reports/test-results" class="report-card bg-white rounded-xl border border-gray-200 hover:border-green-300 transition-all duration-300 overflow-hidden group">
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0 p-3 bg-green-100 rounded-xl group-hover:bg-green-200 transition-colors">
@@ -149,7 +156,7 @@
         </a>
 
         <!-- Course Analytics -->
-        <a href="/reports/course-analytics" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        <a href="/reports/course-analytics" class="report-card bg-white rounded-xl border border-gray-200 hover:border-cyan-300 transition-all duration-300 overflow-hidden group">
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0 p-3 bg-cyan-100 rounded-xl group-hover:bg-cyan-200 transition-colors">
@@ -173,7 +180,7 @@
         </a>
 
         <!-- Department Performance -->
-        <a href="/reports/department-performance" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        <a href="/reports/department-performance" class="report-card bg-white rounded-xl border border-gray-200 hover:border-purple-300 transition-all duration-300 overflow-hidden group">
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0 p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
@@ -197,7 +204,7 @@
         </a>
 
         <!-- User Activity -->
-        <a href="/reports/user-activity" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        <a href="/reports/user-activity" class="report-card bg-white rounded-xl border border-gray-200 hover:border-orange-300 transition-all duration-300 overflow-hidden group">
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0 p-3 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors">
@@ -221,7 +228,7 @@
         </a>
 
         <!-- Certification Report -->
-        <a href="/reports/certifications" class="report-card bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        <a href="/reports/certifications" class="report-card bg-white rounded-xl border border-gray-200 hover:border-yellow-300 transition-all duration-300 overflow-hidden group">
             <div class="p-6">
                 <div class="flex items-start">
                     <div class="flex-shrink-0 p-3 bg-yellow-100 rounded-xl group-hover:bg-yellow-200 transition-colors">
@@ -246,7 +253,7 @@
     </div>
 
     <!-- Quick Export Options -->
-    <div class="bg-white shadow-sm rounded-xl p-6">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">
             <i class="fas fa-download mr-2 text-gray-400"></i>ส่งออกรายงานแบบด่วน
         </h3>

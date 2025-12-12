@@ -1205,6 +1205,144 @@ const testController = {
         }
     },
 
+    async renderEditQuestion(req, res) {
+        try {
+            const { test_id, question_id } = req.params;
+
+            // Verify test exists
+            const test = await Test.findById(test_id);
+            if (!test) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    user: req.session.user
+                });
+            }
+
+            // Get question with options
+            const question = await Question.findById(question_id);
+            if (!question) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    user: req.session.user
+                });
+            }
+
+            // Render the edit form
+            res.render('tests/edit-question', {
+                title: `${req.t('editQuestion')} - ${test.title}`,
+                user: req.session.user,
+                userRole: req.user.role_name,
+                question: question,
+                testId: test_id,
+                courseId: test.course_id,
+                backUrl: `/tests/${test_id}/edit`
+            });
+
+        } catch (error) {
+            console.error('Render edit question error:', error);
+            res.render('error/500', {
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingEditQuestionPage'),
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
+    // API: Upload question image
+    async uploadQuestionImage(req, res) {
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No image file uploaded'
+                });
+            }
+
+            // Return the URL path to the uploaded image
+            const imageUrl = `/uploads/images/${req.file.filename}`;
+
+            res.json({
+                success: true,
+                message: 'Image uploaded successfully',
+                data: {
+                    url: imageUrl,
+                    filename: req.file.filename
+                }
+            });
+        } catch (error) {
+            console.error('Upload question image error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error uploading image',
+                error: error.message
+            });
+        }
+    },
+
+    // API: Update question
+    async updateQuestion(req, res) {
+        try {
+            const { test_id, question_id } = req.params;
+            const updateData = req.body;
+
+            console.log('Update question request:', { test_id, question_id, updateData });
+
+            // Verify test exists
+            const test = await Test.findById(test_id);
+            if (!test) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('testNotFound') || 'Test not found'
+                });
+            }
+
+            // Verify question exists
+            const existingQuestion = await Question.findById(question_id);
+            if (!existingQuestion) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('questionNotFound') || 'Question not found'
+                });
+            }
+
+            // Update question
+            const result = await Question.update(question_id, {
+                question_text: updateData.question_text,
+                question_type: updateData.question_type,
+                question_image: updateData.question_image,
+                points: updateData.points,
+                difficulty_level: updateData.difficulty_level,
+                time_estimate_seconds: updateData.time_estimate_seconds,
+                explanation: updateData.explanation,
+                tags: updateData.tags,
+                correct_answer: updateData.correct_answer,
+                sample_answer: updateData.sample_answer,
+                options: updateData.options
+            });
+
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: req.t('questionUpdated') || 'Question updated successfully'
+                });
+            } else {
+                res.status(400).json({
+                    success: false,
+                    message: result.message || req.t('errorUpdatingQuestion') || 'Error updating question'
+                });
+            }
+
+        } catch (error) {
+            console.error('Update question error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorUpdatingQuestion') || 'Error updating question',
+                error: error.message
+            });
+        }
+    },
+
     async renderTestTaking(req, res) {
         try {
             const { test_id, attempt_id } = req.params;
