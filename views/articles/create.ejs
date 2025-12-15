@@ -1,4 +1,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Skip Link for Accessibility -->
+    <a href="#article-form" class="skip-link"><%= t('skipToForm') || 'ข้ามไปยังฟอร์ม' %></a>
+
     <!-- Header -->
     <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -20,47 +23,54 @@
         </div>
     </div>
 
-    <!-- Progress Steps -->
-    <div class="mb-8">
-        <div class="flex items-center space-x-4">
-            <div class="step-indicator active" data-step="1">
-                <div class="step-circle">1</div>
-                <span class="step-label"><%= t('basicInformation') || 'ข้อมูลพื้นฐาน' %></span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step-indicator" data-step="2">
-                <div class="step-circle">2</div>
-                <span class="step-label"><%= t('contentAndMedia') || 'เนื้อหาและสื่อ' %></span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step-indicator" data-step="3">
-                <div class="step-circle">3</div>
-                <span class="step-label"><%= t('settingsAndTags') || 'การตั้งค่าและแท็ก' %></span>
-            </div>
-            <div class="step-line"></div>
-            <div class="step-indicator" data-step="4">
-                <div class="step-circle">4</div>
-                <span class="step-label"><%= t('reviewAndPublish') || 'ตรวจสอบและเผยแพร่' %></span>
-            </div>
-        </div>
-    </div>
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-    <form id="article-form" enctype="multipart/form-data">
+    <!-- Progress Steps -->
+    <nav class="mb-8" aria-label="<%= t('formSteps') || 'ขั้นตอนการกรอกฟอร์ม' %>">
+        <ol class="flex items-center space-x-4" role="list">
+            <li class="step-indicator active" data-step="1" role="listitem" aria-current="step">
+                <div class="step-circle" aria-hidden="true">1</div>
+                <span class="step-label"><%= t('basicInformation') || 'ข้อมูลพื้นฐาน' %></span>
+            </li>
+            <li class="step-line" role="presentation" aria-hidden="true"></li>
+            <li class="step-indicator" data-step="2" role="listitem">
+                <div class="step-circle" aria-hidden="true">2</div>
+                <span class="step-label"><%= t('contentAndMedia') || 'เนื้อหาและสื่อ' %></span>
+            </li>
+            <li class="step-line" role="presentation" aria-hidden="true"></li>
+            <li class="step-indicator" data-step="3" role="listitem">
+                <div class="step-circle" aria-hidden="true">3</div>
+                <span class="step-label"><%= t('settingsAndTags') || 'การตั้งค่าและแท็ก' %></span>
+            </li>
+            <li class="step-line" role="presentation" aria-hidden="true"></li>
+            <li class="step-indicator" data-step="4" role="listitem">
+                <div class="step-circle" aria-hidden="true">4</div>
+                <span class="step-label"><%= t('reviewAndPublish') || 'ตรวจสอบและเผยแพร่' %></span>
+            </li>
+        </ol>
+    </nav>
+
+    <form id="article-form" enctype="multipart/form-data" aria-label="<%= t('createArticleForm') || 'ฟอร์มสร้างบทความ' %>">
         <!-- Step 1: Basic Information -->
-        <div id="step-1" class="step-content active">
+        <div id="step-1" class="step-content active" role="region" aria-labelledby="step-1-heading">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('basicInformation') || 'ข้อมูลพื้นฐาน' %></h3>
+                <h3 id="step-1-heading" class="text-lg font-semibold text-gray-900 mb-4"><%= t('basicInformation') || 'ข้อมูลพื้นฐาน' %></h3>
 
                 <div class="space-y-6">
                     <!-- Article Title -->
                     <div>
                         <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                            <%= t('articleTitle') || 'หัวข้อบทความ' %> <span class="text-red-500">*</span>
+                            <%= t('articleTitle') || 'หัวข้อบทความ' %> <span class="text-red-500" aria-hidden="true">*</span>
+                            <span class="sr-only">(<%= t('required') || 'จำเป็น' %>)</span>
                         </label>
                         <input type="text" id="title" name="title" required
+                               aria-describedby="title-hint"
+                               aria-required="true"
+                               maxlength="100"
                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                placeholder="<%= t('enterEngagingTitle') || 'ใส่หัวข้อที่น่าสนใจสำหรับบทความของคุณ' %>">
-                        <div class="mt-1 text-sm text-gray-500">
+                        <div id="title-hint" class="mt-1 text-sm text-gray-500">
                             <span id="title-count">0</span>/100 <%= t('characters') || 'ตัวอักษร' %> • <%= t('goodTitleDesc') || 'หัวข้อที่ดีควรชัดเจนและอธิบายได้' %>
                         </div>
                     </div>
@@ -68,49 +78,93 @@
                     <!-- Article Summary -->
                     <div>
                         <label for="summary" class="block text-sm font-medium text-gray-700 mb-2">
-                            <%= t('summary') || 'สรุปเนื้อหา' %> <span class="text-red-500">*</span>
+                            <%= t('summary') || 'สรุปเนื้อหา' %> <span class="text-red-500" aria-hidden="true">*</span>
+                            <span class="sr-only">(<%= t('required') || 'จำเป็น' %>)</span>
                         </label>
                         <textarea id="summary" name="summary" rows="3" required
+                                  aria-describedby="summary-hint"
+                                  aria-required="true"
+                                  maxlength="300"
                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                   placeholder="<%= t('writeBriefSummary') || 'เขียนสรุปสั้นๆ ของบทความ (จะแสดงในรายการบทความ)' %>"></textarea>
-                        <div class="mt-1 text-sm text-gray-500">
+                        <div id="summary-hint" class="mt-1 text-sm text-gray-500">
                             <span id="summary-count">0</span>/300 <%= t('characters') || 'ตัวอักษร' %> • <%= t('summaryHelpDesc') || 'ช่วยให้ผู้อ่านเข้าใจว่าบทความของคุณเกี่ยวกับอะไร' %>
                         </div>
                     </div>
 
-                    <!-- Category -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
-                                <%= t('category') || 'หมวดหมู่' %> <span class="text-red-500">*</span>
+                    <!-- Category - Pill/Tag Selection -->
+                    <div>
+                        <label id="category-label" class="block text-sm font-medium text-gray-700 mb-3">
+                            <%= t('category') || 'หมวดหมู่' %> <span class="text-red-500" aria-hidden="true">*</span>
+                        </label>
+                        <div class="category-pills-container" id="category-list">
+                            <label class="category-pill" data-value="technology" style="--pill-color: #3b82f6;">
+                                <input type="radio" name="category_radio" value="technology" class="category-radio sr-only">
+                                <i class="fas fa-microchip"></i>
+                                <span><%= t('technology') || 'เทคโนโลยี' %></span>
                             </label>
-                            <select id="category" name="category" required
-                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <option value=""><%= t('selectCategory') || 'เลือกหมวดหมู่' %></option>
-                                <option value="technology"><%= t('technology') || 'เทคโนโลยี' %></option>
-                                <option value="business"><%= t('business') || 'ธุรกิจ' %></option>
-                                <option value="design"><%= t('design') || 'ดีไซน์' %></option>
-                                <option value="marketing"><%= t('marketing') || 'การตลาด' %></option>
-                                <option value="development"><%= t('development') || 'การพัฒนา' %></option>
-                                <option value="data-science"><%= t('dataScience') || 'วิทยาศาสตร์ข้อมูล' %></option>
-                                <option value="project-management"><%= t('projectManagement') || 'การจัดการโครงการ' %></option>
-                                <option value="leadership"><%= t('leadership') || 'ความเป็นผู้นำ' %></option>
-                                <option value="career"><%= t('careerDevelopment') || 'การพัฒนาอาชีพ' %></option>
-                                <option value="other"><%= t('other') || 'อื่นๆ' %></option>
-                            </select>
+                            <label class="category-pill" data-value="business" style="--pill-color: #10b981;">
+                                <input type="radio" name="category_radio" value="business" class="category-radio sr-only">
+                                <i class="fas fa-briefcase"></i>
+                                <span><%= t('business') || 'ธุรกิจ' %></span>
+                            </label>
+                            <label class="category-pill" data-value="design" style="--pill-color: #f59e0b;">
+                                <input type="radio" name="category_radio" value="design" class="category-radio sr-only">
+                                <i class="fas fa-palette"></i>
+                                <span><%= t('design') || 'ดีไซน์' %></span>
+                            </label>
+                            <label class="category-pill" data-value="marketing" style="--pill-color: #ef4444;">
+                                <input type="radio" name="category_radio" value="marketing" class="category-radio sr-only">
+                                <i class="fas fa-bullhorn"></i>
+                                <span><%= t('marketing') || 'การตลาด' %></span>
+                            </label>
+                            <label class="category-pill" data-value="development" style="--pill-color: #8b5cf6;">
+                                <input type="radio" name="category_radio" value="development" class="category-radio sr-only">
+                                <i class="fas fa-code"></i>
+                                <span><%= t('development') || 'การพัฒนา' %></span>
+                            </label>
+                            <label class="category-pill" data-value="data-science" style="--pill-color: #06b6d4;">
+                                <input type="radio" name="category_radio" value="data-science" class="category-radio sr-only">
+                                <i class="fas fa-chart-bar"></i>
+                                <span><%= t('dataScience') || 'Data Science' %></span>
+                            </label>
+                            <label class="category-pill" data-value="project-management" style="--pill-color: #ec4899;">
+                                <input type="radio" name="category_radio" value="project-management" class="category-radio sr-only">
+                                <i class="fas fa-tasks"></i>
+                                <span><%= t('projectManagement') || 'จัดการโครงการ' %></span>
+                            </label>
+                            <label class="category-pill" data-value="leadership" style="--pill-color: #f97316;">
+                                <input type="radio" name="category_radio" value="leadership" class="category-radio sr-only">
+                                <i class="fas fa-users"></i>
+                                <span><%= t('leadership') || 'ความเป็นผู้นำ' %></span>
+                            </label>
+                            <label class="category-pill" data-value="career" style="--pill-color: #14b8a6;">
+                                <input type="radio" name="category_radio" value="career" class="category-radio sr-only">
+                                <i class="fas fa-rocket"></i>
+                                <span><%= t('careerDevelopment') || 'พัฒนาอาชีพ' %></span>
+                            </label>
+                            <label class="category-pill" data-value="other" style="--pill-color: #6b7280;">
+                                <input type="radio" name="category_radio" value="other" class="category-radio sr-only">
+                                <i class="fas fa-ellipsis-h"></i>
+                                <span><%= t('other') || 'อื่นๆ' %></span>
+                            </label>
                         </div>
+                        <input type="hidden" id="category" name="category" required>
+                        <div id="category-error" class="mt-2 text-sm text-red-500 hidden"><%= t('pleaseSelectCategory') || 'กรุณาเลือกหมวดหมู่' %></div>
+                    </div>
 
-                        <!-- Reading Time -->
-                        <div>
-                            <label for="reading_time" class="block text-sm font-medium text-gray-700 mb-2">
-                                <%= t('estimatedReadingTime') || 'เวลาอ่านโดยประมาณ' %>
-                            </label>
-                            <div class="flex items-center space-x-2">
+                    <!-- Reading Time -->
+                    <div class="mt-6">
+                        <label for="reading_time" class="block text-sm font-medium text-gray-700 mb-2">
+                            <%= t('estimatedReadingTime') || 'เวลาอ่านโดยประมาณ' %>
+                        </label>
+                        <div class="flex items-center space-x-3">
+                            <div class="relative flex-1 max-w-xs">
                                 <input type="number" id="reading_time" name="reading_time" min="1" max="60"
-                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                <span class="text-sm text-gray-500"><%= t('minutes') || 'นาที' %></span>
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-12 focus:ring-2 focus:ring-blue-500">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500"><%= t('minutes') || 'นาที' %></span>
                             </div>
-                            <div class="mt-1 text-sm text-gray-500"><%= t('autoCalculatedIfBlank') || 'จะคำนวณอัตโนมัติหากไม่ได้กรอก' %></div>
+                            <span class="text-sm text-gray-400"><i class="fas fa-magic mr-1"></i><%= t('autoCalculatedIfBlank') || 'คำนวณอัตโนมัติ' %></span>
                         </div>
                     </div>
 
@@ -153,61 +207,193 @@
         </div>
 
         <!-- Step 2: Content & Media -->
-        <div id="step-2" class="step-content">
+        <div id="step-2" class="step-content" role="region" aria-labelledby="step-2-heading">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('contentAndMedia') || 'เนื้อหาและสื่อ' %></h3>
+                <h3 id="step-2-heading" class="text-lg font-semibold text-gray-900 mb-4"><%= t('contentAndMedia') || 'เนื้อหาและสื่อ' %></h3>
 
-                <!-- Editor Toolbar -->
-                <div class="border border-gray-300 rounded-t-lg bg-gray-50 p-3">
-                    <div class="flex items-center space-x-2 flex-wrap">
-                        <button type="button" onclick="formatText('bold')" class="editor-btn" title="<%= t('bold') || 'ตัวหนา' %>">
-                            <i class="fas fa-bold"></i>
-                        </button>
-                        <button type="button" onclick="formatText('italic')" class="editor-btn" title="<%= t('italic') || 'ตัวเอียง' %>">
-                            <i class="fas fa-italic"></i>
-                        </button>
-                        <button type="button" onclick="formatText('underline')" class="editor-btn" title="<%= t('underline') || 'ขีดเส้นใต้' %>">
-                            <i class="fas fa-underline"></i>
-                        </button>
-                        <div class="w-px h-6 bg-gray-300"></div>
-                        <button type="button" onclick="formatText('insertUnorderedList')" class="editor-btn" title="<%= t('bulletList') || 'รายการหัวข้อย่อย' %>">
-                            <i class="fas fa-list-ul"></i>
-                        </button>
-                        <button type="button" onclick="formatText('insertOrderedList')" class="editor-btn" title="<%= t('numberedList') || 'รายการตัวเลข' %>">
-                            <i class="fas fa-list-ol"></i>
-                        </button>
-                        <div class="w-px h-6 bg-gray-300"></div>
-                        <button type="button" onclick="insertLink()" class="editor-btn" title="<%= t('insertLink') || 'แทรกลิงก์' %>">
-                            <i class="fas fa-link"></i>
-                        </button>
-                        <button type="button" onclick="insertImage()" class="editor-btn" title="<%= t('insertImage') || 'แทรกรูปภาพ' %>">
-                            <i class="fas fa-image"></i>
-                        </button>
-                        <button type="button" onclick="insertCodeBlock()" class="editor-btn" title="<%= t('codeBlock') || 'บล็อกโค้ด' %>">
-                            <i class="fas fa-code"></i>
-                        </button>
-                        <div class="w-px h-6 bg-gray-300"></div>
-                        <select onchange="formatHeading(this.value)" class="text-sm border border-gray-300 rounded px-2 py-1">
-                            <option value=""><%= t('heading') || 'หัวข้อ' %></option>
-                            <option value="h1"><%= t('heading') || 'หัวข้อ' %> 1</option>
-                            <option value="h2"><%= t('heading') || 'หัวข้อ' %> 2</option>
-                            <option value="h3"><%= t('heading') || 'หัวข้อ' %> 3</option>
-                            <option value="h4"><%= t('heading') || 'หัวข้อ' %> 4</option>
-                        </select>
+                <!-- Professional Editor Toolbar - Word Style -->
+                <div class="word-toolbar" role="toolbar" aria-label="<%= t('textFormatting') || 'การจัดรูปแบบข้อความ' %>">
+                    <!-- Row 1: Main Tools -->
+                    <div class="toolbar-row">
+                        <!-- Undo/Redo -->
+                        <div class="tool-group">
+                            <button type="button" onclick="formatText('undo')" class="tool-btn" title="ย้อนกลับ (Ctrl+Z)">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button type="button" onclick="formatText('redo')" class="tool-btn" title="ทำซ้ำ (Ctrl+Y)">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
+
+                        <div class="tool-divider"></div>
+
+                        <!-- Font Style -->
+                        <div class="tool-group">
+                            <select id="font-size-select" onchange="changeFontSize(this.value)" class="tool-select" title="ขนาดตัวอักษร">
+                                <option value="1">8</option>
+                                <option value="2">10</option>
+                                <option value="3" selected>12</option>
+                                <option value="4">14</option>
+                                <option value="5">18</option>
+                                <option value="6">24</option>
+                                <option value="7">36</option>
+                            </select>
+                        </div>
+
+                        <div class="tool-divider"></div>
+
+                        <!-- Text Format -->
+                        <div class="tool-group">
+                            <button type="button" onclick="formatText('bold')" class="tool-btn" title="ตัวหนา (Ctrl+B)" data-command="bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" onclick="formatText('italic')" class="tool-btn" title="ตัวเอียง (Ctrl+I)" data-command="italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" onclick="formatText('underline')" class="tool-btn" title="ขีดเส้นใต้ (Ctrl+U)" data-command="underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <button type="button" onclick="formatText('strikeThrough')" class="tool-btn" title="ขีดฆ่า" data-command="strikeThrough">
+                                <i class="fas fa-strikethrough"></i>
+                            </button>
+                        </div>
+
+                        <div class="tool-divider"></div>
+
+                        <!-- Text Color -->
+                        <div class="tool-group">
+                            <div class="color-picker-wrap">
+                                <button type="button" onclick="document.getElementById('text-color-input').click()" class="tool-btn color-btn" title="สีตัวอักษร">
+                                    <i class="fas fa-font"></i>
+                                    <span class="color-bar" id="text-color-bar" style="background: #000000;"></span>
+                                </button>
+                                <input type="color" id="text-color-input" value="#000000" onchange="changeTextColor(this.value)" style="display:none;">
+                            </div>
+                            <div class="color-picker-wrap">
+                                <button type="button" onclick="document.getElementById('bg-color-input').click()" class="tool-btn color-btn" title="สีพื้นหลัง">
+                                    <i class="fas fa-highlighter"></i>
+                                    <span class="color-bar" id="bg-color-bar" style="background: #ffff00;"></span>
+                                </button>
+                                <input type="color" id="bg-color-input" value="#ffff00" onchange="changeBackgroundColor(this.value)" style="display:none;">
+                            </div>
+                        </div>
+
+                        <div class="tool-divider"></div>
+
+                        <!-- Headings -->
+                        <div class="tool-group">
+                            <select id="heading-select" onchange="formatHeading(this.value); this.value='';" class="tool-select" title="หัวข้อ">
+                                <option value="">หัวข้อ</option>
+                                <option value="p">ย่อหน้าปกติ</option>
+                                <option value="h1">หัวข้อ 1</option>
+                                <option value="h2">หัวข้อ 2</option>
+                                <option value="h3">หัวข้อ 3</option>
+                                <option value="h4">หัวข้อ 4</option>
+                            </select>
+                        </div>
+
+                        <div class="tool-divider"></div>
+
+                        <!-- Alignment -->
+                        <div class="tool-group">
+                            <button type="button" onclick="formatText('justifyLeft')" class="tool-btn" title="ชิดซ้าย" data-command="justifyLeft">
+                                <i class="fas fa-align-left"></i>
+                            </button>
+                            <button type="button" onclick="formatText('justifyCenter')" class="tool-btn" title="กึ่งกลาง" data-command="justifyCenter">
+                                <i class="fas fa-align-center"></i>
+                            </button>
+                            <button type="button" onclick="formatText('justifyRight')" class="tool-btn" title="ชิดขวา" data-command="justifyRight">
+                                <i class="fas fa-align-right"></i>
+                            </button>
+                            <button type="button" onclick="formatText('justifyFull')" class="tool-btn" title="เต็มบรรทัด" data-command="justifyFull">
+                                <i class="fas fa-align-justify"></i>
+                            </button>
+                        </div>
+
+                        <div class="tool-divider"></div>
+
+                        <!-- Lists -->
+                        <div class="tool-group">
+                            <button type="button" onclick="formatText('insertUnorderedList')" class="tool-btn" title="รายการแบบจุด">
+                                <i class="fas fa-list-ul"></i>
+                            </button>
+                            <button type="button" onclick="formatText('insertOrderedList')" class="tool-btn" title="รายการแบบตัวเลข">
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                            <button type="button" onclick="formatText('indent')" class="tool-btn" title="เพิ่มย่อหน้า">
+                                <i class="fas fa-indent"></i>
+                            </button>
+                            <button type="button" onclick="formatText('outdent')" class="tool-btn" title="ลดย่อหน้า">
+                                <i class="fas fa-outdent"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Insert Tools -->
+                    <div class="toolbar-row toolbar-row-2">
+                        <!-- Insert Items -->
+                        <div class="tool-group">
+                            <button type="button" onclick="quickInsertImage()" class="tool-btn-label" title="แทรกรูปภาพ">
+                                <i class="fas fa-image"></i>
+                                <span>รูปภาพ</span>
+                            </button>
+                            <button type="button" onclick="insertLink()" class="tool-btn-label" title="แทรกลิงก์">
+                                <i class="fas fa-link"></i>
+                                <span>ลิงก์</span>
+                            </button>
+                            <button type="button" onclick="insertTable()" class="tool-btn-label" title="แทรกตาราง">
+                                <i class="fas fa-table"></i>
+                                <span>ตาราง</span>
+                            </button>
+                            <button type="button" onclick="insertQuote()" class="tool-btn-label" title="อ้างอิง">
+                                <i class="fas fa-quote-left"></i>
+                                <span>อ้างอิง</span>
+                            </button>
+                            <button type="button" onclick="insertCodeBlock()" class="tool-btn-label" title="บล็อกโค้ด">
+                                <i class="fas fa-code"></i>
+                                <span>โค้ด</span>
+                            </button>
+                            <button type="button" onclick="insertHorizontalRule()" class="tool-btn-label" title="เส้นคั่น">
+                                <i class="fas fa-minus"></i>
+                                <span>เส้นคั่น</span>
+                            </button>
+                        </div>
+
+                        <!-- Spacer -->
+                        <div style="flex: 1;"></div>
+
+                        <!-- View Options -->
+                        <div class="tool-group">
+                            <button type="button" onclick="toggleFullscreen()" class="tool-btn" title="เต็มหน้าจอ">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button type="button" onclick="clearFormatting()" class="tool-btn" title="ล้างการจัดรูปแบบ">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+                            <button type="button" onclick="clearAllContent()" class="tool-btn tool-btn-danger" title="ลบข้อความทั้งหมด">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Content Editor -->
                 <div>
+                    <label for="content-editor" class="sr-only"><%= t('articleContent') || 'เนื้อหาบทความ' %></label>
                     <div id="content-editor" contenteditable="true"
-                         class="w-full min-h-96 border border-t-0 border-gray-300 rounded-b-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 prose prose-blue max-w-none"
+                         role="textbox"
+                         aria-multiline="true"
+                         aria-label="<%= t('articleContent') || 'เนื้อหาบทความ' %>"
+                         aria-describedby="content-hint"
+                         aria-required="true"
+                         class="content-editor-area"
                          data-placeholder="<%= t('startWritingContent') || 'เริ่มเขียนเนื้อหาบทความของคุณที่นี่...' %>">
                     </div>
                     <input type="hidden" id="content" name="content">
                 </div>
 
                 <!-- Word Count -->
-                <div class="mt-2 flex justify-between text-sm text-gray-500">
+                <div id="content-hint" class="mt-2 flex justify-between text-sm text-gray-500">
                     <span><%= t('useToolbarDesc') || 'ใช้แถบเครื่องมือด้านบนเพื่อจัดรูปแบบเนื้อหา' %></span>
                     <span id="word-count">0 <%= t('words') || 'คำ' %></span>
                 </div>
@@ -224,9 +410,9 @@
         </div>
 
         <!-- Step 3: Settings & Tags -->
-        <div id="step-3" class="step-content">
+        <div id="step-3" class="step-content" role="region" aria-labelledby="step-3-heading">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('settingsAndTags') || 'การตั้งค่าและแท็ก' %></h3>
+                <h3 id="step-3-heading" class="text-lg font-semibold text-gray-900 mb-4"><%= t('settingsAndTags') || 'การตั้งค่าและแท็ก' %></h3>
 
                 <div class="space-y-6">
                     <!-- Tags -->
@@ -352,12 +538,12 @@
         </div>
 
         <!-- Step 4: Review & Publish -->
-        <div id="step-4" class="step-content">
+        <div id="step-4" class="step-content" role="region" aria-labelledby="step-4-heading">
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('reviewAndPublish') || 'ตรวจสอบและเผยแพร่' %></h3>
+                <h3 id="step-4-heading" class="text-lg font-semibold text-gray-900 mb-4"><%= t('reviewAndPublish') || 'ตรวจสอบและเผยแพร่' %></h3>
 
                 <!-- Article Preview -->
-                <div class="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50">
+                <div class="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50" role="article" aria-label="<%= t('articlePreview') || 'ตัวอย่างบทความ' %>">
                     <div id="article-preview">
                         <!-- Preview will be populated here -->
                     </div>
@@ -365,32 +551,32 @@
 
                 <!-- Publication Options -->
                 <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3"><%= t('publicationStatus') || 'สถานะการเผยแพร่' %></label>
-                        <div class="space-y-3">
-                            <label class="flex items-center">
-                                <input type="radio" name="status" value="published" class="mr-2">
+                    <fieldset>
+                        <legend class="block text-sm font-medium text-gray-700 mb-3"><%= t('publicationStatus') || 'สถานะการเผยแพร่' %></legend>
+                        <div class="space-y-3" role="radiogroup" aria-label="<%= t('publicationStatus') || 'สถานะการเผยแพร่' %>">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="status" value="published" class="mr-2" aria-describedby="publish-now-desc">
                                 <div>
                                     <span class="font-medium text-green-600"><%= t('publishNow') || 'เผยแพร่ทันที' %></span>
-                                    <p class="text-sm text-gray-500"><%= t('publishNowDesc') || 'ทำให้บทความนี้ใช้งานได้ทันที' %></p>
+                                    <p id="publish-now-desc" class="text-sm text-gray-500"><%= t('publishNowDesc') || 'ทำให้บทความนี้ใช้งานได้ทันที' %></p>
                                 </div>
                             </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="status" value="scheduled" class="mr-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="status" value="scheduled" class="mr-2" aria-describedby="schedule-desc">
                                 <div>
                                     <span class="font-medium text-blue-600"><%= t('scheduleForLater') || 'กำหนดเวลาเผยแพร่' %></span>
-                                    <p class="text-sm text-gray-500"><%= t('scheduleForLaterDesc') || 'เลือกเวลาที่จะเผยแพร่บทความนี้' %></p>
+                                    <p id="schedule-desc" class="text-sm text-gray-500"><%= t('scheduleForLaterDesc') || 'เลือกเวลาที่จะเผยแพร่บทความนี้' %></p>
                                 </div>
                             </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="status" value="draft" checked class="mr-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="status" value="draft" checked class="mr-2" aria-describedby="draft-desc">
                                 <div>
                                     <span class="font-medium text-gray-600"><%= t('saveAsDraft') || 'บันทึกเป็นร่าง' %></span>
-                                    <p class="text-sm text-gray-500"><%= t('saveAsDraftDesc') || 'บันทึกไว้แก้ไขภายหลัง' %></p>
+                                    <p id="draft-desc" class="text-sm text-gray-500"><%= t('saveAsDraftDesc') || 'บันทึกไว้แก้ไขภายหลัง' %></p>
                                 </div>
                             </label>
                         </div>
-                    </div>
+                    </fieldset>
 
                     <!-- Scheduled Publication -->
                     <div id="schedule-options" class="hidden">
@@ -472,7 +658,445 @@
     </div>
 </div>
 
+<!-- Image Manager Modal - Clean Modern Design -->
+<div id="image-manager-modal" class="fixed inset-0 z-50 hidden" style="background: rgba(0, 0, 0, 0.6);"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="image-manager-title"
+     onclick="handleImageModalOverlayClick(event)">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl w-full shadow-2xl" style="max-width: 900px; max-height: 85vh;" onclick="event.stopPropagation()">
+
+            <!-- Header - Clean White with accent -->
+            <div style="padding: 20px 24px; border-bottom: 1px solid #e5e7eb;">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div style="width: 44px; height: 44px; background: #e0f7fa; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-images" style="color: #0090D3; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <h3 id="image-manager-title" style="font-size: 18px; font-weight: 700; color: #111827; margin: 0;"><%= t('imageManager') %></h3>
+                            <p style="color: #6b7280; font-size: 13px; margin: 2px 0 0 0;"><%= t('insertImageToArticle') %></p>
+                        </div>
+                    </div>
+                    <button onclick="closeImageManager()" type="button"
+                            style="width: 36px; height: 36px; background: #f3f4f6; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s;"
+                            onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'"
+                            aria-label="<%= t('close') %>">
+                        <i class="fas fa-times" style="color: #6b7280; font-size: 14px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation - Clean Pills -->
+            <div style="background: #fafafa; padding: 16px 24px; border-bottom: 1px solid #e5e7eb;">
+                <div class="flex gap-2" role="tablist">
+                    <button onclick="switchImageTab('upload')" class="img-tab-btn active" data-tab="upload" role="tab" aria-selected="true">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span><%= t('uploadImage') %></span>
+                    </button>
+                    <button onclick="switchImageTab('url')" class="img-tab-btn" data-tab="url" role="tab" aria-selected="false">
+                        <i class="fas fa-link"></i>
+                        <span><%= t('imageUrl') %></span>
+                    </button>
+                    <button onclick="switchImageTab('gallery')" class="img-tab-btn" data-tab="gallery" role="tab" aria-selected="false">
+                        <i class="fas fa-images"></i>
+                        <span><%= t('gallery') %></span>
+                    </button>
+                    <button onclick="switchImageTab('unsplash')" class="img-tab-btn" data-tab="unsplash" role="tab" aria-selected="false">
+                        <i class="fab fa-unsplash"></i>
+                        <span>Unsplash</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div style="height: 400px; overflow-y: auto;">
+                <!-- Upload Tab -->
+                <div id="image-tab-upload" class="image-tab-content" role="tabpanel" style="padding: 24px;">
+                    <div id="upload-dropzone" class="img-upload-zone" style="min-height: 280px; border: 2px dashed #d1d5db; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fafafa; cursor: pointer; transition: all 0.3s;">
+                        <div class="text-center">
+                            <div style="width: 72px; height: 72px; margin: 0 auto 20px; background: #e0f7fa; border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 2px solid #80deea;">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 28px; color: #0090D3;"></i>
+                            </div>
+                            <h4 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 8px;"><%= t('dragDropImage') %></h4>
+                            <p style="color: #6b7280; margin-bottom: 20px;"><%= t('orClickToSelect') %></p>
+                            <button type="button" onclick="document.getElementById('image-upload-input').click()"
+                                    style="display: inline-flex; align-items: center; gap: 8px; background: #0090D3; color: white; font-weight: 600; padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s;"
+                                    onmouseover="this.style.background='#007bb5'"
+                                    onmouseout="this.style.background='#0090D3'">
+                                <i class="fas fa-folder-open"></i>
+                                <span><%= t('selectFile') || 'เลือกไฟล์' %></span>
+                            </button>
+                            <p style="margin-top: 16px; font-size: 13px; color: #9ca3af;"><%= t('supportedFormats') || 'PNG, JPG, GIF, WebP' %> &bull; <%= t('maxSize') || 'สูงสุด' %> 10MB</p>
+                        </div>
+                        <input type="file" id="image-upload-input" class="hidden" accept="image/*" multiple>
+                    </div>
+
+                    <!-- Upload Progress -->
+                    <div id="upload-progress" class="hidden" style="margin-top: 20px;">
+                        <div style="background: #e0f7fa; border-radius: 10px; padding: 16px; border: 1px solid #80deea;">
+                            <div class="flex items-center justify-between" style="margin-bottom: 12px;">
+                                <div class="flex items-center gap-3">
+                                    <div style="width: 36px; height: 36px; background: #0090D3; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-spinner fa-spin text-white"></i>
+                                    </div>
+                                    <span style="font-weight: 500; color: #006994;"><%= t('uploading') || 'กำลังอัปโหลด...' %></span>
+                                </div>
+                                <span id="upload-progress-text" style="font-size: 14px; font-weight: 700; color: #0090D3;">0%</span>
+                            </div>
+                            <div style="width: 100%; background: #b2ebf2; border-radius: 999px; height: 8px;">
+                                <div id="upload-progress-bar" style="background: #0090D3; height: 8px; border-radius: 999px; transition: all 0.3s; width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recently Uploaded -->
+                    <div id="recently-uploaded" class="hidden" style="margin-top: 24px;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check-circle" style="color: #22c55e;"></i>
+                            <%= t('recentlyUploaded') %>
+                        </h4>
+                        <div id="uploaded-images-list" class="grid grid-cols-4 gap-3"></div>
+                    </div>
+                </div>
+
+                <!-- URL Tab -->
+                <div id="image-tab-url" class="image-tab-content hidden" role="tabpanel" style="padding: 24px;">
+                    <div style="max-width: 600px;">
+                        <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px;">
+                            <%= t('imageUrl') %>
+                        </label>
+                        <div class="flex gap-3">
+                            <input type="url" id="image-url-input"
+                                   style="flex: 1; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; font-size: 15px; transition: all 0.2s;"
+                                   onfocus="this.style.borderColor='#0090D3'; this.style.boxShadow='0 0 0 3px rgba(0,144,211,0.15)';"
+                                   onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+                                   placeholder="https://example.com/image.jpg">
+                            <button type="button" onclick="previewImageUrl()"
+                                    style="display: inline-flex; align-items: center; gap: 8px; background: #0090D3; color: white; font-weight: 500; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s;"
+                                    onmouseover="this.style.background='#007bb5'"
+                                    onmouseout="this.style.background='#0090D3'">
+                                <i class="fas fa-eye"></i>
+                                <span><%= t('preview') %></span>
+                            </button>
+                        </div>
+
+                        <div id="url-preview-container" class="hidden" style="margin-top: 20px;">
+                            <div style="border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background: #f8fafc; padding: 16px;">
+                                <img id="url-preview-img" src="" alt="Preview" style="max-height: 300px; margin: 0 auto; display: block; border-radius: 8px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Tab -->
+                <div id="image-tab-gallery" class="image-tab-content hidden" role="tabpanel" style="padding: 24px;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="position: relative; max-width: 400px;">
+                            <input type="text" id="gallery-search"
+                                   style="width: 100%; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px 12px 44px; font-size: 15px;"
+                                   placeholder="<%= t('searchImages') %>">
+                            <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                        </div>
+                    </div>
+                    <div id="gallery-images" class="grid grid-cols-4 gap-4">
+                        <div class="text-center col-span-4" style="padding: 48px 0;">
+                            <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: #f1f5f9; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-images text-2xl" style="color: #cbd5e1;"></i>
+                            </div>
+                            <p style="color: #94a3b8;"><%= t('noImagesYet') %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unsplash Tab -->
+                <div id="image-tab-unsplash" class="image-tab-content hidden" role="tabpanel" style="padding: 24px;">
+                    <div style="margin-bottom: 20px;">
+                        <div class="flex gap-3" style="max-width: 500px;">
+                            <div style="flex: 1; position: relative;">
+                                <input type="text" id="unsplash-search"
+                                       style="width: 100%; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px 12px 44px; font-size: 15px;"
+                                       placeholder="<%= t('searchUnsplash') %>"
+                                       onkeypress="if(event.key==='Enter') searchUnsplash()">
+                                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                            </div>
+                            <button type="button" onclick="searchUnsplash()"
+                                    style="display: inline-flex; align-items: center; gap: 8px; background: #0f172a; color: white; font-weight: 500; padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer;">
+                                <span><%= t('search') || 'ค้นหา' %></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="unsplash-images" class="grid grid-cols-3 gap-4">
+                        <div class="text-center col-span-3" style="padding: 48px 0;">
+                            <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: #0f172a; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fab fa-unsplash text-2xl text-white"></i>
+                            </div>
+                            <p style="color: #94a3b8;"><%= t('searchForFreeImages') %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Settings Panel -->
+            <div id="image-settings" class="hidden" style="border-top: 1px solid #e2e8f0; padding: 20px 24px; background: #f8fafc;">
+                <div class="flex gap-5">
+                    <div style="width: 120px; height: 120px; border-radius: 12px; overflow: hidden; background: white; border: 2px solid #bfdbfe; flex-shrink: 0;">
+                        <img id="selected-image-preview" src="" alt="Selected" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="flex-1 grid grid-cols-2 gap-4">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 8px;"><%= t('altText') %></label>
+                            <input type="text" id="image-alt-text"
+                                   style="width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 14px;"
+                                   placeholder="<%= t('describeImage') %>">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 8px;"><%= t('imageSize') %></label>
+                            <select id="image-size" style="width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 14px; background: white;">
+                                <option value="original"><%= t('original') %></option>
+                                <option value="small"><%= t('small') %> (300px)</option>
+                                <option value="medium" selected><%= t('medium') %> (600px)</option>
+                                <option value="large"><%= t('large') %> (900px)</option>
+                                <option value="full"><%= t('fullWidth') %></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 8px;"><%= t('alignment') %></label>
+                            <div style="display: inline-flex; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; background: white;">
+                                <button type="button" onclick="setImageAlignment('left')" class="img-align-btn" data-align="left"
+                                        style="padding: 10px 14px; background: transparent; border: none; color: #94a3b8; cursor: pointer;">
+                                    <i class="fas fa-align-left"></i>
+                                </button>
+                                <button type="button" onclick="setImageAlignment('center')" class="img-align-btn active" data-align="center"
+                                        style="padding: 10px 14px; background: #0090D3; border: none; color: white; cursor: pointer;">
+                                    <i class="fas fa-align-center"></i>
+                                </button>
+                                <button type="button" onclick="setImageAlignment('right')" class="img-align-btn" data-align="right"
+                                        style="padding: 10px 14px; background: transparent; border: none; color: #94a3b8; cursor: pointer;">
+                                    <i class="fas fa-align-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 8px;"><%= t('caption') %></label>
+                            <input type="text" id="image-caption"
+                                   style="width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 14px;"
+                                   placeholder="<%= t('optionalCaption') %>">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #fafafa; border-radius: 0 0 16px 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6b7280;">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="selected-image-info"><%= t('selectImageFirst') || 'กรุณาเลือกรูปภาพก่อน' %></span>
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeImageManager()"
+                            style="padding: 10px 20px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; color: #374151; font-weight: 500; cursor: pointer; transition: all 0.15s;"
+                            onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                        <%= t('cancel') %>
+                    </button>
+                    <button type="button" onclick="insertSelectedImage()" id="insert-image-btn" disabled
+                            style="padding: 10px 24px; border-radius: 8px; background: #0090D3; color: white; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; opacity: 0.5;"
+                            onmouseover="if(!this.disabled) this.style.background='#007bb5'"
+                            onmouseout="this.style.background='#0090D3'">
+                        <i class="fas fa-check" style="margin-right: 8px;"></i><%= t('insertImage') %>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Link Modal -->
+<div id="link-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl max-w-md w-full shadow-xl">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-link mr-2 text-blue-600"></i><%= t('insertLink') || 'แทรกลิงก์' %>
+                    </h3>
+                    <button onclick="closeLinkModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('linkText') || 'ข้อความลิงก์' %></label>
+                    <input type="text" id="link-text"
+                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                           placeholder="<%= t('enterLinkText') || 'ใส่ข้อความที่จะแสดง' %>">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('linkUrl') || 'URL' %></label>
+                    <input type="url" id="link-url"
+                           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                           placeholder="https://...">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="link-new-tab" class="mr-2">
+                    <label for="link-new-tab" class="text-sm text-gray-700"><%= t('openNewTab') || 'เปิดในแท็บใหม่' %></label>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" onclick="closeLinkModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <%= t('cancel') || 'ยกเลิก' %>
+                </button>
+                <button type="button" onclick="insertLinkFromModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-link mr-2"></i><%= t('insertLink') || 'แทรกลิงก์' %>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Modal -->
+<div id="table-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl max-w-md w-full shadow-xl">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-table mr-2 text-blue-600"></i><%= t('insertTable') || 'แทรกตาราง' %>
+                    </h3>
+                    <button onclick="closeTableModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('rows') || 'จำนวนแถว' %></label>
+                        <input type="number" id="table-rows" value="3" min="1" max="20"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('columns') || 'จำนวนคอลัมน์' %></label>
+                        <input type="number" id="table-cols" value="3" min="1" max="10"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="table-header" checked class="mr-2">
+                    <label for="table-header" class="text-sm text-gray-700"><%= t('includeHeader') || 'รวมแถวหัวตาราง' %></label>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" onclick="closeTableModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <%= t('cancel') || 'ยกเลิก' %>
+                </button>
+                <button type="button" onclick="insertTableFromModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-table mr-2"></i><%= t('insertTable') || 'แทรกตาราง' %>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Code Block Modal -->
+<div id="code-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full shadow-xl">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-code mr-2 text-blue-600"></i><%= t('insertCode') || 'แทรกโค้ด' %>
+                    </h3>
+                    <button onclick="closeCodeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('language') || 'ภาษา' %></label>
+                    <select id="code-language" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Auto-detect</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="php">PHP</option>
+                        <option value="sql">SQL</option>
+                        <option value="java">Java</option>
+                        <option value="csharp">C#</option>
+                        <option value="cpp">C++</option>
+                        <option value="bash">Bash</option>
+                        <option value="json">JSON</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('code') || 'โค้ด' %></label>
+                    <textarea id="code-content" rows="10"
+                              class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 bg-gray-900 text-green-400"
+                              placeholder="<%= t('pasteCodeHere') || 'วางโค้ดที่นี่...' %>"></textarea>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" onclick="closeCodeModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <%= t('cancel') || 'ยกเลิก' %>
+                </button>
+                <button type="button" onclick="insertCodeFromModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-code mr-2"></i><%= t('insertCode') || 'แทรกโค้ด' %>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus Visible Styles for Accessibility */
+.focus-visible:focus {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[contenteditable]:focus-visible {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+}
+
+/* Skip Link for Keyboard Navigation */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #3B82F6;
+    color: white;
+    padding: 8px 16px;
+    z-index: 100;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Step Indicator Styles */
 .step-indicator {
     display: flex;
     flex-direction: column;
@@ -491,11 +1115,13 @@
     justify-content: center;
     font-weight: bold;
     margin-bottom: 8px;
+    transition: all 0.3s ease;
 }
 
 .step-indicator.active .step-circle {
     background-color: #3B82F6;
     color: white;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }
 
 .step-indicator.completed .step-circle {
@@ -526,36 +1152,411 @@
 
 .step-content.active {
     display: block;
+    animation: fadeIn 0.3s ease;
 }
 
-.editor-btn {
-    padding: 8px;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Category Pills Styles */
+.category-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 9999px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.category-pill:hover {
+    border-color: var(--pill-color, #3b82f6);
+    background: color-mix(in srgb, var(--pill-color, #3b82f6) 8%, white);
+}
+
+.category-pill i {
+    color: var(--pill-color, #3b82f6);
+    font-size: 0.875rem;
+}
+
+.category-pill.selected {
+    background: var(--pill-color, #3b82f6);
+    border-color: var(--pill-color, #3b82f6);
+    color: white;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--pill-color, #3b82f6) 40%, transparent);
+}
+
+.category-pill.selected i {
+    color: white;
+}
+
+.category-pill.selected::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+}
+
+/* Legacy support for old category card styles */
+.category-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.category-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #374151;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* =============================================
+   Word-Style Professional Toolbar
+   ============================================= */
+.word-toolbar {
+    border: 1px solid #d1d5db;
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    overflow: hidden;
+}
+
+.toolbar-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.toolbar-row-2 {
+    background: #f1f5f9;
+    border-top: 1px solid #e2e8f0;
+    padding: 4px 10px;
+}
+
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.tool-divider {
+    width: 1px;
+    height: 24px;
+    background: #d1d5db;
+    margin: 0 6px;
+}
+
+.tool-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    font-size: 14px;
+}
+
+.tool-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.tool-btn:active,
+.tool-btn.active {
+    background: #0090D3;
+    color: white;
+}
+
+.tool-btn-danger {
+    color: #dc2626;
+}
+
+.tool-btn-danger:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.tool-btn-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.tool-btn-label:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.tool-btn-label i {
+    font-size: 14px;
+    color: #0090D3;
+}
+
+.tool-select {
+    height: 32px;
+    padding: 0 8px;
     border: 1px solid #d1d5db;
     border-radius: 4px;
     background: white;
     color: #374151;
+    font-size: 13px;
     cursor: pointer;
-    transition: all 0.2s;
+    min-width: 70px;
+}
+
+.tool-select:hover {
+    border-color: #0090D3;
+}
+
+.tool-select:focus {
+    outline: none;
+    border-color: #0090D3;
+    box-shadow: 0 0 0 2px rgba(0, 144, 211, 0.2);
+}
+
+/* Color Picker Button */
+.color-picker-wrap {
+    position: relative;
+}
+
+.color-btn {
+    position: relative;
+    padding-bottom: 6px;
+}
+
+.color-bar {
+    position: absolute;
+    bottom: 4px;
+    left: 6px;
+    right: 6px;
+    height: 3px;
+    border-radius: 1px;
+}
+
+/* Content Editor Area */
+.content-editor-area {
+    width: 100%;
+    min-height: 450px;
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid #d1d5db;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 20px 24px;
+    background: white;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #1f2937;
+    outline: none;
+}
+
+.content-editor-area:focus {
+    box-shadow: inset 0 0 0 2px rgba(0, 144, 211, 0.2);
+}
+
+.content-editor-area:empty:before {
+    content: attr(data-placeholder);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.content-editor-area h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
+.content-editor-area h2 { font-size: 1.5em; font-weight: bold; margin: 0.75em 0; }
+.content-editor-area h3 { font-size: 1.17em; font-weight: bold; margin: 0.83em 0; }
+.content-editor-area h4 { font-size: 1em; font-weight: bold; margin: 1em 0; }
+.content-editor-area p { margin: 1em 0; }
+.content-editor-area ul, .content-editor-area ol { margin: 1em 0; padding-left: 2em; }
+.content-editor-area li { margin: 0.5em 0; }
+.content-editor-area blockquote {
+    border-left: 4px solid #0090D3;
+    padding-left: 16px;
+    margin: 1em 0;
+    color: #4b5563;
+    font-style: italic;
+    background: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+}
+.content-editor-area pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    margin: 1em 0;
+}
+.content-editor-area code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+}
+.content-editor-area pre code {
+    background: transparent;
+    padding: 0;
+}
+.content-editor-area a {
+    color: #0090D3;
+    text-decoration: underline;
+}
+.content-editor-area table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+.content-editor-area th, .content-editor-area td {
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    text-align: left;
+}
+.content-editor-area th {
+    background: #f1f5f9;
+    font-weight: 600;
+}
+.content-editor-area hr {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin: 2em 0;
+}
+
+/* Fullscreen mode */
+.editor-fullscreen .word-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    border-radius: 0;
+}
+
+.editor-fullscreen .content-editor-area {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: none;
+    border-radius: 0;
+    z-index: 999;
+}
+
+/* Editor Button Styles (Legacy) */
+.editor-btn {
+    padding: 6px 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 32px;
+    min-height: 32px;
 }
 
 .editor-btn:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
+    background: #e5e7eb;
+    color: #1f2937;
 }
 
 .editor-btn.active {
     background: #3b82f6;
     color: white;
-    border-color: #3b82f6;
 }
 
+.editor-btn.image-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.editor-btn.image-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.heading-dropdown-btn {
+    min-width: 50px !important;
+}
+
+/* Heading Dropdown */
+.heading-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 180px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.heading-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: left;
+}
+
+.heading-option:hover {
+    background: #f3f4f6;
+}
+
+/* Content Editor */
 #content-editor {
     outline: none;
+    min-height: 400px;
 }
 
 #content-editor:empty:before {
@@ -563,26 +1564,287 @@
     color: #9ca3af;
 }
 
+#content-editor:focus {
+    box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Fullscreen Mode */
+.editor-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    background: white !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.editor-fullscreen #content-editor {
+    min-height: calc(100vh - 150px) !important;
+}
+
+/* ============================================
+   Image Manager Modal - System Primary Color Design
+   ============================================ */
+
+/* Horizontal Tab Buttons - Pill Style */
+.img-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    transition: all 0.15s ease;
+}
+
+.img-tab-btn:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+.img-tab-btn.active {
+    background: #0090D3;
+    border-color: #0090D3;
+    color: white;
+}
+
+.img-tab-btn i {
+    font-size: 14px;
+}
+
+/* Legacy Navigation Buttons */
+.img-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    color: #4b5563;
+}
+
+.img-nav-btn:hover {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.img-nav-btn.active {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.img-nav-btn.active .font-medium {
+    color: #0090D3;
+}
+
+.img-nav-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+/* Tab Content Animation */
+.image-tab-content {
+    animation: imgFadeIn 0.25s ease;
+}
+
+@keyframes imgFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Upload Zone - Clean Design */
+.img-upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.img-upload-zone:hover {
+    border-color: #0090D3;
+    background: #e0f7fa;
+}
+
+.img-upload-zone.dragover {
+    border-color: #0090D3;
+    background: #b2ebf2;
+    transform: scale(1.01);
+}
+
+/* Gallery Images - Clean Style */
+.gallery-image, .unsplash-image {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    background: #f3f4f6;
+    position: relative;
+}
+
+.gallery-image:hover, .unsplash-image:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-image.selected, .unsplash-image.selected {
+    border-color: #0090D3;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+.gallery-image.selected::after, .unsplash-image.selected::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background: #0090D3;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.gallery-image img, .unsplash-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Image Alignment Buttons */
+.img-align-btn {
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.img-align-btn:hover {
+    color: #374151;
+    background: #f3f4f6;
+}
+
+.img-align-btn.active {
+    background: #0090D3;
+    color: white;
+}
+
+.img-align-btn:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+.img-align-btn:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+/* Legacy Support - Alignment Buttons */
+.align-btn, .align-btn-new {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.align-btn:first-child, .align-btn-new:first-child { border-radius: 6px 0 0 6px; }
+.align-btn:last-child, .align-btn-new:last-child { border-radius: 0 6px 6px 0; }
+.align-btn:not(:last-child), .align-btn-new:not(:last-child) { border-right: none; }
+.align-btn:hover, .align-btn-new:hover { background: #f3f4f6; }
+
+/* Editor Image Hover Effect */
+.editor-image {
+    transition: all 0.2s ease;
+}
+
+.editor-image:hover {
+    box-shadow: 0 4px 12px rgba(0, 144, 211, 0.15);
+}
+
+.editor-image img {
+    transition: transform 0.2s ease;
+}
+
+.editor-image:hover img {
+    transform: scale(1.01);
+}
+.align-btn.active, .align-btn-new.active { background: #10b981; color: white; border-color: #10b981; }
+
+/* Legacy Tab Support */
+.image-tab {
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.image-tab:hover { background: #f3f4f6; color: #374151; }
+.image-tab.active { background: #10b981; color: white; }
+
+/* Tag Styles */
 .tag-item {
     display: inline-flex;
-    items-center;
-    padding: 4px 8px;
-    background: #3b82f6;
+    align-items: center;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
-    border-radius: 16px;
+    border-radius: 20px;
     font-size: 0.875rem;
+    gap: 6px;
 }
 
 .tag-remove {
-    margin-left: 4px;
     cursor: pointer;
     opacity: 0.7;
+    font-size: 1rem;
+    line-height: 1;
 }
 
 .tag-remove:hover {
     opacity: 1;
 }
 
+/* Prose Styles */
 .prose h1 { font-size: 2.25rem; font-weight: bold; margin: 1.5rem 0 1rem 0; }
 .prose h2 { font-size: 1.875rem; font-weight: bold; margin: 1.25rem 0 0.75rem 0; }
 .prose h3 { font-size: 1.5rem; font-weight: bold; margin: 1rem 0 0.5rem 0; }
@@ -591,8 +1853,40 @@
 .prose ul, .prose ol { margin: 0.75rem 0; padding-left: 1.5rem; }
 .prose li { margin: 0.25rem 0; }
 .prose a { color: #3b82f6; text-decoration: underline; }
-.prose code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; font-size: 0.875rem; }
-.prose pre { background: #f3f4f6; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+.prose code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.875rem; font-family: 'Fira Code', monospace; }
+.prose pre { background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+.prose pre code { background: transparent; color: inherit; padding: 0; }
+.prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; margin: 1rem 0; font-style: italic; color: #4b5563; background: #f8fafc; padding: 1rem 1rem 1rem 1.5rem; border-radius: 0 8px 8px 0; }
+.prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+.prose th { background: #f9fafb; font-weight: 600; }
+.prose hr { border: none; border-top: 2px solid #e5e7eb; margin: 2rem 0; }
+.prose figure { margin: 1.5rem 0; text-align: center; }
+.prose figure img { max-width: 100%; height: auto; border-radius: 8px; }
+.prose figcaption { margin-top: 0.5rem; font-size: 0.875rem; color: #6b7280; font-style: italic; }
+
+/* Image alignment in editor */
+.prose img.align-left { float: left; margin-right: 1rem; margin-bottom: 0.5rem; }
+.prose img.align-right { float: right; margin-left: 1rem; margin-bottom: 0.5rem; }
+.prose img.align-center { display: block; margin-left: auto; margin-right: auto; }
+.prose img.size-small { max-width: 300px; }
+.prose img.size-medium { max-width: 600px; }
+.prose img.size-large { max-width: 900px; }
+.prose img.size-full { width: 100%; }
+
+/* Responsive */
+@media (max-width: 640px) {
+    .category-pill {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    .category-pill i {
+        font-size: 0.75rem;
+    }
+    .toolbar-group {
+        margin-bottom: 4px;
+    }
+}
 </style>
 
 <script>
@@ -616,30 +1910,398 @@ const translations = {
     tagsLabel: '<%= t("tags") || "แท็ก" %>'
 };
 
+// =============================================
+// Toast Notification System
+// =============================================
+function showToast(message, type = 'info', duration = 3000) {
+    // Remove existing toast
+    const existingToast = document.getElementById('toast-notification');
+    if (existingToast) existingToast.remove();
+
+    // Create toast
+    const toast = document.createElement('div');
+    toast.id = 'toast-notification';
+
+    // Icon based on type
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-times-circle',
+        warning: 'fa-exclamation-circle',
+        info: 'fa-info-circle'
+    };
+
+    // Colors based on type
+    const colors = {
+        success: { bg: '#dcfce7', border: '#86efac', text: '#166534', icon: '#22c55e' },
+        error: { bg: '#fef2f2', border: '#fecaca', text: '#991b1b', icon: '#ef4444' },
+        warning: { bg: '#fefce8', border: '#fde047', text: '#854d0e', icon: '#eab308' },
+        info: { bg: '#e0f7fa', border: '#80deea', text: '#006994', icon: '#0090D3' }
+    };
+
+    const color = colors[type] || colors.info;
+    const icon = icons[type] || icons.info;
+
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 14px 20px;
+        background: ${color.bg};
+        border: 1px solid ${color.border};
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 400px;
+        animation: toastSlideIn 0.3s ease;
+    `;
+
+    toast.innerHTML = `
+        <i class="fas ${icon}" style="color: ${color.icon}; font-size: 18px;"></i>
+        <span style="color: ${color.text}; font-weight: 500;">${message}</span>
+    `;
+
+    // Add animation keyframes
+    if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes toastSlideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes toastSlideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(toast);
+
+    // Auto remove
+    setTimeout(() => {
+        toast.style.animation = 'toastSlideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// Current language for date formatting
+const currentLanguage = '<%= currentLanguage || "th" %>';
+
+// Format date based on current language
+function formatDate(dateString) {
+    const locale = currentLanguage === 'en' ? 'en-US' : 'th-TH';
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+    return new Date(dateString).toLocaleDateString(locale, options);
+}
+
 let currentStep = 1;
 let totalSteps = 4;
 let tags = [];
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeForm();
+// =============================================
+// Auto-save System
+// =============================================
+let autoSaveTimer = null;
+let lastSavedData = null;
+let articleDraftId = null;
+const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
+const LOCAL_STORAGE_KEY = 'article_draft_create';
 
-    // Event listeners
-    document.getElementById('title').addEventListener('input', updateTitleCount);
-    document.getElementById('summary').addEventListener('input', updateSummaryCount);
-    document.getElementById('meta_description').addEventListener('input', updateMetaCount);
-    document.getElementById('featured_image').addEventListener('change', handleImageUpload);
-    document.getElementById('content-editor').addEventListener('input', updateWordCount);
-    document.getElementById('tags-input').addEventListener('keypress', handleTagInput);
-    document.getElementById('article-form').addEventListener('submit', submitArticle);
+function initializeAutoSave() {
+    // Load from localStorage first
+    loadDraftFromLocalStorage();
 
-    // Publication status listeners
-    document.querySelectorAll('input[name="status"]').forEach(radio => {
-        radio.addEventListener('change', handleStatusChange);
+    // Start auto-save timer
+    startAutoSaveTimer();
+
+    // Save to localStorage on input changes (debounced)
+    const fieldsToWatch = ['title', 'summary', 'content-editor', 'meta_description'];
+    fieldsToWatch.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', debouncedLocalSave);
+        }
     });
 
-    // Auto-generate slug from title
-    document.getElementById('title').addEventListener('input', generateSlug);
-});
+    // Warn before leaving page with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+        saveDraftToLocalStorage();
+        if (hasUnsavedChanges()) {
+            e.preventDefault();
+            e.returnValue = translations.unsavedChanges || 'คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก';
+            return e.returnValue;
+        }
+    });
+}
+
+function startAutoSaveTimer() {
+    if (autoSaveTimer) clearInterval(autoSaveTimer);
+    autoSaveTimer = setInterval(autoSaveDraft, AUTO_SAVE_INTERVAL);
+}
+
+async function autoSaveDraft() {
+    const currentData = getCurrentFormData();
+
+    // Only save if title exists and there are changes
+    if (!currentData.title.trim() || !hasDataChanged(currentData)) {
+        return;
+    }
+
+    try {
+        showAutoSaveIndicator('saving');
+        saveDraftToLocalStorage();
+
+        // Save to server if we have an article ID
+        if (articleDraftId) {
+            await fetch(`/articles/api/${articleDraftId}/autosave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentData)
+            });
+        }
+
+        lastSavedData = { ...currentData };
+        showAutoSaveIndicator('saved');
+
+    } catch (error) {
+        console.error('Auto-save failed:', error);
+        showAutoSaveIndicator('error');
+    }
+}
+
+function saveDraftToLocalStorage() {
+    try {
+        const data = getCurrentFormData();
+        data.timestamp = new Date().toISOString();
+        data.articleDraftId = articleDraftId;
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+        console.error('Failed to save to localStorage:', e);
+    }
+}
+
+const debouncedLocalSave = debounce(saveDraftToLocalStorage, 2000);
+
+function loadDraftFromLocalStorage() {
+    try {
+        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (!saved) return;
+
+        const data = JSON.parse(saved);
+        const saveTime = new Date(data.timestamp);
+        const hoursDiff = (Date.now() - saveTime.getTime()) / (1000 * 60 * 60);
+
+        // Only load if saved within 24 hours
+        if (hoursDiff > 24) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            return;
+        }
+
+        // Check if there's actually data to restore
+        if (!data.title && !data.content) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            return;
+        }
+
+        const restore = confirm(
+            `${translations.foundDraft || 'พบร่างบทความที่บันทึกไว้'} (${formatTimeAgo(saveTime)})\n\n${translations.restoreDraft || 'ต้องการกู้คืนหรือไม่?'}`
+        );
+
+        if (restore) {
+            restoreDraftData(data);
+            articleDraftId = data.articleDraftId || null;
+            showSuccess(translations.draftRestored || 'กู้คืนร่างบทความสำเร็จ');
+        } else {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+        }
+    } catch (error) {
+        console.error('Failed to load draft:', error);
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+}
+
+function restoreDraftData(data) {
+    if (data.title) {
+        document.getElementById('title').value = data.title;
+        updateTitleCount();
+    }
+    if (data.summary) {
+        document.getElementById('summary').value = data.summary;
+        updateSummaryCount();
+    }
+    if (data.content) {
+        document.getElementById('content-editor').innerHTML = data.content;
+        document.getElementById('content').value = data.content;
+    }
+    if (data.category) {
+        document.getElementById('category').value = data.category;
+        const categoryItem = document.querySelector(`[data-value="${data.category}"]`);
+        if (categoryItem) {
+            document.querySelectorAll('.category-pill').forEach(i => i.classList.remove('selected'));
+            categoryItem.classList.add('selected');
+            const radio = categoryItem.querySelector('.category-radio');
+            if (radio) radio.checked = true;
+        }
+    }
+    if (data.tags) {
+        tags = data.tags.split(',').filter(t => t.trim());
+        renderTags();
+        updateTagsField();
+    }
+    if (data.difficulty) {
+        document.getElementById('difficulty').value = data.difficulty;
+    }
+    if (data.language) {
+        document.getElementById('language').value = data.language;
+    }
+    if (data.meta_description) {
+        document.getElementById('meta_description').value = data.meta_description;
+        updateMetaCount();
+    }
+    if (data.slug) {
+        document.getElementById('slug').value = data.slug;
+    }
+
+    updateWordCount();
+    lastSavedData = { ...data };
+}
+
+function getCurrentFormData() {
+    return {
+        title: document.getElementById('title')?.value || '',
+        summary: document.getElementById('summary')?.value || '',
+        content: document.getElementById('content-editor')?.innerHTML || '',
+        category: document.getElementById('category')?.value || '',
+        tags: tags.join(','),
+        difficulty: document.getElementById('difficulty')?.value || 'intermediate',
+        language: document.getElementById('language')?.value || 'th',
+        meta_description: document.getElementById('meta_description')?.value || '',
+        slug: document.getElementById('slug')?.value || ''
+    };
+}
+
+function hasDataChanged(currentData) {
+    if (!lastSavedData) return true;
+    return Object.keys(currentData).some(key =>
+        currentData[key] !== (lastSavedData[key] || '')
+    );
+}
+
+function hasUnsavedChanges() {
+    const currentData = getCurrentFormData();
+    // Only warn if there's meaningful content
+    if (!currentData.title && !currentData.content) return false;
+    return hasDataChanged(currentData);
+}
+
+function showAutoSaveIndicator(status) {
+    const existingIndicator = document.getElementById('autosave-indicator');
+    if (existingIndicator) existingIndicator.remove();
+
+    const indicator = document.createElement('div');
+    indicator.id = 'autosave-indicator';
+    indicator.className = 'fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg text-sm z-40 flex items-center space-x-2 transition-all duration-300';
+
+    switch (status) {
+        case 'saving':
+            indicator.className += ' bg-yellow-100 text-yellow-800 border border-yellow-200';
+            indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>กำลังบันทึก...</span>';
+            break;
+        case 'saved':
+            indicator.className += ' bg-green-100 text-green-800 border border-green-200';
+            indicator.innerHTML = '<i class="fas fa-check-circle"></i><span>บันทึกอัตโนมัติแล้ว</span>';
+            setTimeout(() => {
+                indicator.style.opacity = '0';
+                setTimeout(() => indicator.remove(), 300);
+            }, 3000);
+            break;
+        case 'error':
+            indicator.className += ' bg-red-100 text-red-800 border border-red-200';
+            indicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>บันทึกไม่สำเร็จ</span>';
+            setTimeout(() => indicator.remove(), 5000);
+            break;
+    }
+
+    document.body.appendChild(indicator);
+}
+
+function formatTimeAgo(date) {
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 60) return 'เมื่อสักครู่';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`;
+    return date.toLocaleString('th-TH');
+}
+
+function clearDraftOnSuccess() {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    if (autoSaveTimer) clearInterval(autoSaveTimer);
+    window.removeEventListener('beforeunload', () => {});
+}
+
+// =============================================
+// Utility Functions
+// =============================================
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Debounced versions for performance
+const debouncedUpdateWordCount = debounce(function() {
+    const content = document.getElementById('content-editor').innerText;
+    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+    document.getElementById('word-count').textContent = words + ' ' + translations.words;
+
+    if (!document.getElementById('reading_time').value) {
+        const readingTime = Math.max(1, Math.ceil(words / 200));
+        document.getElementById('reading_time').value = readingTime;
+    }
+
+    document.getElementById('content').value = document.getElementById('content-editor').innerHTML;
+}, 300);
+
+const debouncedGenerateSlug = debounce(function() {
+    const title = document.getElementById('title').value;
+    const slug = title.toLowerCase()
+        .replace(/[^\w\s\u0E00-\u0E7F-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+    if (!document.getElementById('slug').value) {
+        document.getElementById('slug').value = slug;
+    }
+}, 500);
 
 function initializeForm() {
     // Set default publish date to tomorrow
@@ -674,44 +2336,211 @@ function prevStep() {
 }
 
 function updateStepDisplay() {
+    // Update step content visibility
     document.querySelectorAll('.step-content').forEach(content => {
         content.classList.remove('active');
     });
     document.getElementById(`step-${currentStep}`).classList.add('active');
 
+    // Update step indicators with ARIA
     document.querySelectorAll('.step-indicator').forEach(indicator => {
         indicator.classList.remove('active');
+        indicator.removeAttribute('aria-current');
     });
-    document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+    const activeIndicator = document.querySelector(`[data-step="${currentStep}"]`);
+    activeIndicator.classList.add('active');
+    activeIndicator.setAttribute('aria-current', 'step');
+
+    // Focus management - focus on first input of current step
+    focusFirstInputInStep(currentStep);
+
+    // Screen reader announcement
+    announceStepChange(currentStep);
+}
+
+function focusFirstInputInStep(step) {
+    const stepElement = document.getElementById(`step-${step}`);
+    if (!stepElement) return;
+
+    // Find first focusable element
+    const focusableSelectors = [
+        'input:not([type="hidden"]):not([disabled])',
+        'textarea:not([disabled])',
+        'select:not([disabled])',
+        '[contenteditable="true"]',
+        'button:not([disabled])'
+    ];
+
+    for (const selector of focusableSelectors) {
+        const element = stepElement.querySelector(selector);
+        if (element && isElementVisible(element)) {
+            // Small delay to allow animation to complete
+            setTimeout(() => {
+                element.focus();
+            }, 100);
+            return;
+        }
+    }
+}
+
+function isElementVisible(element) {
+    const style = window.getComputedStyle(element);
+    return style.display !== 'none' &&
+           style.visibility !== 'hidden' &&
+           style.opacity !== '0';
+}
+
+function announceStepChange(step) {
+    const stepNames = {
+        1: translations.basicInformation || 'ข้อมูลพื้นฐาน',
+        2: translations.contentAndMedia || 'เนื้อหาและสื่อ',
+        3: translations.settingsAndTags || 'การตั้งค่าและแท็ก',
+        4: translations.reviewAndPublish || 'ตรวจสอบและเผยแพร่'
+    };
+
+    const announcement = `${translations.step || 'ขั้นตอน'} ${step} ${translations.of || 'จาก'} 4: ${stepNames[step]}`;
+    announceToScreenReader(announcement);
+}
+
+function announceToScreenReader(message) {
+    const announcer = document.getElementById('sr-announcements');
+    if (announcer) {
+        // Clear and set new message for reliable announcement
+        announcer.textContent = '';
+        setTimeout(() => {
+            announcer.textContent = message;
+        }, 100);
+    }
 }
 
 function validateCurrentStep() {
     const currentStepElement = document.getElementById(`step-${currentStep}`);
-    const requiredFields = currentStepElement.querySelectorAll('[required]');
     let isValid = true;
+    let errors = [];
 
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            field.classList.add('border-red-500');
-            isValid = false;
-        } else {
-            field.classList.remove('border-red-500');
-        }
+    // Clear previous errors
+    currentStepElement.querySelectorAll('.field-error').forEach(el => el.remove());
+    currentStepElement.querySelectorAll('.border-red-500').forEach(el => {
+        el.classList.remove('border-red-500');
+        el.removeAttribute('aria-invalid');
     });
+    document.getElementById('category-error')?.classList.add('hidden');
+    document.querySelector('.category-pills-container')?.classList.remove('border-red-500');
 
-    if (currentStep === 2) {
-        const content = document.getElementById('content-editor').innerHTML.trim();
-        if (!content || content === '') {
-            showError(translations.pleaseAddContent);
+    // Step 1: Basic Information
+    if (currentStep === 1) {
+        const title = document.getElementById('title');
+        const summary = document.getElementById('summary');
+        const category = document.getElementById('category');
+
+        // Title validation
+        if (!title.value.trim()) {
+            markFieldError(title, translations.titleRequired || 'กรุณากรอกหัวข้อบทความ');
+            errors.push(translations.titleRequired || 'กรุณากรอกหัวข้อบทความ');
+            isValid = false;
+        } else if (title.value.trim().length < 10) {
+            markFieldError(title, translations.titleTooShort || 'หัวข้อต้องมีอย่างน้อย 10 ตัวอักษร');
+            errors.push(translations.titleTooShort || 'หัวข้อต้องมีอย่างน้อย 10 ตัวอักษร');
+            isValid = false;
+        } else if (title.value.length > 100) {
+            markFieldError(title, translations.titleTooLong || 'หัวข้อต้องไม่เกิน 100 ตัวอักษร');
+            errors.push(translations.titleTooLong || 'หัวข้อต้องไม่เกิน 100 ตัวอักษร');
+            isValid = false;
+        }
+
+        // Summary validation
+        if (!summary.value.trim()) {
+            markFieldError(summary, translations.summaryRequired || 'กรุณากรอกสรุปเนื้อหา');
+            errors.push(translations.summaryRequired || 'กรุณากรอกสรุปเนื้อหา');
+            isValid = false;
+        } else if (summary.value.trim().length < 20) {
+            markFieldError(summary, translations.summaryTooShort || 'สรุปต้องมีอย่างน้อย 20 ตัวอักษร');
+            errors.push(translations.summaryTooShort || 'สรุปต้องมีอย่างน้อย 20 ตัวอักษร');
+            isValid = false;
+        }
+
+        // Category validation
+        if (!category.value) {
+            document.getElementById('category-error').classList.remove('hidden');
+            const categoryContainer = document.querySelector('.category-pills-container');
+            if (categoryContainer) categoryContainer.classList.add('border-red-500', 'p-2', 'rounded-lg');
+            errors.push(translations.pleaseSelectCategory || 'กรุณาเลือกหมวดหมู่');
             isValid = false;
         }
     }
 
-    if (!isValid) {
-        showError(translations.pleaseFillRequired);
+    // Step 2: Content
+    if (currentStep === 2) {
+        const editor = document.getElementById('content-editor');
+        const content = editor.innerText.trim();
+        if (!content || content.length < 50) {
+            editor.classList.add('border-red-500');
+            const errorMsg = translations.contentTooShort || 'เนื้อหาต้องมีอย่างน้อย 50 ตัวอักษร';
+            errors.push(errorMsg);
+            isValid = false;
+        }
+    }
+
+    // Step 3: Settings (optional fields, no strict validation)
+
+    // Step 4: Final review
+    if (currentStep === 4) {
+        // Re-validate all steps
+        const title = document.getElementById('title').value.trim();
+        const summary = document.getElementById('summary').value.trim();
+        const category = document.getElementById('category').value;
+        const content = document.getElementById('content-editor').innerText.trim();
+
+        if (!title || title.length < 10) {
+            errors.push(translations.titleInvalid || 'หัวข้อบทความไม่ถูกต้อง');
+            isValid = false;
+        }
+        if (!summary || summary.length < 20) {
+            errors.push(translations.summaryInvalid || 'สรุปเนื้อหาไม่ถูกต้อง');
+            isValid = false;
+        }
+        if (!category) {
+            errors.push(translations.categoryRequired || 'กรุณาเลือกหมวดหมู่');
+            isValid = false;
+        }
+        if (!content || content.length < 50) {
+            errors.push(translations.contentInvalid || 'เนื้อหาบทความไม่ถูกต้อง');
+            isValid = false;
+        }
+    }
+
+    if (!isValid && errors.length > 0) {
+        showError(errors[0]);
+        // Focus first invalid field
+        const firstInvalid = currentStepElement.querySelector('.border-red-500, [aria-invalid="true"]');
+        if (firstInvalid && firstInvalid.focus) {
+            firstInvalid.focus();
+        }
     }
 
     return isValid;
+}
+
+function markFieldError(field, message) {
+    field.classList.add('border-red-500');
+    field.setAttribute('aria-invalid', 'true');
+
+    // Remove existing error
+    const existingError = field.parentNode.querySelector('.field-error');
+    if (existingError) existingError.remove();
+
+    // Add error message below field
+    const errorEl = document.createElement('p');
+    errorEl.className = 'field-error mt-1 text-sm text-red-500 flex items-center';
+    errorEl.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>' + message;
+    field.parentNode.appendChild(errorEl);
+}
+
+function clearFieldError(field) {
+    field.classList.remove('border-red-500');
+    field.removeAttribute('aria-invalid');
+    const error = field.parentNode.querySelector('.field-error');
+    if (error) error.remove();
 }
 
 function updateTitleCount() {
@@ -774,15 +2603,126 @@ function formatHeading(tag) {
         document.execCommand('formatBlock', false, tag);
         document.getElementById('content-editor').focus();
     }
+    // Reset select
+    document.getElementById('heading-select').value = '';
 }
 
-function insertLink() {
-    const url = prompt(translations.enterURL);
-    if (url) {
-        document.execCommand('createLink', false, url);
-        document.getElementById('content-editor').focus();
-    }
+// =============================================
+// Word-Style Formatting Functions
+// =============================================
+function changeFontSize(size) {
+    document.execCommand('fontSize', false, size);
+    document.getElementById('content-editor').focus();
 }
+
+function changeTextColor(color) {
+    document.execCommand('foreColor', false, color);
+    document.getElementById('text-color-bar').style.background = color;
+    document.getElementById('content-editor').focus();
+}
+
+function changeBackgroundColor(color) {
+    document.execCommand('hiliteColor', false, color);
+    document.getElementById('bg-color-bar').style.background = color;
+    document.getElementById('content-editor').focus();
+}
+
+function clearFormatting() {
+    document.execCommand('removeFormat', false, null);
+    document.getElementById('content-editor').focus();
+    showToast('ล้างการจัดรูปแบบแล้ว', 'success');
+}
+
+// Quick Insert Image - Simpler way to insert image
+function quickInsertImage() {
+    // Create a simple file input
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file
+        if (!file.type.startsWith('image/')) {
+            showToast('กรุณาเลือกไฟล์รูปภาพ', 'error');
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('ไฟล์ใหญ่เกินไป (สูงสุด 10MB)', 'error');
+            return;
+        }
+
+        // Show loading
+        showToast('กำลังอัปโหลดรูปภาพ...', 'info');
+
+        try {
+            // Upload to server
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/articles/api/upload/image', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.url) {
+                // Insert image centered
+                insertImageToEditor(result.url, file.name);
+                showToast('แทรกรูปภาพสำเร็จ', 'success');
+            } else {
+                throw new Error(result.message || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            showToast('เกิดข้อผิดพลาดในการอัปโหลด', 'error');
+        }
+    };
+    input.click();
+}
+
+// Insert image to editor with center alignment by default
+function insertImageToEditor(url, altText = 'รูปภาพ') {
+    const editor = document.getElementById('content-editor');
+    editor.focus();
+
+    const imgId = 'img-' + Date.now();
+    const imgHtml = `<figure id="${imgId}" class="editor-image" style="margin: 16px auto; width: 100%; max-width: 100%; text-align: center; display: table; cursor: pointer;" onclick="event.stopPropagation(); selectEditorImage('${imgId}')">
+        <img src="${url}" alt="${altText}" style="width: 100%; max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;">
+    </figure><p><br></p>`;
+
+    // Insert at cursor position
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0 && editor.contains(selection.anchorNode)) {
+        document.execCommand('insertHTML', false, imgHtml);
+    } else {
+        editor.innerHTML += imgHtml;
+    }
+
+    // Set cursor after image
+    setTimeout(() => {
+        const insertedFigure = document.getElementById(imgId);
+        if (insertedFigure && insertedFigure.nextElementSibling) {
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.setStart(insertedFigure.nextElementSibling, 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+        editor.focus();
+    }, 100);
+
+    updateWordCount();
+}
+
+// insertLink() moved to Link Modal Functions section
 
 function insertImage() {
     const url = prompt(translations.enterImageURL);
@@ -914,18 +2854,127 @@ function closePreview() {
     document.getElementById('preview-modal').classList.add('hidden');
 }
 
-async function saveDraft() {
-    const formData = new FormData(document.getElementById('article-form'));
-    formData.set('status', 'draft');
-    formData.set('content', document.getElementById('content-editor').innerHTML);
-    formData.set('tags', tags.join(','));
+// Helper function to upload featured image
+async function uploadFeaturedImage() {
+    const fileInput = document.getElementById('featured_image');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        return null;
+    }
 
+    const formData = new FormData();
+    formData.append('image', fileInput.files[0]);
+
+    try {
+        const response = await fetch('/articles/api/upload/image', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        return data.success ? data.url : null;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        return null;
+    }
+}
+
+// Clean editor content before saving - remove toolbars, handles, selection styles
+function cleanEditorContent() {
+    // First deselect any selected image
+    if (selectedEditorImage) {
+        deselectEditorImage();
+    }
+
+    // Clone the editor content
+    const editor = document.getElementById('content-editor');
+    const clone = editor.cloneNode(true);
+
+    // Remove all resize handles
+    clone.querySelectorAll('.resize-handle').forEach(el => el.remove());
+
+    // Remove all toolbars
+    clone.querySelectorAll('.img-edit-toolbar').forEach(el => el.remove());
+
+    // Remove any resize wrapper divs
+    clone.querySelectorAll('.img-resize-wrapper').forEach(wrapper => {
+        const img = wrapper.querySelector('img');
+        if (img) {
+            wrapper.parentNode.insertBefore(img, wrapper);
+        }
+        wrapper.remove();
+    });
+
+    // Clean up all images
+    clone.querySelectorAll('img').forEach(img => {
+        // Remove selection styles
+        img.style.border = '';
+        img.style.boxSizing = '';
+        img.style.position = '';
+        // Keep borderRadius as 8px
+        if (!img.style.borderRadius || img.style.borderRadius === '4px') {
+            img.style.borderRadius = '8px';
+        }
+        // Remove data attributes
+        img.removeAttribute('data-original-border-radius');
+    });
+
+    // Clean up all figures
+    clone.querySelectorAll('figure').forEach(figure => {
+        // Remove id attribute
+        figure.removeAttribute('id');
+        // Remove onclick handler
+        figure.removeAttribute('onclick');
+        // Remove class attribute
+        figure.removeAttribute('class');
+        // Remove cursor: pointer from style
+        figure.style.cursor = '';
+        // Remove position: relative if not needed for float
+        if (figure.style.float === 'none' || !figure.style.float) {
+            figure.style.position = '';
+        }
+        // Remove dataset attributes
+        Object.keys(figure.dataset).forEach(key => {
+            delete figure.dataset[key];
+        });
+    });
+
+    return clone.innerHTML;
+}
+
+// Helper function to collect article data
+async function collectArticleData(status) {
+    let featuredImageUrl = await uploadFeaturedImage();
+
+    // Clean up editor content before saving
+    const cleanContent = cleanEditorContent();
+
+    return {
+        title: document.getElementById('title').value,
+        summary: document.getElementById('summary').value,
+        content: cleanContent,
+        category: document.getElementById('category').value,
+        reading_time: document.getElementById('reading_time').value,
+        tags: tags.join(','),
+        difficulty: document.getElementById('difficulty').value,
+        language: document.getElementById('language').value,
+        visibility: document.querySelector('input[name="visibility"]:checked')?.value || 'public',
+        allow_comments: document.querySelector('input[name="allow_comments"]')?.checked,
+        meta_description: document.getElementById('meta_description').value,
+        slug: document.getElementById('slug').value,
+        status: status,
+        featured_image: featuredImageUrl
+    };
+}
+
+async function saveDraft() {
     showLoading(true);
 
     try {
+        const articleData = await collectArticleData('draft');
+
         const response = await fetch('/articles/api/create', {
             method: 'POST',
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(articleData)
         });
 
         const data = await response.json();
@@ -950,22 +2999,24 @@ async function submitArticle(event) {
         return;
     }
 
-    const formData = new FormData(document.getElementById('article-form'));
-    formData.set('content', document.getElementById('content-editor').innerHTML);
-    formData.set('tags', tags.join(','));
-
     showLoading(true);
 
     try {
+        const status = document.querySelector('input[name="status"]:checked').value;
+        const articleData = await collectArticleData(status);
+
         const response = await fetch('/articles/api/create', {
             method: 'POST',
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(articleData)
         });
 
         const data = await response.json();
 
         if (data.success) {
-            const status = document.querySelector('input[name="status"]:checked').value;
+            // Clear draft on successful creation
+            clearDraftOnSuccess();
+
             const message = status === 'published' ? translations.articlePublished :
                            status === 'scheduled' ? translations.articleScheduled :
                            translations.articleSavedDraft;
@@ -973,7 +3024,7 @@ async function submitArticle(event) {
             showSuccess(message);
             setTimeout(() => {
                 window.location.href = '/articles';
-            }, 2000);
+            }, 1500);
         } else {
             showError(data.message || translations.failedToCreate);
         }
@@ -985,24 +3036,1398 @@ async function submitArticle(event) {
     }
 }
 
-function showLoading(show) {
+function showLoading(show, message = null) {
     const overlay = document.getElementById('loading-overlay');
-    overlay.classList.toggle('hidden', !show);
+    const loadingText = overlay.querySelector('span');
+    if (message && loadingText) {
+        loadingText.textContent = message;
+    }
+    if (show) {
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    } else {
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+        if (loadingText) loadingText.textContent = translations.loading || 'กำลังดำเนินการ...';
+    }
+}
+
+function showNotification(message, type = 'info', duration = 5000) {
+    // Remove existing notification
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+
+    const notification = document.createElement('div');
+    notification.className = 'toast-notification fixed top-4 right-4 z-50 max-w-md transform transition-all duration-300 translate-x-full';
+
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+
+    const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500',
+        info: 'bg-blue-500'
+    };
+
+    notification.innerHTML = `
+        <div class="flex items-start space-x-3 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-xl">
+            <i class="fas ${icons[type]} text-xl mt-0.5 flex-shrink-0"></i>
+            <div class="flex-1 min-w-0">
+                <p class="font-medium break-words">${message}</p>
+            </div>
+            <button onclick="this.closest('.toast-notification').remove()" class="text-white/70 hover:text-white flex-shrink-0 ml-2">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notification-progress h-1 ${colors[type].replace('500', '700')} rounded-b-lg mt-0" style="width: 100%;"></div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        notification.classList.remove('translate-x-full');
+    });
+
+    // Progress bar animation
+    const progressBar = notification.querySelector('.notification-progress');
+    if (progressBar) {
+        progressBar.style.transition = `width ${duration}ms linear`;
+        requestAnimationFrame(() => {
+            progressBar.style.width = '0%';
+        });
+    }
+
+    // Auto remove
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => notification.remove(), 300);
+    }, duration);
 }
 
 function showSuccess(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white bg-green-500 shadow-lg';
-    messageDiv.textContent = message;
-    document.body.appendChild(messageDiv);
-    setTimeout(() => messageDiv.remove(), 3000);
+    showNotification(message, 'success', 4000);
 }
 
 function showError(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white bg-red-500 shadow-lg';
-    messageDiv.textContent = message;
-    document.body.appendChild(messageDiv);
-    setTimeout(() => messageDiv.remove(), 3000);
+    showNotification(message, 'error', 6000);
 }
+
+function showWarning(message) {
+    showNotification(message, 'warning', 5000);
+}
+
+function showInfo(message) {
+    showNotification(message, 'info', 4000);
+}
+
+// =============================================
+// Category Pill Selection
+// =============================================
+function initializeCategoryList() {
+    const items = document.querySelectorAll('.category-pill');
+    items.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove selected from all
+            items.forEach(i => i.classList.remove('selected'));
+            // Add selected to clicked
+            this.classList.add('selected');
+            // Check the radio button
+            const radio = this.querySelector('.category-radio');
+            if (radio) radio.checked = true;
+            // Update hidden input
+            document.getElementById('category').value = this.dataset.value;
+            // Hide error
+            document.getElementById('category-error').classList.add('hidden');
+            // Remove error border from container
+            document.querySelector('.category-pills-container')?.classList.remove('border-red-500');
+        });
+    });
+}
+
+// Legacy support for old category cards
+function initializeCategoryCards() {
+    initializeCategoryList();
+}
+
+// =============================================
+// Heading Dropdown
+// =============================================
+function toggleHeadingDropdown() {
+    const dropdown = document.getElementById('heading-dropdown');
+    dropdown.classList.toggle('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('heading-dropdown');
+    const btn = document.querySelector('.heading-dropdown-btn');
+    if (dropdown && btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// =============================================
+// Enhanced Format Functions
+// =============================================
+function insertQuote() {
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const blockquote = document.createElement('blockquote');
+    blockquote.textContent = selection.toString() || 'ใส่ข้อความอ้างอิงที่นี่...';
+    range.deleteContents();
+    range.insertNode(blockquote);
+    document.getElementById('content-editor').focus();
+    updateWordCount();
+}
+
+function insertHorizontalRule() {
+    document.execCommand('insertHorizontalRule', false, null);
+    document.getElementById('content-editor').focus();
+}
+
+function toggleFullscreen() {
+    const editorContainer = document.getElementById('step-2').querySelector('.bg-white');
+    editorContainer.classList.toggle('editor-fullscreen');
+
+    const btn = document.querySelector('[onclick="toggleFullscreen()"]');
+    const icon = btn.querySelector('i');
+    if (editorContainer.classList.contains('editor-fullscreen')) {
+        icon.classList.remove('fa-expand');
+        icon.classList.add('fa-compress');
+    } else {
+        icon.classList.remove('fa-compress');
+        icon.classList.add('fa-expand');
+    }
+}
+
+// =============================================
+// Link Modal Functions
+// =============================================
+function insertLink() {
+    const selection = window.getSelection();
+    const selectedText = selection.toString();
+    document.getElementById('link-text').value = selectedText;
+    document.getElementById('link-url').value = '';
+    document.getElementById('link-new-tab').checked = true;
+    document.getElementById('link-modal').classList.remove('hidden');
+}
+
+function closeLinkModal() {
+    document.getElementById('link-modal').classList.add('hidden');
+}
+
+function insertLinkFromModal() {
+    const text = document.getElementById('link-text').value;
+    const url = document.getElementById('link-url').value;
+    const newTab = document.getElementById('link-new-tab').checked;
+
+    if (!url) {
+        showError('กรุณาใส่ URL');
+        return;
+    }
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.textContent = text || url;
+    if (newTab) {
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+    }
+
+    const editor = document.getElementById('content-editor');
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(link);
+    } else {
+        editor.appendChild(link);
+    }
+
+    closeLinkModal();
+    editor.focus();
+    updateWordCount();
+}
+
+// =============================================
+// Table Modal Functions
+// =============================================
+function insertTable() {
+    document.getElementById('table-rows').value = 3;
+    document.getElementById('table-cols').value = 3;
+    document.getElementById('table-header').checked = true;
+    document.getElementById('table-modal').classList.remove('hidden');
+}
+
+function closeTableModal() {
+    document.getElementById('table-modal').classList.add('hidden');
+}
+
+function insertTableFromModal() {
+    const rows = parseInt(document.getElementById('table-rows').value) || 3;
+    const cols = parseInt(document.getElementById('table-cols').value) || 3;
+    const hasHeader = document.getElementById('table-header').checked;
+
+    let tableHtml = '<table>';
+
+    for (let i = 0; i < rows; i++) {
+        tableHtml += '<tr>';
+        for (let j = 0; j < cols; j++) {
+            if (i === 0 && hasHeader) {
+                tableHtml += `<th>หัวข้อ ${j + 1}</th>`;
+            } else {
+                tableHtml += '<td>เนื้อหา</td>';
+            }
+        }
+        tableHtml += '</tr>';
+    }
+
+    tableHtml += '</table>';
+
+    const editor = document.getElementById('content-editor');
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const tableEl = document.createElement('div');
+        tableEl.innerHTML = tableHtml;
+        range.insertNode(tableEl.firstChild);
+    }
+
+    closeTableModal();
+    editor.focus();
+    updateWordCount();
+}
+
+// =============================================
+// Code Block Modal Functions
+// =============================================
+function insertCodeBlock() {
+    document.getElementById('code-language').value = '';
+    document.getElementById('code-content').value = '';
+    document.getElementById('code-modal').classList.remove('hidden');
+}
+
+function closeCodeModal() {
+    document.getElementById('code-modal').classList.add('hidden');
+}
+
+function insertCodeFromModal() {
+    const language = document.getElementById('code-language').value;
+    const code = document.getElementById('code-content').value;
+
+    if (!code.trim()) {
+        showError('กรุณาใส่โค้ด');
+        return;
+    }
+
+    const pre = document.createElement('pre');
+    const codeEl = document.createElement('code');
+    if (language) {
+        codeEl.className = `language-${language}`;
+    }
+    codeEl.textContent = code;
+    pre.appendChild(codeEl);
+
+    const editor = document.getElementById('content-editor');
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.insertNode(pre);
+        range.insertNode(document.createElement('br'));
+    }
+
+    closeCodeModal();
+    editor.focus();
+    updateWordCount();
+}
+
+// =============================================
+// Image Manager Functions
+// =============================================
+let selectedImageUrl = null;
+let selectedImageAlignment = 'center';
+let uploadedImages = [];
+
+function openImageManager() {
+    const modal = document.getElementById('image-manager-modal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    switchImageTab('upload');
+    loadGalleryImages();
+
+    // Add keyboard listener
+    document.addEventListener('keydown', handleImageModalKeydown);
+
+    // Focus first focusable element
+    setTimeout(() => {
+        const firstFocusable = modal.querySelector('button, input, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) firstFocusable.focus();
+    }, 100);
+}
+
+function closeImageManager() {
+    const modal = document.getElementById('image-manager-modal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = ''; // Restore scrolling
+    resetImageSettings();
+
+    // Remove keyboard listener
+    document.removeEventListener('keydown', handleImageModalKeydown);
+
+    // Return focus to editor
+    document.getElementById('content-editor')?.focus();
+}
+
+function handleImageModalKeydown(e) {
+    if (e.key === 'Escape') {
+        closeImageManager();
+    }
+}
+
+function handleImageModalOverlayClick(event) {
+    // Only close if clicking the overlay itself, not the modal content
+    if (event.target === event.currentTarget) {
+        closeImageManager();
+    }
+}
+
+function resetImageSettings() {
+    selectedImageUrl = null;
+    document.getElementById('image-settings').classList.add('hidden');
+
+    const insertBtn = document.getElementById('insert-image-btn');
+    insertBtn.disabled = true;
+    insertBtn.style.opacity = '0.5';
+
+    document.getElementById('image-alt-text').value = '';
+    document.getElementById('image-caption').value = '';
+    document.getElementById('image-size').value = 'medium';
+    setImageAlignment('center');
+    document.getElementById('selected-image-info').textContent = '';
+}
+
+function switchImageTab(tab) {
+    // Update tab buttons with ARIA - support all tab button classes
+    document.querySelectorAll('.image-tab, .img-nav-btn, .img-tab-btn').forEach(t => {
+        const isActive = t.dataset.tab === tab;
+        t.classList.toggle('active', isActive);
+        t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    // Update tab content
+    document.querySelectorAll('.image-tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    const tabContent = document.getElementById(`image-tab-${tab}`);
+    if (tabContent) {
+        tabContent.classList.remove('hidden');
+
+        // Focus first input in tab content
+        setTimeout(() => {
+            const firstInput = tabContent.querySelector('input');
+            if (firstInput) firstInput.focus();
+        }, 100);
+    }
+}
+
+function setImageAlignment(align) {
+    selectedImageAlignment = align;
+    // Support all alignment button classes
+    document.querySelectorAll('.align-btn, .align-btn-new, .img-align-btn').forEach(btn => {
+        btn.classList.remove('active');
+        const isActive = btn.dataset.align === align;
+        if (isActive) {
+            btn.classList.add('active');
+            btn.style.background = '#0090D3';
+            btn.style.color = 'white';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.color = '#94a3b8';
+        }
+    });
+}
+
+function selectImage(url, info = '') {
+    selectedImageUrl = url;
+
+    // Update preview
+    document.getElementById('selected-image-preview').src = url;
+    document.getElementById('image-settings').classList.remove('hidden');
+
+    // Enable insert button with visual feedback
+    const insertBtn = document.getElementById('insert-image-btn');
+    insertBtn.disabled = false;
+    insertBtn.style.opacity = '1';
+
+    document.getElementById('selected-image-info').textContent = info || 'รูปภาพพร้อมแทรก';
+
+    // Update visual feedback - mark selected image
+    document.querySelectorAll('.gallery-image, .unsplash-image').forEach(img => {
+        img.classList.remove('selected');
+        const imgSrc = img.querySelector('img')?.src;
+        if (imgSrc === url) {
+            img.classList.add('selected');
+        }
+    });
+
+    // Scroll settings into view
+    document.getElementById('image-settings').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function insertSelectedImage() {
+    if (!selectedImageUrl) return;
+
+    const altText = document.getElementById('image-alt-text').value || 'รูปภาพ';
+    const caption = document.getElementById('image-caption').value;
+    const size = document.getElementById('image-size').value;
+
+    // Size styles
+    let maxWidth = '500px';
+    switch (size) {
+        case 'small': maxWidth = '300px'; break;
+        case 'medium': maxWidth = '500px'; break;
+        case 'large': maxWidth = '700px'; break;
+        case 'full': maxWidth = '100%'; break;
+    }
+
+    // Alignment - use text-align on figure, margin on image
+    let figureStyle = 'margin: 16px 0;';
+    let imgMargin = '';
+    switch (selectedImageAlignment) {
+        case 'left':
+            figureStyle = 'margin: 8px 16px 8px 0; float: left; clear: left;';
+            break;
+        case 'right':
+            figureStyle = 'margin: 8px 0 8px 16px; float: right; clear: right;';
+            break;
+        case 'center':
+            figureStyle = 'margin: 16px auto; text-align: center;';
+            imgMargin = 'margin: 0 auto;';
+            break;
+    }
+
+    // Create figure element - use simple structure for contenteditable
+    const imgId = 'img-' + Date.now();
+    let imgHtml = `<figure id="${imgId}" class="editor-image" style="${figureStyle} max-width: ${maxWidth}; position: relative; display: table; cursor: pointer;" onclick="event.stopPropagation(); selectEditorImage('${imgId}')">
+        <img src="${selectedImageUrl}" alt="${altText}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; ${imgMargin}">
+        ${caption ? `<figcaption style="text-align: center; font-size: 13px; color: #64748b; margin-top: 8px; font-style: italic;">${caption}</figcaption>` : ''}
+    </figure>`;
+
+    const editor = document.getElementById('content-editor');
+    editor.focus();
+
+    // Insert at cursor position
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0 && editor.contains(selection.anchorNode)) {
+        document.execCommand('insertHTML', false, imgHtml);
+    } else {
+        editor.innerHTML += imgHtml;
+    }
+
+    // Add paragraph after for typing - important!
+    document.execCommand('insertHTML', false, '<p style="clear: both;"><br></p>');
+
+    closeImageManager();
+
+    // Set cursor after the image
+    setTimeout(() => {
+        const insertedFigure = document.getElementById(imgId);
+        if (insertedFigure && insertedFigure.nextElementSibling) {
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.setStart(insertedFigure.nextElementSibling, 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+        editor.focus();
+    }, 100);
+
+    updateWordCount();
+}
+
+// Track selected image
+let selectedEditorImage = null;
+
+function selectEditorImage(imgId) {
+    // If same image already selected, do nothing
+    if (selectedEditorImage === imgId) {
+        return;
+    }
+
+    // Deselect previous image
+    if (selectedEditorImage) {
+        deselectEditorImage();
+    }
+
+    const figure = document.getElementById(imgId);
+    if (!figure) return;
+
+    const img = figure.querySelector('img');
+    if (!img) return;
+
+    // Remove any existing handles/toolbar (safety check)
+    figure.querySelectorAll('.resize-handle').forEach(el => el.remove());
+    figure.querySelectorAll('.img-edit-toolbar').forEach(el => el.remove());
+
+    // Select new
+    selectedEditorImage = imgId;
+
+    // Save original styles
+    img.dataset.originalBorderRadius = img.style.borderRadius || '8px';
+    figure.dataset.originalWidth = figure.style.width || '';
+
+    // Style the image with border (fits exactly)
+    img.style.border = '2px solid #0090D3';
+    img.style.boxSizing = 'border-box';
+    img.style.borderRadius = '4px';
+    img.style.position = 'relative';
+
+    // Position figure for absolute positioning of handles
+    figure.style.position = 'relative';
+
+    // Get image position within figure
+    const imgRect = img.getBoundingClientRect();
+    const figRect = figure.getBoundingClientRect();
+    const offsetLeft = imgRect.left - figRect.left;
+    const offsetTop = imgRect.top - figRect.top;
+
+    // Add resize handles (8 points like Word)
+    const handles = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
+    const handleStyle = 'position: absolute; width: 8px; height: 8px; background: #0090D3; border: 1px solid #fff; border-radius: 1px; z-index: 15;';
+    const cursors = {
+        'nw': 'nw-resize', 'n': 'n-resize', 'ne': 'ne-resize',
+        'w': 'w-resize', 'e': 'e-resize',
+        'sw': 'sw-resize', 's': 's-resize', 'se': 'se-resize'
+    };
+
+    const positions = {
+        'nw': `top: ${offsetTop - 4}px; left: ${offsetLeft - 4}px;`,
+        'n': `top: ${offsetTop - 4}px; left: ${offsetLeft + img.offsetWidth/2 - 4}px;`,
+        'ne': `top: ${offsetTop - 4}px; left: ${offsetLeft + img.offsetWidth - 4}px;`,
+        'w': `top: ${offsetTop + img.offsetHeight/2 - 4}px; left: ${offsetLeft - 4}px;`,
+        'e': `top: ${offsetTop + img.offsetHeight/2 - 4}px; left: ${offsetLeft + img.offsetWidth - 4}px;`,
+        'sw': `top: ${offsetTop + img.offsetHeight - 4}px; left: ${offsetLeft - 4}px;`,
+        's': `top: ${offsetTop + img.offsetHeight - 4}px; left: ${offsetLeft + img.offsetWidth/2 - 4}px;`,
+        'se': `top: ${offsetTop + img.offsetHeight - 4}px; left: ${offsetLeft + img.offsetWidth - 4}px;`
+    };
+
+    handles.forEach(dir => {
+        const handle = document.createElement('div');
+        handle.className = `resize-handle resize-${dir}`;
+        handle.style.cssText = handleStyle + positions[dir] + `cursor: ${cursors[dir]};`;
+        handle.dataset.direction = dir;
+        handle.onmousedown = (e) => startResize(e, imgId, dir);
+        figure.appendChild(handle);
+    });
+
+    // Add toolbar
+    const toolbar = document.createElement('div');
+    toolbar.className = 'img-edit-toolbar';
+    toolbar.style.cssText = `position: absolute; top: ${offsetTop - 45}px; left: ${offsetLeft + img.offsetWidth/2}px; transform: translateX(-50%); display: flex; gap: 4px; background: white; padding: 6px 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); z-index: 20;`;
+
+    // Detect current alignment
+    const figureStyle = figure.style;
+    let currentAlign = 'center';
+    if (figureStyle.float === 'left') currentAlign = 'left';
+    else if (figureStyle.float === 'right') currentAlign = 'right';
+
+    toolbar.innerHTML = `
+        <button type="button" onclick="event.stopPropagation(); moveImageLeft('${imgId}')" style="width: 32px; height: 32px; background: ${currentAlign === 'left' ? '#0090D3' : '#f3f4f6'}; border: 1px solid ${currentAlign === 'left' ? '#0090D3' : '#e5e7eb'}; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="ชิดซ้าย">
+            <i class="fas fa-align-left" style="color: ${currentAlign === 'left' ? 'white' : '#374151'};"></i>
+        </button>
+        <button type="button" onclick="event.stopPropagation(); moveImageCenter('${imgId}')" style="width: 32px; height: 32px; background: ${currentAlign === 'center' ? '#0090D3' : '#f3f4f6'}; border: 1px solid ${currentAlign === 'center' ? '#0090D3' : '#e5e7eb'}; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="จัดกลาง">
+            <i class="fas fa-align-center" style="color: ${currentAlign === 'center' ? 'white' : '#374151'};"></i>
+        </button>
+        <button type="button" onclick="event.stopPropagation(); moveImageRight('${imgId}')" style="width: 32px; height: 32px; background: ${currentAlign === 'right' ? '#0090D3' : '#f3f4f6'}; border: 1px solid ${currentAlign === 'right' ? '#0090D3' : '#e5e7eb'}; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="ชิดขวา">
+            <i class="fas fa-align-right" style="color: ${currentAlign === 'right' ? 'white' : '#374151'};"></i>
+        </button>
+        <div style="width: 1px; height: 20px; background: #e5e7eb; margin: 0 4px;"></div>
+        <button type="button" onclick="event.stopPropagation(); deleteEditorImage('${imgId}')" style="width: 32px; height: 32px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="ลบรูป">
+            <i class="fas fa-trash" style="color: #dc2626;"></i>
+        </button>
+    `;
+    figure.appendChild(toolbar);
+}
+
+// Resize variables
+let isResizing = false;
+let resizeImgId = null;
+let resizeDirection = null;
+let resizeStartX = 0;
+let resizeStartY = 0;
+let resizeStartWidth = 0;
+let resizeStartHeight = 0;
+let resizeAspectRatio = 1;
+
+function startResize(e, imgId, direction) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const figure = document.getElementById(imgId);
+    if (!figure) return;
+
+    const img = figure.querySelector('img');
+    if (!img) return;
+
+    isResizing = true;
+    resizeImgId = imgId;
+    resizeDirection = direction;
+    resizeStartX = e.clientX;
+    resizeStartY = e.clientY;
+    resizeStartWidth = img.offsetWidth;
+    resizeStartHeight = img.offsetHeight;
+    resizeAspectRatio = resizeStartWidth / resizeStartHeight;
+
+    document.addEventListener('mousemove', doResize);
+    document.addEventListener('mouseup', stopResize);
+
+    // Prevent text selection while resizing
+    document.body.style.userSelect = 'none';
+}
+
+function doResize(e) {
+    if (!isResizing || !resizeImgId) return;
+
+    const figure = document.getElementById(resizeImgId);
+    if (!figure) return;
+
+    const img = figure.querySelector('img');
+    if (!img) return;
+
+    const deltaX = e.clientX - resizeStartX;
+    const deltaY = e.clientY - resizeStartY;
+
+    let newWidth = resizeStartWidth;
+    let newHeight = resizeStartHeight;
+
+    // Calculate new size based on direction
+    switch (resizeDirection) {
+        case 'e':
+            newWidth = resizeStartWidth + deltaX;
+            newHeight = newWidth / resizeAspectRatio;
+            break;
+        case 'w':
+            newWidth = resizeStartWidth - deltaX;
+            newHeight = newWidth / resizeAspectRatio;
+            break;
+        case 's':
+            newHeight = resizeStartHeight + deltaY;
+            newWidth = newHeight * resizeAspectRatio;
+            break;
+        case 'n':
+            newHeight = resizeStartHeight - deltaY;
+            newWidth = newHeight * resizeAspectRatio;
+            break;
+        case 'se':
+            newWidth = resizeStartWidth + deltaX;
+            newHeight = newWidth / resizeAspectRatio;
+            break;
+        case 'sw':
+            newWidth = resizeStartWidth - deltaX;
+            newHeight = newWidth / resizeAspectRatio;
+            break;
+        case 'ne':
+            newWidth = resizeStartWidth + deltaX;
+            newHeight = newWidth / resizeAspectRatio;
+            break;
+        case 'nw':
+            newWidth = resizeStartWidth - deltaX;
+            newHeight = newWidth / resizeAspectRatio;
+            break;
+    }
+
+    // Minimum size
+    if (newWidth < 50) {
+        newWidth = 50;
+        newHeight = newWidth / resizeAspectRatio;
+    }
+
+    // Maximum size (editor width)
+    const editor = document.getElementById('content-editor');
+    const maxWidth = editor ? editor.offsetWidth - 50 : 800;
+    if (newWidth > maxWidth) {
+        newWidth = maxWidth;
+        newHeight = newWidth / resizeAspectRatio;
+    }
+
+    // Apply new size
+    img.style.width = newWidth + 'px';
+    img.style.height = newHeight + 'px';
+    img.style.maxWidth = 'none';
+
+    // Update figure width to fit image
+    figure.style.width = newWidth + 'px';
+
+    // Update handle positions
+    updateHandlePositions(resizeImgId);
+}
+
+function updateHandlePositions(imgId) {
+    const figure = document.getElementById(imgId);
+    if (!figure) return;
+
+    const img = figure.querySelector('img');
+    if (!img) return;
+
+    const imgRect = img.getBoundingClientRect();
+    const figRect = figure.getBoundingClientRect();
+    const offsetLeft = imgRect.left - figRect.left;
+    const offsetTop = imgRect.top - figRect.top;
+    const imgWidth = img.offsetWidth;
+    const imgHeight = img.offsetHeight;
+
+    const positions = {
+        'nw': { top: offsetTop - 4, left: offsetLeft - 4 },
+        'n': { top: offsetTop - 4, left: offsetLeft + imgWidth/2 - 4 },
+        'ne': { top: offsetTop - 4, left: offsetLeft + imgWidth - 4 },
+        'w': { top: offsetTop + imgHeight/2 - 4, left: offsetLeft - 4 },
+        'e': { top: offsetTop + imgHeight/2 - 4, left: offsetLeft + imgWidth - 4 },
+        'sw': { top: offsetTop + imgHeight - 4, left: offsetLeft - 4 },
+        's': { top: offsetTop + imgHeight - 4, left: offsetLeft + imgWidth/2 - 4 },
+        'se': { top: offsetTop + imgHeight - 4, left: offsetLeft + imgWidth - 4 }
+    };
+
+    Object.keys(positions).forEach(dir => {
+        const handle = figure.querySelector(`.resize-${dir}`);
+        if (handle) {
+            handle.style.top = positions[dir].top + 'px';
+            handle.style.left = positions[dir].left + 'px';
+        }
+    });
+
+    // Update toolbar position
+    const toolbar = figure.querySelector('.img-edit-toolbar');
+    if (toolbar) {
+        toolbar.style.top = (offsetTop - 45) + 'px';
+        toolbar.style.left = (offsetLeft + imgWidth/2) + 'px';
+    }
+}
+
+function stopResize() {
+    if (isResizing) {
+        isResizing = false;
+        document.removeEventListener('mousemove', doResize);
+        document.removeEventListener('mouseup', stopResize);
+        document.body.style.userSelect = '';
+
+        if (resizeImgId) {
+            const figure = document.getElementById(resizeImgId);
+            if (figure) {
+                const img = figure.querySelector('img');
+                if (img) {
+                    showToast(`ปรับขนาด ${Math.round(img.offsetWidth)}x${Math.round(img.offsetHeight)} px`, 'success', 1500);
+                }
+            }
+        }
+    }
+}
+
+function deselectEditorImage() {
+    if (selectedEditorImage) {
+        const figure = document.getElementById(selectedEditorImage);
+        if (figure) {
+            // Restore image styles
+            const img = figure.querySelector('img');
+            if (img) {
+                img.style.border = 'none';
+                img.style.borderRadius = img.dataset.originalBorderRadius || '8px';
+                img.style.position = '';
+            }
+
+            // Remove all resize handles
+            const handles = figure.querySelectorAll('.resize-handle');
+            handles.forEach(h => h.remove());
+
+            // Remove toolbar
+            const toolbar = figure.querySelector('.img-edit-toolbar');
+            if (toolbar) toolbar.remove();
+        }
+        selectedEditorImage = null;
+    }
+}
+
+function deleteEditorImage(imgId) {
+    const figure = document.getElementById(imgId);
+    if (figure && confirm('ต้องการลบรูปภาพนี้หรือไม่?')) {
+        figure.remove();
+        selectedEditorImage = null;
+        updateWordCount();
+    }
+}
+
+function updateAlignButtons(imgId, activeAlign) {
+    const figure = document.getElementById(imgId);
+    if (!figure) return;
+
+    const toolbar = figure.querySelector('.img-edit-toolbar');
+    if (!toolbar) return;
+
+    const buttons = toolbar.querySelectorAll('button');
+    buttons.forEach((btn, index) => {
+        if (index < 3) { // First 3 buttons are alignment
+            if ((activeAlign === 'left' && index === 0) ||
+                (activeAlign === 'center' && index === 1) ||
+                (activeAlign === 'right' && index === 2)) {
+                btn.style.background = '#0090D3';
+                btn.style.borderColor = '#0090D3';
+                btn.querySelector('i').style.color = 'white';
+            } else {
+                btn.style.background = '#f3f4f6';
+                btn.style.borderColor = '#e5e7eb';
+                btn.querySelector('i').style.color = '#374151';
+            }
+        }
+    });
+}
+
+function moveImageLeft(imgId) {
+    const figure = document.getElementById(imgId);
+    if (!figure) return;
+    figure.style.float = 'left';
+    figure.style.margin = '8px 16px 8px 0';
+    figure.style.clear = 'left';
+    figure.style.display = 'table';
+    updateAlignButtons(imgId, 'left');
+    showToast('จัดรูปชิดซ้าย', 'success', 1500);
+}
+
+function moveImageCenter(imgId) {
+    const figure = document.getElementById(imgId);
+    if (!figure) return;
+    figure.style.float = 'none';
+    figure.style.margin = '16px auto';
+    figure.style.clear = 'both';
+    figure.style.display = 'table';
+    figure.style.textAlign = 'center';
+    updateAlignButtons(imgId, 'center');
+    showToast('จัดรูปกึ่งกลาง', 'success', 1500);
+}
+
+function moveImageRight(imgId) {
+    const figure = document.getElementById(imgId);
+    if (!figure) return;
+    figure.style.float = 'right';
+    figure.style.margin = '8px 0 8px 16px';
+    figure.style.clear = 'right';
+    figure.style.display = 'table';
+    updateAlignButtons(imgId, 'right');
+    showToast('จัดรูปชิดขวา', 'success', 1500);
+}
+
+function clearAllContent() {
+    if (!confirm('ต้องการลบข้อความทั้งหมดหรือไม่?\n\nการกระทำนี้ไม่สามารถย้อนกลับได้')) return;
+
+    const editor = document.getElementById('content-editor');
+    if (editor) {
+        editor.innerHTML = '<p><br></p>';
+        updateWordCount();
+        showToast('ลบข้อความทั้งหมดแล้ว', 'success');
+    }
+}
+
+// Deselect when clicking outside
+document.addEventListener('click', function(e) {
+    if (!selectedEditorImage) return;
+
+    // Check if clicked on the selected image's elements
+    const clickedOnImage = e.target.tagName === 'IMG' && e.target.closest('.editor-image');
+    const clickedOnToolbar = e.target.closest('.img-edit-toolbar');
+    const clickedOnHandle = e.target.closest('.resize-handle');
+
+    // Only keep selection if clicked directly on image, toolbar, or handle
+    if (!clickedOnImage && !clickedOnToolbar && !clickedOnHandle) {
+        deselectEditorImage();
+    }
+});
+
+// =============================================
+// Image Upload Functions
+// =============================================
+function initializeImageUpload() {
+    const dropzone = document.getElementById('upload-dropzone');
+    const input = document.getElementById('image-upload-input');
+
+    if (!dropzone || !input) return;
+
+    // Click to upload
+    dropzone.addEventListener('click', () => input.click());
+
+    // Drag events
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleImageFiles(files);
+        }
+    });
+
+    // File input change
+    input.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleImageFiles(e.target.files);
+        }
+    });
+}
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+async function handleImageFiles(files) {
+    const progress = document.getElementById('upload-progress');
+    const progressBar = document.getElementById('upload-progress-bar');
+    const progressText = document.getElementById('upload-progress-text');
+
+    // Validate files first
+    const validFiles = [];
+    const errors = [];
+
+    for (const file of files) {
+        // Check if it's an image
+        if (!file.type.startsWith('image/')) {
+            errors.push(`${file.name}: ${translations.notAnImage || 'ไม่ใช่ไฟล์รูปภาพ'}`);
+            continue;
+        }
+
+        // Check file type
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+            errors.push(`${file.name}: ${translations.unsupportedFormat || 'รูปแบบไฟล์ไม่รองรับ (ใช้ได้: PNG, JPG, GIF, WebP)'}`);
+            continue;
+        }
+
+        // Check file size
+        if (file.size > MAX_FILE_SIZE) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            errors.push(`${file.name}: ${translations.fileTooLarge || 'ไฟล์ใหญ่เกินไป'} (${sizeMB}MB, ${translations.maxSize || 'สูงสุด'} 10MB)`);
+            continue;
+        }
+
+        validFiles.push(file);
+    }
+
+    // Show errors if any
+    if (errors.length > 0) {
+        showError(errors.join('\n'));
+    }
+
+    if (validFiles.length === 0) {
+        return;
+    }
+
+    progress.classList.remove('hidden');
+
+    for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+
+        const percent = Math.round(((i + 1) / validFiles.length) * 100);
+        progressBar.style.width = percent + '%';
+        progressText.textContent = `${translations.uploading || 'กำลังอัปโหลด'} ${i + 1}/${validFiles.length} (${percent}%)`;
+
+        try {
+            const url = await uploadImageFile(file);
+            if (url) {
+                addUploadedImage(url, file.name);
+                selectImage(url, file.name);
+                showSuccess(`${translations.uploadSuccess || 'อัปโหลดสำเร็จ'}: ${file.name}`);
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            showError(`${translations.uploadFailed || 'อัปโหลดไม่สำเร็จ'}: ${file.name}`);
+        }
+    }
+
+    setTimeout(() => {
+        progress.classList.add('hidden');
+        progressBar.style.width = '0%';
+        progressText.textContent = '0%';
+    }, 1000);
+}
+
+async function uploadImageFile(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetch('/articles/api/upload/image', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        return data.success ? data.url : null;
+    } catch (error) {
+        console.error('Upload error:', error);
+        return null;
+    }
+}
+
+function addUploadedImage(url, name) {
+    uploadedImages.unshift({ url, name });
+    renderUploadedImages();
+}
+
+function renderUploadedImages() {
+    const container = document.getElementById('uploaded-images-list');
+    const wrapper = document.getElementById('recently-uploaded');
+
+    if (uploadedImages.length === 0) {
+        wrapper.classList.add('hidden');
+        return;
+    }
+
+    wrapper.classList.remove('hidden');
+    container.innerHTML = '';
+
+    uploadedImages.slice(0, 8).forEach(img => {
+        const div = document.createElement('div');
+        div.className = 'gallery-image';
+        div.setAttribute('role', 'button');
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('aria-label', escapeHtml(img.name) || 'Uploaded image');
+
+        const imgEl = document.createElement('img');
+        imgEl.src = img.url;
+        imgEl.alt = escapeHtml(img.name) || '';
+
+        div.appendChild(imgEl);
+
+        // Click and keyboard handlers
+        div.addEventListener('click', () => selectImage(img.url, img.name));
+        div.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectImage(img.url, img.name);
+            }
+        });
+
+        container.appendChild(div);
+    });
+}
+
+// Utility function to escape HTML and prevent XSS
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// =============================================
+// URL Preview
+// =============================================
+function previewImageUrl() {
+    const url = document.getElementById('image-url-input').value;
+    if (!url) {
+        showError('กรุณาใส่ URL รูปภาพ');
+        return;
+    }
+
+    const img = new Image();
+    img.onload = function() {
+        document.getElementById('url-preview-img').src = url;
+        document.getElementById('url-preview-container').classList.remove('hidden');
+        selectImage(url, 'รูปจาก URL');
+    };
+    img.onerror = function() {
+        showError('ไม่สามารถโหลดรูปภาพได้');
+    };
+    img.src = url;
+}
+
+// =============================================
+// Gallery Functions
+// =============================================
+async function loadGalleryImages() {
+    const container = document.getElementById('gallery-images');
+
+    // Show loading state
+    container.innerHTML = `
+        <div class="text-center py-8 col-span-4">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-3" aria-hidden="true"></i>
+            <p class="text-gray-500">${translations.loadingGallery || 'กำลังโหลดคลังรูปภาพ...'}</p>
+        </div>
+    `;
+
+    try {
+        const response = await fetch('/articles/api/gallery');
+        const data = await response.json();
+
+        if (data.success && data.images && data.images.length > 0) {
+            renderGalleryImages(data.images);
+        } else {
+            container.innerHTML = `
+                <div class="text-center py-8 col-span-4">
+                    <i class="fas fa-images text-4xl text-gray-300 mb-3" aria-hidden="true"></i>
+                    <p class="text-gray-500">${translations.noImagesYet || 'ยังไม่มีรูปภาพในคลัง'}</p>
+                    <p class="text-sm text-gray-400 mt-2">${translations.uploadToAddImages || 'อัปโหลดรูปเพื่อเพิ่มในคลัง'}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.log('Gallery not available');
+        container.innerHTML = `
+            <div class="text-center py-8 col-span-4">
+                <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-3" aria-hidden="true"></i>
+                <p class="text-gray-500">${translations.galleryLoadError || 'ไม่สามารถโหลดคลังรูปภาพได้'}</p>
+                <button type="button" onclick="loadGalleryImages()" class="mt-2 text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-redo mr-1"></i>${translations.tryAgain || 'ลองใหม่'}
+                </button>
+            </div>
+        `;
+    }
+}
+
+function renderGalleryImages(images) {
+    const container = document.getElementById('gallery-images');
+
+    if (!images || images.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 col-span-4">
+                <i class="fas fa-images text-4xl text-gray-300 mb-3" aria-hidden="true"></i>
+                <p class="text-gray-500">${translations.noImagesYet || 'ยังไม่มีรูปภาพในคลัง'}</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = '';
+
+    images.forEach(img => {
+        const div = document.createElement('div');
+        div.className = 'gallery-image';
+        div.setAttribute('role', 'button');
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('aria-label', escapeHtml(img.name) || 'Gallery image');
+
+        const imgEl = document.createElement('img');
+        imgEl.src = img.url;
+        imgEl.alt = escapeHtml(img.name) || '';
+        imgEl.loading = 'lazy'; // Lazy loading for better performance
+
+        div.appendChild(imgEl);
+
+        // Click and keyboard handlers
+        div.addEventListener('click', () => selectImage(img.url, img.name || ''));
+        div.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectImage(img.url, img.name || '');
+            }
+        });
+
+        container.appendChild(div);
+    });
+}
+
+// =============================================
+// Unsplash Search (Placeholder)
+// =============================================
+async function searchUnsplash() {
+    const query = document.getElementById('unsplash-search').value;
+    if (!query) return;
+
+    const container = document.getElementById('unsplash-images');
+    container.innerHTML = `
+        <div class="text-center py-8 col-span-3">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-3"></i>
+            <p class="text-gray-500">กำลังค้นหา...</p>
+        </div>
+    `;
+
+    // Note: Unsplash API requires API key - showing placeholder
+    setTimeout(() => {
+        container.innerHTML = `
+            <div class="text-center py-8 col-span-3">
+                <i class="fab fa-unsplash text-4xl text-gray-400 mb-3"></i>
+                <p class="text-gray-500">ต้องตั้งค่า Unsplash API Key</p>
+                <p class="text-sm text-gray-400">ติดต่อผู้ดูแลระบบเพื่อเปิดใช้งาน</p>
+            </div>
+        `;
+    }, 1000);
+}
+
+// =============================================
+// Drag & Drop in Editor
+// =============================================
+function initializeEditorDragDrop() {
+    const editor = document.getElementById('content-editor');
+    if (!editor) return;
+
+    editor.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        editor.style.background = 'rgba(59, 130, 246, 0.05)';
+    });
+
+    editor.addEventListener('dragleave', () => {
+        editor.style.background = '';
+    });
+
+    editor.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        editor.style.background = '';
+
+        const files = e.dataTransfer.files;
+        for (const file of files) {
+            if (file.type.startsWith('image/')) {
+                showLoading(true);
+                try {
+                    const url = await uploadImageFile(file);
+                    if (url) {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = file.name;
+                        img.className = 'size-medium align-center';
+
+                        // Insert at drop position
+                        const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                        if (range) {
+                            range.insertNode(img);
+                            range.insertNode(document.createElement('br'));
+                        }
+
+                        updateWordCount();
+                    }
+                } catch (error) {
+                    showError('อัปโหลดรูปภาพไม่สำเร็จ');
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+    });
+
+    // Paste images
+    editor.addEventListener('paste', async (e) => {
+        const items = e.clipboardData.items;
+        for (const item of items) {
+            if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const file = item.getAsFile();
+
+                showLoading(true);
+                try {
+                    const url = await uploadImageFile(file);
+                    if (url) {
+                        document.execCommand('insertImage', false, url);
+                        updateWordCount();
+                    }
+                } catch (error) {
+                    showError('อัปโหลดรูปภาพไม่สำเร็จ');
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+    });
+}
+
+// =============================================
+// Keyboard Shortcuts
+// =============================================
+function initializeKeyboardShortcuts() {
+    const editor = document.getElementById('content-editor');
+    if (!editor) return;
+
+    editor.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+                case 'b':
+                    e.preventDefault();
+                    formatText('bold');
+                    break;
+                case 'i':
+                    e.preventDefault();
+                    formatText('italic');
+                    break;
+                case 'u':
+                    e.preventDefault();
+                    formatText('underline');
+                    break;
+                case 'k':
+                    e.preventDefault();
+                    insertLink();
+                    break;
+            }
+        }
+    });
+}
+
+// =============================================
+// Initialize All Components
+// =============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Original initializations
+    initializeForm();
+
+    // New initializations
+    initializeCategoryCards();
+    initializeImageUpload();
+    initializeEditorDragDrop();
+    initializeKeyboardShortcuts();
+    initializeAutoSave(); // Auto-save system
+
+    // Event listeners with debouncing for performance
+    document.getElementById('title').addEventListener('input', updateTitleCount);
+    document.getElementById('title').addEventListener('input', debouncedGenerateSlug);
+    document.getElementById('title').addEventListener('blur', () => clearFieldError(document.getElementById('title')));
+
+    document.getElementById('summary').addEventListener('input', updateSummaryCount);
+    document.getElementById('summary').addEventListener('blur', () => clearFieldError(document.getElementById('summary')));
+
+    document.getElementById('meta_description').addEventListener('input', updateMetaCount);
+    document.getElementById('featured_image').addEventListener('change', handleImageUpload);
+    document.getElementById('content-editor').addEventListener('input', debouncedUpdateWordCount);
+
+    // Deselect image when clicking on empty space in editor
+    document.getElementById('content-editor').addEventListener('click', function(e) {
+        if (!selectedEditorImage) return;
+
+        const clickedOnImage = e.target.tagName === 'IMG' && e.target.closest('.editor-image');
+        const clickedOnToolbar = e.target.closest('.img-edit-toolbar');
+        const clickedOnHandle = e.target.closest('.resize-handle');
+
+        if (!clickedOnImage && !clickedOnToolbar && !clickedOnHandle) {
+            deselectEditorImage();
+        }
+    });
+    document.getElementById('tags-input').addEventListener('keypress', handleTagInput);
+    document.getElementById('article-form').addEventListener('submit', submitArticle);
+
+    // Publication status listeners
+    document.querySelectorAll('input[name="status"]').forEach(radio => {
+        radio.addEventListener('change', handleStatusChange);
+    });
+
+    // Gallery search
+    const gallerySearch = document.getElementById('gallery-search');
+    if (gallerySearch) {
+        gallerySearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('#gallery-images .gallery-image').forEach(img => {
+                const name = img.querySelector('img')?.alt?.toLowerCase() || '';
+                img.style.display = name.includes(query) ? '' : 'none';
+            });
+        });
+    }
+
+    console.log('✅ Article editor initialized with auto-save');
+});
+
+// Override original DOMContentLoaded to prevent duplicate
+// (The new initialization includes everything from the original)
 </script>

@@ -567,9 +567,9 @@ class Question {
                 .input('questionId', sql.Int, questionId)
                 .query(`
                     SELECT COUNT(*) as count
-                    FROM TestAnswers ta
-                    JOIN TestAttempts tat ON ta.attempt_id = tat.attempt_id
-                    WHERE ta.question_id = @questionId AND tat.is_submitted = 1
+                    FROM UserAnswers ua
+                    JOIN TestAttempts tat ON ua.attempt_id = tat.attempt_id
+                    WHERE ua.test_question_id = @questionId AND tat.is_submitted = 1
                 `);
 
             if (usageCheck.recordset[0].count > 0) {

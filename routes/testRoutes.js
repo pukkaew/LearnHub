@@ -9,7 +9,7 @@ const crypto = require('crypto');
 // Configure multer for question image uploads
 const questionImageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../uploads/images'));
+        cb(null, path.join(__dirname, '../public/uploads/images'));
     },
     filename: (req, file, cb) => {
         const timestamp = Date.now();
@@ -88,6 +88,8 @@ router.put('/api/:test_id/questions/:question_id', (req, res, next) => {
     next();
 }, testController.updateQuestion);
 
+router.delete('/api/:test_id/questions/:question_id', authMiddleware.requireRole(['Admin', 'Instructor']), testController.deleteQuestion);
+
 // Test-specific API endpoints (with :test_id)
 router.get('/api/:test_id', testController.getTestById);
 router.put('/api/:test_id', (req, res, next) => {
@@ -115,6 +117,7 @@ router.get('/:test_id/start', testController.startTestAndRedirect);
 router.get('/:test_id/take', testController.startTestAndRedirect);
 router.get('/:test_id/results', testController.renderTestResults);
 router.get('/:test_id/analytics', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderTestAnalytics);
+router.get('/:test_id/questions/create', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderCreateQuestion);
 router.get('/:test_id/questions/:question_id/edit', authMiddleware.requireRole(['Admin', 'Instructor']), testController.renderEditQuestion);
 router.get('/:test_id/:attempt_id/taking', testController.renderTestTaking);
 

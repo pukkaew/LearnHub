@@ -7,6 +7,7 @@ const authMiddleware = {
     requireAuth: async (req, res, next) => {
         // Check session first
         if (req.session && req.session.user) {
+            req.user = req.session.user;
             return next();
         }
 

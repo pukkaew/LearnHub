@@ -1611,6 +1611,10 @@ function resetQuestionForm() {
     // Clear options container
     const optionsContainer = document.getElementById('options-container');
     optionsContainer.innerHTML = '';
+
+    // Clear image URLs
+    currentQuestionImageUrl = null;
+    optionImageUrls = {};
 }
 
 function populateQuestionForm(question) {
@@ -1619,25 +1623,16 @@ function populateQuestionForm(question) {
     document.getElementById('question-points').value = question.points;
     document.getElementById('question-explanation').value = question.explanation || '';
 
-    // Restore question image if exists
-    if (question.question_image && question.question_image instanceof File) {
-        try {
-            const questionImageInput = document.getElementById('question-image');
-            const preview = document.getElementById('question-image-preview');
-            const img = preview.querySelector('img');
-            const fileName = document.getElementById('question-image-name');
+    // Restore question image if exists (now stored as URL string)
+    if (question.question_image && typeof question.question_image === 'string') {
+        currentQuestionImageUrl = question.question_image;
+        const preview = document.getElementById('question-image-preview');
+        const img = preview.querySelector('img');
+        const fileName = document.getElementById('question-image-name');
 
-            img.src = URL.createObjectURL(question.question_image);
-            preview.classList.remove('hidden');
-            fileName.textContent = question.question_image.name;
-
-            // Create a new FileList with the existing file
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(question.question_image);
-            questionImageInput.files = dataTransfer.files;
-        } catch (e) {
-            console.warn('Could not restore question image:', e);
-        }
+        img.src = question.question_image;
+        preview.classList.remove('hidden');
+        fileName.textContent = 'Image loaded';
     }
 
     // Clear and setup question type
@@ -1650,35 +1645,25 @@ function populateQuestionForm(question) {
     if (question.question_type === 'multiple_choice') {
         // Clear default options first
         optionsContainer.innerHTML = '';
+        // Clear option image URLs
+        optionImageUrls = {};
+
         question.options.forEach((option, index) => {
             let imageUrl = '';
-            // Only create object URL if option.image is a valid File object
-            if (option.image && option.image instanceof File) {
-                try {
-                    imageUrl = URL.createObjectURL(option.image);
-                } catch (e) {
-                    console.warn('Could not create URL for option image:', e);
-                }
+            // option.image is now a URL string
+            if (option.image && typeof option.image === 'string') {
+                imageUrl = option.image;
+                optionImageUrls[index] = option.image; // Store for saving later
             }
             addOption(option.text, option.is_correct, imageUrl);
 
-            // If option has image (valid File), restore it to the file input
-            if (option.image && option.image instanceof File) {
-                try {
-                    const optionImageInput = document.getElementById(`option_image_${index}`);
-                    const fileName = document.getElementById(`option_image_name_${index}`);
-                    const preview = document.getElementById(`option_image_preview_${index}`);
+            // Show preview if option has image URL
+            if (option.image && typeof option.image === 'string') {
+                const fileName = document.getElementById(`option_image_name_${index}`);
+                const preview = document.getElementById(`option_image_preview_${index}`);
 
-                    fileName.textContent = option.image.name;
-                    preview.classList.remove('hidden');
-
-                    // Create a new FileList with the existing file
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(option.image);
-                    optionImageInput.files = dataTransfer.files;
-                } catch (e) {
-                    console.warn('Could not restore option image:', e);
-                }
+                if (fileName) fileName.textContent = 'Image loaded';
+                if (preview) preview.classList.remove('hidden');
             }
         });
     } else if (question.question_type === 'true_false') {
@@ -1785,7 +1770,7 @@ function saveQuestion() {
         question_text: formData.get('question_text'),
         points: parseInt(formData.get('points')),
         explanation: formData.get('explanation') || '',
-        question_image: document.getElementById('question-image').files[0] || null
+        question_image: currentQuestionImageUrl || null  // Use uploaded URL instead of File
     };
 
     // Handle answers based on question type
@@ -1796,12 +1781,11 @@ function saveQuestion() {
 
         Array.from(container.children).forEach((option, index) => {
             const text = option.querySelector('input[type="text"]').value;
-            const imageInput = option.querySelector('input[type="file"]');
             if (text.trim()) {
                 options.push({
                     text: text,
                     is_correct: index === correctIndex,
-                    image: imageInput && imageInput.files[0] ? imageInput.files[0] : null
+                    image: optionImageUrls[index] || null // Use uploaded URL
                 });
             }
         });
@@ -2038,10 +2022,11 @@ async function submitTest() {
             question_text: q.question_text,
             points: q.points,
             explanation: q.explanation,
-            // Remove image files from the data sent to server (for now)
+            question_image: q.question_image || null,  // Include uploaded image URL
             options: q.options ? q.options.map(opt => ({
                 text: opt.text,
-                is_correct: opt.is_correct
+                is_correct: opt.is_correct,
+                image: opt.image || null // Include option image URL
             })) : undefined,
             correct_answer: q.correct_answer,
             sample_answer: q.sample_answer,
@@ -2290,7 +2275,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Image handling functions
-function previewQuestionImage(input) {
+// Store uploaded image URL for current question being edited
+let currentQuestionImageUrl = null;
+let optionImageUrls = {}; // Store option image URLs by index
+
+async function previewQuestionImage(input) {
     const file = input.files[0];
     if (file) {
         // Validate file size (5MB)
@@ -2307,7 +2296,7 @@ function previewQuestionImage(input) {
             return;
         }
 
-        // Show preview
+        // Show preview immediately
         const reader = new FileReader();
         reader.onload = function(e) {
             const preview = document.getElementById('question-image-preview');
@@ -2319,6 +2308,30 @@ function previewQuestionImage(input) {
 
         // Update file name
         document.getElementById('question-image-name').textContent = file.name;
+
+        // Upload the image to server immediately
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/tests/api/questions/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                currentQuestionImageUrl = result.data.url;
+                console.log('Image uploaded:', currentQuestionImageUrl);
+            } else {
+                showError(result.message || 'Failed to upload image');
+                currentQuestionImageUrl = null;
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            showError('Failed to upload image');
+            currentQuestionImageUrl = null;
+        }
     }
 }
 
@@ -2326,9 +2339,10 @@ function removeQuestionImage() {
     document.getElementById('question-image').value = '';
     document.getElementById('question-image-name').textContent = i18n.noImage;
     document.getElementById('question-image-preview').classList.add('hidden');
+    currentQuestionImageUrl = null;
 }
 
-function previewOptionImage(input, optionIndex) {
+async function previewOptionImage(input, optionIndex) {
     const file = input.files[0];
     if (file) {
         // Validate file size (5MB)
@@ -2345,7 +2359,7 @@ function previewOptionImage(input, optionIndex) {
             return;
         }
 
-        // Show preview
+        // Show preview immediately
         const reader = new FileReader();
         reader.onload = function(e) {
             const preview = document.getElementById(`option_image_preview_${optionIndex}`);
@@ -2355,8 +2369,37 @@ function previewOptionImage(input, optionIndex) {
         };
         reader.readAsDataURL(file);
 
-        // Update file name
-        document.getElementById(`option_image_name_${optionIndex}`).textContent = file.name;
+        // Update file name with uploading status
+        const nameSpan = document.getElementById(`option_image_name_${optionIndex}`);
+        nameSpan.textContent = file.name + ' (uploading...)';
+
+        // Upload the image to server
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/tests/api/questions/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                optionImageUrls[optionIndex] = result.data.url;
+                nameSpan.textContent = file.name;
+                console.log('Option image uploaded:', optionIndex, result.data.url);
+            } else {
+                showError(result.message || 'Failed to upload option image');
+                delete optionImageUrls[optionIndex];
+                removeOptionImage(optionIndex);
+            }
+        } catch (error) {
+            console.error('Error uploading option image:', error);
+            showError(i18n.connectionError);
+            delete optionImageUrls[optionIndex];
+            removeOptionImage(optionIndex);
+        }
     }
 }
 
@@ -2369,6 +2412,9 @@ function removeOptionImage(optionIndex) {
 
     const preview = document.getElementById(`option_image_preview_${optionIndex}`);
     if (preview) preview.classList.add('hidden');
+
+    // Clear the stored URL
+    delete optionImageUrls[optionIndex];
 }
 
 function showSuccess(message) {

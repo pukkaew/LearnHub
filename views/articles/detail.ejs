@@ -1,3 +1,198 @@
+<style>
+/* Featured Image - Default SVG handling */
+#featuredImage.default-image {
+    object-fit: contain !important;
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    padding: 2rem;
+}
+
+/* Article Content Styles */
+#articleContent {
+    overflow: hidden; /* Clearfix for floated elements */
+}
+#articleContent figure {
+    margin: 1rem auto;
+    max-width: 100% !important;
+    display: block !important; /* Override display: table */
+    width: auto !important; /* Override fixed width */
+}
+#articleContent figure img {
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 8px;
+    display: block;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+/* Float left image */
+#articleContent figure[style*="float: left"],
+#articleContent figure[style*="float:left"] {
+    float: left !important;
+    margin: 0.5rem 1rem 0.5rem 0 !important;
+    max-width: 50% !important;
+    clear: left;
+}
+#articleContent figure[style*="float: left"] img,
+#articleContent figure[style*="float:left"] img {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+/* Float right image */
+#articleContent figure[style*="float: right"],
+#articleContent figure[style*="float:right"] {
+    float: right !important;
+    margin: 0.5rem 0 0.5rem 1rem !important;
+    max-width: 50% !important;
+    clear: right;
+}
+#articleContent figure[style*="float: right"] img,
+#articleContent figure[style*="float:right"] img {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+/* Center image (no float) */
+#articleContent figure:not([style*="float"]) {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+}
+#articleContent figure figcaption {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+/* Clear after content sections */
+#articleContent p {
+    clear: none;
+}
+#articleContent h1, #articleContent h2, #articleContent h3,
+#articleContent h4, #articleContent h5, #articleContent h6 {
+    clear: both;
+}
+/* Table styles */
+#articleContent table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    clear: both;
+}
+#articleContent table th,
+#articleContent table td {
+    border: 1px solid #d1d5db;
+    padding: 0.5rem 1rem;
+    text-align: left;
+}
+#articleContent table th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+}
+/* Responsive */
+@media (max-width: 768px) {
+    #articleContent figure[style*="float: left"],
+    #articleContent figure[style*="float:left"],
+    #articleContent figure[style*="float: right"],
+    #articleContent figure[style*="float:right"] {
+        float: none !important;
+        max-width: 100% !important;
+        margin: 1rem auto !important;
+    }
+}
+
+
+/* Facebook-style Comments */
+.comment-item {
+    position: relative;
+}
+.reply-item {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* Nested reply (reply to reply) - indent styling */
+.reply-item.nested-reply {
+    margin-left: 2.5rem;
+    position: relative;
+}
+.reply-item.nested-reply::before {
+    content: '↳';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+/* Reaction Popup - Facebook style */
+.reaction-popup {
+    animation: popIn 0.15s ease-out;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.group:hover .reaction-popup,
+.reaction-popup:hover {
+    display: flex !important;
+}
+
+/* Comment bubble hover effect */
+.comment-item .bg-gray-100:hover,
+.reply-item .bg-gray-100:hover {
+    background-color: #e4e6eb;
+}
+
+/* Author badge - Facebook blue */
+.bg-blue-500 {
+    background: #1877f2 !important;
+}
+
+/* Reaction colors - Facebook style */
+.text-blue-500 { color: #1877f2 !important; }
+.text-blue-600 { color: #1877f2 !important; }
+.text-red-500 { color: #f33e58 !important; }
+.text-yellow-500 { color: #f7b928 !important; }
+.text-orange-500 { color: #e9710f !important; }
+
+/* Thread line for replies */
+.border-l-2.border-gray-200 {
+    border-color: #ccd0d5;
+}
+
+/* Smooth transitions */
+.comment-item, .reply-item {
+    transition: all 0.2s ease;
+}
+
+/* Action buttons */
+.comment-item button, .reply-item button {
+    transition: color 0.15s, transform 0.1s;
+}
+.comment-item button:active, .reply-item button:active {
+    transform: scale(0.95);
+}
+
+/* Replies container animation */
+#commentsList [id^="replies-container-"] {
+    transition: all 0.3s ease;
+}
+#commentsList [id^="replies-container-"]:not(.hidden) {
+    animation: slideDown 0.2s ease-out;
+}
+@keyframes slideDown {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* @mention highlight */
+.text-blue-600.font-semibold {
+    background: linear-gradient(to bottom, transparent 60%, rgba(24, 119, 242, 0.1) 60%);
+}
+</style>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Back button -->
         <div class="mb-6">
@@ -9,7 +204,7 @@
         <!-- Article Header -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
             <div class="relative">
-                <img id="featuredImage" src="/images/default-article.jpg" alt="" class="w-full h-64 md:h-96 object-cover">
+                <img id="featuredImage" src="/images/default-article.svg" alt="" class="w-full h-64 md:h-96 object-cover default-image">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                 <div class="absolute bottom-6 left-6 right-6 text-white">
                     <div class="flex flex-wrap gap-2 mb-4">
@@ -88,12 +283,8 @@
                             <p id="authorBio" class="text-gray-600 mb-4"></p>
                             <div class="flex items-center space-x-4 text-sm text-gray-500">
                                 <span id="authorArticles"><%= t('articlesLabel') %>0</span>
-                                <span id="authorFollowers"><%= t('followersLabel') %>0</span>
                             </div>
                         </div>
-                        <button id="followBtn" class="px-6 py-2 bg-ruxchai-primary text-white rounded-lg hover:bg-ruxchai-primary/90 transition-colors">
-                            <%= t('follow') %>
-                        </button>
                     </div>
                 </div>
 
@@ -101,9 +292,17 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-bold text-gray-900"><%= t('comments') %></h3>
-                        <button id="sortComments" class="text-sm text-ruxchai-primary hover:text-ruxchai-primary/80">
-                            <%= t('sortByNewest') %> <i class="fas fa-chevron-down ml-1"></i>
-                        </button>
+                        <div class="relative">
+                            <button id="sortCommentsBtn" class="flex items-center gap-1 text-sm text-ruxchai-primary hover:text-ruxchai-primary/80">
+                                <span id="sortLabel">ใหม่ล่าสุด</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div id="sortDropdown" class="hidden absolute right-0 top-full mt-1 bg-white border rounded-lg shadow-lg py-1 min-w-[140px] z-10">
+                                <button onclick="sortComments('newest')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">ใหม่ล่าสุด</button>
+                                <button onclick="sortComments('oldest')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">เก่าสุด</button>
+                                <button onclick="sortComments('popular')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">ยอดนิยม</button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Comment Form -->
@@ -152,13 +351,6 @@
                     </div>
                 </div>
 
-                <!-- Popular Tags -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4"><%= t('popularTags') %></h3>
-                    <div id="popularTags" class="flex flex-wrap gap-2">
-                        <!-- Popular tags will be loaded here -->
-                    </div>
-                </div>
             </div>
         </div>
 </div>
@@ -206,10 +398,13 @@
 <script>
 // Global variables
 const SITE_NAME = '<%= typeof getSetting === "function" ? getSetting("site_name", "Rukchai Hongyen LearnHub") : "Rukchai Hongyen LearnHub" %>';
+const currentLanguage = '<%= currentLanguage || "th" %>';
 let articleId;
 let currentUser;
 let comments = [];
 let commentsPage = 1;
+let commentSort = 'newest'; // newest, oldest, popular
+let currentReplyToUserId = null; // Track who we're replying to
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -217,7 +412,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadArticle();
     loadComments();
     loadRelatedArticles();
-    loadPopularTags();
     setupEventListeners();
 });
 
@@ -240,8 +434,16 @@ function setupEventListeners() {
     // Save button
     document.getElementById('saveBtn').addEventListener('click', toggleSave);
 
-    // Follow button
-    document.getElementById('followBtn').addEventListener('click', toggleFollow);
+    // Sort comments dropdown
+    document.getElementById('sortCommentsBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('sortDropdown').classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+        document.getElementById('sortDropdown').classList.add('hidden');
+    });
 
     // Comment form
     document.getElementById('commentText').addEventListener('input', updateCharCount);
@@ -251,6 +453,22 @@ function setupEventListeners() {
     document.getElementById('loadMoreComments').addEventListener('click', loadMoreComments);
 }
 
+// Sort comments function
+function sortComments(sortType) {
+    commentSort = sortType;
+    commentsPage = 1;
+
+    // Update label
+    const labels = { newest: 'ใหม่ล่าสุด', oldest: 'เก่าสุด', popular: 'ยอดนิยม' };
+    document.getElementById('sortLabel').textContent = labels[sortType];
+
+    // Hide dropdown
+    document.getElementById('sortDropdown').classList.add('hidden');
+
+    // Reload comments
+    loadComments();
+}
+
 // Load article
 async function loadArticle() {
     try {
@@ -258,44 +476,155 @@ async function loadArticle() {
         const data = await response.json();
 
         if (data.success) {
-            displayArticle(data.article);
+            displayArticle(data.data);
             generateTableOfContents();
         } else {
-            showMessage('<%= t('articleNotFound') %>', 'error');
+            showMessage('<%= t ? t("articleNotFound") : "ไม่พบบทความ" %>', 'error');
         }
     } catch (error) {
         console.error('Error loading article:', error);
-        showMessage('<%= t('errorLoadingArticle') %>', 'error');
+        showMessage('<%= t ? t("errorLoadingArticle") : "เกิดข้อผิดพลาดในการโหลดบทความ" %>', 'error');
     }
+}
+
+// Sanitize article content - clean up corrupted/legacy content
+// Keep user's alignment settings (float, text-align, margin for centering)
+function sanitizeArticleContent(html) {
+    // Create a temporary div to parse HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Remove resize handles and toolbar (if any leaked into saved content)
+    temp.querySelectorAll('.resize-handle, .img-edit-toolbar, .img-resize-wrapper').forEach(el => el.remove());
+
+    // Clean up figures - remove editor-specific attributes but KEEP alignment
+    temp.querySelectorAll('figure').forEach(figure => {
+        figure.removeAttribute('id');
+        figure.removeAttribute('onclick');
+        figure.removeAttribute('class');
+
+        // Save user's alignment settings before cleaning
+        const savedFloat = figure.style.float || figure.style.cssFloat;
+        const savedTextAlign = figure.style.textAlign;
+        const savedMarginLeft = figure.style.marginLeft;
+        const savedMarginRight = figure.style.marginRight;
+
+        // Remove ONLY problematic inline styles (display:table, fixed width, position)
+        figure.style.display = '';
+        figure.style.width = '';
+        figure.style.maxWidth = '';
+        figure.style.position = '';
+        figure.style.cursor = '';
+        figure.style.clear = '';
+
+        // Restore user's alignment settings
+        if (savedFloat && savedFloat !== 'none') {
+            figure.style.float = savedFloat;
+            // Keep margin for float
+            if (savedFloat === 'left') {
+                figure.style.marginRight = savedMarginRight || '1rem';
+            } else if (savedFloat === 'right') {
+                figure.style.marginLeft = savedMarginLeft || '1rem';
+            }
+        } else {
+            // No float - check if centered
+            if (savedTextAlign === 'center' ||
+                (savedMarginLeft === 'auto' && savedMarginRight === 'auto') ||
+                savedMarginLeft === '0px auto' || savedMarginRight === '0px auto') {
+                figure.style.textAlign = 'center';
+                figure.style.marginLeft = 'auto';
+                figure.style.marginRight = 'auto';
+            }
+        }
+
+        // Remove all data-* attributes
+        Object.keys(figure.dataset).forEach(key => delete figure.dataset[key]);
+    });
+
+    // Clean up images - remove editor-specific styles but keep border-radius
+    temp.querySelectorAll('img').forEach(img => {
+        // Save border-radius if set
+        const savedBorderRadius = img.style.borderRadius;
+
+        img.style.border = '';
+        img.style.boxSizing = '';
+        img.style.position = '';
+        img.style.width = '';
+        img.style.height = '';
+        img.style.maxWidth = '';
+        img.style.display = '';
+        img.style.margin = '';
+
+        // Restore border-radius
+        if (savedBorderRadius) {
+            img.style.borderRadius = savedBorderRadius;
+        }
+
+        img.removeAttribute('data-original-border-radius');
+        // Remove any data-* attributes
+        Object.keys(img.dataset).forEach(key => delete img.dataset[key]);
+    });
+
+    // Fix nested <p> tags - unwrap inner <p> elements
+    temp.querySelectorAll('p p').forEach(innerP => {
+        const parent = innerP.parentElement;
+        while (innerP.firstChild) {
+            parent.insertBefore(innerP.firstChild, innerP);
+        }
+        innerP.remove();
+    });
+
+    // Remove empty paragraphs
+    temp.querySelectorAll('p').forEach(p => {
+        if (p.innerHTML.trim() === '' || p.innerHTML === '<br>') {
+            p.remove();
+        }
+    });
+
+    return temp.innerHTML;
 }
 
 // Display article
 function displayArticle(article) {
     document.title = `${article.title} - ${SITE_NAME}`;
 
-    document.getElementById('featuredImage').src = article.featured_image || '/images/default-article.jpg';
-    document.getElementById('featuredImage').alt = article.title;
+    const featuredImg = document.getElementById('featuredImage');
+    const imgSrc = article.featured_image || '/images/default-article.svg';
+    featuredImg.src = imgSrc;
+    featuredImg.alt = article.title;
+
+    // Add class for default image styling
+    if (!article.featured_image || imgSrc.includes('default-article')) {
+        featuredImg.classList.add('default-image');
+    } else {
+        featuredImg.classList.remove('default-image');
+    }
 
     document.getElementById('categoryBadge').textContent = getCategoryName(article.category);
     document.getElementById('statusBadge').textContent = getStatusName(article.status);
 
     document.getElementById('articleTitle').textContent = article.title;
-    document.getElementById('authorAvatar').src = article.author_avatar || '/images/default-avatar.png';
+    // Support both field names from API
+    document.getElementById('authorAvatar').src = article.author_image || article.author_avatar || '/images/default-avatar.png';
     document.getElementById('authorName').textContent = article.author_name;
     document.getElementById('publishDate').textContent = formatDate(article.created_at);
-    document.getElementById('readTime').textContent = `${article.read_time || 5} <%= t('minutes') %>`;
+    document.getElementById('readTime').textContent = `${article.reading_time || article.read_time || 5} <%= t ? t("minutes") : "นาที" %>`;
 
-    document.getElementById('viewCount').textContent = article.views || 0;
-    document.getElementById('likeCount').textContent = article.likes || 0;
-    document.getElementById('commentCount').textContent = article.comments || 0;
+    // Support both field names: views/views_count, likes/likes_count
+    document.getElementById('viewCount').textContent = article.views_count || article.views || 0;
+    document.getElementById('likeCount').textContent = article.likes_count || article.likes || 0;
+    document.getElementById('commentCount').textContent = article.comments_count || article.comments || 0;
 
-    if (article.summary) {
-        document.getElementById('articleSummary').textContent = article.summary;
+    // Support both field names: summary/excerpt
+    const summaryText = article.summary || article.excerpt;
+    if (summaryText) {
+        document.getElementById('articleSummary').textContent = summaryText;
     } else {
         document.getElementById('articleSummary').style.display = 'none';
     }
 
-    document.getElementById('articleContent').innerHTML = article.content;
+    // Sanitize content before displaying (handles corrupted/legacy content)
+    document.getElementById('articleContent').innerHTML = sanitizeArticleContent(article.content);
 
     // Tags
     const tagsContainer = document.getElementById('articleTags');
@@ -312,12 +641,10 @@ function displayArticle(article) {
     document.getElementById('authorInfoName').textContent = article.author_name;
     document.getElementById('authorBio').textContent = article.author_bio || '<%= t('noBioYet') %>';
     document.getElementById('authorArticles').textContent = `<%= t('articlesLabel') %>${article.author_articles || 0}`;
-    document.getElementById('authorFollowers').textContent = `<%= t('followersLabel') %>${article.author_followers || 0}`;
 
     // Update button states
     updateLikeButton(article.is_liked);
     updateSaveButton(article.is_saved);
-    updateFollowButton(article.is_following);
 
     // Increment view count
     incrementViewCount();
@@ -355,7 +682,7 @@ function generateTableOfContents() {
 // Load comments
 async function loadComments() {
     try {
-        const response = await fetch(`/articles/${articleId}/comments?page=${commentsPage}`);
+        const response = await fetch(`/articles/api/${articleId}/comments?page=${commentsPage}&sort=${commentSort}`);
         const data = await response.json();
 
         if (data.success) {
@@ -389,66 +716,433 @@ function displayComments() {
     container.innerHTML = comments.map(comment => createCommentItem(comment)).join('');
 }
 
-// Create comment item
+// Create comment item - Facebook-style with Reactions
 function createCommentItem(comment) {
-    return `
-        <div class="flex space-x-3">
-            <img src="${comment.user_avatar || '/images/default-avatar.png'}"
-                 alt="${comment.user_name}" class="w-10 h-10 rounded-full flex-shrink-0">
-            <div class="flex-1">
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="font-medium text-gray-900">${comment.user_name}</h4>
-                        <span class="text-sm text-gray-500">${formatDate(comment.created_at)}</span>
-                    </div>
-                    <p class="text-gray-700">${comment.content}</p>
-                </div>
-                <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                    <button class="hover:text-ruxchai-primary transition-colors">
-                        <i class="far fa-heart mr-1"></i><%= t('like') %> (${comment.likes || 0})
-                    </button>
-                    <button class="hover:text-ruxchai-primary transition-colors">
-                        <i class="far fa-comment mr-1"></i><%= t('reply') %>
-                    </button>
-                    ${comment.can_edit ? `
-                        <button onclick="editComment(${comment.comment_id})" class="hover:text-blue-600 transition-colors">
-                            <i class="fas fa-edit mr-1"></i><%= t('edit') %>
-                        </button>
-                    ` : ''}
-                    ${comment.can_delete ? `
-                        <button onclick="deleteComment(${comment.comment_id})" class="hover:text-red-600 transition-colors">
-                            <i class="fas fa-trash mr-1"></i><%= t('delete') %>
-                        </button>
-                    ` : ''}
-                </div>
+    const replyCount = comment.replies ? comment.replies.length : 0;
+    const hasReplies = replyCount > 0;
+    const reactions = comment.reactions || { total: 0, like: 0, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
+    const userReaction = comment.user_reaction;
+    const reactionIcons = getReactionIcons(reactions);
 
-                ${comment.replies && comment.replies.length > 0 ? `
-                    <div class="ml-6 mt-4 space-y-4">
-                        ${comment.replies.map(reply => createReplyItem(reply)).join('')}
+    return `
+        <div class="comment-item mb-4" data-comment-id="${comment.comment_id}">
+            ${comment.is_pinned ? '<div class="flex items-center text-xs text-amber-600 mb-2 ml-12"><i class="fas fa-thumbtack mr-1"></i> ปักหมุดโดยผู้เขียน</div>' : ''}
+            <div class="flex items-start gap-2">
+                <!-- Avatar -->
+                <img src="${comment.user_avatar || '/images/default-avatar.png'}"
+                     alt="${comment.user_name}"
+                     class="w-10 h-10 rounded-full flex-shrink-0 mt-0.5">
+
+                <div class="flex-1 min-w-0">
+                    <!-- Comment Bubble -->
+                    <div class="inline-block max-w-[85%]">
+                        <div class="bg-gray-100 rounded-2xl px-3 py-2 relative ${comment.is_pinned ? 'ring-2 ring-amber-200' : ''}">
+                            <!-- Author name + badge -->
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-semibold text-[13px] text-gray-900 hover:underline cursor-pointer">${comment.user_name}</span>
+                                ${comment.is_author ? '<span class="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">ผู้เขียน</span>' : ''}
+                            </div>
+                            <!-- Comment text -->
+                            <div id="comment-display-${comment.comment_id}">
+                                <p id="comment-text-${comment.comment_id}" class="text-[15px] text-gray-900 whitespace-pre-wrap break-words">${comment.content}</p>
+                            </div>
+                            <!-- Edit mode -->
+                            <div id="comment-edit-${comment.comment_id}" class="hidden">
+                                <textarea id="comment-edit-textarea-${comment.comment_id}" class="w-full p-2 border rounded-lg text-sm resize-none" rows="2">${comment.content}</textarea>
+                                <div class="flex gap-2 mt-2">
+                                    <button onclick="cancelEditComment(${comment.comment_id})" class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded">ยกเลิก</button>
+                                    <button onclick="saveEditComment(${comment.comment_id})" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">บันทึก</button>
+                                </div>
+                            </div>
+                            <!-- Reactions badge -->
+                            ${reactions.total > 0 ? `
+                                <div class="absolute -bottom-2.5 right-2 flex items-center bg-white rounded-full shadow px-1 py-0.5 border text-xs">
+                                    ${reactionIcons}<span class="ml-0.5 text-gray-500">${reactions.total}</span>
+                                </div>
+                            ` : ''}
+                        </div>
                     </div>
-                ` : ''}
+
+                    <!-- Actions: Like · Reply · Time · More -->
+                    <div id="comment-actions-${comment.comment_id}" class="flex items-center gap-1 mt-1 ml-3 text-xs">
+                        <!-- Like with reaction popup -->
+                        <div class="relative group">
+                            <button onclick="toggleReaction(${comment.comment_id}, '${userReaction || 'like'}')"
+                                    class="${userReaction ? getReactionColor(userReaction) : 'text-gray-500 hover:text-gray-700'} font-semibold">
+                                ${userReaction ? getReactionText(userReaction) : 'ถูกใจ'}
+                            </button>
+                            <div class="reaction-popup absolute bottom-full left-0 mb-2 hidden group-hover:flex bg-white rounded-full shadow-xl px-2 py-1.5 gap-1 border z-50">
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'like')" class="text-xl hover:scale-125 transition-transform" title="ถูกใจ">👍</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'love')" class="text-xl hover:scale-125 transition-transform" title="รัก">❤️</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'haha')" class="text-xl hover:scale-125 transition-transform" title="ฮ่าๆ">😂</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'wow')" class="text-xl hover:scale-125 transition-transform" title="ว้าว">😮</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'sad')" class="text-xl hover:scale-125 transition-transform" title="เศร้า">😢</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'angry')" class="text-xl hover:scale-125 transition-transform" title="โกรธ">😡</button>
+                            </div>
+                        </div>
+                        <span class="text-gray-400">·</span>
+                        <button onclick="toggleReplyForm(${comment.comment_id}, '${comment.user_name}', ${comment.user_id})" class="text-gray-500 hover:text-gray-700 font-semibold">ตอบกลับ</button>
+                        <span class="text-gray-400">·</span>
+                        <span class="text-gray-400">${formatTimeAgo(comment.created_at)}</span>
+                        ${comment.can_edit ? `<span class="text-gray-400">·</span><button onclick="editComment(${comment.comment_id})" class="text-gray-500 hover:text-blue-500">แก้ไข</button>` : ''}
+                        ${comment.can_delete ? `<span class="text-gray-400">·</span><button onclick="deleteComment(${comment.comment_id})" class="text-gray-500 hover:text-red-500">ลบ</button>` : ''}
+                        ${comment.can_pin ? `<span class="text-gray-400">·</span><button onclick="pinComment(${comment.comment_id})" class="text-gray-500 hover:text-amber-500">${comment.is_pinned ? 'เลิกปักหมุด' : 'ปักหมุด'}</button>` : ''}
+                    </div>
+
+                    <!-- Reply Form -->
+                    <div id="reply-form-${comment.comment_id}" class="hidden mt-3">
+                        <div class="flex items-start gap-2">
+                            <img src="<%= user?.profile_image || '/images/default-avatar.png' %>" class="w-8 h-8 rounded-full flex-shrink-0">
+                            <div class="flex-1">
+                                <div class="bg-gray-100 rounded-2xl px-3 py-2">
+                                    <span id="reply-to-name-${comment.comment_id}" class="text-blue-500 font-medium text-sm"></span>
+                                    <textarea id="reply-textarea-${comment.comment_id}"
+                                              class="w-full bg-transparent text-sm resize-none outline-none"
+                                              placeholder="เขียนตอบกลับ..." rows="1"
+                                              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                                </div>
+                                <div class="flex justify-end gap-2 mt-1">
+                                    <button onclick="cancelReply(${comment.comment_id})" class="px-3 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded-full">ยกเลิก</button>
+                                    <button onclick="submitReply(${comment.comment_id})" class="px-3 py-1 text-xs bg-blue-500 text-white rounded-full hover:bg-blue-600">ตอบกลับ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Replies Section - with nested replies support -->
+                    ${hasReplies ? `
+                        <div class="mt-1">
+                            <button onclick="toggleReplies(${comment.comment_id})" id="toggle-replies-btn-${comment.comment_id}"
+                                    class="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 font-medium ml-1 py-1">
+                                <i class="fas fa-reply fa-flip-horizontal text-xs"></i>
+                                <span id="toggle-replies-text-${comment.comment_id}">${replyCount} การตอบกลับ</span>
+                                <i id="toggle-replies-icon-${comment.comment_id}" class="fas fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                            </button>
+                            <div id="replies-container-${comment.comment_id}" class="hidden mt-2 space-y-2">
+                                ${renderNestedReplies(comment.replies, comment)}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
             </div>
         </div>
     `;
 }
 
-// Create reply item
-function createReplyItem(reply) {
+// Render replies with proper nesting based on reply_to_comment_id
+function renderNestedReplies(replies, parentComment) {
+    if (!replies || replies.length === 0) return '';
+
+    let html = '';
+
+    // Build a map of reply ID to reply object for quick lookup
+    const replyMap = {};
+    replies.forEach(r => {
+        replyMap[r.comment_id] = r;
+    });
+
+    // Direct replies: no reply_to_comment_id OR reply_to_comment_id not found in replies
+    const directReplies = replies.filter(r => {
+        if (!r.reply_to_comment_id) return true;
+        return !replyMap[r.reply_to_comment_id];
+    });
+
+    // Nested replies: reply_to_comment_id points to another reply in our list
+    const nestedReplies = replies.filter(r => {
+        return r.reply_to_comment_id && replyMap[r.reply_to_comment_id];
+    });
+
+    // Group nested replies by their parent reply ID
+    const nestedByParent = {};
+    nestedReplies.forEach(r => {
+        const parentId = r.reply_to_comment_id;
+        if (!nestedByParent[parentId]) {
+            nestedByParent[parentId] = [];
+        }
+        nestedByParent[parentId].push(r);
+    });
+
+    // Sort direct replies by created_at
+    directReplies.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    // Helper function to recursively collect all descendants of a reply
+    function collectAllDescendants(replyId) {
+        const descendants = [];
+        const children = nestedByParent[replyId] || [];
+        children.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        children.forEach(child => {
+            descendants.push(child);
+            // Recursively get grandchildren, great-grandchildren, etc.
+            descendants.push(...collectAllDescendants(child.comment_id));
+        });
+        return descendants;
+    }
+
+    // Render direct replies with ALL their nested descendants (any depth)
+    directReplies.forEach(reply => {
+        // Render the direct reply (level 1)
+        html += createReplyItem(reply, parentComment, false);
+
+        // Get all descendants of this direct reply and render them as nested
+        const allDescendants = collectAllDescendants(reply.comment_id);
+        allDescendants.forEach(descendant => {
+            html += createReplyItem(descendant, parentComment, true);
+        });
+    });
+
+    return html;
+}
+
+// Create reply item - with nested replies support (reply to reply shows indented)
+function createReplyItem(reply, parentComment, isNested = false) {
+    const replyId = reply.comment_id || reply.reply_id;
+    const reactions = reply.reactions || { total: 0, like: 0, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
+    const userReaction = reply.user_reaction;
+    const reactionIcons = getReactionIcons(reactions);
+
+    // Show @mention if replying to someone specific (has reply_to_name)
+    const showMention = reply.reply_to_name && reply.reply_to_name !== reply.user_name;
+
+    // Nested reply styling
+    const nestedClass = isNested ? 'nested-reply' : '';
+    const avatarSize = 'w-8 h-8';
+
     return `
-        <div class="flex space-x-3">
+        <div class="reply-item flex items-start gap-2 ${nestedClass}" data-reply-id="${replyId}" data-nested="${isNested}">
             <img src="${reply.user_avatar || '/images/default-avatar.png'}"
-                 alt="${reply.user_name}" class="w-8 h-8 rounded-full flex-shrink-0">
-            <div class="flex-1">
-                <div class="bg-white border rounded-lg p-3">
-                    <div class="flex items-center justify-between mb-1">
-                        <h5 class="text-sm font-medium text-gray-900">${reply.user_name}</h5>
-                        <span class="text-xs text-gray-500">${formatDate(reply.created_at)}</span>
+                 alt="${reply.user_name}"
+                 class="${avatarSize} rounded-full flex-shrink-0 mt-0.5 cursor-pointer hover:opacity-80">
+
+            <div class="flex-1 min-w-0">
+                <!-- Reply Bubble -->
+                <div class="inline-block max-w-[90%]">
+                    <div class="bg-gray-100 rounded-2xl px-3 py-2 relative hover:bg-gray-200/70 transition-colors">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="font-semibold text-[13px] text-gray-900 hover:underline cursor-pointer">${reply.user_name}</span>
+                            ${reply.is_author ? '<span class="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">ผู้เขียน</span>' : ''}
+                        </div>
+                        <!-- Reply Display -->
+                        <div id="reply-display-${replyId}">
+                            <p class="text-[15px] text-gray-900 break-words leading-snug">
+                                ${showMention ? `<a href="#" class="text-blue-600 font-semibold hover:underline">@${reply.reply_to_name}</a> ` : ''}
+                                <span class="whitespace-pre-wrap">${reply.content}</span>
+                            </p>
+                        </div>
+                        <!-- Edit mode -->
+                        <div id="reply-edit-${replyId}" class="hidden">
+                            <textarea id="reply-edit-textarea-${replyId}" class="w-full p-2 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500" rows="2">${reply.content}</textarea>
+                            <div class="flex gap-2 mt-2 justify-end">
+                                <button onclick="cancelEditReply(${replyId}, ${parentComment ? parentComment.comment_id : reply.parent_comment_id})" class="px-3 py-1 text-xs text-gray-600 hover:bg-gray-300 rounded-full transition-colors">ยกเลิก</button>
+                                <button onclick="saveEditReply(${replyId}, ${parentComment ? parentComment.comment_id : reply.parent_comment_id})" class="px-3 py-1 text-xs bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">บันทึก</button>
+                            </div>
+                        </div>
+                        <!-- Reactions badge -->
+                        ${reactions.total > 0 ? `
+                            <div class="absolute -bottom-2.5 right-2 flex items-center bg-white rounded-full shadow-md px-1.5 py-0.5 border text-[11px]">
+                                ${reactionIcons}<span class="ml-0.5 text-gray-600 font-medium">${reactions.total}</span>
+                            </div>
+                        ` : ''}
                     </div>
-                    <p class="text-sm text-gray-700">${reply.content}</p>
+                </div>
+
+                <!-- Reply Actions - Facebook style -->
+                <div class="flex items-center gap-1 mt-1 ml-3 text-xs" id="reply-actions-${replyId}">
+                    <div class="relative group">
+                        <button onclick="toggleReaction(${replyId}, '${userReaction || 'like'}')"
+                                class="${userReaction ? getReactionColor(userReaction) : 'text-gray-500 hover:text-gray-700'} font-semibold hover:underline">
+                            ${userReaction ? getReactionText(userReaction) : 'ถูกใจ'}
+                        </button>
+                        <div class="reaction-popup absolute bottom-full left-0 mb-2 hidden group-hover:flex bg-white rounded-full shadow-xl px-2 py-1.5 gap-1 border z-50">
+                            <button onclick="event.stopPropagation(); toggleReaction(${replyId}, 'like')" class="text-lg hover:scale-125 transition-transform" title="ถูกใจ">👍</button>
+                            <button onclick="event.stopPropagation(); toggleReaction(${replyId}, 'love')" class="text-lg hover:scale-125 transition-transform" title="รัก">❤️</button>
+                            <button onclick="event.stopPropagation(); toggleReaction(${replyId}, 'haha')" class="text-lg hover:scale-125 transition-transform" title="ฮ่าๆ">😂</button>
+                            <button onclick="event.stopPropagation(); toggleReaction(${replyId}, 'wow')" class="text-lg hover:scale-125 transition-transform" title="ว้าว">😮</button>
+                            <button onclick="event.stopPropagation(); toggleReaction(${replyId}, 'sad')" class="text-lg hover:scale-125 transition-transform" title="เศร้า">😢</button>
+                            <button onclick="event.stopPropagation(); toggleReaction(${replyId}, 'angry')" class="text-lg hover:scale-125 transition-transform" title="โกรธ">😡</button>
+                        </div>
+                    </div>
+                    <span class="text-gray-400">·</span>
+                    <button onclick="toggleReplyForm(${parentComment ? parentComment.comment_id : reply.parent_comment_id}, '${reply.user_name}', ${reply.user_id}, ${replyId})"
+                            class="text-gray-500 hover:text-gray-700 font-semibold hover:underline">ตอบกลับ</button>
+                    <span class="text-gray-400">·</span>
+                    <span class="text-gray-400">${formatTimeAgo(reply.created_at)}</span>
+                    ${reply.can_edit ? `<span class="text-gray-400">·</span><button onclick="editReply(${replyId}, ${parentComment ? parentComment.comment_id : reply.parent_comment_id})" class="text-gray-500 hover:text-blue-600 hover:underline">แก้ไข</button>` : ''}
+                    ${reply.can_delete ? `<span class="text-gray-400">·</span><button onclick="deleteReply(${replyId}, ${parentComment ? parentComment.comment_id : reply.parent_comment_id})" class="text-gray-500 hover:text-red-500 hover:underline">ลบ</button>` : ''}
                 </div>
             </div>
         </div>
     `;
+}
+
+// Helper functions for reactions
+function getReactionIcons(reactions) {
+    const icons = [];
+    if (reactions.like > 0) icons.push('<span class="text-sm">👍</span>');
+    if (reactions.love > 0) icons.push('<span class="text-sm">❤️</span>');
+    if (reactions.haha > 0) icons.push('<span class="text-sm">😂</span>');
+    if (reactions.wow > 0) icons.push('<span class="text-sm">😮</span>');
+    if (reactions.sad > 0) icons.push('<span class="text-sm">😢</span>');
+    if (reactions.angry > 0) icons.push('<span class="text-sm">😡</span>');
+    return icons.slice(0, 3).join(''); // Show max 3 icons
+}
+
+function getReactionColor(type) {
+    const colors = {
+        like: 'text-blue-500 font-bold',
+        love: 'text-red-500 font-bold',
+        haha: 'text-yellow-500 font-bold',
+        wow: 'text-yellow-500 font-bold',
+        sad: 'text-yellow-500 font-bold',
+        angry: 'text-orange-500 font-bold'
+    };
+    return colors[type] || 'text-gray-500';
+}
+
+function getReactionText(type) {
+    const texts = {
+        like: '👍 ถูกใจ',
+        love: '❤️ รัก',
+        haha: '😂 ฮ่าๆ',
+        wow: '😮 ว้าว',
+        sad: '😢 เศร้า',
+        angry: '😡 โกรธ'
+    };
+    return texts[type] || 'ถูกใจ';
+}
+
+// Toggle reaction API call
+async function toggleReaction(commentId, reactionType) {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${commentId}/react`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reaction_type: reactionType })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            // Update local data and re-render
+            const comment = comments.find(c => c.comment_id === commentId);
+            if (comment) {
+                comment.user_reaction = data.user_reaction;
+                comment.reactions = data.reactions;
+            }
+            // Also check in replies
+            for (const c of comments) {
+                if (c.replies) {
+                    const reply = c.replies.find(r => r.comment_id === commentId);
+                    if (reply) {
+                        reply.user_reaction = data.user_reaction;
+                        reply.reactions = data.reactions;
+                    }
+                }
+            }
+            displayComments();
+        }
+    } catch (error) {
+        console.error('Error toggling reaction:', error);
+    }
+}
+
+// Pin comment API call
+async function pinComment(commentId) {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${commentId}/pin`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showMessage(data.message, 'success');
+            commentsPage = 1;
+            loadComments();
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error pinning comment:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Duplicate removed - using the first createReplyItem function
+
+// Toggle replies visibility - Facebook style
+function toggleReplies(commentId) {
+    const container = document.getElementById(`replies-container-${commentId}`);
+    const text = document.getElementById(`toggle-replies-text-${commentId}`);
+    const icon = document.getElementById(`toggle-replies-icon-${commentId}`);
+
+    if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        text.textContent = 'ซ่อนการตอบกลับ';
+        icon.classList.add('rotate-180');
+    } else {
+        container.classList.add('hidden');
+        const comment = comments.find(c => c.comment_id === commentId);
+        const replyCount = comment && comment.replies ? comment.replies.length : 0;
+        text.textContent = `ดูการตอบกลับ ${replyCount} รายการ`;
+        icon.classList.remove('rotate-180');
+    }
+}
+
+// Format time ago - Facebook style (e.g., "2 ชม.", "3 วัน")
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'เมื่อสักครู่';
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} นาที`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} ชม.`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} วัน`;
+
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) return `${weeks} สัปดาห์`;
+
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months} เดือน`;
+
+    const years = Math.floor(days / 365);
+    return `${years} ปี`;
+}
+
+// Auto resize textarea
+function autoResizeTextarea(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+}
+
+// Like reply function
+async function likeReply(replyId) {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${replyId}/like`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const btn = document.getElementById(`reply-like-btn-${replyId}`);
+            if (data.is_liked) {
+                btn.textContent = 'ถูกใจแล้ว';
+                btn.classList.add('text-red-500', 'font-bold');
+                btn.classList.remove('text-gray-500');
+            } else {
+                btn.textContent = 'ถูกใจ';
+                btn.classList.remove('text-red-500', 'font-bold');
+                btn.classList.add('text-gray-500');
+            }
+        }
+    } catch (error) {
+        console.error('Error liking reply:', error);
+    }
 }
 
 // Load more comments
@@ -480,12 +1174,12 @@ async function submitComment() {
     if (!content) return;
 
     try {
-        const response = await fetch(`/articles/${articleId}/comments`, {
+        const response = await fetch(`/articles/api/${articleId}/comments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ content })
+            body: JSON.stringify({ comment_text: content })
         });
 
         const data = await response.json();
@@ -509,10 +1203,389 @@ async function submitComment() {
     }
 }
 
+// Edit comment
+// Show inline edit form
+function editComment(commentId) {
+    const comment = comments.find(c => c.comment_id === commentId);
+    if (!comment) return;
+
+    // Hide display, show edit form
+    document.getElementById(`comment-display-${commentId}`).classList.add('hidden');
+    document.getElementById(`comment-edit-${commentId}`).classList.remove('hidden');
+    document.getElementById(`comment-actions-${commentId}`).classList.add('hidden');
+    
+    // Focus on textarea
+    const textarea = document.getElementById(`comment-edit-textarea-${commentId}`);
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+}
+
+// Cancel edit and restore display
+function cancelEditComment(commentId) {
+    const comment = comments.find(c => c.comment_id === commentId);
+    if (!comment) return;
+
+    // Restore original text
+    document.getElementById(`comment-edit-textarea-${commentId}`).value = comment.content;
+    
+    // Show display, hide edit form
+    document.getElementById(`comment-display-${commentId}`).classList.remove('hidden');
+    document.getElementById(`comment-edit-${commentId}`).classList.add('hidden');
+    document.getElementById(`comment-actions-${commentId}`).classList.remove('hidden');
+}
+
+// Save edited comment
+async function saveEditComment(commentId) {
+    const textarea = document.getElementById(`comment-edit-textarea-${commentId}`);
+    const newText = textarea.value.trim();
+    
+    const comment = comments.find(c => c.comment_id === commentId);
+    if (!comment || !newText || newText === comment.content) {
+        cancelEditComment(commentId);
+        return;
+    }
+
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${commentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ comment_text: newText })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update local data
+            comment.content = newText;
+            
+            // Update display text
+            document.getElementById(`comment-text-${commentId}`).textContent = newText;
+            
+            // Switch back to display mode
+            cancelEditComment(commentId);
+            
+            showMessage('<%= t("commentUpdatedSuccessfully") %>', 'success');
+        } else {
+            showMessage(data.message || '<%= t("errorOccurred") %>', 'error');
+        }
+    } catch (error) {
+        console.error('Error editing comment:', error);
+        showMessage('<%= t("errorEditingComment") %>', 'error');
+    }
+}
+
+// Delete comment
+async function deleteComment(commentId) {
+    if (!confirm('<%= t("confirmDeleteComment") %>')) return;
+
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${commentId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            commentsPage = 1;
+            loadComments();
+            showMessage('<%= t("commentDeletedSuccessfully") %>', 'success');
+
+            // Update comment count
+            const currentCount = parseInt(document.getElementById('commentCount').textContent);
+            document.getElementById('commentCount').textContent = Math.max(0, currentCount - 1);
+        } else {
+            showMessage(data.message || '<%= t("errorOccurred") %>', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        showMessage('<%= t("errorDeletingComment") %>', 'error');
+    }
+}
+
+// ============ Reply Edit/Delete Functions (Facebook-style) ============
+
+// Edit reply - show edit form
+function editReply(replyId, parentCommentId) {
+    // Hide display, show edit form
+    document.getElementById(`reply-display-${replyId}`).classList.add('hidden');
+    document.getElementById(`reply-edit-${replyId}`).classList.remove('hidden');
+    document.getElementById(`reply-actions-${replyId}`).classList.add('hidden');
+
+    // Focus on textarea
+    const textarea = document.getElementById(`reply-edit-textarea-${replyId}`);
+    if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }
+}
+
+// Cancel edit reply
+function cancelEditReply(replyId, parentCommentId) {
+    // Show display, hide edit form
+    document.getElementById(`reply-display-${replyId}`).classList.remove('hidden');
+    document.getElementById(`reply-edit-${replyId}`).classList.add('hidden');
+    document.getElementById(`reply-actions-${replyId}`).classList.remove('hidden');
+
+    // Reset textarea to original content
+    const comment = comments.find(c => c.comment_id === parentCommentId);
+    if (comment && comment.replies) {
+        const reply = comment.replies.find(r => (r.comment_id || r.reply_id) == replyId);
+        if (reply) {
+            document.getElementById(`reply-edit-textarea-${replyId}`).value = reply.content;
+        }
+    }
+}
+
+// Save edited reply
+async function saveEditReply(replyId, parentCommentId) {
+    const textarea = document.getElementById(`reply-edit-textarea-${replyId}`);
+    const newText = textarea.value.trim();
+
+    if (!newText) {
+        showMessage('กรุณากรอกความคิดเห็น', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${replyId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ comment_text: newText })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update in local array
+            const comment = comments.find(c => c.comment_id === parentCommentId);
+            if (comment && comment.replies) {
+                const reply = comment.replies.find(r => (r.comment_id || r.reply_id) == replyId);
+                if (reply) {
+                    reply.content = newText;
+                }
+            }
+
+            // Update display
+            const textEl = document.getElementById(`reply-text-${replyId}`);
+            if (textEl) {
+                // Keep @mention if exists
+                const mentionMatch = textEl.innerHTML.match(/<span class="text-ruxchai-primary font-medium">@[^<]+<\/span>\s*/);
+                const mention = mentionMatch ? mentionMatch[0] : '';
+                textEl.innerHTML = mention + `<span class="whitespace-pre-wrap">${newText}</span>`;
+            }
+
+            // Hide edit form
+            cancelEditReply(replyId, parentCommentId);
+            showMessage('แก้ไขสำเร็จ', 'success');
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error editing reply:', error);
+        showMessage('เกิดข้อผิดพลาดในการแก้ไข', 'error');
+    }
+}
+
+// Delete reply
+async function deleteReply(replyId, parentCommentId) {
+    if (!confirm('ต้องการลบการตอบกลับนี้หรือไม่?')) return;
+
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${replyId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Reload comments to refresh the list
+            commentsPage = 1;
+            loadComments();
+            showMessage('ลบสำเร็จ', 'success');
+
+            // Update comment count
+            const currentCount = parseInt(document.getElementById('commentCount').textContent);
+            document.getElementById('commentCount').textContent = Math.max(0, currentCount - 1);
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting reply:', error);
+        showMessage('เกิดข้อผิดพลาดในการลบ', 'error');
+    }
+}
+
+
+// Like comment
+async function likeComment(commentId) {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${commentId}/like`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update like count
+            document.getElementById(`like-count-${commentId}`).textContent = data.like_count;
+            
+            // Update icon style
+            const icon = document.getElementById(`like-icon-${commentId}`);
+            const btn = document.getElementById(`like-btn-${commentId}`);
+            // Update button style and text
+            const likeText = document.getElementById(`like-text-${commentId}`);
+            if (data.is_liked) {
+                btn.classList.add('text-red-500', 'font-bold');
+                btn.classList.remove('text-gray-500');
+                if (likeText) likeText.textContent = 'ถูกใจแล้ว';
+            } else {
+                btn.classList.remove('text-red-500', 'font-bold');
+                btn.classList.add('text-gray-500');
+                if (likeText) likeText.textContent = 'ถูกใจ';
+            }
+
+            // Update like count display
+            const likeCountEl = document.getElementById(`like-count-${commentId}`);
+            if (likeCountEl) likeCountEl.textContent = data.like_count;
+        } else {
+            showMessage(data.message || '<%= t("errorOccurred") %>', 'error');
+        }
+    } catch (error) {
+        console.error('Error liking comment:', error);
+    }
+}
+
+// Follow comment - toggle follow/unfollow for notifications
+async function followComment(commentId) {
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${commentId}/follow`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update icon style
+            const icon = document.getElementById(`follow-icon-${commentId}`);
+            const btn = document.getElementById(`follow-btn-${commentId}`);
+            if (data.is_following) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.classList.add('text-blue-500');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.classList.remove('text-blue-500');
+            }
+            showMessage(data.is_following ? 'กำลังติดตามความคิดเห็นนี้' : 'ยกเลิกติดตามความคิดเห็นแล้ว', 'success');
+        } else {
+            showMessage(data.message || 'เกิดข้อผิดพลาด', 'error');
+        }
+    } catch (error) {
+        console.error('Error following comment:', error);
+        showMessage('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Reply to comment
+// Store current reply target info
+let currentReplyToCommentId = null;
+
+// Toggle reply form visibility - Updated for nested replies
+function toggleReplyForm(commentId, replyToName = '', replyToUserId = null, replyToCommentId = null) {
+    const form = document.getElementById(`reply-form-${commentId}`);
+    const isHidden = form.classList.contains('hidden');
+
+    // Hide all other reply forms first
+    document.querySelectorAll('[id^="reply-form-"]').forEach(f => {
+        f.classList.add('hidden');
+    });
+
+    // Reset reply target
+    currentReplyToUserId = null;
+    currentReplyToCommentId = null;
+
+    if (isHidden) {
+        form.classList.remove('hidden');
+        const textarea = document.getElementById(`reply-textarea-${commentId}`);
+        const replyToNameSpan = document.getElementById(`reply-to-name-${commentId}`);
+
+        // Set @mention and user ID if replying to someone specific
+        if (replyToName && replyToNameSpan) {
+            replyToNameSpan.textContent = '@' + replyToName + ' ';
+            currentReplyToUserId = replyToUserId;
+            currentReplyToCommentId = replyToCommentId;  // Store reply ID for nested replies
+        } else if (replyToNameSpan) {
+            replyToNameSpan.textContent = '';
+        }
+
+        textarea.focus();
+    }
+}
+
+// Cancel reply
+function cancelReply(commentId) {
+    const form = document.getElementById(`reply-form-${commentId}`);
+    const textarea = document.getElementById(`reply-textarea-${commentId}`);
+    textarea.value = '';
+    form.classList.add('hidden');
+}
+
+// Submit reply
+async function submitReply(commentId) {
+    const textarea = document.getElementById(`reply-textarea-${commentId}`);
+    const replyText = textarea.value.trim();
+    
+    if (!replyText) {
+        showMessage('<%= t("pleaseEnterComment") || "กรุณากรอกความคิดเห็น" %>', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/articles/api/${articleId}/comments/${commentId}/reply`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                comment_text: replyText,
+                reply_to_user_id: currentReplyToUserId,
+                reply_to_comment_id: currentReplyToCommentId  // For nested replies
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Clear and hide form
+            textarea.value = '';
+            document.getElementById(`reply-form-${commentId}`).classList.add('hidden');
+            
+            // Reload comments
+            commentsPage = 1;
+            loadComments();
+            showMessage('<%= t("replyAddedSuccessfully") || "ตอบกลับสำเร็จ" %>', 'success');
+
+            // Update comment count
+            const currentCount = parseInt(document.getElementById('commentCount').textContent);
+            document.getElementById('commentCount').textContent = currentCount + 1;
+        } else {
+            showMessage(data.message || '<%= t("errorOccurred") %>', 'error');
+        }
+    } catch (error) {
+        console.error('Error replying to comment:', error);
+        showMessage('<%= t("errorAddingReply") || "เกิดข้อผิดพลาด" %>', 'error');
+    }
+}
+
 // Toggle like
 async function toggleLike() {
     try {
-        const response = await fetch(`/articles/${articleId}/like`, {
+        const response = await fetch(`/articles/api/${articleId}/like`, {
             method: 'POST'
         });
 
@@ -532,7 +1605,7 @@ async function toggleLike() {
 // Toggle save
 async function toggleSave() {
     try {
-        const response = await fetch(`/articles/${articleId}/save`, {
+        const response = await fetch(`/articles/api/${articleId}/save`, {
             method: 'POST'
         });
 
@@ -544,28 +1617,6 @@ async function toggleSave() {
         }
     } catch (error) {
         console.error('Error toggling save:', error);
-        showMessage('<%= t('errorOccurred') %>', 'error');
-    }
-}
-
-// Toggle follow
-async function toggleFollow() {
-    try {
-        const authorId = document.querySelector('[data-author-id]')?.dataset.authorId;
-        if (!authorId) return;
-
-        const response = await fetch(`/users/${authorId}/follow`, {
-            method: 'POST'
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            updateFollowButton(data.is_following);
-            showMessage(data.is_following ? '<%= t('nowFollowingAuthor') %>' : '<%= t('unfollowedAuthor') %>', 'success');
-        }
-    } catch (error) {
-        console.error('Error toggling follow:', error);
         showMessage('<%= t('errorOccurred') %>', 'error');
     }
 }
@@ -605,24 +1656,10 @@ function updateSaveButton(isSaved) {
     }
 }
 
-function updateFollowButton(isFollowing) {
-    const btn = document.getElementById('followBtn');
-
-    if (isFollowing) {
-        btn.textContent = '<%= t('following') %>';
-        btn.classList.remove('bg-ruxchai-primary');
-        btn.classList.add('bg-gray-600');
-    } else {
-        btn.textContent = '<%= t('follow') %>';
-        btn.classList.remove('bg-gray-600');
-        btn.classList.add('bg-ruxchai-primary');
-    }
-}
-
 // Load related articles
 async function loadRelatedArticles() {
     try {
-        const response = await fetch(`/articles/${articleId}/related`);
+        const response = await fetch(`/articles/api/${articleId}/related`);
         const data = await response.json();
 
         if (data.success && data.articles.length > 0) {
@@ -631,7 +1668,7 @@ async function loadRelatedArticles() {
                 <div class="group">
                     <a href="/articles/${article.article_id}" class="block">
                         <div class="flex space-x-3">
-                            <img src="${article.featured_image || '/images/default-article.jpg'}"
+                            <img src="${article.featured_image || '/images/default-article.svg'}"
                                  alt="${article.title}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-medium text-gray-900 group-hover:text-ruxchai-primary transition-colors line-clamp-2 mb-1">
@@ -656,31 +1693,11 @@ async function loadRelatedArticles() {
 }
 
 // Load popular tags
-async function loadPopularTags() {
-    try {
-        const response = await fetch('/articles/api/popular-tags');
-        const data = await response.json();
-
-        if (data.success && data.tags.length > 0) {
-            const container = document.getElementById('popularTags');
-            container.innerHTML = data.tags.map(tag => `
-                <a href="/articles?tag=${encodeURIComponent(tag.name)}"
-                   class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-ruxchai-primary hover:text-white transition-colors">
-                    ${tag.name} (${tag.count})
-                </a>
-            `).join('');
-        } else {
-            document.getElementById('popularTags').innerHTML = '<p class="text-gray-500"><%= t('noPopularTags') %></p>';
-        }
-    } catch (error) {
-        console.error('Error loading popular tags:', error);
-    }
-}
 
 // Increment view count
 async function incrementViewCount() {
     try {
-        await fetch(`/articles/${articleId}/view`, { method: 'POST' });
+        await fetch(`/articles/api/${articleId}/view`, { method: 'POST' });
     } catch (error) {
         console.error('Error incrementing view count:', error);
     }
@@ -736,6 +1753,7 @@ function getStatusName(status) {
 }
 
 function formatDate(dateString) {
+    const locale = currentLanguage === 'en' ? 'en-US' : 'th-TH';
     const options = {
         year: 'numeric',
         month: 'long',
@@ -743,7 +1761,7 @@ function formatDate(dateString) {
         hour: '2-digit',
         minute: '2-digit'
     };
-    return new Date(dateString).toLocaleDateString('th-TH', options);
+    return new Date(dateString).toLocaleDateString(locale, options);
 }
 
 function showMessage(message, type = 'info') {

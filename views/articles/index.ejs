@@ -312,9 +312,9 @@ function createArticleCard(article) {
     return `
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group">
             <div class="relative">
-                <img src="${article.featured_image || '/images/default-article.jpg'}"
+                <img src="${article.featured_image || '/images/default-article.svg'}"
                      alt="${escapeHtml(article.title)}" class="w-full h-48 object-cover"
-                     onerror="this.src='/images/default-article.jpg'">
+                     onerror="this.src='/images/default-article.svg'">
                 <div class="absolute top-4 left-4">
                     ${statusBadge}
                 </div>
@@ -379,9 +379,9 @@ function createArticleListItem(article) {
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
             <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-6">
                 <div class="md:w-48 flex-shrink-0">
-                    <img src="${article.featured_image || '/images/default-article.jpg'}"
+                    <img src="${article.featured_image || '/images/default-article.svg'}"
                          alt="${escapeHtml(article.title)}" class="w-full h-32 object-cover rounded-lg"
-                         onerror="this.src='/images/default-article.jpg'">
+                         onerror="this.src='/images/default-article.svg'">
                 </div>
                 <div class="flex-1">
                     <div class="flex items-start justify-between mb-2">
@@ -555,7 +555,18 @@ function goToPage(page) {
 }
 
 // Utility functions
-// Use global formatDate from layout.ejs
+const currentLanguage = '<%= currentLanguage || "th" %>';
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const locale = currentLanguage === 'en' ? 'en-US' : 'th-TH';
+    const options = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    };
+    return new Date(dateString).toLocaleDateString(locale, options);
+}
 
 function formatNumber(num) {
     if (num >= 1000000) {

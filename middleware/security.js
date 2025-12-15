@@ -84,6 +84,11 @@ class SecurityMiddleware {
 
     // Rate limiting
     generalRateLimit() {
+        // Skip rate limiting in development
+        if (process.env.NODE_ENV !== 'production') {
+            return (req, res, next) => next();
+        }
+
         return rateLimit({
             windowMs: 15 * 60 * 1000, // 15 minutes
             max: 10000, // limit each IP to 10000 requests per windowMs (increased for development)

@@ -343,31 +343,175 @@ class Article {
         }
     }
 
-    // Add view to article
-    static async addView(articleId) {
+    // Add view to article with duplicate prevention
+    static async addView(articleId, viewerInfo = {}) {
         try {
             const pool = await poolPromise;
+            const { userId, sessionId, ipAddress, userAgent } = viewerInfo;
 
-            // Simple increment of view count
+            // Check if this viewer has already viewed this article recently (within 24 hours)
+            // Use combination of: user_id (if logged in) OR session_id OR ip_address
+            const checkRequest = pool.request()
+                .input('articleId', sql.Int, articleId);
+
+            let checkQuery = `
+                SELECT view_id FROM ArticleViews
+                WHERE article_id = @articleId
+                AND viewed_at > DATEADD(HOUR, -24, GETDATE())
+            `;
+
+            if (userId) {
+                checkRequest.input('userId', sql.Int, userId);
+                checkQuery += ` AND user_id = @userId`;
+            } else if (sessionId) {
+                checkRequest.input('sessionId', sql.NVarChar(255), sessionId);
+                checkQuery += ` AND session_id = @sessionId`;
+            } else if (ipAddress) {
+                checkRequest.input('ipAddress', sql.NVarChar(45), ipAddress);
+                checkQuery += ` AND ip_address = @ipAddress AND user_id IS NULL`;
+            }
+
+            const existingView = await checkRequest.query(checkQuery);
+
+            if (existingView.recordset.length > 0) {
+                // Already viewed recently - don't count again
+                return {
+                    success: true,
+                    counted: false,
+                    message: 'View already recorded within 24 hours'
+                };
+            }
+
+            // Record the new view
+            await pool.request()
+                .input('articleId', sql.Int, articleId)
+                .input('userId', sql.Int, userId || null)
+                .input('sessionId', sql.NVarChar(255), sessionId || null)
+                .input('ipAddress', sql.NVarChar(45), ipAddress || null)
+                .input('userAgent', sql.NVarChar(500), userAgent?.substring(0, 500) || null)
+                .query(`
+                    INSERT INTO ArticleViews (article_id, user_id, session_id, ip_address, user_agent)
+                    VALUES (@articleId, @userId, @sessionId, @ipAddress, @userAgent)
+                `);
+
+            // Increment view count
             const result = await pool.request()
                 .input('articleId', sql.Int, articleId)
                 .query(`
                     UPDATE articles
-                    SET views_count = views_count + 1,
-                        updated_at = GETDATE()
+                    SET views_count = views_count + 1
                     WHERE article_id = @articleId
                 `);
 
             return {
                 success: result.rowsAffected[0] > 0,
-                message: result.rowsAffected[0] > 0 ? 'View recorded' : 'Article not found'
+                counted: true,
+                message: 'View recorded successfully'
             };
         } catch (error) {
-            throw new Error(`Error adding view: ${error.message}`);
+            console.error('Error adding view:', error);
+            // Don't throw - view counting should not break the page
+            return {
+                success: false,
+                counted: false,
+                message: `Error: ${error.message}`
+            };
         }
     }
 
-    // Add like to article
+    // Check if user has liked an article
+    static async checkUserLiked(articleId, userId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('articleId', sql.Int, articleId)
+                .input('userId', sql.Int, userId)
+                .query(`
+                    SELECT like_id FROM article_likes
+                    WHERE article_id = @articleId AND user_id = @userId
+                `);
+
+            return result.recordset.length > 0;
+        } catch (error) {
+            throw new Error(`Error checking like status: ${error.message}`);
+        }
+    }
+
+    // Toggle like on article (like/unlike)
+    static async toggleLike(articleId, userId) {
+        try {
+            const pool = await poolPromise;
+
+            // Check if user already liked
+            const isLiked = await this.checkUserLiked(articleId, userId);
+
+            if (isLiked) {
+                // Unlike - remove from article_likes and decrement count
+                await pool.request()
+                    .input('articleId', sql.Int, articleId)
+                    .input('userId', sql.Int, userId)
+                    .query(`
+                        DELETE FROM article_likes
+                        WHERE article_id = @articleId AND user_id = @userId
+                    `);
+
+                await pool.request()
+                    .input('articleId', sql.Int, articleId)
+                    .query(`
+                        UPDATE articles
+                        SET likes_count = CASE WHEN likes_count > 0 THEN likes_count - 1 ELSE 0 END,
+                            updated_at = GETDATE()
+                        WHERE article_id = @articleId
+                    `);
+
+                // Get updated count
+                const countResult = await pool.request()
+                    .input('articleId', sql.Int, articleId)
+                    .query(`SELECT likes_count FROM articles WHERE article_id = @articleId`);
+
+                return {
+                    success: true,
+                    is_liked: false,
+                    like_count: countResult.recordset[0]?.likes_count || 0,
+                    message: 'Unliked'
+                };
+            } else {
+                // Like - add to article_likes and increment count
+                await pool.request()
+                    .input('articleId', sql.Int, articleId)
+                    .input('userId', sql.Int, userId)
+                    .query(`
+                        INSERT INTO article_likes (article_id, user_id)
+                        VALUES (@articleId, @userId)
+                    `);
+
+                await pool.request()
+                    .input('articleId', sql.Int, articleId)
+                    .query(`
+                        UPDATE articles
+                        SET likes_count = likes_count + 1,
+                            updated_at = GETDATE()
+                        WHERE article_id = @articleId
+                    `);
+
+                // Get updated count
+                const countResult = await pool.request()
+                    .input('articleId', sql.Int, articleId)
+                    .query(`SELECT likes_count FROM articles WHERE article_id = @articleId`);
+
+                return {
+                    success: true,
+                    is_liked: true,
+                    like_count: countResult.recordset[0]?.likes_count || 0,
+                    message: 'Liked'
+                };
+            }
+        } catch (error) {
+            throw new Error(`Error toggling like: ${error.message}`);
+        }
+    }
+
+    // Add like to article (legacy - kept for compatibility)
     static async addLike(articleId) {
         try {
             const pool = await poolPromise;

@@ -1019,6 +1019,46 @@
                         </div>
                         <% } %>
 
+                        <!-- ส่วนรายงาน -->
+                        <% if (['Admin', 'HR', 'Manager'].includes(user.role_name)) { %>
+                        <div class="nav-menu-item-dropdown">
+                            <a href="#" class="nav-menu-item has-submenu" onclick="event.preventDefault()">
+                                <span class="nav-menu-icon"><i class="fas fa-chart-bar"></i></span>
+                                <span><%= typeof t === 'function' ? t('reports') : 'รายงาน' %></span>
+                            </a>
+                            <div class="nav-submenu">
+                                <a href="/reports" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                                    <span><%= typeof t === 'function' ? t('reportsDashboard') : 'แดชบอร์ด' %></span>
+                                </a>
+                                <a href="/reports/course-analytics" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-chart-line"></i></span>
+                                    <span><%= typeof t === 'function' ? t('courseAnalytics') : 'วิเคราะห์หลักสูตร' %></span>
+                                </a>
+                                <a href="/reports/learning-progress" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-tasks"></i></span>
+                                    <span><%= typeof t === 'function' ? t('learningProgress') : 'ความคืบหน้าการเรียน' %></span>
+                                </a>
+                                <a href="/reports/test-results" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-clipboard-check"></i></span>
+                                    <span><%= typeof t === 'function' ? t('testResults') : 'ผลการทดสอบ' %></span>
+                                </a>
+                                <a href="/reports/user-activity" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-user-clock"></i></span>
+                                    <span><%= typeof t === 'function' ? t('userActivity') : 'กิจกรรมผู้ใช้' %></span>
+                                </a>
+                                <a href="/reports/department-performance" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-building"></i></span>
+                                    <span><%= typeof t === 'function' ? t('departmentPerformance') : 'ประสิทธิภาพแผนก' %></span>
+                                </a>
+                                <a href="/reports/certifications" class="nav-submenu-item">
+                                    <span class="nav-submenu-icon"><i class="fas fa-certificate"></i></span>
+                                    <span><%= typeof t === 'function' ? t('certifications') : 'ใบรับรอง' %></span>
+                                </a>
+                            </div>
+                        </div>
+                        <% } %>
+
                         <!-- ส่วนตั้งค่า -->
                         <% if (['Admin', 'ADMIN', 'SUPER_ADMIN'].includes(user.role_name || user.role)) { %>
                         <a href="/settings" class="nav-menu-item">
@@ -1194,6 +1234,44 @@
                     <a href="/organization/positions" class="nav-mobile-submenu-item">
                         <span class="nav-submenu-icon"><i class="fas fa-briefcase"></i></span>
                         <span><%= typeof t === 'function' ? t('positions') : 'ตำแหน่ง' %></span>
+                    </a>
+                </div>
+                <% } %>
+
+                <!-- ส่วนรายงาน Mobile -->
+                <% if (['Admin', 'HR', 'Manager'].includes(user.role_name)) { %>
+                <button class="nav-mobile-menu-item has-submenu" id="mobile-reports-menu-toggle">
+                    <span class="nav-menu-icon"><i class="fas fa-chart-bar"></i></span>
+                    <span><%= typeof t === 'function' ? t('reports') : 'รายงาน' %></span>
+                </button>
+                <div class="nav-mobile-submenu" id="mobile-reports-submenu">
+                    <a href="/reports" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-tachometer-alt"></i></span>
+                        <span><%= typeof t === 'function' ? t('reportsDashboard') : 'แดชบอร์ด' %></span>
+                    </a>
+                    <a href="/reports/course-analytics" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-chart-line"></i></span>
+                        <span><%= typeof t === 'function' ? t('courseAnalytics') : 'วิเคราะห์หลักสูตร' %></span>
+                    </a>
+                    <a href="/reports/learning-progress" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-tasks"></i></span>
+                        <span><%= typeof t === 'function' ? t('learningProgress') : 'ความคืบหน้าการเรียน' %></span>
+                    </a>
+                    <a href="/reports/test-results" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-clipboard-check"></i></span>
+                        <span><%= typeof t === 'function' ? t('testResults') : 'ผลการทดสอบ' %></span>
+                    </a>
+                    <a href="/reports/user-activity" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-user-clock"></i></span>
+                        <span><%= typeof t === 'function' ? t('userActivity') : 'กิจกรรมผู้ใช้' %></span>
+                    </a>
+                    <a href="/reports/department-performance" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-building"></i></span>
+                        <span><%= typeof t === 'function' ? t('departmentPerformance') : 'ประสิทธิภาพแผนก' %></span>
+                    </a>
+                    <a href="/reports/certifications" class="nav-mobile-submenu-item">
+                        <span class="nav-submenu-icon"><i class="fas fa-certificate"></i></span>
+                        <span><%= typeof t === 'function' ? t('certifications') : 'ใบรับรอง' %></span>
                     </a>
                 </div>
                 <% } %>
@@ -2005,6 +2083,26 @@
                     } else {
                         mobileHrSubmenu.classList.add('open');
                         mobileHrToggle.classList.add('open');
+                    }
+                });
+            }
+
+            // Mobile Reports Submenu Toggle
+            const mobileReportsToggle = document.getElementById('mobile-reports-menu-toggle');
+            const mobileReportsSubmenu = document.getElementById('mobile-reports-submenu');
+
+            if (mobileReportsToggle && mobileReportsSubmenu) {
+                mobileReportsToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const isOpen = mobileReportsSubmenu.classList.contains('open');
+
+                    if (isOpen) {
+                        mobileReportsSubmenu.classList.remove('open');
+                        mobileReportsToggle.classList.remove('open');
+                    } else {
+                        mobileReportsSubmenu.classList.add('open');
+                        mobileReportsToggle.classList.add('open');
                     }
                 });
             }

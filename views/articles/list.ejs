@@ -544,7 +544,7 @@ function createArticleCard(article) {
     card.className = 'article-card bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer';
     card.onclick = () => quickViewArticle(article.article_id);
 
-    const imageUrl = article.featured_image || '/images/default-article.jpg';
+    const imageUrl = article.featured_image || '/images/default-article.svg';
     const categoryName = categoryTranslations[article.category] || article.category;
 
     card.innerHTML = `
@@ -612,7 +612,7 @@ function createArticleListItem(article) {
     item.className = 'article-card bg-white rounded-lg shadow-sm p-6 cursor-pointer';
     item.onclick = () => quickViewArticle(article.article_id);
 
-    const imageUrl = article.featured_image || '/images/default-article.jpg';
+    const imageUrl = article.featured_image || '/images/default-article.svg';
     const categoryName = categoryTranslations[article.category] || article.category;
 
     item.innerHTML = `

@@ -480,6 +480,7 @@ const testController = {
                         test_id: testId,
                         question_type: q.question_type,
                         question_text: q.question_text,
+                        question_image: q.question_image || null,  // Save uploaded image URL
                         points: q.points || 1,
                         explanation: q.explanation || null,
                         created_by: userId,
@@ -490,7 +491,8 @@ const testController = {
                     if (q.question_type === 'multiple_choice' && q.options) {
                         questionData.options = q.options.map(opt => ({
                             text: opt.text,
-                            is_correct: opt.is_correct
+                            is_correct: opt.is_correct,
+                            image: opt.image || null // Include option image URL
                         }));
                     }
 
@@ -1205,6 +1207,60 @@ const testController = {
         }
     },
 
+    async renderCreateQuestion(req, res) {
+        try {
+            const { test_id } = req.params;
+
+            // Verify test exists
+            const test = await Test.findById(test_id);
+            if (!test) {
+                return res.render('error/404', {
+                    title: req.t('pageNotFoundTitle'),
+                    user: req.session.user
+                });
+            }
+
+            // Create empty question object for the form
+            const emptyQuestion = {
+                question_id: null,
+                question_text: '',
+                question_type: 'multiple_choice',
+                question_image: null,
+                points: 1,
+                explanation: '',
+                correct_answer: '',
+                sample_answer: '',
+                options: [
+                    { option_text: '', is_correct: true },
+                    { option_text: '', is_correct: false },
+                    { option_text: '', is_correct: false },
+                    { option_text: '', is_correct: false }
+                ]
+            };
+
+            // Render the create form (using same template as edit)
+            res.render('tests/edit-question', {
+                title: `${req.t('createQuestion') || 'Create Question'} - ${test.title}`,
+                user: req.session.user,
+                userRole: req.user.role_name,
+                question: emptyQuestion,
+                testId: test_id,
+                courseId: test.course_id,
+                backUrl: `/tests/${test_id}/edit`,
+                isCreate: true
+            });
+
+        } catch (error) {
+            console.error('Render create question error:', error);
+            res.render('error/500', {
+                title: req.t('errorTitle'),
+                message: req.t('errorLoadingCreateQuestionPage') || 'Error loading create question page',
+                user: req.session.user,
+                error: error
+            });
+        }
+    },
+
     async renderEditQuestion(req, res) {
         try {
             const { test_id, question_id } = req.params;
@@ -1235,7 +1291,8 @@ const testController = {
                 question: question,
                 testId: test_id,
                 courseId: test.course_id,
-                backUrl: `/tests/${test_id}/edit`
+                backUrl: `/tests/${test_id}/edit`,
+                isCreate: false
             });
 
         } catch (error) {
@@ -1338,6 +1395,64 @@ const testController = {
             res.status(500).json({
                 success: false,
                 message: req.t('errorUpdatingQuestion') || 'Error updating question',
+                error: error.message
+            });
+        }
+    },
+
+    // API: Delete question
+    async deleteQuestion(req, res) {
+        try {
+            const { test_id, question_id } = req.params;
+
+            console.log('Delete question request:', { test_id, question_id });
+
+            // Verify test exists
+            const test = await Test.findById(test_id);
+            if (!test) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('testNotFound') || 'Test not found'
+                });
+            }
+
+            // Verify question exists
+            const existingQuestion = await Question.findById(question_id);
+            if (!existingQuestion) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('questionNotFound') || 'Question not found'
+                });
+            }
+
+            // Verify question belongs to this test
+            if (existingQuestion.test_id !== parseInt(test_id)) {
+                return res.status(403).json({
+                    success: false,
+                    message: req.t('questionNotBelongToTest') || 'Question does not belong to this test'
+                });
+            }
+
+            // Delete question (soft delete)
+            const result = await Question.delete(question_id, req.user.user_id);
+
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: req.t('questionDeleted') || 'Question deleted successfully'
+                });
+            } else {
+                res.status(400).json({
+                    success: false,
+                    message: result.message || req.t('errorDeletingQuestion') || 'Error deleting question'
+                });
+            }
+
+        } catch (error) {
+            console.error('Delete question error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorDeletingQuestion') || 'Error deleting question',
                 error: error.message
             });
         }

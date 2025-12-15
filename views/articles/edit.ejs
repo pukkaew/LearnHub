@@ -318,7 +318,7 @@ function imageHandler() {
             const formData = new FormData();
             formData.append('image', file);
 
-            fetch('/upload/image', {
+            fetch('/articles/api/upload/image', {
                 method: 'POST',
                 body: formData
             })
@@ -374,29 +374,32 @@ function setupEventListeners() {
 // Load article data
 async function loadArticle() {
     try {
-        const response = await fetch(`/articles/api/${articleId}/edit`);
+        const response = await fetch(`/articles/api/${articleId}`);
         const data = await response.json();
 
         if (data.success) {
-            originalData = data.article;
-            populateForm(data.article);
+            originalData = data.data;
+            populateForm(data.data);
         } else {
-            showMessage('<%= t('articleNotFoundEdit') %>', 'error');
+            showMessage('<%= t ? t("articleNotFoundEdit") : "ไม่พบบทความที่ต้องการแก้ไข" %>', 'error');
             setTimeout(() => window.location.href = '/articles', 2000);
         }
     } catch (error) {
         console.error('Error loading article:', error);
-        showMessage('<%= t('errorLoadingData') %>', 'error');
+        showMessage('<%= t ? t("errorLoadingData") : "เกิดข้อผิดพลาดในการโหลดข้อมูล" %>', 'error');
     }
 }
 
 // Populate form with article data
 function populateForm(article) {
     document.getElementById('articleTitle').value = article.title;
-    document.getElementById('articleSummary').value = article.summary || '';
+    // Support both field names: summary/excerpt
+    document.getElementById('articleSummary').value = article.summary || article.excerpt || '';
     document.getElementById('articleCategory').value = article.category;
     document.getElementById('articleStatus').value = article.status;
-    document.getElementById('articleTags').value = article.tags ? article.tags.join(', ') : '';
+    // Handle tags as string or array
+    const tags = article.tags;
+    document.getElementById('articleTags').value = Array.isArray(tags) ? tags.join(', ') : (tags || '');
     document.getElementById('metaDescription').value = article.meta_description || '';
     document.getElementById('articleSlug').value = article.slug || '';
 
@@ -416,13 +419,36 @@ function populateForm(article) {
         document.getElementById('currentImageContainer').classList.remove('hidden');
     }
 
-    // Stats
-    document.getElementById('viewsCount').textContent = article.views || 0;
-    document.getElementById('likesCount').textContent = article.likes || 0;
-    document.getElementById('commentsCount').textContent = article.comments || 0;
+    // Stats - support both field names
+    document.getElementById('viewsCount').textContent = article.views_count || article.views || 0;
+    document.getElementById('likesCount').textContent = article.likes_count || article.likes || 0;
+    document.getElementById('commentsCount').textContent = article.comments_count || article.comments || 0;
     document.getElementById('lastModified').textContent = formatDateTime(article.updated_at);
 
     updateMetaCharCount();
+}
+
+// Helper function to upload featured image
+async function uploadFeaturedImage() {
+    const fileInput = document.getElementById('featuredImageInput');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        return null;
+    }
+
+    const formData = new FormData();
+    formData.append('image', fileInput.files[0]);
+
+    try {
+        const response = await fetch('/articles/api/upload/image', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        return data.success ? data.url : null;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        return null;
+    }
 }
 
 // Handle save article
@@ -430,28 +456,31 @@ async function handleSaveArticle(e) {
     if (e) e.preventDefault();
 
     try {
-        const formData = new FormData();
+        // Upload featured image first if exists
+        let featuredImageUrl = await uploadFeaturedImage();
 
-        // Get form data
-        formData.append('title', document.getElementById('articleTitle').value);
-        formData.append('summary', document.getElementById('articleSummary').value);
-        formData.append('content', quill.root.innerHTML);
-        formData.append('category', document.getElementById('articleCategory').value);
-        formData.append('status', document.getElementById('articleStatus').value);
-        formData.append('tags', document.getElementById('articleTags').value);
-        formData.append('meta_description', document.getElementById('metaDescription').value);
-        formData.append('slug', document.getElementById('articleSlug').value);
-        formData.append('publish_date', document.getElementById('publishDate').value);
+        // Build article data object
+        const articleData = {
+            title: document.getElementById('articleTitle').value,
+            summary: document.getElementById('articleSummary').value,
+            content: quill.root.innerHTML,
+            category: document.getElementById('articleCategory').value,
+            status: document.getElementById('articleStatus').value,
+            tags: document.getElementById('articleTags').value,
+            meta_description: document.getElementById('metaDescription').value,
+            slug: document.getElementById('articleSlug').value,
+            publish_date: document.getElementById('publishDate').value
+        };
 
-        // Featured image
-        const imageFile = document.getElementById('featuredImageInput').files[0];
-        if (imageFile) {
-            formData.append('featured_image', imageFile);
+        // Add featured image if uploaded
+        if (featuredImageUrl) {
+            articleData.featured_image = featuredImageUrl;
         }
 
-        const response = await fetch(`/articles/${articleId}`, {
+        const response = await fetch(`/articles/api/${articleId}`, {
             method: 'PUT',
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(articleData)
         });
 
         const data = await response.json();
@@ -460,10 +489,10 @@ async function handleSaveArticle(e) {
             showMessage('<%= t('changesSavedSuccessfully') %>', 'success');
 
             // Update original data
-            originalData = { ...originalData, ...data.article };
+            originalData = { ...originalData, ...articleData };
 
             // Redirect if published
-            if (data.article.status === 'published') {
+            if (articleData.status === 'published') {
                 setTimeout(() => {
                     window.location.href = `/articles/${articleId}`;
                 }, 1500);
@@ -479,10 +508,10 @@ async function handleSaveArticle(e) {
 
 // Handle delete article
 async function handleDeleteArticle() {
-    if (!confirm('<%= t('confirmDeleteArticleIrreversible') %>')) return;
+    if (!confirm('<%= t ? t("confirmDeleteArticleIrreversible") : "คุณแน่ใจหรือไม่ว่าต้องการลบบทความนี้? การกระทำนี้ไม่สามารถย้อนกลับได้" %>')) return;
 
     try {
-        const response = await fetch(`/articles/${articleId}`, {
+        const response = await fetch(`/articles/api/${articleId}`, {
             method: 'DELETE'
         });
 
@@ -597,15 +626,10 @@ async function autoSave() {
 
     if (hasChanged && currentData.title.trim()) {
         try {
-            const formData = new FormData();
-            Object.keys(currentData).forEach(key => {
-                formData.append(key, currentData[key]);
-            });
-            formData.append('auto_save', 'true');
-
-            await fetch(`/articles/${articleId}/autosave`, {
+            await fetch(`/articles/api/${articleId}/autosave`, {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentData)
             });
 
             // Show subtle auto-save indicator

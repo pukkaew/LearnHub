@@ -4,22 +4,22 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
                 <h1 class="text-3xl font-bold text-white">
-                    <i class="fas fa-building mr-3"></i><%= typeof t === 'function' ? t('departmentPerformance') : 'Department Performance' %>
+                    <i class="fas fa-building mr-3"></i><%= t('departmentPerformance') %>
                 </h1>
-                <p class="text-white/80 mt-1"><%= typeof t === 'function' ? t('departmentPerformanceDescription') : 'Analyze learning outcomes and engagement across departments' %></p>
+                <p class="text-white/80 mt-1"><%= t('departmentPerformanceDescription') %></p>
             </div>
             <div class="flex flex-wrap gap-3 mt-4 md:mt-0">
                 <select id="time-range" class="bg-white/20 backdrop-blur-sm text-white border-0 rounded-lg px-4 py-2 focus:ring-2 focus:ring-white/50">
-                    <option value="30" class="text-gray-900">Last 30 days</option>
-                    <option value="90" selected class="text-gray-900">Last 90 days</option>
-                    <option value="180" class="text-gray-900">Last 6 months</option>
-                    <option value="365" class="text-gray-900">Last year</option>
+                    <option value="30" class="text-gray-900"><%= t('last30Days') %></option>
+                    <option value="90" selected class="text-gray-900"><%= t('last90Days') %></option>
+                    <option value="180" class="text-gray-900"><%= t('last6Months') %></option>
+                    <option value="365" class="text-gray-900"><%= t('lastYear') %></option>
                 </select>
                 <button onclick="compareMode()" id="compare-btn" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-balance-scale mr-2"></i>Compare
+                    <i class="fas fa-balance-scale mr-2"></i><%= t('compare') %>
                 </button>
                 <button onclick="exportReport()" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-download mr-2"></i>Export
+                    <i class="fas fa-download mr-2"></i><%= t('export') %>
                 </button>
             </div>
         </div>
@@ -27,32 +27,32 @@
 
     <!-- Department Comparison Mode -->
     <div id="compare-panel" class="bg-white rounded-xl border border-gray-200 p-6 mb-6 hidden">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Department Comparison</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4"><%= t('departmentComparison') %></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Department A</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('departmentA') %></label>
                 <select id="dept-a" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="">Select Department</option>
+                    <option value=""><%= t('selectDepartment') %></option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Department B</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('departmentB') %></label>
                 <select id="dept-b" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="">Select Department</option>
+                    <option value=""><%= t('selectDepartment') %></option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Metric</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><%= t('metric') %></label>
                 <select id="compare-metric" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="completion">Completion Rate</option>
-                    <option value="engagement">Engagement Score</option>
-                    <option value="test_performance">Test Performance</option>
-                    <option value="certifications">Certifications</option>
+                    <option value="completion"><%= t('completionRate') %></option>
+                    <option value="engagement"><%= t('engagementScore') %></option>
+                    <option value="test_performance"><%= t('testPerformance') %></option>
+                    <option value="certifications"><%= t('certifications') %></option>
                 </select>
             </div>
             <div class="flex items-end">
                 <button onclick="runComparison()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                    Compare
+                    <%= t('compare') %>
                 </button>
             </div>
         </div>
@@ -63,11 +63,11 @@
         <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 mb-1">Active Departments</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('activeDepartments') %></p>
                     <p class="text-3xl font-bold text-gray-900" id="active-departments">0</p>
                     <p class="text-xs text-green-600 mt-2">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="dept-trend">100%</span> participation
+                        <span id="dept-trend">100%</span> <%= t('participation') %>
                     </p>
                 </div>
                 <div class="icon-box bg-blue-100">
@@ -81,11 +81,11 @@
         <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 mb-1">Total Learners</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('totalLearners') %></p>
                     <p class="text-3xl font-bold text-gray-900" id="total-learners">0</p>
                     <p class="text-xs text-green-600 mt-2">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="learners-trend">+8.5%</span> growth
+                        <span id="learners-trend">+8.5%</span> <%= t('growth') %>
                     </p>
                 </div>
                 <div class="icon-box bg-green-100">
@@ -99,11 +99,11 @@
         <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 mb-1">Top Performer</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('topPerformer') %></p>
                     <p class="text-3xl font-bold text-gray-900" id="top-department">-</p>
                     <p class="text-xs text-green-600 mt-2">
                         <i class="fas fa-crown"></i>
-                        <span id="top-score">0%</span> completion
+                        <span id="top-score">0%</span> <%= t('completion') %>
                     </p>
                 </div>
                 <div class="icon-box bg-yellow-100">
@@ -117,11 +117,11 @@
         <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 mb-1">Avg Engagement</p>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('avgEngagement') %></p>
                     <p class="text-3xl font-bold text-gray-900" id="avg-engagement">0%</p>
                     <p class="text-xs text-green-600 mt-2">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="engagement-trend">+5.2%</span> improvement
+                        <span id="engagement-trend">+5.2%</span> <%= t('improvement') %>
                     </p>
                 </div>
                 <div class="icon-box bg-purple-100">
@@ -138,14 +138,14 @@
         <div class="px-6 py-4 border-b border-gray-100">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Department Rankings</h3>
-                    <p class="text-sm text-gray-500">Ranked by overall performance score</p>
+                    <h3 class="text-lg font-semibold text-gray-900"><%= t('departmentRankings') %></h3>
+                    <p class="text-sm text-gray-500"><%= t('rankedByOverallPerformance') %></p>
                 </div>
                 <div class="flex space-x-2">
-                    <button onclick="changeRankingMetric('overall')" class="ranking-btn active" data-metric="overall">Overall</button>
-                    <button onclick="changeRankingMetric('completion')" class="ranking-btn" data-metric="completion">Completion</button>
-                    <button onclick="changeRankingMetric('engagement')" class="ranking-btn" data-metric="engagement">Engagement</button>
-                    <button onclick="changeRankingMetric('test_scores')" class="ranking-btn" data-metric="test_scores">Test Scores</button>
+                    <button onclick="changeRankingMetric('overall')" class="ranking-btn active" data-metric="overall"><%= t('overall') %></button>
+                    <button onclick="changeRankingMetric('completion')" class="ranking-btn" data-metric="completion"><%= t('completion') %></button>
+                    <button onclick="changeRankingMetric('engagement')" class="ranking-btn" data-metric="engagement"><%= t('engagement') %></button>
+                    <button onclick="changeRankingMetric('test_scores')" class="ranking-btn" data-metric="test_scores"><%= t('testScores') %></button>
                 </div>
             </div>
         </div>
@@ -166,7 +166,7 @@
         <!-- Completion Rates Comparison -->
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900">Course Completion Rates</h3>
+                <h3 class="text-lg font-semibold text-gray-900"><%= t('courseCompletionRates') %></h3>
             </div>
             <div class="p-6" style="position: relative; height: 300px;">
                 <canvas id="completionChart"></canvas>
@@ -176,7 +176,7 @@
         <!-- Engagement Trends -->
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900">Engagement Trends Over Time</h3>
+                <h3 class="text-lg font-semibold text-gray-900"><%= t('engagementTrendsOverTime') %></h3>
             </div>
             <div class="p-6" style="position: relative; height: 300px;">
                 <canvas id="engagementChart"></canvas>
@@ -186,7 +186,7 @@
         <!-- Test Performance -->
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900">Test Performance by Department</h3>
+                <h3 class="text-lg font-semibold text-gray-900"><%= t('testPerformanceByDepartment') %></h3>
             </div>
             <div class="p-6" style="position: relative; height: 300px;">
                 <canvas id="testChart"></canvas>
@@ -196,7 +196,7 @@
         <!-- Certification Progress -->
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900">Certification Achievement</h3>
+                <h3 class="text-lg font-semibold text-gray-900"><%= t('certificationAchievement') %></h3>
             </div>
             <div class="p-6" style="position: relative; height: 300px;">
                 <canvas id="certificationChart"></canvas>
@@ -207,35 +207,35 @@
     <!-- Detailed Department Analysis -->
     <div class="bg-white rounded-xl border border-gray-200 mb-6">
         <div class="px-6 py-4 border-b border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-900">Detailed Department Analysis</h3>
-            <p class="text-sm text-gray-500">Comprehensive metrics for each department</p>
+            <h3 class="text-lg font-semibold text-gray-900"><%= t('detailedDepartmentAnalysis') %></h3>
+            <p class="text-sm text-gray-500"><%= t('comprehensiveMetrics') %></p>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('department')">
-                            Department <i class="fas fa-sort ml-1"></i>
+                            <%= t('department') %> <i class="fas fa-sort ml-1"></i>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('learners')">
-                            Learners <i class="fas fa-sort ml-1"></i>
+                            <%= t('learners') %> <i class="fas fa-sort ml-1"></i>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('enrollments')">
-                            Enrollments <i class="fas fa-sort ml-1"></i>
+                            <%= t('enrollments') %> <i class="fas fa-sort ml-1"></i>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('completion_rate')">
-                            Completion Rate <i class="fas fa-sort ml-1"></i>
+                            <%= t('completionRate') %> <i class="fas fa-sort ml-1"></i>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('avg_score')">
-                            Avg Test Score <i class="fas fa-sort ml-1"></i>
+                            <%= t('avgTestScore') %> <i class="fas fa-sort ml-1"></i>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('engagement')">
-                            Engagement <i class="fas fa-sort ml-1"></i>
+                            <%= t('engagement') %> <i class="fas fa-sort ml-1"></i>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('certificates')">
-                            Certificates <i class="fas fa-sort ml-1"></i>
+                            <%= t('certificates') %> <i class="fas fa-sort ml-1"></i>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"><%= t('actions') %></th>
                     </tr>
                 </thead>
                 <tbody id="departments-table" class="bg-white divide-y divide-gray-200">
@@ -250,8 +250,8 @@
         <!-- Popular Learning Paths -->
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900">Popular Learning Paths</h3>
-                <p class="text-sm text-gray-500">Most enrolled learning paths by department</p>
+                <h3 class="text-lg font-semibold text-gray-900"><%= t('popularLearningPaths') %></h3>
+                <p class="text-sm text-gray-500"><%= t('mostEnrolledByDepartment') %></p>
             </div>
             <div class="p-6">
                 <div id="learning-paths-chart" style="position: relative; height: 300px;">
@@ -263,8 +263,8 @@
         <!-- Skills Development -->
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900">Skills Development Progress</h3>
-                <p class="text-sm text-gray-500">Top skills being developed across departments</p>
+                <h3 class="text-lg font-semibold text-gray-900"><%= t('skillsDevelopmentProgress') %></h3>
+                <p class="text-sm text-gray-500"><%= t('topSkillsAcrossDepartments') %></p>
             </div>
             <div class="p-6">
                 <div id="skills-progress" class="space-y-4">
@@ -277,15 +277,15 @@
     <!-- Improvement Recommendations -->
     <div class="bg-white rounded-xl border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-900">Improvement Recommendations</h3>
-            <p class="text-sm text-gray-500">AI-powered insights and suggestions</p>
+            <h3 class="text-lg font-semibold text-gray-900"><%= t('improvementRecommendations') %></h3>
+            <p class="text-sm text-gray-500"><%= t('aiPoweredInsights') %></p>
         </div>
         <div class="p-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- High Priority Actions -->
                 <div>
                     <h4 class="text-md font-semibold text-red-700 mb-3 flex items-center">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>High Priority Actions
+                        <i class="fas fa-exclamation-triangle mr-2"></i><%= t('highPriorityActions') %>
                     </h4>
                     <div id="high-priority-recommendations" class="space-y-3">
                         <!-- Dynamic recommendations -->
@@ -295,7 +295,7 @@
                 <!-- Growth Opportunities -->
                 <div>
                     <h4 class="text-md font-semibold text-blue-700 mb-3 flex items-center">
-                        <i class="fas fa-lightbulb mr-2"></i>Growth Opportunities
+                        <i class="fas fa-lightbulb mr-2"></i><%= t('growthOpportunities') %>
                     </h4>
                     <div id="growth-opportunities" class="space-y-3">
                         <!-- Dynamic opportunities -->
@@ -312,7 +312,7 @@
         <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">Department Comparison</h3>
+                    <h3 class="text-lg font-semibold text-gray-900"><%= t('departmentComparison') %></h3>
                     <button onclick="closeComparison()" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
                     </button>
@@ -332,7 +332,7 @@
     <div class="bg-white rounded-lg p-6">
         <div class="flex items-center">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3">Loading department performance data...</span>
+            <span class="ml-3" id="loading-text"><%= t('loadingDepartmentData') %></span>
         </div>
     </div>
 </div>
@@ -405,6 +405,33 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// i18n translations for JavaScript
+const i18n = {
+    learners: '<%= t("learners") %>',
+    change: '<%= t("change") %>',
+    score: '<%= t("score") %>',
+    details: '<%= t("details") %>',
+    report: '<%= t("report") %>',
+    exitCompare: '<%= t("exitCompare") %>',
+    compare: '<%= t("compare") %>',
+    selectBothDepartments: '<%= t("selectBothDepartments") %>',
+    selectDifferentDepartments: '<%= t("selectDifferentDepartments") %>',
+    failedToGenerateComparison: '<%= t("failedToGenerateComparison") %>',
+    errorRunningComparison: '<%= t("errorRunningComparison") %>',
+    keyInsights: '<%= t("keyInsights") %>',
+    failedToLoadData: '<%= t("failedToLoadData") %>',
+    errorLoadingData: '<%= t("errorLoadingData") %>',
+    completionRateLabel: '<%= t("completionRateLabel") %>',
+    reportExportedSuccess: '<%= t("reportExportedSuccess") %>',
+    failedToExportReport: '<%= t("failedToExportReport") %>',
+    errorExportingReport: '<%= t("errorExportingReport") %>',
+    implementationComingSoon: '<%= t("implementationComingSoon") %>',
+    explorationComingSoon: '<%= t("explorationComingSoon") %>',
+    learnersEnrolled: '<%= t("learnersEnrolled") %>',
+    takeAction: '<%= t("takeAction") %>',
+    explore: '<%= t("explore") %>'
+};
+
 let performanceData = {};
 let charts = {};
 let isCompareMode = false;
@@ -438,11 +465,11 @@ async function loadPerformanceData() {
             loadRecommendations();
             loadFilterOptions();
         } else {
-            showError('Failed to load performance data');
+            showError(i18n.failedToLoadData);
         }
     } catch (error) {
         console.error('Error loading performance data:', error);
-        showError('Error loading performance data');
+        showError(i18n.errorLoadingData);
     } finally {
         showLoading(false);
     }
@@ -457,10 +484,10 @@ function updateOverviewCards() {
     document.getElementById('avg-engagement').textContent = (overview.avgEngagement || 0) + '%';
 
     // Update trends
-    document.getElementById('dept-trend').textContent = (overview.participationRate || 100) + '% participation';
-    document.getElementById('learners-trend').textContent = '+' + (overview.learnersGrowth || 0) + '% growth';
-    document.getElementById('top-score').textContent = (overview.topScore || 0) + '% completion';
-    document.getElementById('engagement-trend').textContent = '+' + (overview.engagementImprovement || 0) + '% improvement';
+    document.getElementById('dept-trend').textContent = (overview.participationRate || 100) + '%';
+    document.getElementById('learners-trend').textContent = '+' + (overview.learnersGrowth || 0) + '%';
+    document.getElementById('top-score').textContent = (overview.topScore || 0) + '%';
+    document.getElementById('engagement-trend').textContent = '+' + (overview.engagementImprovement || 0) + '%';
 }
 
 function loadDepartmentRankings() {
@@ -487,8 +514,8 @@ function loadDepartmentRankings() {
                     <div class="progress-fill ${getProgressColor(index)}" style="width: ${(dept.score / rankings[0].score * 100)}%"></div>
                 </div>
                 <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>${dept.learners} learners</span>
-                    <span>${dept.change >= 0 ? '+' : ''}${dept.change}% change</span>
+                    <span>${dept.learners} ${i18n.learners}</span>
+                    <span>${dept.change >= 0 ? '+' : ''}${dept.change}% ${i18n.change}</span>
                 </div>
             </div>
         `;
@@ -552,7 +579,7 @@ function initializeCharts() {
         data: {
             labels: (performanceData.rankings?.[currentRankingMetric] || []).map(d => d.name),
             datasets: [{
-                label: 'Score',
+                label: i18n.score,
                 data: (performanceData.rankings?.[currentRankingMetric] || []).map(d => d.score),
                 backgroundColor: '#3B82F6'
             }]
@@ -577,7 +604,7 @@ function initializeCharts() {
         data: {
             labels: (performanceData.completion?.labels || []),
             datasets: [{
-                label: 'Completion Rate (%)',
+                label: i18n.completionRateLabel,
                 data: performanceData.completion?.rates || [],
                 backgroundColor: '#10B981'
             }]
@@ -667,7 +694,7 @@ function initializeCharts() {
         data: {
             labels: (performanceData.learningPaths || []).map(p => p.name),
             datasets: [{
-                label: 'Enrollments',
+                label: '<%= t("enrollments") %>',
                 data: (performanceData.learningPaths || []).map(p => p.enrollments),
                 backgroundColor: '#8B5CF6'
             }]
@@ -742,10 +769,10 @@ function loadDepartmentsTable() {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${dept.certificates}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button onclick="viewDepartmentDetails('${dept.id}')" class="text-blue-600 hover:text-blue-900 mr-3">
-                    Details
+                    ${i18n.details}
                 </button>
                 <button onclick="generateDepartmentReport('${dept.id}')" class="text-green-600 hover:text-green-900">
-                    Report
+                    ${i18n.report}
                 </button>
             </td>
         `;
@@ -786,7 +813,7 @@ function loadSkillsProgress() {
                 <div class="progress-bar">
                     <div class="progress-fill bg-blue-500" style="width: ${skill.progress}%"></div>
                 </div>
-                <div class="text-xs text-gray-500 mt-1">${skill.learners} learners enrolled</div>
+                <div class="text-xs text-gray-500 mt-1">${skill.learners} ${i18n.learnersEnrolled}</div>
             </div>
         `;
         container.appendChild(item);
@@ -810,7 +837,7 @@ function loadRecommendations() {
                     <p class="text-sm text-red-700 mt-1">${rec.description}</p>
                     <div class="mt-2">
                         <button onclick="implementRecommendation('${rec.id}')" class="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">
-                            Take Action
+                            ${i18n.takeAction}
                         </button>
                     </div>
                 </div>
@@ -835,7 +862,7 @@ function loadRecommendations() {
                     <p class="text-sm text-blue-700 mt-1">${opp.description}</p>
                     <div class="mt-2">
                         <button onclick="exploreOpportunity('${opp.id}')" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                            Explore
+                            ${i18n.explore}
                         </button>
                     </div>
                 </div>
@@ -852,8 +879,8 @@ function loadFilterOptions() {
     const deptASelect = document.getElementById('dept-a');
     const deptBSelect = document.getElementById('dept-b');
 
-    deptASelect.innerHTML = '<option value="">Select Department</option>';
-    deptBSelect.innerHTML = '<option value="">Select Department</option>';
+    deptASelect.innerHTML = '<option value=""><%= t("selectDepartment") %></option>';
+    deptBSelect.innerHTML = '<option value=""><%= t("selectDepartment") %></option>';
 
     departments.forEach(dept => {
         const optionA = document.createElement('option');
@@ -875,11 +902,11 @@ function compareMode() {
 
     if (isCompareMode) {
         comparePanel.classList.remove('hidden');
-        compareBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Exit Compare';
+        compareBtn.innerHTML = '<i class="fas fa-times mr-2"></i>' + i18n.exitCompare;
         compareBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700';
     } else {
         comparePanel.classList.add('hidden');
-        compareBtn.innerHTML = '<i class="fas fa-balance-scale mr-2"></i>Compare';
+        compareBtn.innerHTML = '<i class="fas fa-balance-scale mr-2"></i>' + i18n.compare;
         compareBtn.className = 'bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700';
     }
 }
@@ -890,12 +917,12 @@ async function runComparison() {
     const metric = document.getElementById('compare-metric').value;
 
     if (!deptA || !deptB) {
-        showError('Please select both departments to compare');
+        showError(i18n.selectBothDepartments);
         return;
     }
 
     if (deptA === deptB) {
-        showError('Please select different departments');
+        showError(i18n.selectDifferentDepartments);
         return;
     }
 
@@ -913,11 +940,11 @@ async function runComparison() {
         if (data.success) {
             displayComparison(data.comparison);
         } else {
-            showError('Failed to generate comparison');
+            showError(i18n.failedToGenerateComparison);
         }
     } catch (error) {
         console.error('Error running comparison:', error);
-        showError('Error running comparison');
+        showError(i18n.errorRunningComparison);
     } finally {
         showLoading(false);
     }
@@ -941,7 +968,7 @@ function displayComparison(comparison) {
         </div>
 
         <div class="bg-gray-50 p-4 rounded-lg mb-4">
-            <h5 class="font-medium text-gray-900 mb-2">Key Insights</h5>
+            <h5 class="font-medium text-gray-900 mb-2">${i18n.keyInsights}</h5>
             <ul class="text-sm text-gray-700 space-y-1">
                 ${comparison.insights.map(insight => `<li>• ${insight}</li>`).join('')}
             </ul>
@@ -1016,11 +1043,11 @@ function generateDepartmentReport(deptId) {
 }
 
 function implementRecommendation(recId) {
-    alert('Implementation feature coming soon!');
+    alert(i18n.implementationComingSoon);
 }
 
 function exploreOpportunity(oppId) {
-    alert('Exploration feature coming soon!');
+    alert(i18n.explorationComingSoon);
 }
 
 async function exportReport() {
@@ -1041,13 +1068,13 @@ async function exportReport() {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            showSuccess('Report exported successfully');
+            showSuccess(i18n.reportExportedSuccess);
         } else {
-            showError('Failed to export report');
+            showError(i18n.failedToExportReport);
         }
     } catch (error) {
         console.error('Error exporting report:', error);
-        showError('Error exporting report');
+        showError(i18n.errorExportingReport);
     } finally {
         showLoading(false);
     }

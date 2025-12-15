@@ -100,7 +100,8 @@
       "WebFetch(domain:www.youtube.com)",
       "WebFetch(domain:localhost)",
       "Bash(git checkout:*)",
-      "Bash(perl -i -pe:*)"
+      "Bash(perl -i -pe:*)",
+      "WebFetch(domain:www.facebook.com)"
     ],
     "deny": [],
     "ask": []

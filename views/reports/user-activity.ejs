@@ -1,35 +1,37 @@
-<div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div class="flex justify-between items-center">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header - Gradient Style -->
+    <div class="rounded-2xl p-6 mb-8 text-white shadow-lg" style="background: linear-gradient(to right, <%= systemSettings.primary_color || '#3b82f6' %>, <%= systemSettings.secondary_color || '#10b981' %>);">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">User Activity Report</h1>
-                <p class="text-gray-600 mt-2">Monitor user engagement, session patterns, and learning behaviors</p>
+                <h1 class="text-3xl font-bold text-white">
+                    <i class="fas fa-user-clock mr-3"></i><%= t('userActivityReport') %>
+                </h1>
+                <p class="text-white/80 mt-1"><%= t('userActivityDescription') %></p>
             </div>
-            <div class="flex space-x-3">
-                <select id="time-period" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="today">Today</option>
-                    <option value="7">Last 7 days</option>
-                    <option value="30" selected>Last 30 days</option>
-                    <option value="90">Last 90 days</option>
+            <div class="flex flex-wrap gap-3 mt-4 md:mt-0">
+                <select id="time-period" class="bg-white/20 backdrop-blur-sm text-white border-0 rounded-lg px-4 py-2 focus:ring-2 focus:ring-white/50">
+                    <option value="today" class="text-gray-900"><%= t('today') %></option>
+                    <option value="7" class="text-gray-900"><%= t('last7Days') %></option>
+                    <option value="30" selected class="text-gray-900"><%= t('last30Days') %></option>
+                    <option value="90" class="text-gray-900"><%= t('last90Days') %></option>
                 </select>
-                <button onclick="realTimeMode()" id="realtime-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                    <i class="fas fa-broadcast-tower mr-2"></i>Live View
+                <button onclick="realTimeMode()" id="realtime-btn" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-broadcast-tower mr-2"></i><%= t('liveView') %>
                 </button>
-                <button onclick="exportActivity()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                    <i class="fas fa-download mr-2"></i>Export
+                <button onclick="exportActivity()" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-download mr-2"></i><%= t('export') %>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Real-time Status Banner -->
-    <div id="realtime-banner" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 hidden">
+    <div id="realtime-banner" class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 hidden">
         <div class="flex items-center justify-between">
             <div class="flex items-center">
                 <div class="h-3 w-3 bg-green-500 rounded-full animate-pulse mr-3"></div>
-                <span class="text-blue-800 font-medium">Real-time monitoring active</span>
-                <span class="text-blue-600 text-sm ml-2">Updates every 30 seconds</span>
+                <span class="text-blue-800 font-medium"><%= t('realtimeMonitoringActive') %></span>
+                <span class="text-blue-600 text-sm ml-2"><%= t('updatesEvery30Seconds') %></span>
             </div>
             <button onclick="exitRealTime()" class="text-blue-600 hover:text-blue-800">
                 <i class="fas fa-times"></i>
@@ -37,185 +39,205 @@
         </div>
     </div>
 
-    <!-- Activity Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                    <i class="fas fa-users text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Active Users</p>
-                    <p class="text-2xl font-semibold text-gray-900" id="active-users">0</p>
-                    <p class="text-xs text-green-600 mt-1">
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('activeUsers') %></p>
+                    <p class="text-3xl font-bold text-gray-900" id="active-users">0</p>
+                    <p class="text-xs text-green-600 mt-2" id="active-trend-container">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="active-trend">+12%</span> vs yesterday
+                        <span id="active-trend">+12%</span> <%= t('vsYesterday') %>
                     </p>
+                </div>
+                <div class="icon-box bg-blue-100">
+                    <i class="fas fa-users text-xl text-blue-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                    <i class="fas fa-clock text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Avg Session Time</p>
-                    <p class="text-2xl font-semibold text-gray-900" id="avg-session">0m</p>
-                    <p class="text-xs text-green-600 mt-1">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('avgSessionTime') %></p>
+                    <p class="text-3xl font-bold text-gray-900" id="avg-session">0m</p>
+                    <p class="text-xs text-green-600 mt-2" id="session-trend-container">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="session-trend">+8m</span> vs yesterday
+                        <span id="session-trend">+8m</span> <%= t('vsYesterday') %>
                     </p>
+                </div>
+                <div class="icon-box bg-green-100">
+                    <i class="fas fa-clock text-xl text-green-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                    <i class="fas fa-eye text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Page Views</p>
-                    <p class="text-2xl font-semibold text-gray-900" id="page-views">0</p>
-                    <p class="text-xs text-green-600 mt-1">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('pageViews') %></p>
+                    <p class="text-3xl font-bold text-gray-900" id="page-views">0</p>
+                    <p class="text-xs text-green-600 mt-2" id="views-trend-container">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="views-trend">+15%</span> vs yesterday
+                        <span id="views-trend">+15%</span> <%= t('vsYesterday') %>
                     </p>
+                </div>
+                <div class="icon-box bg-yellow-100">
+                    <i class="fas fa-eye text-xl text-yellow-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center">
-                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                    <i class="fas fa-mouse-pointer text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Engagement Rate</p>
-                    <p class="text-2xl font-semibold text-gray-900" id="engagement-rate">0%</p>
-                    <p class="text-xs text-green-600 mt-1">
+        <div class="stat-card bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1"><%= t('engagementRate') %></p>
+                    <p class="text-3xl font-bold text-gray-900" id="engagement-rate">0%</p>
+                    <p class="text-xs text-green-600 mt-2" id="engagement-trend-container">
                         <i class="fas fa-arrow-up"></i>
-                        <span id="engagement-trend">+3.2%</span> vs yesterday
+                        <span id="engagement-trend">+3.2%</span> <%= t('vsYesterday') %>
                     </p>
+                </div>
+                <div class="icon-box bg-purple-100">
+                    <i class="fas fa-mouse-pointer text-xl text-purple-600"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Filter and Search Panel -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <!-- Filter Panel -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <h3 class="text-sm font-semibold text-gray-900 mb-4">
+            <i class="fas fa-filter mr-2 text-gray-400"></i><%= t('filters') %>
+        </h3>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-                <label for="user-type" class="block text-sm font-medium text-gray-700 mb-2">User Type</label>
-                <select id="user-type" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="">All Users</option>
-                    <option value="student">Students</option>
-                    <option value="instructor">Instructors</option>
-                    <option value="admin">Administrators</option>
+                <label for="user-type" class="block text-xs font-medium text-gray-700 mb-1"><%= t('userType') %></label>
+                <select id="user-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                    <option value=""><%= t('allUsers') %></option>
+                    <option value="student"><%= t('students') %></option>
+                    <option value="instructor"><%= t('instructors') %></option>
+                    <option value="admin"><%= t('administrators') %></option>
                 </select>
             </div>
             <div>
-                <label for="department-filter" class="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                <select id="department-filter" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="">All Departments</option>
-                    <option value="IT">Information Technology</option>
-                    <option value="HR">Human Resources</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Operations">Operations</option>
+                <label for="department-filter" class="block text-xs font-medium text-gray-700 mb-1"><%= t('department') %></label>
+                <select id="department-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                    <option value=""><%= t('allDepartments') %></option>
                 </select>
             </div>
             <div>
-                <label for="activity-type" class="block text-sm font-medium text-gray-700 mb-2">Activity Type</label>
-                <select id="activity-type" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                    <option value="">All Activities</option>
-                    <option value="course_view">Course Views</option>
-                    <option value="test_attempt">Test Attempts</option>
-                    <option value="video_watch">Video Watching</option>
-                    <option value="download">Downloads</option>
-                    <option value="forum_post">Forum Posts</option>
+                <label for="activity-type" class="block text-xs font-medium text-gray-700 mb-1"><%= t('activityType') %></label>
+                <select id="activity-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                    <option value=""><%= t('allActivities') %></option>
+                    <option value="course_view"><%= t('courseViews') %></option>
+                    <option value="test_attempt"><%= t('testAttempts') %></option>
+                    <option value="video_watch"><%= t('videoWatching') %></option>
+                    <option value="download"><%= t('downloads') %></option>
                 </select>
             </div>
             <div>
-                <label for="search-user" class="block text-sm font-medium text-gray-700 mb-2">Search User</label>
-                <input type="text" id="search-user" placeholder="Username or email..."
-                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                <label for="search-user" class="block text-xs font-medium text-gray-700 mb-1"><%= t('searchUser') %></label>
+                <div class="relative">
+                    <input type="text" id="search-user" placeholder="<%= t('usernameOrEmail') %>"
+                           class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                </div>
             </div>
         </div>
         <div class="flex justify-end mt-4 space-x-3">
-            <button onclick="clearFilters()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
-                Clear Filters
+            <button onclick="clearFilters()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                <%= t('clear') %>
             </button>
-            <button onclick="applyFilters()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                Apply Filters
+            <button onclick="applyFilters()" class="px-4 py-2 rounded-lg text-sm text-white" style="background: <%= systemSettings.primary_color || '#3b82f6' %>;">
+                <%= t('applyFilters') %>
             </button>
         </div>
     </div>
 
-    <!-- Activity Charts -->
+    <!-- Charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- User Activity Timeline -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">User Activity Timeline</h3>
-                <div class="flex space-x-2">
-                    <button onclick="changeTimelineView('hourly')" class="timeline-btn active" data-view="hourly">Hourly</button>
-                    <button onclick="changeTimelineView('daily')" class="timeline-btn" data-view="daily">Daily</button>
+        <!-- Activity Timeline -->
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-chart-area mr-2" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i><%= t('activityTimeline') %>
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button onclick="changeTimelineView('hourly')" class="timeline-btn active" data-view="hourly"><%= t('hourly') %></button>
+                        <button onclick="changeTimelineView('daily')" class="timeline-btn" data-view="daily"><%= t('daily') %></button>
+                    </div>
                 </div>
             </div>
-            <div style="position: relative; height: 250px;">
+            <div class="p-6" style="position: relative; height: 280px;">
                 <canvas id="activityTimelineChart"></canvas>
             </div>
         </div>
 
         <!-- Top Activities -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Top User Activities</h3>
-            <div style="position: relative; height: 250px;">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-chart-bar mr-2" style="color: <%= systemSettings.secondary_color || '#10b981' %>;"></i><%= t('topActivities') %>
+                </h3>
+            </div>
+            <div class="p-6" style="position: relative; height: 280px;">
                 <canvas id="topActivitiesChart"></canvas>
             </div>
         </div>
 
-        <!-- Session Duration Distribution -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Session Duration Distribution</h3>
-            <div style="position: relative; height: 250px;">
+        <!-- Session Duration -->
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-hourglass-half mr-2" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i><%= t('sessionDuration') %>
+                </h3>
+            </div>
+            <div class="p-6" style="position: relative; height: 280px;">
                 <canvas id="sessionChart"></canvas>
             </div>
         </div>
 
-        <!-- Device & Browser Usage -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Device & Browser Usage</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Devices</h4>
-                    <div style="position: relative; height: 200px;">
-                        <canvas id="deviceChart"></canvas>
+        <!-- Device & Browser -->
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-mobile-alt mr-2" style="color: <%= systemSettings.secondary_color || '#10b981' %>;"></i><%= t('deviceBrowserUsage') %>
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2 text-center"><%= t('devices') %></h4>
+                        <div style="position: relative; height: 200px;">
+                            <canvas id="deviceChart"></canvas>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Browsers</h4>
-                    <div style="position: relative; height: 200px;">
-                        <canvas id="browserChart"></canvas>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2 text-center"><%= t('browsers') %></h4>
+                        <div style="position: relative; height: 200px;">
+                            <canvas id="browserChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Active Users Live Feed -->
-    <div class="bg-white rounded-lg shadow-sm mb-6">
-        <div class="p-6 border-b border-gray-200">
+    <!-- Active Users Table -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-100">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Currently Active Users</h3>
-                    <p class="text-sm text-gray-600">Users active in the last 5 minutes</p>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-user-check mr-2" style="color: <%= systemSettings.primary_color || '#3b82f6' %>;"></i><%= t('currentlyActiveUsers') %>
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1"><%= t('usersActiveLast5Min') %></p>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <span class="text-sm text-gray-500">Auto-refresh:</span>
+                    <span class="text-sm text-gray-500"><%= t('autoRefresh') %>:</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="auto-refresh" class="sr-only peer" checked>
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -227,35 +249,46 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current Activity</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Session Duration</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Action</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('user') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('currentActivity') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('location') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('sessionDuration') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('lastAction') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('status') %></th>
                     </tr>
                 </thead>
-                <tbody id="active-users-table" class="bg-white divide-y divide-gray-200">
-                    <!-- Dynamic content -->
+                <tbody id="active-users-table" class="bg-white divide-y divide-gray-100">
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Detailed Activity Log -->
-    <div class="bg-white rounded-lg shadow-sm">
-        <div class="p-6 border-b border-gray-200">
+    <!-- Activity Log -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Detailed Activity Log</h3>
-                    <p class="text-sm text-gray-600">Complete user activity history</p>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-list-alt mr-2" style="color: <%= systemSettings.secondary_color || '#10b981' %>;"></i><%= t('detailedActivityLog') %>
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1"><%= t('completeActivityHistory') %></p>
                 </div>
-                <div class="flex space-x-3">
-                    <select id="activity-level" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                        <option value="all">All Activities</option>
-                        <option value="critical">Critical Only</option>
-                        <option value="learning">Learning Only</option>
-                        <option value="system">System Only</option>
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2">
+                        <label for="rows-per-page" class="text-sm text-gray-600"><%= t('show') %>:</label>
+                        <select id="rows-per-page" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span class="text-sm text-gray-600"><%= t('rows') %></span>
+                    </div>
+                    <select id="activity-level" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        <option value="all"><%= t('allActivities') %></option>
+                        <option value="critical"><%= t('criticalOnly') %></option>
+                        <option value="learning"><%= t('learningOnly') %></option>
+                        <option value="system"><%= t('systemOnly') %></option>
                     </select>
                 </div>
             </div>
@@ -264,60 +297,36 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortActivities('timestamp')">
-                            Timestamp <i class="fas fa-sort ml-1"></i>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase cursor-pointer" onclick="sortActivities('timestamp')">
+                            <%= t('timestamp') %> <i class="fas fa-sort ml-1"></i>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortActivities('user')">
-                            User <i class="fas fa-sort ml-1"></i>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortActivities('activity')">
-                            Activity <i class="fas fa-sort ml-1"></i>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP Address</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Device</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('user') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('activity') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('details') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('ipAddress') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('device') %></th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase"><%= t('actions') %></th>
                     </tr>
                 </thead>
-                <tbody id="activity-log-table" class="bg-white divide-y divide-gray-200">
-                    <!-- Dynamic content -->
+                <tbody id="activity-log-table" class="bg-white divide-y divide-gray-100">
                 </tbody>
             </table>
         </div>
-        <div class="px-6 py-3 border-t border-gray-200">
-            <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-700">
-                    Showing <span id="showing-from">1</span> to <span id="showing-to">20</span> of <span id="total-activities">0</span> activities
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <span class="text-sm text-gray-600">
+                    <%= t('showing') %> <span id="showing-from" class="font-semibold">1</span> <%= t('to') %> <span id="showing-to" class="font-semibold">20</span> <%= t('of') %> <span id="total-activities" class="font-semibold">0</span> <%= t('activities') %>
                 </span>
-                <div class="flex space-x-2">
-                    <button onclick="previousPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="prev-btn" disabled>
-                        Previous
+                <div class="flex items-center space-x-2">
+                    <button onclick="previousPage()" class="px-3 py-1.5 border rounded-lg text-sm bg-white hover:bg-gray-50 text-gray-700" id="prev-btn" disabled>
+                        <i class="fas fa-chevron-left mr-1"></i><%= t('previous') %>
                     </button>
-                    <span class="px-3 py-1 text-sm">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
-                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="next-btn">
-                        Next
+                    <span class="px-4 py-1.5 rounded-lg text-sm font-medium text-white" style="background: <%= systemSettings.primary_color || '#3b82f6' %>;">
+                        <span id="current-page">1</span> / <span id="total-pages">1</span>
+                    </span>
+                    <button onclick="nextPage()" class="px-3 py-1.5 border rounded-lg text-sm bg-white hover:bg-gray-50 text-gray-700" id="next-btn">
+                        <%= t('next') %> <i class="fas fa-chevron-right ml-1"></i>
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Activity Detail Modal -->
-<div id="activity-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">Activity Details</h3>
-                    <button onclick="closeActivityModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="p-6">
-                <div id="activity-detail-content">
-                    <!-- Activity details will be populated here -->
                 </div>
             </div>
         </div>
@@ -326,11 +335,9 @@
 
 <!-- Loading Overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg p-6">
-        <div class="flex items-center">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span class="ml-3">Loading activity data...</span>
-        </div>
+    <div class="bg-white rounded-xl p-6 flex items-center space-x-4">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-t-transparent" style="border-color: <%= systemSettings.primary_color || '#3b82f6' %>; border-top-color: transparent;"></div>
+        <span class="text-gray-700 font-medium"><%= t('loadingData') %></span>
     </div>
 </div>
 
@@ -338,61 +345,68 @@
 .timeline-btn {
     padding: 4px 12px;
     border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border-radius: 6px;
     background: white;
     color: #6b7280;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.2s;
 }
-
 .timeline-btn.active {
-    background: #3b82f6;
+    background: <%= systemSettings.primary_color || '#3b82f6' %>;
     color: white;
-    border-color: #3b82f6;
+    border-color: <%= systemSettings.primary_color || '#3b82f6' %>;
 }
-
 .timeline-btn:hover:not(.active) {
     background: #f9fafb;
 }
-
-.activity-badge {
-    display: inline-flex;
-    items-center;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
+.activity-badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500; }
 .badge-login { background-color: #dcfce7; color: #166534; }
 .badge-course { background-color: #dbeafe; color: #1e40af; }
 .badge-test { background-color: #fef3c7; color: #92400e; }
 .badge-video { background-color: #f3e8ff; color: #7c3aed; }
 .badge-download { background-color: #ecfdf5; color: #065f46; }
-.badge-forum { background-color: #fef2f2; color: #dc2626; }
 .badge-system { background-color: #f1f5f9; color: #475569; }
-
-.status-online {
-    background-color: #10b981;
-    animation: pulse 2s infinite;
-}
-
+.status-online { background-color: #10b981; animation: pulse 2s infinite; }
 .status-away { background-color: #f59e0b; }
 .status-offline { background-color: #6b7280; }
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+const i18n = {
+    noActiveUsers: '<%= t("noActiveUsers") %>',
+    noActivityData: '<%= t("noActivityData") %>',
+    activeUsersLabel: '<%= t("activeUsers") %>',
+    exportSuccess: '<%= t("exportSuccess") %>',
+    exportFailed: '<%= t("exportFailed") %>',
+    errorLoadingData: '<%= t("errorLoadingData") %>',
+    view: '<%= t("view") %>',
+    online: '<%= t("online") %>',
+    away: '<%= t("away") %>',
+    offline: '<%= t("offline") %>',
+    // Chart labels
+    sessions: '<%= t("sessions") %>',
+    count: '<%= t("count") %>',
+    duration0to5: '<%= t("duration0to5") %>',
+    duration5to15: '<%= t("duration5to15") %>',
+    duration15to30: '<%= t("duration15to30") %>',
+    duration30to60: '<%= t("duration30to60") %>',
+    duration1hPlus: '<%= t("duration1hPlus") %>',
+    // Activity types
+    loginSuccess: '<%= t("loginSuccess") %>',
+    loginFailed: '<%= t("loginFailed") %>',
+    viewingCourse: '<%= t("viewingCourse") %>'
+};
+
+const primaryColor = '<%= systemSettings.primary_color || "#3b82f6" %>';
+const secondaryColor = '<%= systemSettings.secondary_color || "#10b981" %>';
+
 let activityData = {};
 let charts = {};
 let currentPage = 1;
-let itemsPerPage = 20;
+let itemsPerPage = 5;
 let sortField = 'timestamp';
 let sortDirection = 'desc';
 let currentFilters = {};
@@ -402,24 +416,21 @@ let timelineView = 'hourly';
 
 document.addEventListener('DOMContentLoaded', function() {
     loadActivityData();
-
-    // Event listeners
     document.getElementById('time-period').addEventListener('change', loadActivityData);
     document.getElementById('search-user').addEventListener('input', debounce(applyFilters, 500));
     document.getElementById('activity-level').addEventListener('change', loadActivityLog);
-    document.getElementById('auto-refresh').addEventListener('change', handleAutoRefresh);
+    document.getElementById('rows-per-page').addEventListener('change', function() {
+        itemsPerPage = parseInt(this.value);
+        currentPage = 1;
+        loadActivityLog();
+    });
 });
 
 async function loadActivityData() {
     showLoading(true);
-
     try {
         const timePeriod = document.getElementById('time-period').value;
-        const params = new URLSearchParams({
-            timePeriod: timePeriod,
-            ...currentFilters
-        });
-
+        const params = new URLSearchParams({ timePeriod, ...currentFilters });
         const response = await fetch(`/reports/api/user-activity?${params}`);
         const data = await response.json();
 
@@ -430,11 +441,11 @@ async function loadActivityData() {
             loadActiveUsers();
             loadActivityLog();
         } else {
-            showError('Failed to load activity data');
+            showToast(i18n.errorLoadingData, 'error');
         }
     } catch (error) {
-        console.error('Error loading activity data:', error);
-        showError('Error loading activity data');
+        console.error('Error:', error);
+        showToast(i18n.errorLoadingData, 'error');
     } finally {
         showLoading(false);
     }
@@ -442,46 +453,13 @@ async function loadActivityData() {
 
 function updateOverviewCards() {
     const overview = activityData.overview || {};
-
     document.getElementById('active-users').textContent = overview.activeUsers || 0;
     document.getElementById('avg-session').textContent = formatDuration(overview.avgSessionTime || 0);
     document.getElementById('page-views').textContent = (overview.pageViews || 0).toLocaleString();
     document.getElementById('engagement-rate').textContent = (overview.engagementRate || 0) + '%';
-
-    // Update trends
-    updateTrend('active-trend', overview.activeTrend || 0);
-    updateTrend('session-trend', overview.sessionTrend || 0, 'time');
-    updateTrend('views-trend', overview.viewsTrend || 0);
-    updateTrend('engagement-trend', overview.engagementTrend || 0);
-}
-
-function updateTrend(elementId, value, type = 'percentage') {
-    const element = document.getElementById(elementId);
-    const parent = element.parentElement;
-
-    let displayValue;
-    if (type === 'time') {
-        displayValue = (value >= 0 ? '+' : '') + value + 'm';
-    } else if (type === 'percentage') {
-        displayValue = (value >= 0 ? '+' : '') + value + '%';
-    } else {
-        displayValue = (value >= 0 ? '+' : '') + value;
-    }
-
-    if (value > 0) {
-        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-green-600');
-        element.innerHTML = `<i class="fas fa-arrow-up"></i> ${displayValue}`;
-    } else if (value < 0) {
-        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-red-600');
-        element.innerHTML = `<i class="fas fa-arrow-down"></i> ${displayValue}`;
-    } else {
-        parent.className = parent.className.replace(/text-(green|red|gray)-600/, 'text-gray-600');
-        element.innerHTML = `<i class="fas fa-minus"></i> No change`;
-    }
 }
 
 function initializeCharts() {
-    // Destroy existing charts
     Object.values(charts).forEach(chart => chart.destroy());
     charts = {};
 
@@ -492,24 +470,15 @@ function initializeCharts() {
         data: {
             labels: activityData.timeline?.[timelineView]?.labels || [],
             datasets: [{
-                label: 'Active Users',
+                label: i18n.activeUsersLabel,
                 data: activityData.timeline?.[timelineView]?.data || [],
-                borderColor: '#3B82F6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderColor: primaryColor,
+                backgroundColor: primaryColor + '20',
                 tension: 0.4,
                 fill: true
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true }
-            },
-            plugins: {
-                legend: { display: false }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
     });
 
     // Top Activities Chart
@@ -518,20 +487,9 @@ function initializeCharts() {
         type: 'bar',
         data: {
             labels: (activityData.topActivities || []).map(a => a.name),
-            datasets: [{
-                label: 'Count',
-                data: (activityData.topActivities || []).map(a => a.count),
-                backgroundColor: '#10B981'
-            }]
+            datasets: [{ label: i18n.count, data: (activityData.topActivities || []).map(a => a.count), backgroundColor: secondaryColor }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
-            scales: {
-                x: { beginAtZero: true }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true } } }
     });
 
     // Session Duration Chart
@@ -539,20 +497,10 @@ function initializeCharts() {
     charts.session = new Chart(sessionCtx, {
         type: 'bar',
         data: {
-            labels: ['0-5min', '5-15min', '15-30min', '30-60min', '1h+'],
-            datasets: [{
-                label: 'Sessions',
-                data: activityData.sessionDistribution || [0, 0, 0, 0, 0],
-                backgroundColor: '#8B5CF6'
-            }]
+            labels: [i18n.duration0to5, i18n.duration5to15, i18n.duration15to30, i18n.duration30to60, i18n.duration1hPlus],
+            datasets: [{ label: i18n.sessions, data: activityData.sessionDistribution || [0, 0, 0, 0, 0], backgroundColor: '#8B5CF6' }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
 
     // Device Chart
@@ -561,18 +509,9 @@ function initializeCharts() {
         type: 'doughnut',
         data: {
             labels: (activityData.devices || []).map(d => d.name),
-            datasets: [{
-                data: (activityData.devices || []).map(d => d.count),
-                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
-            }]
+            datasets: [{ data: (activityData.devices || []).map(d => d.count), backgroundColor: [primaryColor, secondaryColor, '#F59E0B', '#EF4444'] }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { fontSize: 10 } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 
     // Browser Chart
@@ -581,31 +520,16 @@ function initializeCharts() {
         type: 'doughnut',
         data: {
             labels: (activityData.browsers || []).map(b => b.name),
-            datasets: [{
-                data: (activityData.browsers || []).map(b => b.count),
-                backgroundColor: ['#8B5CF6', '#06B6D4', '#84CC16', '#F97316']
-            }]
+            datasets: [{ data: (activityData.browsers || []).map(b => b.count), backgroundColor: ['#8B5CF6', '#06B6D4', '#84CC16', '#F97316'] }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom', labels: { fontSize: 10 } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
 }
 
 function changeTimelineView(view) {
     timelineView = view;
-
-    // Update button states
-    document.querySelectorAll('.timeline-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    document.querySelectorAll('.timeline-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`[data-view="${view}"]`).classList.add('active');
-
-    // Update chart
     if (charts.timeline) {
         charts.timeline.data.labels = activityData.timeline?.[view]?.labels || [];
         charts.timeline.data.datasets[0].data = activityData.timeline?.[view]?.data || [];
@@ -616,32 +540,30 @@ function changeTimelineView(view) {
 function loadActiveUsers() {
     const tbody = document.getElementById('active-users-table');
     tbody.innerHTML = '';
-
     const activeUsers = activityData.activeUsers || [];
+
     activeUsers.forEach(user => {
         const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
+        const statusText = getStatusText(user.status);
         row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-4 py-3">
                 <div class="flex items-center">
-                    <img class="h-8 w-8 rounded-full" src="${user.avatar || '/images/default-avatar.png'}" alt="">
+                    <img class="h-8 w-8 rounded-full object-cover" src="${user.avatar || '/images/default-avatar.png'}" alt="" onerror="this.src='/images/default-avatar.png'">
                     <div class="ml-3">
                         <p class="text-sm font-medium text-gray-900">${user.name}</p>
-                        <p class="text-sm text-gray-500">@${user.username}</p>
+                        <p class="text-xs text-gray-500">@${user.username}</p>
                     </div>
                 </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="activity-badge ${getActivityBadgeClass(user.currentActivity.type)}">
-                    ${user.currentActivity.name}
-                </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.location || 'Unknown'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDuration(user.sessionDuration)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(user.lastAction).toLocaleTimeString()}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-4 py-3"><span class="activity-badge ${getActivityBadgeClass(user.currentActivity?.type)}">${user.currentActivity?.name || '-'}</span></td>
+            <td class="px-4 py-3 text-sm text-gray-500">${user.location || '-'}</td>
+            <td class="px-4 py-3 text-sm text-gray-900">${formatDuration(user.sessionDuration)}</td>
+            <td class="px-4 py-3 text-sm text-gray-500">${user.lastAction ? new Date(user.lastAction).toLocaleTimeString() : '-'}</td>
+            <td class="px-4 py-3">
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
                     <span class="w-2 h-2 rounded-full mr-1 ${getStatusClass(user.status)}"></span>
-                    ${user.status}
+                    ${statusText}
                 </span>
             </td>
         `;
@@ -649,95 +571,88 @@ function loadActiveUsers() {
     });
 
     if (activeUsers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No active users</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">${i18n.noActiveUsers}</td></tr>`;
     }
 }
 
+function getStatusText(status) {
+    const statusTexts = { online: i18n.online, away: i18n.away, offline: i18n.offline };
+    return statusTexts[status] || i18n.online;
+}
+
 function getActivityBadgeClass(type) {
-    const classes = {
-        login: 'badge-login',
-        course_view: 'badge-course',
-        test_attempt: 'badge-test',
-        video_watch: 'badge-video',
-        download: 'badge-download',
-        forum_post: 'badge-forum',
-        system: 'badge-system'
-    };
+    const classes = { login: 'badge-login', course_view: 'badge-course', test_attempt: 'badge-test', video_watch: 'badge-video', download: 'badge-download', system: 'badge-system' };
     return classes[type] || 'badge-system';
 }
 
 function getStatusClass(status) {
-    const classes = {
-        online: 'status-online',
-        away: 'status-away',
-        offline: 'status-offline'
-    };
-    return classes[status] || 'status-offline';
+    const classes = { online: 'status-online', away: 'status-away', offline: 'status-offline' };
+    return classes[status] || 'status-online';
 }
 
 function loadActivityLog() {
     const tbody = document.getElementById('activity-log-table');
     tbody.innerHTML = '';
-
     const activities = activityData.activities || [];
     const level = document.getElementById('activity-level').value;
-
-    let filteredActivities = activities;
-    if (level !== 'all') {
-        filteredActivities = activities.filter(a => a.level === level);
-    }
-
+    let filtered = level === 'all' ? activities : activities.filter(a => a.level === level);
     const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const paginatedActivities = filteredActivities.slice(start, end);
+    const paginated = filtered.slice(start, start + itemsPerPage);
 
-    paginatedActivities.forEach(activity => {
+    paginated.forEach(activity => {
         const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
         row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                ${new Date(activity.timestamp).toLocaleString()}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-4 py-3 text-sm text-gray-900">${new Date(activity.timestamp).toLocaleString()}</td>
+            <td class="px-4 py-3">
                 <div class="flex items-center">
-                    <img class="h-6 w-6 rounded-full" src="${activity.user.avatar || '/images/default-avatar.png'}" alt="">
-                    <div class="ml-2">
-                        <p class="text-sm font-medium text-gray-900">${activity.user.name}</p>
-                    </div>
+                    <img class="h-6 w-6 rounded-full" src="${activity.user?.avatar || '/images/default-avatar.png'}" alt="" onerror="this.src='/images/default-avatar.png'">
+                    <span class="ml-2 text-sm font-medium text-gray-900">${activity.user?.name || '-'}</span>
                 </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="activity-badge ${getActivityBadgeClass(activity.type)}">
-                    ${activity.activity}
-                </span>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${activity.details}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${activity.ipAddress}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${activity.device}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="viewActivityDetails('${activity.id}')" class="text-blue-600 hover:text-blue-900">
-                    View
-                </button>
+            <td class="px-4 py-3"><span class="activity-badge ${getActivityBadgeClass(activity.type)}">${activity.activity}</span></td>
+            <td class="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">${activity.details || '-'}</td>
+            <td class="px-4 py-3 text-sm text-gray-500">${activity.ipAddress || '-'}</td>
+            <td class="px-4 py-3 text-sm text-gray-500">${activity.device || '-'}</td>
+            <td class="px-4 py-3 text-sm font-medium">
+                <button onclick="viewActivityDetails('${activity.id}')" class="text-blue-600 hover:text-blue-900">${i18n.view}</button>
             </td>
         `;
         tbody.appendChild(row);
     });
 
-    updatePagination(filteredActivities.length);
+    if (paginated.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">${i18n.noActivityData}</td></tr>`;
+    }
+    updatePagination(filtered.length);
 }
 
 function updatePagination(totalItems) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const showingFrom = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-    const showingTo = Math.min(currentPage * itemsPerPage, totalItems);
-
-    document.getElementById('showing-from').textContent = showingFrom;
-    document.getElementById('showing-to').textContent = showingTo;
+    document.getElementById('showing-from').textContent = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    document.getElementById('showing-to').textContent = Math.min(currentPage * itemsPerPage, totalItems);
     document.getElementById('total-activities').textContent = totalItems;
     document.getElementById('current-page').textContent = currentPage;
-    document.getElementById('total-pages').textContent = totalPages;
-
+    document.getElementById('total-pages').textContent = totalPages || 1;
     document.getElementById('prev-btn').disabled = currentPage <= 1;
     document.getElementById('next-btn').disabled = currentPage >= totalPages;
+}
+
+function sortActivities(field) {
+    if (sortField === field) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    else { sortField = field; sortDirection = 'desc'; }
+    activityData.activities.sort((a, b) => {
+        let aVal = a[field], bVal = b[field];
+        if (field === 'timestamp') { aVal = new Date(aVal).getTime(); bVal = new Date(bVal).getTime(); }
+        return sortDirection === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
+    });
+    loadActivityLog();
+}
+
+function previousPage() { if (currentPage > 1) { currentPage--; loadActivityLog(); } }
+function nextPage() {
+    const totalPages = Math.ceil((activityData.activities || []).length / itemsPerPage);
+    if (currentPage < totalPages) { currentPage++; loadActivityLog(); }
 }
 
 function applyFilters() {
@@ -747,14 +662,7 @@ function applyFilters() {
         activityType: document.getElementById('activity-type').value,
         searchUser: document.getElementById('search-user').value
     };
-
-    // Remove empty filters
-    Object.keys(currentFilters).forEach(key => {
-        if (!currentFilters[key]) {
-            delete currentFilters[key];
-        }
-    });
-
+    Object.keys(currentFilters).forEach(key => { if (!currentFilters[key]) delete currentFilters[key]; });
     currentPage = 1;
     loadActivityData();
 }
@@ -768,259 +676,74 @@ function clearFilters() {
     loadActivityData();
 }
 
-function sortActivities(field) {
-    if (sortField === field) {
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortField = field;
-        sortDirection = 'desc';
-    }
-
-    activityData.activities.sort((a, b) => {
-        let aValue = a[field] || '';
-        let bValue = b[field] || '';
-
-        if (field === 'user') {
-            aValue = a.user.name.toLowerCase();
-            bValue = b.user.name.toLowerCase();
-        } else if (field === 'timestamp') {
-            aValue = new Date(aValue).getTime();
-            bValue = new Date(bValue).getTime();
-        } else if (typeof aValue === 'string') {
-            aValue = aValue.toLowerCase();
-            bValue = bValue.toLowerCase();
-        }
-
-        if (sortDirection === 'asc') {
-            return aValue > bValue ? 1 : -1;
-        } else {
-            return aValue < bValue ? 1 : -1;
-        }
-    });
-
-    loadActivityLog();
-}
-
-function previousPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        loadActivityLog();
-    }
-}
-
-function nextPage() {
-    const totalPages = Math.ceil((activityData.activities || []).length / itemsPerPage);
-    if (currentPage < totalPages) {
-        currentPage++;
-        loadActivityLog();
-    }
-}
-
 function realTimeMode() {
     isRealTime = !isRealTime;
-    const realtimeBtn = document.getElementById('realtime-btn');
-    const realtimeBanner = document.getElementById('realtime-banner');
-
+    const btn = document.getElementById('realtime-btn');
+    const banner = document.getElementById('realtime-banner');
     if (isRealTime) {
-        realtimeBtn.innerHTML = '<i class="fas fa-stop mr-2"></i>Stop Live';
-        realtimeBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700';
-        realtimeBanner.classList.remove('hidden');
-
-        // Start real-time updates
+        btn.innerHTML = '<i class="fas fa-stop mr-2"></i><%= t("stopLive") %>';
+        banner.classList.remove('hidden');
         realTimeInterval = setInterval(loadActivityData, 30000);
-    } else {
-        exitRealTime();
-    }
+    } else { exitRealTime(); }
 }
 
 function exitRealTime() {
     isRealTime = false;
-    const realtimeBtn = document.getElementById('realtime-btn');
-    const realtimeBanner = document.getElementById('realtime-banner');
-
-    realtimeBtn.innerHTML = '<i class="fas fa-broadcast-tower mr-2"></i>Live View';
-    realtimeBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700';
-    realtimeBanner.classList.add('hidden');
-
-    if (realTimeInterval) {
-        clearInterval(realTimeInterval);
-        realTimeInterval = null;
-    }
-}
-
-function handleAutoRefresh() {
-    const autoRefresh = document.getElementById('auto-refresh').checked;
-    if (autoRefresh && isRealTime) {
-        // Auto-refresh is already handled by real-time mode
-    } else if (autoRefresh) {
-        // Start periodic refresh for active users table only
-        setInterval(loadActiveUsers, 60000);
-    }
-}
-
-async function viewActivityDetails(activityId) {
-    try {
-        const response = await fetch(`/reports/api/activity/${activityId}`);
-        const data = await response.json();
-
-        if (data.success) {
-            displayActivityDetails(data.activity);
-        } else {
-            showError('Failed to load activity details');
-        }
-    } catch (error) {
-        console.error('Error loading activity details:', error);
-        showError('Error loading activity details');
-    }
-}
-
-function displayActivityDetails(activity) {
-    const content = document.getElementById('activity-detail-content');
-
-    content.innerHTML = `
-        <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">User</label>
-                    <div class="flex items-center mt-1">
-                        <img class="h-8 w-8 rounded-full" src="${activity.user.avatar || '/images/default-avatar.png'}" alt="">
-                        <div class="ml-2">
-                            <p class="text-sm font-medium">${activity.user.name}</p>
-                            <p class="text-xs text-gray-500">@${activity.user.username}</p>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Timestamp</label>
-                    <p class="mt-1 text-sm text-gray-900">${new Date(activity.timestamp).toLocaleString()}</p>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Activity</label>
-                <span class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getActivityBadgeClass(activity.type)}">
-                    ${activity.activity}
-                </span>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Details</label>
-                <p class="mt-1 text-sm text-gray-900">${activity.details}</p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">IP Address</label>
-                    <p class="mt-1 text-sm text-gray-900">${activity.ipAddress}</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Location</label>
-                    <p class="mt-1 text-sm text-gray-900">${activity.location || 'Unknown'}</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Device</label>
-                    <p class="mt-1 text-sm text-gray-900">${activity.device}</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Browser</label>
-                    <p class="mt-1 text-sm text-gray-900">${activity.browser}</p>
-                </div>
-            </div>
-
-            ${activity.metadata ? `
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Additional Information</label>
-                    <pre class="mt-1 text-xs bg-gray-100 p-3 rounded overflow-x-auto">${JSON.stringify(activity.metadata, null, 2)}</pre>
-                </div>
-            ` : ''}
-        </div>
-    `;
-
-    document.getElementById('activity-modal').classList.remove('hidden');
-}
-
-function closeActivityModal() {
-    document.getElementById('activity-modal').classList.add('hidden');
+    document.getElementById('realtime-btn').innerHTML = '<i class="fas fa-broadcast-tower mr-2"></i><%= t("liveView") %>';
+    document.getElementById('realtime-banner').classList.add('hidden');
+    if (realTimeInterval) { clearInterval(realTimeInterval); realTimeInterval = null; }
 }
 
 async function exportActivity() {
     showLoading(true);
-
     try {
         const timePeriod = document.getElementById('time-period').value;
-        const params = new URLSearchParams({
-            timePeriod: timePeriod,
-            ...currentFilters
-        });
-
+        const params = new URLSearchParams({ timePeriod, ...currentFilters });
         const response = await fetch(`/reports/api/user-activity/export?${params}`);
-
         if (response.ok) {
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `user-activity-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+            a.download = `user-activity-${new Date().toISOString().split('T')[0]}.xlsx`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
-            showSuccess('Activity report exported successfully');
+            a.remove();
+            showToast(i18n.exportSuccess);
         } else {
-            showError('Failed to export report');
+            showToast(i18n.exportFailed, 'error');
         }
     } catch (error) {
-        console.error('Error exporting report:', error);
-        showError('Error exporting report');
+        showToast(i18n.exportFailed, 'error');
     } finally {
         showLoading(false);
     }
 }
 
+function viewActivityDetails(activityId) { alert('Activity details: ' + activityId); }
+
 function formatDuration(minutes) {
     if (!minutes) return '0m';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-
-    if (hours > 0) {
-        return `${hours}h ${mins}m`;
-    }
-    return `${mins}m`;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
 }
 
-function showLoading(show) {
-    const overlay = document.getElementById('loading-overlay');
-    overlay.classList.toggle('hidden', !show);
-}
+function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden', !show); }
 
-function showSuccess(message) {
-    alert(message); // Replace with toast notification
-}
-
-function showError(message) {
-    alert('Error: ' + message); // Replace with toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 ${type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+    toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} mr-2"></i>${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
 function debounce(func, wait) {
     let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+    return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); };
 }
 
-// Cleanup on page unload
-window.addEventListener('beforeunload', function() {
-    if (realTimeInterval) {
-        clearInterval(realTimeInterval);
-    }
-});
+window.addEventListener('beforeunload', function() { if (realTimeInterval) clearInterval(realTimeInterval); });
 </script>
