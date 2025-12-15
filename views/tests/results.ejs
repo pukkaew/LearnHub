@@ -456,8 +456,10 @@ function displayQuestionReview() {
                 </div>
 
                 ${question.question_image ? `
-                    <div class="mb-3">
-                        <img src="${question.question_image}" alt="Question Image" class="max-w-xs h-auto rounded">
+                    <div class="mb-4">
+                        <img src="${question.question_image}" alt="Question Image"
+                             class="max-w-full md:max-w-lg h-auto rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                             onclick="window.open(this.src, '_blank')" title="คลิกเพื่อดูภาพขนาดใหญ่">
                     </div>
                 ` : ''}
 
@@ -519,6 +521,13 @@ function renderAnswerOptions(question) {
                             <span class="flex-1">${option.option_text}</span>
                             ${label}
                         </div>
+                        ${option.option_image ? `
+                            <div class="ml-6 mt-3">
+                                <img src="${option.option_image}" alt="Option Image"
+                                     class="max-w-full md:max-w-sm h-auto rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                                     onclick="window.open(this.src, '_blank')" title="คลิกเพื่อดูภาพขนาดใหญ่">
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');

@@ -51,7 +51,9 @@
                     </span>
                 </div>
                 <div id="question-image-preview" class="mt-2 <%= question.question_image ? '' : 'hidden' %>">
-                    <img src="<%= question.question_image || '' %>" alt="Preview" class="max-w-xs rounded border border-gray-300">
+                    <img src="<%= question.question_image || '' %>" alt="Preview"
+                         class="max-w-sm h-auto rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                         onclick="window.open(this.src, '_blank')" title="คลิกเพื่อดูภาพขนาดใหญ่">
                     <button type="button" onclick="removeQuestionImage()"
                             class="mt-2 text-sm text-red-600 hover:text-red-800">
                         <i class="fas fa-times mr-1"></i><%= t('removeImage') || 'Remove Image' %>

@@ -555,7 +555,9 @@
                         <span id="question-image-name" class="text-sm text-gray-500"><%= t('noImage') %></span>
                     </div>
                     <div id="question-image-preview" class="mt-2 hidden">
-                        <img src="" alt="Preview" class="max-w-xs rounded border border-gray-300">
+                        <img src="" alt="Preview"
+                             class="max-w-sm h-auto rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                             onclick="window.open(this.src, '_blank')" title="คลิกเพื่อดูภาพขนาดใหญ่">
                         <button type="button" onclick="removeQuestionImage()"
                                 class="mt-2 text-sm text-red-600 hover:text-red-800">
                             <i class="fas fa-times mr-1"></i><%= t('removeImage') %>
@@ -1733,7 +1735,9 @@ function addOption(text = '', isCorrect = false, imageUrl = '') {
             <span id="option_image_name_${optionIndex}" class="text-xs text-gray-500"></span>
         </div>
         <div id="option_image_preview_${optionIndex}" class="mt-2 hidden">
-            <img src="${imageUrl}" alt="Option preview" class="max-w-xs max-h-32 rounded border border-gray-300">
+            <img src="${imageUrl}" alt="Option preview"
+                 class="max-w-32 max-h-24 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                 onclick="window.open(this.src, '_blank')" title="คลิกเพื่อดูภาพขนาดใหญ่">
             <button type="button" onclick="removeOptionImage(${optionIndex})"
                     class="mt-1 text-xs text-red-600 hover:text-red-800">
                 <i class="fas fa-times mr-1"></i>${i18n.removeOptionImage}
@@ -1888,14 +1892,21 @@ function updateQuestionsDisplay() {
         const imagePlaceholder = questionDiv.querySelector('.question-image-placeholder');
         const previewPlaceholder = questionDiv.querySelector('.question-preview-placeholder');
 
-        // Add question image if exists (only if it's a valid File object)
-        if (question.question_image && question.question_image instanceof File) {
-            console.log('Creating image element for question', index);
+        // Add question image if exists (URL string or File object)
+        if (question.question_image) {
+            console.log('Creating image element for question', index, 'image:', question.question_image);
             try {
                 const img = document.createElement('img');
-                img.src = URL.createObjectURL(question.question_image);
+                // Handle both URL strings and File objects
+                if (typeof question.question_image === 'string') {
+                    img.src = question.question_image;
+                } else if (question.question_image instanceof File) {
+                    img.src = URL.createObjectURL(question.question_image);
+                }
                 img.alt = `Question ${index + 1}`;
-                img.className = 'mb-3 max-w-md max-h-48 rounded border border-gray-300';
+                img.className = 'mb-3 max-w-xs max-h-32 rounded border border-gray-300 object-contain cursor-pointer hover:opacity-80 transition-opacity';
+                img.title = 'Click to view larger';
+                img.onclick = () => window.open(img.src, '_blank');
                 img.onload = () => console.log('Image loaded successfully for question', index);
                 img.onerror = (e) => console.error('Image failed to load for question', index, e);
                 imagePlaceholder.appendChild(img);
@@ -1925,13 +1936,20 @@ function updateQuestionsDisplay() {
                 `;
                 optionDiv.appendChild(textDiv);
 
-                // Add option image if exists (only if it's a valid File object)
-                if (option.image && option.image instanceof File) {
+                // Add option image if exists (URL string or File object)
+                if (option.image) {
                     try {
                         const img = document.createElement('img');
-                        img.src = URL.createObjectURL(option.image);
+                        // Handle both URL strings and File objects
+                        if (typeof option.image === 'string') {
+                            img.src = option.image;
+                        } else if (option.image instanceof File) {
+                            img.src = URL.createObjectURL(option.image);
+                        }
                         img.alt = `Option ${optIndex + 1}`;
-                        img.className = 'mt-1 ml-4 max-w-xs max-h-24 rounded border border-gray-300';
+                        img.className = 'mt-1 ml-4 max-w-24 max-h-16 rounded border border-gray-300 object-contain cursor-pointer hover:opacity-80 transition-opacity';
+                        img.title = 'Click to view larger';
+                        img.onclick = () => window.open(img.src, '_blank');
                         optionDiv.appendChild(img);
                     } catch (e) {
                         console.warn('Could not create image URL for option', optIndex, e);

@@ -885,7 +885,7 @@ class Test {
                     const optionsResult = await pool.request()
                         .input('questionId', sql.Int, question.question_id)
                         .query(`
-                            SELECT option_id, option_text, is_correct
+                            SELECT option_id, option_text, option_image, is_correct
                             FROM QuestionOptions
                             WHERE question_id = @questionId
                             ORDER BY option_order
