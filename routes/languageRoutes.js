@@ -28,15 +28,9 @@ router.post('/switch', (req, res) => {
             path: '/' // Ensure cookie is available site-wide
         };
 
-        console.log(`🍪 Setting language cookies to: ${language}`);
         res.cookie('ruxchai_language', language, cookieOptions);
         res.cookie('language', language, cookieOptions);
         res.cookie('preferred_language', language, cookieOptions);
-        console.log(`🍪 Cookies set with options:`, cookieOptions);
-
-        // Log language change
-        console.log(`✅ Language switched to ${language} for session ${req.sessionID}`);
-        console.log(`📝 Session language: ${req.session.language}`);
 
         res.json({
             success: true,

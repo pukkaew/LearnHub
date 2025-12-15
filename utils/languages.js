@@ -7027,42 +7027,26 @@ function getTranslation(lang, key) {
 }
 
 function getCurrentLanguage(req) {
-    // Debug logging
-    console.log('🔍 Getting current language...');
-    console.log('  Session language:', req.session?.language);
-    console.log('  Cookies:', {
-        ruxchai_language: req.cookies?.ruxchai_language,
-        language: req.cookies?.language,
-        preferred_language: req.cookies?.preferred_language
-    });
-
     // Check session first
     if (req.session && req.session.language) {
-        console.log('  ✅ Using session language:', req.session.language);
         return req.session.language;
     }
 
     // Check cookies (multiple possible names for backward compatibility)
     if (req.cookies) {
         if (req.cookies.ruxchai_language) {
-            console.log('  ✅ Using ruxchai_language cookie:', req.cookies.ruxchai_language);
-            // Save to session for this request
             if (req.session) {
                 req.session.language = req.cookies.ruxchai_language;
             }
             return req.cookies.ruxchai_language;
         }
         if (req.cookies.language) {
-            console.log('  ✅ Using language cookie:', req.cookies.language);
-            // Save to session for this request
             if (req.session) {
                 req.session.language = req.cookies.language;
             }
             return req.cookies.language;
         }
         if (req.cookies.preferred_language) {
-            console.log('  ✅ Using preferred_language cookie:', req.cookies.preferred_language);
-            // Save to session for this request
             if (req.session) {
                 req.session.language = req.cookies.preferred_language;
             }
@@ -7070,8 +7054,7 @@ function getCurrentLanguage(req) {
         }
     }
 
-    // Always default to Thai - no browser language detection
-    console.log('  ⚠️ No language found, defaulting to Thai');
+    // Default to Thai
     return 'th';
 }
 
@@ -7097,7 +7080,6 @@ function languageMiddleware(req, res, next) {
         res.cookie('ruxchai_language', currentLang, cookieOptions);
         res.cookie('language', currentLang, cookieOptions);
         res.cookie('preferred_language', currentLang, cookieOptions);
-        console.log(`🍪 [MIDDLEWARE] Set default language to: ${currentLang}`);
     }
 
     // Set language in request for easy access
