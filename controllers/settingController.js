@@ -2,6 +2,70 @@ const Setting = require('../models/Setting');
 const logger = require('../utils/logger');
 const { clearSettingsCache } = require('../middleware/settingsMiddleware');
 const { t } = require('../utils/languages');
+const { poolPromise, sql } = require('../config/database');
+
+/**
+ * Sync company name from Settings to OrganizationUnits
+ * เมื่อเปลี่ยนชื่อบริษัทใน Settings จะอัพเดท OrganizationUnits ให้อัตโนมัติ
+ */
+async function syncCompanyToOrganization(settingsArray) {
+    try {
+        const companySettings = settingsArray.filter(s =>
+            s.key === 'company_name' || s.key === 'company_name_en'
+        );
+
+        if (companySettings.length === 0) return;
+
+        const pool = await poolPromise;
+
+        // Get COMPANY level_id
+        const levelResult = await pool.request().query(`
+            SELECT level_id FROM OrganizationLevels WHERE level_code = 'COMPANY'
+        `);
+        const companyLevelId = levelResult.recordset[0]?.level_id;
+
+        if (!companyLevelId) {
+            logger.warn('COMPANY level not found in OrganizationLevels');
+            return;
+        }
+
+        // Check if company unit exists
+        const existingUnit = await pool.request()
+            .input('levelId', sql.Int, companyLevelId)
+            .query(`SELECT unit_id FROM OrganizationUnits WHERE level_id = @levelId`);
+
+        for (const setting of companySettings) {
+            const fieldName = setting.key === 'company_name' ? 'unit_name_th' : 'unit_name_en';
+
+            if (existingUnit.recordset.length > 0) {
+                // Update existing company unit
+                await pool.request()
+                    .input('value', sql.NVarChar, setting.value)
+                    .input('levelId', sql.Int, companyLevelId)
+                    .query(`UPDATE OrganizationUnits SET ${fieldName} = @value WHERE level_id = @levelId`);
+
+                logger.info(`Synced ${setting.key} to OrganizationUnits.${fieldName}: ${setting.value}`);
+            } else {
+                // Create company unit if not exists
+                const companyNameTh = setting.key === 'company_name' ? setting.value : 'บริษัท';
+                const companyNameEn = setting.key === 'company_name_en' ? setting.value : 'Company';
+
+                await pool.request()
+                    .input('levelId', sql.Int, companyLevelId)
+                    .input('unitNameTh', sql.NVarChar, companyNameTh)
+                    .input('unitNameEn', sql.NVarChar, companyNameEn)
+                    .query(`
+                        INSERT INTO OrganizationUnits (level_id, unit_code, unit_name_th, unit_name_en, parent_id, is_active, status)
+                        VALUES (@levelId, 'COMPANY', @unitNameTh, @unitNameEn, NULL, 1, 'ACTIVE')
+                    `);
+
+                logger.info(`Created company unit in OrganizationUnits from Settings`);
+            }
+        }
+    } catch (error) {
+        logger.error('Error syncing company to OrganizationUnits:', error);
+    }
+}
 
 /**
  * Settings Controller
@@ -182,6 +246,9 @@ exports.updateSetting = async (req, res) => {
         if (result.success) {
             logger.info(`Setting updated: ${key} by user ${req.session.user.user_id}`);
 
+            // Sync company name to OrganizationUnits if applicable
+            await syncCompanyToOrganization([{ key, value }]);
+
             // Clear settings cache to reflect changes immediately
             clearSettingsCache();
 
@@ -329,6 +396,9 @@ exports.batchUpdateSettings = async (req, res) => {
 
         if (result.success) {
             logger.info(`✅ Batch settings updated successfully by user ${req.session.user.user_id}`);
+
+            // Sync company name to OrganizationUnits if applicable
+            await syncCompanyToOrganization(settings);
 
             // Clear settings cache to reflect changes immediately
             clearSettingsCache();

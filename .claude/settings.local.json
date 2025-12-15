@@ -101,7 +101,8 @@
       "WebFetch(domain:localhost)",
       "Bash(git checkout:*)",
       "Bash(perl -i -pe:*)",
-      "WebFetch(domain:www.facebook.com)"
+      "WebFetch(domain:www.facebook.com)",
+      "Bash(git -C \"D:/App/LearnHub\" status)"
     ],
     "deny": [],
     "ask": []
