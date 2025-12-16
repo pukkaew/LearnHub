@@ -74,6 +74,7 @@ const userController = {
             const {
                 first_name,
                 last_name,
+                email,
                 phone,
                 department_id,
                 position_id
@@ -90,6 +91,7 @@ const userController = {
             const updateData = {};
             if (first_name !== undefined) {updateData.first_name = first_name;}
             if (last_name !== undefined) {updateData.last_name = last_name;}
+            if (email !== undefined) {updateData.email = email;}
             if (phone !== undefined) {updateData.phone = phone;}
             if (department_id !== undefined) {updateData.department_id = department_id;}
             if (position_id !== undefined) {updateData.position_id = position_id;}
@@ -108,6 +110,7 @@ const userController = {
                 {
                     first_name: oldUser.first_name,
                     last_name: oldUser.last_name,
+                    email: oldUser.email,
                     phone: oldUser.phone,
                     department_id: oldUser.department_id,
                     position_id: oldUser.position_id
@@ -119,13 +122,21 @@ const userController = {
                 'User updated profile'
             );
 
-            req.session.user.first_name = result.data.first_name;
-            req.session.user.last_name = result.data.last_name;
+            // Fetch updated user data
+            const updatedUser = await User.findById(userId);
+
+            // Update session with new values
+            if (updatedUser) {
+                req.session.user.first_name = updatedUser.first_name;
+                req.session.user.last_name = updatedUser.last_name;
+                if (updatedUser.email) req.session.user.email = updatedUser.email;
+                if (updatedUser.phone) req.session.user.phone = updatedUser.phone;
+            }
 
             res.json({
                 success: true,
                 message: t(req, 'profileUpdatedSuccess'),
-                data: result.data
+                data: updatedUser
             });
 
         } catch (error) {
