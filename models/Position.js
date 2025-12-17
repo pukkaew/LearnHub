@@ -23,7 +23,7 @@ class Position {
             const pool = await poolPromise;
 
             // Check if department_id exists in Departments table, otherwise use default (1 = IT)
-            let departmentId = 1; // Default to IT department
+            let departmentId = null; // Default to NULL (no FK constraint violation)
             if (positionData.department_id || positionData.unit_id) {
                 const deptId = positionData.department_id || positionData.unit_id;
                 const deptCheck = await pool.request()
@@ -38,6 +38,7 @@ class Position {
             // Map to actual table columns
             const result = await pool.request()
                 .input('position_name', sql.NVarChar(100), positionData.position_name_th || positionData.position_name || positionData.title)
+                .input('position_name_en', sql.NVarChar(255), positionData.position_name_en || null)
                 .input('department_id', sql.Int, departmentId)
                 .input('description', sql.NVarChar(255), positionData.description || null)
                 .input('level', sql.Int, positionData.level || positionData.position_level || null)
@@ -49,11 +50,11 @@ class Position {
                 .input('max_salary', sql.Decimal(10, 2), positionData.max_salary || positionData.salary_max || null)
                 .query(`
                     INSERT INTO Positions
-                    (position_name, department_id, description, level, is_active,
+                    (position_name, position_name_en, department_id, description, level, is_active,
                      position_type, unit_id, position_level, job_grade, min_salary, max_salary)
                     OUTPUT INSERTED.*
                     VALUES
-                    (@position_name, @department_id, @description, @level, 1,
+                    (@position_name, @position_name_en, @department_id, @description, @level, 1,
                      @position_type, @unit_id, @position_level, @job_grade, @min_salary, @max_salary)
                 `);
 
@@ -168,6 +169,7 @@ class Position {
             // Map of allowed fields with their actual column names in database
             const fieldMapping = {
                 'position_name': 'position_name',
+                'position_name_en': 'position_name_en',
                 'unit_id': 'unit_id',
                 // 'department_id': 'department_id', // Removed - no longer updating this field (legacy FK)
                 'description': 'description',
@@ -193,7 +195,7 @@ class Position {
                         setClause.push(`${dbColumn} = @${field}`);
 
                         // Set appropriate SQL type for each field
-                        if (field === 'position_name') {
+                        if (field === 'position_name' || field === 'position_name_en') {
                             request.input(field, sql.NVarChar(255), fieldValue);
                         } else if (field === 'description') {
                             // Explicitly handle description - allow empty string

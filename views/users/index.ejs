@@ -440,6 +440,19 @@
             <form id="editUserForm" class="p-6 space-y-6">
                 <input type="hidden" name="user_id" id="editUserId">
 
+                <!-- Profile Image Upload Section -->
+                <div class="flex flex-col items-center mb-6 pb-6 border-b border-gray-200">
+                    <div class="relative mb-4">
+                        <img id="editProfilePreview" src="/images/default-avatar.png" alt="Profile Preview"
+                             class="w-24 h-24 rounded-full object-cover border-4 border-gray-200">
+                        <label for="editProfileImageInput" class="absolute bottom-0 right-0 bg-ruxchai-primary text-white p-2 rounded-full cursor-pointer hover:bg-ruxchai-primary/90 transition-colors">
+                            <i class="fas fa-camera text-sm"></i>
+                        </label>
+                        <input type="file" id="editProfileImageInput" name="profile_image" accept="image/*" class="hidden">
+                    </div>
+                    <p class="text-xs text-gray-500"><%= t('uploadProfileImage') %></p>
+                </div>
+
                 <!-- Basic Information Section -->
                 <div class="border-b border-gray-200 pb-6 mb-6">
                     <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
@@ -450,6 +463,17 @@
                     </h4>
 
                     <div class="space-y-4">
+                        <!-- Employee ID -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-id-badge text-ruxchai-primary mr-1"></i>
+                                <%= t('employeeId') %> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="employee_id" id="editEmployeeId" required
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                                   placeholder="<%= t('employeeId') %>">
+                        </div>
+
                         <!-- Name Fields -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -484,9 +508,9 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-phone text-gray-400 mr-1"></i>
-                                    <%= t('phoneNumber') %>
+                                    <%= t('phoneNumber') %> <span class="text-red-500">*</span>
                                 </label>
-                                <input type="tel" name="phone" id="editPhone"
+                                <input type="tel" name="phone" id="editPhone" required
                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
                                        placeholder="0812345678">
                             </div>
@@ -504,29 +528,64 @@
                     </h4>
 
                     <div class="space-y-4">
+                        <!-- Organization Units - Cascade Selection -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-code-branch text-gray-400 mr-1"></i>
+                                    <%= t('branches') %>
+                                </label>
+                                <select name="branch_id" id="editBranchSelect" onchange="loadEditOrgAfterBranch(this.value)"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value=""><%= t('selectBranch') %></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building text-gray-400 mr-1"></i>
+                                    <%= t('offices') %>
+                                </label>
+                                <select name="office_id" id="editOfficeSelect" onchange="loadEditDivisionsByOffice(this.value)"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value=""><%= t('selectOffice') %></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-layer-group text-gray-400 mr-1"></i>
+                                    <%= t('divisions') %>
+                                </label>
+                                <select name="division_id" id="editDivisionSelect" onchange="loadEditDepartmentsByDivision(this.value)"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value=""><%= t('selectDivision') %></option>
+                                </select>
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     <i class="fas fa-sitemap text-gray-400 mr-1"></i>
                                     <%= t('departments') %>
                                 </label>
-                                <select name="department_id" id="editDepartment"
+                                <select name="department_id" id="editDepartmentSelect"
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
                                     <option value=""><%= t('selectDepartment') %></option>
-                                    <!-- Departments will be loaded dynamically -->
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    <i class="fas fa-briefcase text-gray-400 mr-1"></i>
-                                    <%= t('positionName') %>
-                                </label>
-                                <select name="position_id" id="editPosition"
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                    <option value=""><%= t('selectPosition') %></option>
-                                    <!-- Positions will be loaded dynamically -->
-                                </select>
-                            </div>
+                        </div>
+
+                        <!-- Position -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-briefcase text-gray-400 mr-1"></i>
+                                <%= t('positionName') %> <span class="text-red-500">*</span>
+                            </label>
+                            <select name="position_id" id="editPositionSelect" required
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                <option value=""><%= t('selectPosition') %></option>
+                                <!-- Positions will be loaded dynamically -->
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -549,6 +608,7 @@
                                 </label>
                                 <select name="role" id="editRole" required
                                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                                    <option value=""><%= t('selectRole') %></option>
                                     <option value="Employee">👤 <%= t('roleEmployee') %></option>
                                     <option value="Manager">👔 <%= t('roleManager') %></option>
                                     <option value="HR">💼 <%= t('roleHR') %></option>
@@ -1300,7 +1360,7 @@ async function loadEditPositions() {
         const response = await fetch('/organization/api/positions');
         const data = await response.json();
 
-        const editPositionSelect = document.getElementById('editPosition');
+        const editPositionSelect = document.getElementById('editPositionSelect');
         if (editPositionSelect && data.success && data.positions) {
             const options = data.positions.map(pos =>
                 `<option value="${pos.position_id}">${pos.position_name_th || pos.position_name}</option>`
@@ -1310,6 +1370,134 @@ async function loadEditPositions() {
         }
     } catch (error) {
         console.error('Error loading positions for edit:', error);
+    }
+}
+
+// Load branches for Edit modal
+async function loadEditBranches() {
+    try {
+        const response = await fetch('/organization/api/branches');
+        const data = await response.json();
+
+        const editBranchSelect = document.getElementById('editBranchSelect');
+        if (editBranchSelect && data && Array.isArray(data)) {
+            const options = data.map(branch =>
+                `<option value="${branch.branch_id}">${branch.branch_name}</option>`
+            ).join('');
+
+            editBranchSelect.innerHTML = `<option value="">${translations.selectBranch}</option>` + options;
+        }
+    } catch (error) {
+        console.error('Error loading branches for edit:', error);
+    }
+}
+
+// Smart loading after branch selection for Edit modal
+async function loadEditOrgAfterBranch(branchId) {
+    const officeSelect = document.getElementById('editOfficeSelect');
+    const divisionSelect = document.getElementById('editDivisionSelect');
+    const departmentSelect = document.getElementById('editDepartmentSelect');
+
+    // Reset child dropdowns
+    officeSelect.innerHTML = `<option value="">${translations.selectOffice}</option>`;
+    divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>`;
+    departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
+
+    if (!branchId) return;
+
+    try {
+        // Try to load offices first
+        const officesResponse = await fetch(`/organization/api/offices?branch_id=${branchId}`);
+        const officesData = await officesResponse.json();
+
+        if (officesData && Array.isArray(officesData) && officesData.length > 0) {
+            officeSelect.innerHTML = `<option value="">${translations.selectOffice}</option>` +
+                officesData.map(office => `<option value="${office.office_id}">${office.office_name}</option>`).join('');
+        } else {
+            // No offices - load divisions directly from branch
+            const divisionsResponse = await fetch(`/organization/api/divisions?branch_id=${branchId}`);
+            const divisionsData = await divisionsResponse.json();
+
+            if (divisionsData && Array.isArray(divisionsData) && divisionsData.length > 0) {
+                divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>` +
+                    divisionsData.map(division => `<option value="${division.division_id}">${division.division_name}</option>`).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading organization after branch (edit):', error);
+    }
+}
+
+// Load divisions by office for Edit modal
+async function loadEditDivisionsByOffice(officeId) {
+    const divisionSelect = document.getElementById('editDivisionSelect');
+    const departmentSelect = document.getElementById('editDepartmentSelect');
+
+    // Reset child dropdowns
+    divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>`;
+    departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
+
+    if (!officeId) return;
+
+    try {
+        const response = await fetch(`/organization/api/divisions?office_id=${officeId}`);
+        const data = await response.json();
+
+        if (data && Array.isArray(data) && data.length > 0) {
+            divisionSelect.innerHTML = `<option value="">${translations.selectDivision}</option>` +
+                data.map(division => `<option value="${division.division_id}">${division.division_name}</option>`).join('');
+        } else {
+            // No divisions - load departments directly from office
+            const deptResponse = await fetch(`/organization/api/departments?office_id=${officeId}`);
+            const deptData = await deptResponse.json();
+
+            if (deptData && Array.isArray(deptData)) {
+                departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>` +
+                    deptData.map(dept => `<option value="${dept.department_id}">${dept.department_name}</option>`).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading divisions (edit):', error);
+    }
+}
+
+// Load departments by division for Edit modal
+async function loadEditDepartmentsByDivision(divisionId) {
+    const departmentSelect = document.getElementById('editDepartmentSelect');
+
+    departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>`;
+
+    if (!divisionId) return;
+
+    try {
+        const response = await fetch(`/organization/api/departments?division_id=${divisionId}`);
+        const data = await response.json();
+
+        if (data && Array.isArray(data)) {
+            departmentSelect.innerHTML = `<option value="">${translations.selectDepartment}</option>` +
+                data.map(dept => `<option value="${dept.department_id}">${dept.department_name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading departments (edit):', error);
+    }
+}
+
+// Setup Edit profile image preview
+function setupEditProfileImagePreview() {
+    const editProfileInput = document.getElementById('editProfileImageInput');
+    const editProfilePreview = document.getElementById('editProfilePreview');
+
+    if (editProfileInput && editProfilePreview) {
+        editProfileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editProfilePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     }
 }
 
@@ -1433,12 +1621,20 @@ async function editUser(userId) {
         if (data.success) {
             const user = data.user;
 
+            // Basic fields
             document.getElementById('editUserId').value = user.user_id;
+            document.getElementById('editEmployeeId').value = user.employee_id || '';
             document.getElementById('editFirstName').value = user.first_name || '';
             document.getElementById('editLastName').value = user.last_name || '';
             document.getElementById('editEmail').value = user.email || '';
             document.getElementById('editPhone').value = user.phone || '';
             document.getElementById('editRole').value = user.role || '';
+
+            // Profile image
+            const editProfilePreview = document.getElementById('editProfilePreview');
+            if (editProfilePreview) {
+                editProfilePreview.src = user.profile_image || '/images/default-avatar.png';
+            }
 
             // Convert is_active to status format
             let status = 'inactive';
@@ -1447,17 +1643,40 @@ async function editUser(userId) {
             }
             document.getElementById('editStatus').value = status;
 
-            // Load departments and positions, then set selected values
-            await loadEditDepartments();
+            // Load organization cascade data
+            await loadEditBranches();
             await loadEditPositions();
 
-            // Set department and position after loading
-            if (user.department_id) {
-                document.getElementById('editDepartment').value = user.department_id;
+            // Set branch and trigger cascade loading
+            if (user.branch_id) {
+                document.getElementById('editBranchSelect').value = user.branch_id;
+                await loadEditOrgAfterBranch(user.branch_id);
+
+                // Set office if exists
+                if (user.office_id) {
+                    document.getElementById('editOfficeSelect').value = user.office_id;
+                    await loadEditDivisionsByOffice(user.office_id);
+                }
+
+                // Set division if exists
+                if (user.division_id) {
+                    document.getElementById('editDivisionSelect').value = user.division_id;
+                    await loadEditDepartmentsByDivision(user.division_id);
+                }
+
+                // Set department if exists
+                if (user.department_id) {
+                    document.getElementById('editDepartmentSelect').value = user.department_id;
+                }
             }
+
+            // Set position after loading
             if (user.position_id) {
-                document.getElementById('editPosition').value = user.position_id;
+                document.getElementById('editPositionSelect').value = user.position_id;
             }
+
+            // Setup edit profile image preview
+            setupEditProfileImagePreview();
 
             document.getElementById('editUserModal').classList.remove('hidden');
         } else {

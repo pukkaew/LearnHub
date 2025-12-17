@@ -159,7 +159,8 @@ document.getElementById('editUnitForm').addEventListener('submit', async functio
         const response = await fetch('/organization/<%= unit.unit_id %>', {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify(jsonData)
         });

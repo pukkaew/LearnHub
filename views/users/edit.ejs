@@ -7,8 +7,11 @@
                 <p class="text-white/80 mt-2"><%= t('editUserData') %></p>
             </div>
             <div class="flex space-x-3">
+                <button onclick="previewUser()" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
+                    <i class="fas fa-eye mr-2"></i><%= t('preview') %>
+                </button>
                 <a href="/users/<%= userData.user_id %>/view" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
-                    <i class="fas fa-eye mr-2"></i><%= t('view') %>
+                    <i class="fas fa-user mr-2"></i><%= t('view') %>
                 </a>
                 <a href="/users" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i><%= t('backToUsers') %>
@@ -17,133 +20,190 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="bg-white rounded-lg shadow-sm">
-        <form id="edit-user-form" enctype="multipart/form-data" class="p-6 space-y-6">
-            <input type="hidden" name="user_id" value="<%= userData.user_id %>">
-
-            <!-- Profile Image Section -->
-            <div class="flex flex-col items-center mb-6 pb-6 border-b border-gray-200">
-                <div class="relative mb-4">
-                    <img id="profilePreview" src="<%= userData.profile_image || '/images/default-avatar.png' %>" alt="Profile Preview" class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 shadow-sm">
-                    <label for="profileImageInput" class="absolute bottom-0 right-0 bg-ruxchai-primary text-white p-2 rounded-full cursor-pointer hover:bg-ruxchai-primary/90 transition-all shadow-md hover:shadow-lg">
-                        <i class="fas fa-camera text-sm"></i>
-                    </label>
-                    <input type="file" id="profileImageInput" name="profile_image" accept="image/*" class="hidden">
-                </div>
-                <p class="text-xs text-gray-500"><%= t('uploadProfileImage') %></p>
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-4">
+            <div class="step-indicator active" data-step="1">
+                <div class="step-circle">1</div>
+                <span class="step-label"><%= t('basicInformation') %></span>
             </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label"><%= t('organizationInfo') %></span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label"><%= t('rolePermissions') %></span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-indicator" data-step="4">
+                <div class="step-circle">4</div>
+                <span class="step-label"><%= t('reviewSave') %></span>
+            </div>
+        </div>
+    </div>
 
-            <!-- Basic Information Section -->
-            <div class="border-b border-gray-200 pb-6 mb-6">
-                <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+    <form id="edit-user-form" enctype="multipart/form-data">
+        <input type="hidden" name="user_id" value="<%= userData.user_id %>">
+
+        <!-- Step 1: Basic Information -->
+        <div id="step-1" class="step-content active">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <div class="w-8 h-8 bg-ruxchai-primary/10 rounded-lg flex items-center justify-center mr-3">
                         <i class="fas fa-user-circle text-ruxchai-primary"></i>
                     </div>
-                    <%= t('personalInfo') %>
-                </h4>
+                    <%= t('basicInformation') %>
+                </h3>
 
-                <div class="space-y-4">
+                <!-- Profile Image Section -->
+                <div class="flex flex-col items-center mb-6 pb-6 border-b border-gray-200">
+                    <div class="relative mb-4">
+                        <img id="profilePreview" src="<%= userData.profile_image || '/images/default-avatar.png' %>" alt="Profile Preview" class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 shadow-sm">
+                        <label for="profileImageInput" class="absolute bottom-0 right-0 bg-ruxchai-primary text-white p-2 rounded-full cursor-pointer hover:bg-ruxchai-primary/90 transition-all shadow-md hover:shadow-lg">
+                            <i class="fas fa-camera text-sm"></i>
+                        </label>
+                        <input type="file" id="profileImageInput" name="profile_image" accept="image/*" class="hidden">
+                    </div>
+                    <p class="text-xs text-gray-500"><%= t('uploadProfileImage') %></p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Employee ID -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-id-badge text-ruxchai-primary mr-1"></i>
                             <%= t('employeeId') %> <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="employee_id" id="employeeIdInput" value="<%= userData.employee_id || '' %>" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all" placeholder="<%= t('employeeId') %>">
+                        <input type="text" name="employee_id" id="employeeIdInput" value="<%= userData.employee_id || '' %>" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                               placeholder="<%= t('employeeId') %>">
                     </div>
 
-                    <!-- Name Fields -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <%= t('firstName') %> <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="first_name" value="<%= userData.first_name || '' %>" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all" placeholder="<%= t('firstName') %>">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <%= t('lastName') %> <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="last_name" value="<%= userData.last_name || '' %>" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all" placeholder="<%= t('lastName') %>">
-                        </div>
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope text-gray-400 mr-1"></i>
+                            <%= t('emailAddress') %> <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" name="email" value="<%= userData.email || '' %>" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                               placeholder="example@email.com">
                     </div>
 
-                    <!-- Contact Fields -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-envelope text-gray-400 mr-1"></i>
-                                <%= t('emailAddress') %> <span class="text-red-500">*</span>
-                            </label>
-                            <input type="email" name="email" value="<%= userData.email || '' %>" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all" placeholder="example@email.com">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-phone text-gray-400 mr-1"></i>
-                                <%= t('phoneNumber') %> <span class="text-red-500">*</span>
-                            </label>
-                            <input type="tel" name="phone" value="<%= userData.phone || '' %>" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all" placeholder="0812345678">
-                        </div>
+                    <!-- First Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <%= t('firstName') %> <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="first_name" value="<%= userData.first_name || '' %>" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                               placeholder="<%= t('firstName') %>">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <%= t('lastName') %> <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="last_name" value="<%= userData.last_name || '' %>" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                               placeholder="<%= t('lastName') %>">
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone text-gray-400 mr-1"></i>
+                            <%= t('phoneNumber') %> <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" name="phone" value="<%= userData.phone || '' %>" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all"
+                               placeholder="0812345678">
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-toggle-on text-gray-400 mr-1"></i>
+                            <%= t('status') %>
+                        </label>
+                        <select name="status" id="statusSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            <option value="active">✅ <%= t('statusActive') %></option>
+                            <option value="pending">⏳ <%= t('statusPending') %></option>
+                            <option value="inactive">❌ <%= t('statusInactive') %></option>
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <!-- Organization Information Section -->
-            <div class="border-b border-gray-200 pb-6 mb-6">
-                <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+                <div class="flex justify-between mt-6">
+                    <div></div>
+                    <button type="button" onclick="nextStep()" class="bg-ruxchai-primary text-white px-6 py-2.5 rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Organization Information -->
+        <div id="step-2" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
                         <i class="fas fa-building text-blue-600"></i>
                     </div>
                     <%= t('organizationInfo') %>
-                </h4>
+                </h3>
 
-                <div class="space-y-4">
-                    <!-- Organization Units -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-code-branch text-gray-400 mr-1"></i>
-                                <%= t('branches') %>
-                            </label>
-                            <select name="branch_id" id="branchSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value=""><%= t('selectBranch') %></option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-building text-gray-400 mr-1"></i>
-                                <%= t('offices') %>
-                            </label>
-                            <select name="office_id" id="officeSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value=""><%= t('selectOffice') %></option>
-                            </select>
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Branch -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-code-branch text-gray-400 mr-1"></i>
+                            <%= t('branches') %>
+                        </label>
+                        <select name="branch_id" id="branchSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            <option value=""><%= t('selectBranch') %></option>
+                        </select>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-layer-group text-gray-400 mr-1"></i>
-                                <%= t('divisions') %>
-                            </label>
-                            <select name="division_id" id="divisionSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value=""><%= t('selectDivision') %></option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-sitemap text-gray-400 mr-1"></i>
-                                <%= t('departments') %>
-                            </label>
-                            <select name="department_id" id="departmentSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value=""><%= t('selectDepartment') %></option>
-                            </select>
-                        </div>
+                    <!-- Office -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-building text-gray-400 mr-1"></i>
+                            <%= t('offices') %>
+                        </label>
+                        <select name="office_id" id="officeSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            <option value=""><%= t('selectOffice') %></option>
+                        </select>
+                    </div>
+
+                    <!-- Division -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-layer-group text-gray-400 mr-1"></i>
+                            <%= t('divisions') %>
+                        </label>
+                        <select name="division_id" id="divisionSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            <option value=""><%= t('selectDivision') %></option>
+                        </select>
+                    </div>
+
+                    <!-- Department -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-sitemap text-gray-400 mr-1"></i>
+                            <%= t('departments') %>
+                        </label>
+                        <select name="department_id" id="departmentSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
+                            <option value=""><%= t('selectDepartment') %></option>
+                        </select>
                     </div>
 
                     <!-- Position -->
-                    <div>
+                    <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-briefcase text-gray-400 mr-1"></i>
                             <%= t('positionName') %> <span class="text-red-500">*</span>
@@ -153,61 +213,260 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2.5 rounded-lg hover:bg-gray-600 transition-all">
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
+                    </button>
+                    <button type="button" onclick="nextStep()" class="bg-ruxchai-primary text-white px-6 py-2.5 rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
             </div>
+        </div>
 
-            <!-- System Access Section -->
-            <div class="border-b border-gray-200 pb-6 mb-6">
-                <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center">
+        <!-- Step 3: Role & Permissions -->
+        <div id="step-3" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center mr-3">
-                        <i class="fas fa-key text-purple-600"></i>
+                        <i class="fas fa-user-shield text-purple-600"></i>
                     </div>
-                    <%= t('systemAccess') %>
-                </h4>
+                    <%= t('rolePermissions') %>
+                </h3>
 
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-user-shield text-gray-400 mr-1"></i>
-                                <%= t('role') %> <span class="text-red-500">*</span>
+                <!-- User Role Cards -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        <%= t('userRole') %> <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="role-card" data-role="Employee">
+                            <input type="radio" name="role" value="Employee" id="role-employee" class="hidden" <%= userData.role_name === 'Employee' ? 'checked' : '' %>>
+                            <label for="role-employee" class="block cursor-pointer">
+                                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors role-card-inner">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-user-graduate text-2xl text-blue-600 mr-3"></i>
+                                        <h4 class="font-semibold">👤 <%= t('roleEmployee') %></h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600"><%= t('roleEmployeeDesc') %></p>
+                                </div>
                             </label>
-                            <select name="role" id="roleSelect" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value=""><%= t('selectRole') %></option>
-                                <option value="Employee" <%= (userData.role_name === 'Employee') ? 'selected' : '' %>>👤 <%= t('roleEmployee') %></option>
-                                <option value="Manager" <%= (userData.role_name === 'Manager') ? 'selected' : '' %>>👔 <%= t('roleManager') %></option>
-                                <option value="HR" <%= (userData.role_name === 'HR') ? 'selected' : '' %>>💼 <%= t('roleHR') %></option>
-                                <option value="Admin" <%= (userData.role_name === 'Admin') ? 'selected' : '' %>>⚙️ <%= t('roleAdmin') %></option>
-                            </select>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-toggle-on text-gray-400 mr-1"></i>
-                                <%= t('status') %>
+
+                        <div class="role-card" data-role="Manager">
+                            <input type="radio" name="role" value="Manager" id="role-manager" class="hidden" <%= userData.role_name === 'Manager' ? 'checked' : '' %>>
+                            <label for="role-manager" class="block cursor-pointer">
+                                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors role-card-inner">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-chalkboard-teacher text-2xl text-green-600 mr-3"></i>
+                                        <h4 class="font-semibold">👔 <%= t('roleManager') %></h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600"><%= t('roleManagerDesc') %></p>
+                                </div>
                             </label>
-                            <select name="status" id="statusSelect" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ruxchai-primary focus:border-transparent transition-all">
-                                <option value="active">✅ <%= t('statusActive') %></option>
-                                <option value="pending">⏳ <%= t('statusPending') %></option>
-                                <option value="inactive">❌ <%= t('statusInactive') %></option>
-                            </select>
+                        </div>
+
+                        <div class="role-card" data-role="HR">
+                            <input type="radio" name="role" value="HR" id="role-hr" class="hidden" <%= userData.role_name === 'HR' ? 'checked' : '' %>>
+                            <label for="role-hr" class="block cursor-pointer">
+                                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors role-card-inner">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-users-cog text-2xl text-purple-600 mr-3"></i>
+                                        <h4 class="font-semibold">💼 <%= t('roleHR') %></h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600"><%= t('roleHRDesc') %></p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="role-card" data-role="Admin">
+                            <input type="radio" name="role" value="Admin" id="role-admin" class="hidden" <%= userData.role_name === 'Admin' ? 'checked' : '' %>>
+                            <label for="role-admin" class="block cursor-pointer">
+                                <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors role-card-inner">
+                                    <div class="flex items-center mb-2">
+                                        <i class="fas fa-user-shield text-2xl text-red-600 mr-3"></i>
+                                        <h4 class="font-semibold">⚙️ <%= t('roleAdmin') %></h4>
+                                    </div>
+                                    <p class="text-sm text-gray-600"><%= t('roleAdminDesc') %></p>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <a href="/users" class="px-6 py-2.5 text-gray-700 font-medium bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow">
-                    <i class="fas fa-times mr-2"></i><%= t('cancel') %>
-                </a>
-                <button type="submit" class="px-6 py-2.5 bg-ruxchai-primary text-white font-medium rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
-                    <i class="fas fa-save mr-2"></i><%= t('saveChanges') %>
-                </button>
+                <!-- Info Box -->
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex">
+                        <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                        <div class="text-sm text-blue-800">
+                            <p class="font-semibold mb-1"><%= t('roleChangeNote') || 'Role Information' %>:</p>
+                            <p><%= t('roleChangeDescription') || 'Changing the role will affect user permissions in the system.' %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2.5 rounded-lg hover:bg-gray-600 transition-all">
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
+                    </button>
+                    <button type="button" onclick="nextStep()" class="bg-ruxchai-primary text-white px-6 py-2.5 rounded-lg hover:bg-ruxchai-primary/90 transition-all shadow-sm hover:shadow-md">
+                        <%= t('next') %> <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
             </div>
-        </form>
+        </div>
+
+        <!-- Step 4: Review & Save -->
+        <div id="step-4" class="step-content">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                    <%= t('reviewSave') || 'Review & Save' %>
+                </h3>
+
+                <div id="user-preview" class="space-y-6">
+                    <!-- Preview will be populated here -->
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="bg-gray-500 text-white px-6 py-2.5 rounded-lg hover:bg-gray-600 transition-all">
+                        <i class="fas fa-arrow-left mr-2"></i><%= t('previous') %>
+                    </button>
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-all shadow-sm hover:shadow-md">
+                        <i class="fas fa-save mr-2"></i><%= t('saveChanges') %>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Preview Modal -->
+<div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[9999]">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900"><%= t('userPreview') || 'User Preview' %></h3>
+                    <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="modal-preview-content">
+                    <!-- Preview content will be populated here -->
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] hidden">
+    <div class="bg-white rounded-lg p-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-ruxchai-primary"></div>
+            <span class="ml-3"><%= t('saving') || 'Saving...' %></span>
+        </div>
+    </div>
+</div>
+
+<style>
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #E5E7EB;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.step-indicator.active .step-circle {
+    background-color: var(--ruxchai-primary, #3B82F6);
+    color: white;
+}
+
+.step-indicator.completed .step-circle {
+    background-color: #10B981;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.step-indicator.active .step-label {
+    color: var(--ruxchai-primary, #3B82F6);
+    font-weight: 500;
+}
+
+.step-line {
+    height: 2px;
+    background-color: #E5E7EB;
+    flex: 1;
+    margin-top: 20px;
+}
+
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+}
+
+.role-card input[type="radio"]:checked + label .role-card-inner {
+    border-color: var(--ruxchai-primary, #3B82F6);
+    background-color: #EFF6FF;
+}
+</style>
+
 <script>
+let currentStep = 1;
+const totalSteps = 4;
+
+// Translation object
+const translations = {
+    pleaseFillInAllRequiredFields: '<%= t("pleaseFillInAllRequiredFields") || "Please fill in all required fields" %>',
+    userEditedSuccess: '<%= t("userEditedSuccess") || "User updated successfully" %>',
+    error: '<%= t("error") || "Error" %>',
+    basicInformation: '<%= t("basicInformation") || "Basic Information" %>',
+    organizationInfo: '<%= t("organizationInfo") || "Organization Information" %>',
+    rolePermissions: '<%= t("rolePermissions") || "Role & Permissions" %>',
+    employeeId: '<%= t("employeeId") || "Employee ID" %>',
+    email: '<%= t("emailAddress") || "Email" %>',
+    firstName: '<%= t("firstName") || "First Name" %>',
+    lastName: '<%= t("lastName") || "Last Name" %>',
+    phone: '<%= t("phoneNumber") || "Phone" %>',
+    status: '<%= t("status") || "Status" %>',
+    branch: '<%= t("branches") || "Branch" %>',
+    office: '<%= t("offices") || "Office" %>',
+    division: '<%= t("divisions") || "Division" %>',
+    department: '<%= t("departments") || "Department" %>',
+    position: '<%= t("positionName") || "Position" %>',
+    role: '<%= t("role") || "Role" %>',
+    active: '<%= t("statusActive") || "Active" %>',
+    pending: '<%= t("statusPending") || "Pending" %>',
+    inactive: '<%= t("statusInactive") || "Inactive" %>',
+    notSpecified: '<%= t("notSpecified") || "Not specified" %>'
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const userData = <%- JSON.stringify(userData) %>;
 
@@ -223,12 +482,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Set role value
-    const roleSelect = document.getElementById('roleSelect');
-    if (roleSelect && userData.role_name) {
-        roleSelect.value = userData.role_name;
-    }
-
     // Set status value
     if (userData.is_active) {
         document.getElementById('statusSelect').value = 'active';
@@ -236,103 +489,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('statusSelect').value = 'inactive';
     }
 
-    // Load branches
-    async function loadBranches() {
-        try {
-            const response = await fetch('/organization/api/branches');
-            const data = await response.json();
-            const select = document.getElementById('branchSelect');
-            select.innerHTML = '<option value=""><%= t("selectBranch") %></option>';
-            data.forEach(branch => {
-                const option = document.createElement('option');
-                option.value = branch.branch_id;
-                option.textContent = branch.branch_name;
-                option.selected = userData.branch_id == branch.branch_id;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error loading branches:', error);
-        }
-    }
+    // Initialize role card selection
+    initRoleCards();
 
-    // Load offices
-    async function loadOffices() {
-        try {
-            const response = await fetch('/organization/api/offices');
-            const data = await response.json();
-            const select = document.getElementById('officeSelect');
-            select.innerHTML = '<option value=""><%= t("selectOffice") %></option>';
-            data.forEach(office => {
-                const option = document.createElement('option');
-                option.value = office.office_id;
-                option.textContent = office.office_name;
-                option.selected = userData.office_id == office.office_id;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error loading offices:', error);
-        }
-    }
-
-    // Load divisions
-    async function loadDivisions() {
-        try {
-            const response = await fetch('/organization/api/divisions');
-            const data = await response.json();
-            const select = document.getElementById('divisionSelect');
-            select.innerHTML = '<option value=""><%= t("selectDivision") %></option>';
-            data.forEach(division => {
-                const option = document.createElement('option');
-                option.value = division.division_id;
-                option.textContent = division.division_name;
-                option.selected = userData.division_id == division.division_id;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error loading divisions:', error);
-        }
-    }
-
-    // Load departments
-    async function loadDepartments() {
-        try {
-            const response = await fetch('/organization/api/departments');
-            const data = await response.json();
-            const select = document.getElementById('departmentSelect');
-            select.innerHTML = '<option value=""><%= t("selectDepartment") %></option>';
-            data.forEach(department => {
-                const option = document.createElement('option');
-                option.value = department.department_id;
-                option.textContent = department.department_name;
-                option.selected = userData.department_id == department.department_id;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error loading departments:', error);
-        }
-    }
-
-    async function loadPositions() {
-        try {
-            const response = await fetch('/organization/api/positions');
-            const data = await response.json();
-            const select = document.getElementById('positionSelect');
-            select.innerHTML = '<option value=""><%= t("selectPosition") %></option>';
-            if (data.success && data.positions) {
-                data.positions.forEach(position => {
-                    const option = document.createElement('option');
-                    option.value = position.position_id;
-                    option.textContent = position.position_name_th || position.position_name;
-                    option.selected = userData.position_id == position.position_id;
-                    select.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Error loading positions:', error);
-        }
-    }
-
-    // Initialize dropdowns
+    // Load organization data
     loadBranches();
     loadOffices();
     loadDivisions();
@@ -342,27 +502,334 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission
     document.getElementById('edit-user-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-
-        const formData = new FormData(this);
-
-        try {
-            const response = await fetch(`/users/api/${userData.user_id}`, {
-                method: 'PUT',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert('<%= t("userEditedSuccess") %>');
-                window.location.href = '/users';
-            } else {
-                alert(data.message || '<%= t("error") %>');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('<%= t("error") %>');
-        }
+        await submitForm();
     });
 });
+
+function initRoleCards() {
+    // Update role card styling based on checked state
+    document.querySelectorAll('input[name="role"]').forEach(radio => {
+        radio.addEventListener('change', updateRoleCardStyles);
+    });
+    updateRoleCardStyles();
+}
+
+function updateRoleCardStyles() {
+    document.querySelectorAll('.role-card').forEach(card => {
+        const radio = card.querySelector('input[type="radio"]');
+        const inner = card.querySelector('.role-card-inner');
+        if (radio && radio.checked) {
+            inner.style.borderColor = 'var(--ruxchai-primary, #3B82F6)';
+            inner.style.backgroundColor = '#EFF6FF';
+        } else {
+            inner.style.borderColor = '#E5E7EB';
+            inner.style.backgroundColor = 'white';
+        }
+    });
+}
+
+async function loadBranches() {
+    const userData = <%- JSON.stringify(userData) %>;
+    try {
+        const response = await fetch('/organization/api/branches');
+        const data = await response.json();
+        const select = document.getElementById('branchSelect');
+        select.innerHTML = '<option value=""><%= t("selectBranch") %></option>';
+        data.forEach(branch => {
+            const option = document.createElement('option');
+            option.value = branch.branch_id;
+            option.textContent = branch.branch_name;
+            option.selected = userData.branch_id == branch.branch_id;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading branches:', error);
+    }
+}
+
+async function loadOffices() {
+    const userData = <%- JSON.stringify(userData) %>;
+    try {
+        const response = await fetch('/organization/api/offices');
+        const data = await response.json();
+        const select = document.getElementById('officeSelect');
+        select.innerHTML = '<option value=""><%= t("selectOffice") %></option>';
+        data.forEach(office => {
+            const option = document.createElement('option');
+            option.value = office.office_id;
+            option.textContent = office.office_name;
+            option.selected = userData.office_id == office.office_id;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading offices:', error);
+    }
+}
+
+async function loadDivisions() {
+    const userData = <%- JSON.stringify(userData) %>;
+    try {
+        const response = await fetch('/organization/api/divisions');
+        const data = await response.json();
+        const select = document.getElementById('divisionSelect');
+        select.innerHTML = '<option value=""><%= t("selectDivision") %></option>';
+        data.forEach(division => {
+            const option = document.createElement('option');
+            option.value = division.division_id;
+            option.textContent = division.division_name;
+            option.selected = userData.division_id == division.division_id;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading divisions:', error);
+    }
+}
+
+async function loadDepartments() {
+    const userData = <%- JSON.stringify(userData) %>;
+    try {
+        const response = await fetch('/organization/api/departments');
+        const data = await response.json();
+        const select = document.getElementById('departmentSelect');
+        select.innerHTML = '<option value=""><%= t("selectDepartment") %></option>';
+        data.forEach(department => {
+            const option = document.createElement('option');
+            option.value = department.department_id;
+            option.textContent = department.department_name;
+            option.selected = userData.department_id == department.department_id;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading departments:', error);
+    }
+}
+
+async function loadPositions() {
+    const userData = <%- JSON.stringify(userData) %>;
+    try {
+        const response = await fetch('/organization/api/positions');
+        const data = await response.json();
+        const select = document.getElementById('positionSelect');
+        select.innerHTML = '<option value=""><%= t("selectPosition") %></option>';
+        if (data.success && data.positions) {
+            data.positions.forEach(position => {
+                const option = document.createElement('option');
+                option.value = position.position_id;
+                option.textContent = position.position_name_th || position.position_name;
+                option.selected = userData.position_id == position.position_id;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading positions:', error);
+    }
+}
+
+function nextStep() {
+    if (validateCurrentStep()) {
+        if (currentStep < totalSteps) {
+            document.querySelector(`[data-step="${currentStep}"]`).classList.add('completed');
+            currentStep++;
+            updateStepDisplay();
+
+            if (currentStep === 4) {
+                generatePreview();
+            }
+        }
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStepDisplay();
+        document.querySelector(`[data-step="${currentStep + 1}"]`)?.classList.remove('completed');
+    }
+}
+
+function updateStepDisplay() {
+    document.querySelectorAll('.step-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`step-${currentStep}`).classList.add('active');
+
+    document.querySelectorAll('.step-indicator').forEach(indicator => {
+        indicator.classList.remove('active');
+    });
+    document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+}
+
+function validateCurrentStep() {
+    const currentStepElement = document.getElementById(`step-${currentStep}`);
+    const requiredFields = currentStepElement.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+
+    if (!isValid) {
+        showMessage(translations.pleaseFillInAllRequiredFields, 'error');
+    }
+
+    return isValid;
+}
+
+function generatePreview() {
+    const formData = new FormData(document.getElementById('edit-user-form'));
+    const previewContainer = document.getElementById('user-preview');
+
+    const role = formData.get('role') || '<%= userData.role_name %>';
+    const status = formData.get('status');
+    const statusLabel = status === 'active' ? translations.active : status === 'pending' ? translations.pending : translations.inactive;
+    const statusColor = status === 'active' ? 'green' : status === 'pending' ? 'yellow' : 'red';
+
+    // Get selected organization names
+    const branchName = document.getElementById('branchSelect').options[document.getElementById('branchSelect').selectedIndex]?.text || translations.notSpecified;
+    const officeName = document.getElementById('officeSelect').options[document.getElementById('officeSelect').selectedIndex]?.text || translations.notSpecified;
+    const divisionName = document.getElementById('divisionSelect').options[document.getElementById('divisionSelect').selectedIndex]?.text || translations.notSpecified;
+    const departmentName = document.getElementById('departmentSelect').options[document.getElementById('departmentSelect').selectedIndex]?.text || translations.notSpecified;
+    const positionName = document.getElementById('positionSelect').options[document.getElementById('positionSelect').selectedIndex]?.text || translations.notSpecified;
+
+    previewContainer.innerHTML = `
+        <div class="border border-gray-200 rounded-lg p-6">
+            <!-- User Profile Header -->
+            <div class="flex items-start space-x-4 pb-4 border-b border-gray-200">
+                <img src="${document.getElementById('profilePreview').src}"
+                     alt="Profile" class="h-20 w-20 rounded-full object-cover border-2 border-gray-300">
+                <div class="flex-1">
+                    <h4 class="text-xl font-semibold text-gray-900">
+                        ${formData.get('first_name')} ${formData.get('last_name')}
+                    </h4>
+                    <p class="text-gray-600">${formData.get('email')}</p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            ${role}
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${statusColor}-100 text-${statusColor}-800">
+                            ${statusLabel}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Basic Info Section -->
+            <div class="py-4 border-b border-gray-200">
+                <h5 class="font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-user-circle text-ruxchai-primary mr-2"></i>
+                    ${translations.basicInformation}
+                </h5>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-700">${translations.employeeId}:</span>
+                        <span class="text-gray-600 ml-2">${formData.get('employee_id') || '-'}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">${translations.phone}:</span>
+                        <span class="text-gray-600 ml-2">${formData.get('phone') || '-'}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Organization Info Section -->
+            <div class="py-4">
+                <h5 class="font-semibold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-building text-blue-600 mr-2"></i>
+                    ${translations.organizationInfo}
+                </h5>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-700">${translations.branch}:</span>
+                        <span class="text-gray-600 ml-2">${branchName}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">${translations.office}:</span>
+                        <span class="text-gray-600 ml-2">${officeName}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">${translations.division}:</span>
+                        <span class="text-gray-600 ml-2">${divisionName}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">${translations.department}:</span>
+                        <span class="text-gray-600 ml-2">${departmentName}</span>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="font-medium text-gray-700">${translations.position}:</span>
+                        <span class="text-gray-600 ml-2">${positionName}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function previewUser() {
+    generatePreview();
+    const modalContent = document.getElementById('modal-preview-content');
+    modalContent.innerHTML = document.getElementById('user-preview').innerHTML;
+    document.getElementById('preview-modal').classList.remove('hidden');
+}
+
+function closePreview() {
+    document.getElementById('preview-modal').classList.add('hidden');
+}
+
+async function submitForm() {
+    if (!validateCurrentStep()) {
+        return;
+    }
+
+    showLoading(true);
+
+    try {
+        const userData = <%- JSON.stringify(userData) %>;
+        const formData = new FormData(document.getElementById('edit-user-form'));
+
+        const response = await fetch(`/users/api/${userData.user_id}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage(translations.userEditedSuccess, 'success');
+            setTimeout(() => {
+                window.location.href = '/users';
+            }, 1500);
+        } else {
+            showMessage(data.message || translations.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage(translations.error, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.toggle('hidden', !show);
+}
+
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-[9999] px-6 py-3 rounded-lg text-white ${
+        type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
 </script>

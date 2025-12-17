@@ -255,6 +255,9 @@ const userController = {
                 profile_image: user.profile_image,
                 role: user.role_name,  // Use role_name from database
                 role_id: user.role_id,
+                branch_id: user.branch_id,
+                office_id: user.office_id,
+                division_id: user.division_id,
                 department_id: user.department_id,
                 department_name: user.department_name,
                 position_id: user.position_id,
@@ -437,9 +440,13 @@ const userController = {
                 last_name,
                 phone,
                 role,
+                branch_id,
+                office_id,
+                division_id,
                 department_id,
                 position_id,
-                status
+                status,
+                is_active
             } = req.body;
 
             const updateData = {};
@@ -449,10 +456,17 @@ const userController = {
             if (last_name !== undefined && last_name !== '') {updateData.last_name = last_name;}
             if (phone !== undefined && phone !== '') {updateData.phone = phone;}
             if (role !== undefined && role !== '') {updateData.role = role;}
-            if (department_id !== undefined && department_id !== '') {updateData.department_id = department_id || null;}
-            if (position_id !== undefined && position_id !== '') {updateData.position_id = position_id || null;}
+            // Organization structure fields - allow empty string to set null
+            if (branch_id !== undefined) {updateData.branch_id = branch_id || null;}
+            if (office_id !== undefined) {updateData.office_id = office_id || null;}
+            if (division_id !== undefined) {updateData.division_id = division_id || null;}
+            if (department_id !== undefined) {updateData.department_id = department_id || null;}
+            if (position_id !== undefined) {updateData.position_id = position_id || null;}
+            // Handle both 'status' and 'is_active' fields
             if (status !== undefined && status !== '') {
                 updateData.is_active = status === 'active';
+            } else if (is_active !== undefined) {
+                updateData.is_active = is_active === 'true' || is_active === true;
             }
 
             console.log('Update data:', updateData);

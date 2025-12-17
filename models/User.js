@@ -184,6 +184,18 @@ class User {
                 updateFields.push('last_name = @lastName');
                 request.input('lastName', sql.NVarChar(50), updateData.last_name);
             }
+            if (updateData.branch_id !== undefined) {
+                updateFields.push('branch_id = @branchId');
+                request.input('branchId', sql.Int, updateData.branch_id);
+            }
+            if (updateData.office_id !== undefined) {
+                updateFields.push('office_id = @officeId');
+                request.input('officeId', sql.Int, updateData.office_id);
+            }
+            if (updateData.division_id !== undefined) {
+                updateFields.push('division_id = @divisionId');
+                request.input('divisionId', sql.Int, updateData.division_id);
+            }
             if (updateData.department_id !== undefined) {
                 updateFields.push('department_id = @departmentId');
                 request.input('departmentId', sql.Int, updateData.department_id);

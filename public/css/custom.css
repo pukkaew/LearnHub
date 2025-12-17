@@ -929,3 +929,82 @@ body {
     min-width: 44px;
   }
 }
+
+/* ========================================
+   TOAST NOTIFICATIONS - Above Navigation
+   ======================================== */
+/* Override z-50 for toast notifications at top-right */
+.fixed.top-4.right-4.z-50,
+.fixed.top-4.right-4,
+div.fixed.top-4.right-4.z-50,
+div.fixed.top-4.right-4 {
+  z-index: 9999 !important;
+}
+
+/* Generic toast notification selector */
+.toast-notification,
+[class*="fixed"][class*="top-4"][class*="right-4"][class*="z-50"],
+div[class*="fixed"][class*="top-4"][class*="right-4"] {
+  z-index: 9999 !important;
+}
+
+/* Success/Error/Info toast messages */
+.toast-success,
+.toast-error,
+.toast-info,
+.toast-warning {
+  position: fixed !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  z-index: 9999 !important;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+.toast-success {
+  background-color: #22c55e;
+}
+
+.toast-error {
+  background-color: #ef4444;
+}
+
+.toast-info {
+  background-color: #3b82f6;
+}
+
+.toast-warning {
+  background-color: #f59e0b;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Flash messages override */
+.flash-message,
+#success-message,
+#error-message,
+.alert-success,
+.alert-error,
+.alert-danger,
+.alert-info,
+.alert-warning {
+  z-index: 9999 !important;
+}
+
+/* Override Tailwind z-50 specifically for notifications */
+.notification-toast {
+  z-index: 9999 !important;
+}
