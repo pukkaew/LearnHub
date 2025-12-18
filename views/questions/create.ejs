@@ -284,7 +284,9 @@ document.getElementById('addOptionBtn').addEventListener('click', function() {
     addOption('', false);
 });
 
-function addOption(text = '', isCorrect = false) {
+let optionImageUrls = {}; // Store option image URLs by index
+
+function addOption(text = '', isCorrect = false, imageUrl = '') {
     optionCount++;
     const optionHtml = `
         <div class="option-item flex items-start gap-4 p-4 border border-gray-200 rounded-lg bg-gray-50" data-option-id="${optionCount}">
@@ -299,7 +301,27 @@ function addOption(text = '', isCorrect = false) {
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2">
                 <textarea name="option_explanation_${optionCount}" rows="2"
                     placeholder="<%= t('optionExplanation') || 'Optional: Explain why this option is correct/incorrect' %>"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2"></textarea>
+                <!-- Option Image Upload -->
+                <div class="flex items-center space-x-2">
+                    <input type="file" id="option_image_${optionCount}" name="option_image_${optionCount}" accept="image/*"
+                           onchange="previewOptionImage(this, ${optionCount})"
+                           class="hidden">
+                    <label for="option_image_${optionCount}"
+                           class="cursor-pointer inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-image mr-2"></i><%= t('addOptionImage') || 'Add Image' %>
+                    </label>
+                    <span id="option_image_name_${optionCount}" class="text-xs text-gray-500"></span>
+                </div>
+                <div id="option_image_preview_${optionCount}" class="mt-2 ${imageUrl ? '' : 'hidden'}">
+                    <img src="${imageUrl}" alt="Option preview"
+                         class="max-w-32 max-h-24 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                         onclick="window.open(this.src, '_blank')" title="<%= t('clickToEnlarge') || 'Click to enlarge' %>">
+                    <button type="button" onclick="removeOptionImage(${optionCount})"
+                            class="mt-1 text-xs text-red-600 hover:text-red-800">
+                        <i class="fas fa-times mr-1"></i><%= t('removeImage') || 'Remove Image' %>
+                    </button>
+                </div>
             </div>
             <button type="button" onclick="removeOption(${optionCount})"
                 class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
@@ -308,6 +330,56 @@ function addOption(text = '', isCorrect = false) {
         </div>
     `;
     document.getElementById('optionsList').insertAdjacentHTML('beforeend', optionHtml);
+}
+
+async function previewOptionImage(input, optionIndex) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const preview = document.getElementById(`option_image_preview_${optionIndex}`);
+        const nameSpan = document.getElementById(`option_image_name_${optionIndex}`);
+
+        // Show file name
+        nameSpan.textContent = file.name;
+
+        // Upload image
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('/api/upload/image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                optionImageUrls[optionIndex] = result.data.url;
+                preview.querySelector('img').src = result.data.url;
+                preview.classList.remove('hidden');
+            } else {
+                alert(result.message || '<%= t('uploadFailed') || 'Failed to upload image' %>');
+            }
+        } catch (error) {
+            console.error('Error uploading option image:', error);
+            alert('<%= t('uploadError') || 'Error uploading image' %>');
+        }
+    }
+}
+
+function removeOptionImage(optionIndex) {
+    const input = document.getElementById(`option_image_${optionIndex}`);
+    if (input) input.value = '';
+
+    const nameSpan = document.getElementById(`option_image_name_${optionIndex}`);
+    if (nameSpan) nameSpan.textContent = '';
+
+    const preview = document.getElementById(`option_image_preview_${optionIndex}`);
+    if (preview) {
+        preview.classList.add('hidden');
+        preview.querySelector('img').src = '';
+    }
+
+    delete optionImageUrls[optionIndex];
 }
 
 function removeOption(id) {
@@ -353,13 +425,15 @@ document.getElementById('createQuestionForm').addEventListener('submit', async f
             const optionId = item.dataset.optionId;
             const optionText = formData.get(`option_text_${optionId}`);
             const optionExplanation = formData.get(`option_explanation_${optionId}`);
+            const optionImage = optionImageUrls[optionId] || null;
 
             if (optionText) {
                 options.push({
                     option_text: optionText,
                     is_correct: correctOption === optionId,
                     option_order: index + 1,
-                    explanation: optionExplanation || null
+                    explanation: optionExplanation || null,
+                    option_image: optionImage
                 });
             }
         });

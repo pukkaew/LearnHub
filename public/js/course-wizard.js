@@ -1539,6 +1539,22 @@ function collectFormData(videoPaths = []) {
         data.certificate_validity = certValidityMap[data.certificate_validity];
     }
 
+    // Handle recurring course settings
+    const isRecurringCheckbox = document.getElementById('is_recurring');
+    if (isRecurringCheckbox) {
+        data.is_recurring = isRecurringCheckbox.checked;
+        if (data.is_recurring) {
+            const recurrenceType = document.querySelector('input[name="recurrence_type"]:checked');
+            data.recurrence_type = recurrenceType ? recurrenceType.value : 'custom_months';
+
+            const recurrenceMonths = document.getElementById('recurrence_months');
+            data.recurrence_months = recurrenceMonths ? parseInt(recurrenceMonths.value) : 12;
+
+            const notifyDays = document.getElementById('notify_days_before');
+            data.notify_days_before = notifyDays ? parseInt(notifyDays.value) : 30;
+        }
+    }
+
     // Detailed logging before sending to server
     console.log('🔍 CLIENT-SIDE DATA COLLECTED:');
     console.log('  course_code:', data.course_code);
@@ -1552,6 +1568,10 @@ function collectFormData(videoPaths = []) {
     console.log('  max_attempts:', data.max_attempts);
     console.log('  max_students:', data.max_students);
     console.log('  certificate_validity:', data.certificate_validity);
+    console.log('  is_recurring:', data.is_recurring);
+    console.log('  recurrence_type:', data.recurrence_type);
+    console.log('  recurrence_months:', data.recurrence_months);
+    console.log('  notify_days_before:', data.notify_days_before);
     console.log('Full data object:', data);
 
     return data;

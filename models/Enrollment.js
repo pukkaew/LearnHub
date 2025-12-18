@@ -305,10 +305,12 @@ class Enrollment {
                     WHERE enrollment_id = @enrollmentId
                 `);
 
-            // Check if course completed for certificate generation
+            // Check if course completed for certificate generation and expiry calculation
             if (progressPercentage >= 100) {
                 try {
                     await this.generateCertificate(enrollmentId);
+                    // Calculate certificate expiry for recurring courses
+                    await this.calculateCertificateExpiry(enrollmentId);
                 } catch (certError) {
                     // Log certificate generation error but don't fail progress update
                     console.error('Certificate generation error (non-fatal):', certError.message);
@@ -321,6 +323,70 @@ class Enrollment {
             };
         } catch (error) {
             throw new Error(`Error updating progress: ${error.message}`);
+        }
+    }
+
+    // Calculate certificate expiry date for recurring courses
+    static async calculateCertificateExpiry(enrollmentId) {
+        try {
+            const pool = await poolPromise;
+
+            // Get course and enrollment info
+            const infoResult = await pool.request()
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .query(`
+                    SELECT uc.enrollment_id, uc.course_id, uc.completion_date,
+                           c.is_recurring, c.recurrence_type, c.recurrence_months
+                    FROM user_courses uc
+                    JOIN courses c ON uc.course_id = c.course_id
+                    WHERE uc.enrollment_id = @enrollmentId
+                `);
+
+            if (infoResult.recordset.length === 0) {
+                return { success: false, message: 'Enrollment not found' };
+            }
+
+            const info = infoResult.recordset[0];
+
+            // Only process recurring courses
+            if (!info.is_recurring) {
+                return { success: true, message: 'Not a recurring course' };
+            }
+
+            let expiryDate = null;
+            const currentYear = new Date().getFullYear();
+
+            if (info.recurrence_type === 'calendar_year') {
+                // Expiry at end of current calendar year
+                expiryDate = new Date(currentYear, 11, 31, 23, 59, 59);
+            } else if (info.recurrence_type === 'custom_months' && info.recurrence_months) {
+                // Expiry after X months from completion
+                const completionDate = info.completion_date ? new Date(info.completion_date) : new Date();
+                expiryDate = new Date(completionDate);
+                expiryDate.setMonth(expiryDate.getMonth() + info.recurrence_months);
+            }
+
+            if (expiryDate) {
+                await pool.request()
+                    .input('enrollmentId', sql.Int, enrollmentId)
+                    .input('expiryDate', sql.DateTime2, expiryDate)
+                    .input('trainingYear', sql.Int, currentYear)
+                    .input('renewalStatus', sql.NVarChar(50), 'valid')
+                    .query(`
+                        UPDATE user_courses
+                        SET certificate_expiry_date = @expiryDate,
+                            training_year = @trainingYear,
+                            renewal_status = @renewalStatus
+                        WHERE enrollment_id = @enrollmentId
+                    `);
+
+                console.log(`📅 Certificate expiry set for enrollment ${enrollmentId}: ${expiryDate.toISOString()}`);
+            }
+
+            return { success: true, expiryDate };
+        } catch (error) {
+            console.error('Error calculating certificate expiry:', error.message);
+            return { success: false, message: error.message };
         }
     }
 

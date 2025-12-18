@@ -7,6 +7,21 @@ const Lesson = require('../models/Lesson');
 const PositionTestSet = require('../models/PositionTestSet');
 const { poolPromise, sql } = require('../config/database');
 
+// Helper function to convert difficulty level string to integer
+function parseDifficultyLevel(value) {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+        const lower = value.toLowerCase();
+        if (lower === 'easy') return 1;
+        if (lower === 'medium') return 3;
+        if (lower === 'hard') return 5;
+        // Try to parse as number
+        const num = parseInt(value, 10);
+        if (!isNaN(num)) return num;
+    }
+    return 3; // default to medium
+}
+
 // Helper function to update course progress after test submission
 async function updateCourseProgressAfterTest(userId, courseId) {
     try {
@@ -97,21 +112,30 @@ const testController = {
             const userId = req.user.user_id;
             const userRole = req.user.role_name;
 
-            // Build status filter based on role
-            // Admin sees all Drafts, others see only their own Drafts
-            const statusFilter = userRole === 'Admin'
-                ? "status IN ('Active', 'Published', 'Draft')"
-                : "(status IN ('Active', 'Published') OR (status = 'Draft' AND instructor_id = @userId))";
+            // Build filter based on role (matching getTestList logic)
+            // - Admin, HR: See ALL tests
+            // - Instructor: Standalone tests + their own
+            // - Others: Only standalone tests (no course_id)
+            const excludedTypes = "('job_application_test', 'aptitude_test', 'personality_test', 'chapter_test', 'lesson_test')";
+            let baseFilter;
+
+            if (userRole === 'Admin' || userRole === 'HR') {
+                baseFilter = "status IN ('Active', 'Published', 'Draft', 'Inactive')";
+            } else if (userRole === 'Instructor') {
+                baseFilter = `((status IN ('Active', 'Published') AND course_id IS NULL AND (type IS NULL OR type NOT IN ${excludedTypes})) OR instructor_id = @userId)`;
+            } else {
+                baseFilter = `status IN ('Active', 'Published') AND course_id IS NULL AND (type IS NULL OR type NOT IN ${excludedTypes})`;
+            }
 
             const result = await pool.request()
                 .input('userId', sql.Int, userId)
                 .query(`
                     SELECT
-                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter}) as [all],
-                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter} AND EXISTS (SELECT 1 FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId)) as myTests,
-                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter} AND t.created_at >= DATEADD(day, -30, GETDATE())) as recent,
-                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter}) as popular,
-                        (SELECT COUNT(*) FROM tests t WHERE ${statusFilter} AND t.instructor_id = @userId) as created
+                        (SELECT COUNT(*) FROM tests t WHERE ${baseFilter}) as [all],
+                        (SELECT COUNT(*) FROM tests t WHERE ${baseFilter} AND EXISTS (SELECT 1 FROM TestAttempts ta WHERE ta.test_id = t.test_id AND ta.user_id = @userId)) as myTests,
+                        (SELECT COUNT(*) FROM tests t WHERE ${baseFilter} AND t.created_at >= DATEADD(day, -30, GETDATE())) as recent,
+                        (SELECT COUNT(*) FROM tests t WHERE ${baseFilter}) as popular,
+                        (SELECT COUNT(*) FROM tests t WHERE ${baseFilter} AND t.instructor_id = @userId) as created
                 `);
 
             res.json({
@@ -136,17 +160,31 @@ const testController = {
             const { page = 1, limit = 12, tab = 'all', search, category } = req.query;
             const offset = (parseInt(page) - 1) * parseInt(limit);
 
-            // Draft/Inactive visibility: Admin sees all, Instructor sees their own
+            // Visibility rules:
+            // - Admin, HR: See ALL tests (no exclusions)
+            // - Instructor: See standalone tests + their own course tests
+            // - Others (Employee, etc.): See only standalone tests (tests without course_id)
+            //   Course-specific tests should only be visible within the course context
+
+            // Excluded types for non-admin/HR users (recruitment tests shown only in recruitment module)
+            const excludedTypes = "('job_application_test', 'aptitude_test', 'personality_test', 'chapter_test', 'lesson_test')";
             let whereClause;
-            if (userRole === 'Admin') {
-                // Admin sees all tests including Draft and Inactive
-                whereClause = "WHERE t.status IN ('Active', 'Published', 'Draft', 'Inactive')";
+
+            if (userRole === 'Admin' || userRole === 'HR') {
+                // Admin and HR see ALL tests (no type or course exclusions)
+                whereClause = `WHERE t.status IN ('Active', 'Published', 'Draft', 'Inactive')`;
             } else if (userRole === 'Instructor') {
-                // Instructor sees Active/Published + their own Drafts and Inactive
-                whereClause = "WHERE (t.status IN ('Active', 'Published') OR (t.status IN ('Draft', 'Inactive') AND t.instructor_id = @userId))";
+                // Instructor sees:
+                // - Standalone tests (no course_id) that are Active/Published
+                // - Their own tests (any status, including course tests they created)
+                whereClause = `WHERE (
+                    (t.status IN ('Active', 'Published') AND t.course_id IS NULL AND (t.type IS NULL OR t.type NOT IN ${excludedTypes}))
+                    OR t.instructor_id = @userId
+                )`;
             } else {
-                // Others see only Active/Published
-                whereClause = "WHERE t.status IN ('Active', 'Published')";
+                // Others (Employee, etc.) see only standalone tests (no course_id)
+                // Course tests should be accessed through the course itself
+                whereClause = `WHERE t.status IN ('Active', 'Published') AND t.course_id IS NULL AND (t.type IS NULL OR t.type NOT IN ${excludedTypes})`;
             }
 
             const request = pool.request()
@@ -1337,6 +1375,63 @@ const testController = {
         }
     },
 
+    // API: Create question for a test
+    async createQuestion(req, res) {
+        try {
+            const { test_id } = req.params;
+            const questionData = req.body;
+
+            console.log('Create question request:', { test_id, questionData });
+
+            // Verify test exists
+            const test = await Test.findById(test_id);
+            if (!test) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('testNotFound') || 'Test not found'
+                });
+            }
+
+            // Create question
+            const result = await Question.create({
+                test_id: test_id,
+                question_text: questionData.question_text,
+                question_type: questionData.question_type,
+                question_image: questionData.question_image,
+                points: questionData.points || 1,
+                difficulty_level: parseDifficultyLevel(questionData.difficulty_level),
+                time_estimate_seconds: questionData.time_estimate_seconds,
+                explanation: questionData.explanation,
+                tags: questionData.tags,
+                correct_answer: questionData.correct_answer,
+                sample_answer: questionData.sample_answer,
+                options: questionData.options,
+                created_by: req.user.user_id
+            });
+
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: req.t('questionCreated') || 'Question created successfully',
+                    data: { question_id: result.question_id }
+                });
+            } else {
+                res.status(400).json({
+                    success: false,
+                    message: result.message || req.t('errorCreatingQuestion') || 'Error creating question'
+                });
+            }
+
+        } catch (error) {
+            console.error('Create question error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('errorCreatingQuestion') || 'Error creating question',
+                error: error.message
+            });
+        }
+    },
+
     // API: Update question
     async updateQuestion(req, res) {
         try {
@@ -1369,7 +1464,7 @@ const testController = {
                 question_type: updateData.question_type,
                 question_image: updateData.question_image,
                 points: updateData.points,
-                difficulty_level: updateData.difficulty_level,
+                difficulty_level: parseDifficultyLevel(updateData.difficulty_level),
                 time_estimate_seconds: updateData.time_estimate_seconds,
                 explanation: updateData.explanation,
                 tags: updateData.tags,

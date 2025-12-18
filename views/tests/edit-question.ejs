@@ -75,15 +75,36 @@
                 <div id="options-container">
                     <% if (question.options && question.options.length > 0) { %>
                         <% question.options.forEach((option, index) => { %>
-                            <div class="option-item flex items-center space-x-2 mb-2">
-                                <input type="radio" name="correct_option" value="<%= index %>" <%= option.is_correct ? 'checked' : '' %>
-                                       class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
-                                <input type="text" name="option_text[]" value="<%- option.option_text %>" required
-                                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                                       placeholder="<%= t('optionN') || 'Option' %> <%= index + 1 %>">
-                                <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                            <div class="option-item border border-gray-200 rounded-md p-3 mb-2" data-option-index="<%= index %>">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <input type="radio" name="correct_option" value="<%= index %>" <%= option.is_correct ? 'checked' : '' %>
+                                           class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                    <input type="text" name="option_text[]" value="<%- option.option_text %>"
+                                           class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                                           placeholder="<%= t('optionN') || 'Option' %> <%= index + 1 %>">
+                                    <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center space-x-2 ml-6">
+                                    <input type="file" id="option_image_<%= index %>" name="option_image_<%= index %>" accept="image/*"
+                                           onchange="previewOptionImage(this, <%= index %>)"
+                                           class="hidden">
+                                    <label for="option_image_<%= index %>"
+                                           class="cursor-pointer inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-50">
+                                        <i class="fas fa-image mr-1"></i><%= t('addOptionImage') || 'Add Image' %>
+                                    </label>
+                                    <span id="option_image_name_<%= index %>" class="text-xs text-gray-500"></span>
+                                </div>
+                                <div id="option_image_preview_<%= index %>" class="mt-2 ml-6 <%= option.option_image ? '' : 'hidden' %>">
+                                    <img src="<%= option.option_image || '' %>" alt="Option preview"
+                                         class="max-w-32 max-h-24 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                                         onclick="window.open(this.src, '_blank')" title="<%= t('clickToEnlarge') || 'Click to enlarge' %>">
+                                    <button type="button" onclick="removeOptionImage(<%= index %>)"
+                                            class="mt-1 text-xs text-red-600 hover:text-red-800">
+                                        <i class="fas fa-times mr-1"></i><%= t('removeOptionImage') || 'Remove Image' %>
+                                    </button>
+                                </div>
                             </div>
                         <% }); %>
                     <% } %>
@@ -150,7 +171,8 @@
 
 <script>
 const testId = '<%= testId %>';
-const questionId = '<%= question.question_id %>';
+const questionId = '<%= question.question_id || "" %>';
+const isCreate = <%= isCreate ? 'true' : 'false' %>;
 const backUrl = '<%= backUrl %>';
 let optionCounter = <%= question.options ? question.options.length : 0 %>;
 
@@ -161,12 +183,25 @@ const i18n = {
     selectCorrectAnswer: '<%= t("selectCorrectAnswer") || "Please select the correct answer" %>',
     enterCorrectAnswer: '<%= t("enterCorrectAnswer") || "Please enter the correct answer" %>',
     optionN: '<%= t("optionN") || "Option" %>',
-    connectionError: '<%= t("connectionError") || "Connection error" %>'
+    connectionError: '<%= t("connectionError") || "Connection error" %>',
+    addOptionImage: '<%= t("addOptionImage") || "Add Image" %>',
+    removeOptionImage: '<%= t("removeOptionImage") || "Remove Image" %>'
 };
+
+let optionImageUrls = {}; // Store option image URLs by index
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', function() {
     changeQuestionType();
+
+    // Initialize optionImageUrls from existing options
+    <% if (question.options && question.options.length > 0) { %>
+        <% question.options.forEach((option, index) => { %>
+            <% if (option.option_image) { %>
+                optionImageUrls[<%= index %>] = '<%= option.option_image %>';
+            <% } %>
+        <% }); %>
+    <% } %>
 });
 
 // Change question type - show/hide relevant sections
@@ -203,23 +238,50 @@ function changeQuestionType() {
 }
 
 // Add option for multiple choice
-function addOption() {
-    optionCounter++;
+function addOption(text = '', isCorrect = false, imageUrl = '') {
     const container = document.getElementById('options-container');
+    const optionIndex = container.querySelectorAll('.option-item').length;
+
+    // Store image URL if provided
+    if (imageUrl) {
+        optionImageUrls[optionIndex] = imageUrl;
+    }
+
     const optionHtml = `
-        <div class="option-item flex items-center space-x-2 mb-2">
-            <input type="radio" name="correct_option" value="${container.querySelectorAll('.option-item').length}"
-                   class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
-            <input type="text" name="option_text[]" required
-                   class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
-                   placeholder="${i18n.optionN} ${container.querySelectorAll('.option-item').length + 1}">
-            <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2">
-                <i class="fas fa-times"></i>
-            </button>
+        <div class="option-item border border-gray-200 rounded-md p-3 mb-2" data-option-index="${optionIndex}">
+            <div class="flex items-center space-x-2 mb-2">
+                <input type="radio" name="correct_option" value="${optionIndex}" ${isCorrect ? 'checked' : ''}
+                       class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                <input type="text" name="option_text[]" value="${text}"
+                       class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary"
+                       placeholder="${i18n.optionN} ${optionIndex + 1}">
+                <button type="button" onclick="removeOption(this)" class="text-red-500 hover:text-red-700 px-2">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex items-center space-x-2 ml-6">
+                <input type="file" id="option_image_${optionIndex}" name="option_image_${optionIndex}" accept="image/*"
+                       onchange="previewOptionImage(this, ${optionIndex})"
+                       class="hidden">
+                <label for="option_image_${optionIndex}"
+                       class="cursor-pointer inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-image mr-1"></i>${i18n.addOptionImage}
+                </label>
+                <span id="option_image_name_${optionIndex}" class="text-xs text-gray-500"></span>
+            </div>
+            <div id="option_image_preview_${optionIndex}" class="mt-2 ml-6 ${imageUrl ? '' : 'hidden'}">
+                <img src="${imageUrl}" alt="Option preview"
+                     class="max-w-32 max-h-24 rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                     onclick="window.open(this.src, '_blank')" title="คลิกเพื่อดูภาพขนาดใหญ่">
+                <button type="button" onclick="removeOptionImage(${optionIndex})"
+                        class="mt-1 text-xs text-red-600 hover:text-red-800">
+                    <i class="fas fa-times mr-1"></i>${i18n.removeOptionImage}
+                </button>
+            </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', optionHtml);
-    updateOptionIndices();
+    optionCounter++;
 }
 
 // Remove option
@@ -294,6 +356,68 @@ function removeQuestionImage() {
     document.getElementById('question-image-name').textContent = i18n.noImage;
 }
 
+// Preview and upload option image
+async function previewOptionImage(input, optionIndex) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const preview = document.getElementById(`option_image_preview_${optionIndex}`);
+        const nameSpan = document.getElementById(`option_image_name_${optionIndex}`);
+
+        // Show file name
+        nameSpan.textContent = file.name + ' (uploading...)';
+
+        // Show preview immediately
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.querySelector('img').src = e.target.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+
+        // Upload image
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('/tests/api/questions/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                optionImageUrls[optionIndex] = result.data.url;
+                preview.querySelector('img').src = result.data.url;
+                nameSpan.textContent = file.name;
+            } else {
+                alert(result.message || 'Failed to upload option image');
+                removeOptionImage(optionIndex);
+            }
+        } catch (error) {
+            console.error('Error uploading option image:', error);
+            alert(i18n.connectionError);
+            removeOptionImage(optionIndex);
+        }
+    }
+}
+
+// Remove option image
+function removeOptionImage(optionIndex) {
+    const input = document.getElementById(`option_image_${optionIndex}`);
+    if (input) input.value = '';
+
+    const nameSpan = document.getElementById(`option_image_name_${optionIndex}`);
+    if (nameSpan) nameSpan.textContent = '';
+
+    const preview = document.getElementById(`option_image_preview_${optionIndex}`);
+    if (preview) {
+        preview.classList.add('hidden');
+        preview.querySelector('img').src = '';
+    }
+
+    delete optionImageUrls[optionIndex];
+}
+
 // Form submission
 document.getElementById('question-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -325,11 +449,13 @@ document.getElementById('question-form').addEventListener('submit', async functi
 
         document.querySelectorAll('#options-container .option-item').forEach((item, index) => {
             const optionText = item.querySelector('input[name="option_text[]"]').value.trim();
+            const optionImage = optionImageUrls[index] || null;
             if (optionText) {
                 options.push({
                     option_text: optionText,
                     is_correct: correctOption.value == index,
-                    option_order: index + 1
+                    option_order: index + 1,
+                    option_image: optionImage
                 });
             }
         });
@@ -371,8 +497,14 @@ document.getElementById('question-form').addEventListener('submit', async functi
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
 
-        const response = await fetch(`/tests/api/${testId}/questions/${questionId}`, {
-            method: 'PUT',
+        // Use POST for create, PUT for edit
+        const url = isCreate
+            ? `/tests/api/${testId}/questions`
+            : `/tests/api/${testId}/questions/${questionId}`;
+        const method = isCreate ? 'POST' : 'PUT';
+
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },

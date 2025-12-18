@@ -82,35 +82,28 @@
                         </div>
 
                         <div>
-                            <label for="test_type" class="block text-sm font-medium text-gray-700 mb-2"><%= t('testType') %> <span class="text-red-500">*</span></label>
+                            <label for="test_type" class="block text-sm font-medium text-gray-700 mb-2">ประเภทข้อสอบ <span class="text-red-500">*</span></label>
                             <select id="test_type" name="type" required onchange="handleTestTypeChange()"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
-                                <option value=""><%= t('selectTestType') %></option>
-                                <optgroup label="<%= t('courseAssessments') || 'Course Assessments' %>">
-                                    <option value="chapter_test"><%= t('chapterTest') %></option>
-                                    <option value="lesson_test"><%= t('lessonTest') %></option>
+                                <option value="">-- เลือกประเภทข้อสอบ --</option>
+                                <optgroup label="📚 ข้อสอบประจำหลักสูตร">
+                                    <option value="pre_training_assessment">ข้อสอบก่อนเรียน (Pre-Test)</option>
+                                    <option value="post_training_assessment">ข้อสอบหลังเรียน (Post-Test)</option>
+                                    <option value="chapter_test">ข้อสอบท้ายบท</option>
+                                    <option value="final_assessment">ข้อสอบปลายหลักสูตร</option>
                                 </optgroup>
-                                <optgroup label="<%= t('trainingAssessments') || 'Training Assessments' %>">
-                                    <option value="pre_training_assessment"><%= t('preTrainingAssessment') %></option>
-                                    <option value="post_training_assessment"><%= t('postTrainingAssessment') %></option>
+                                <optgroup label="📝 แบบทดสอบทั่วไป">
+                                    <option value="knowledge_check">แบบทดสอบความรู้</option>
+                                    <option value="practice_exercise">แบบฝึกหัด</option>
+                                    <option value="assessment">แบบประเมิน</option>
                                 </optgroup>
-                                <optgroup label="<%= t('evaluationAssessments') || 'Evaluation Assessments' %>">
-                                    <option value="knowledge_check"><%= t('knowledgeCheck') %></option>
-                                    <option value="progress_assessment"><%= t('progressAssessment') %></option>
-                                    <option value="midcourse_assessment"><%= t('midcourseAssessment') %></option>
-                                    <option value="final_assessment"><%= t('finalAssessment') %></option>
-                                </optgroup>
-                                <optgroup label="<%= t('recruitmentAssessments') || 'Recruitment Assessments' %>">
-                                    <option value="job_application_test"><%= t('jobApplicationTest') || 'Job Application Test' %></option>
-                                    <option value="aptitude_test"><%= t('aptitudeTest') || 'Aptitude Test' %></option>
-                                    <option value="personality_test"><%= t('personalityTest') || 'Personality Test' %></option>
-                                </optgroup>
-                                <optgroup label="<%= t('otherAssessments') || 'Other' %>">
-                                    <option value="assessment"><%= t('assessment') %></option>
-                                    <option value="practice_exercise"><%= t('practiceExercise') %></option>
-                                    <option value="certification_assessment"><%= t('certificationAssessment') %></option>
+                                <optgroup label="💼 ข้อสอบสมัครงาน/ประเมินตำแหน่ง">
+                                    <option value="job_application_test">ข้อสอบสมัครงาน</option>
+                                    <option value="aptitude_test">ข้อสอบความถนัด</option>
+                                    <option value="certification_assessment">ข้อสอบรับรองคุณวุฒิ</option>
                                 </optgroup>
                             </select>
+                            <p id="test-type-hint" class="text-xs text-gray-500 mt-1"></p>
                         </div>
 
                         <div id="course-field">
@@ -360,6 +353,72 @@
                                                class="rounded border-gray-300 text-ruxchai-primary shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
                                         <span class="ml-2 text-sm text-gray-700">สุ่มลำดับตัวเลือก (เฉพาะข้อเลือกตอบ)</span>
                                     </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recurring Test Settings -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h4 class="text-md font-medium text-gray-900 mb-4">
+                                <i class="fas fa-sync-alt mr-2 text-orange-500"></i>ข้อสอบประจำปี (ทำซ้ำทุกรอบ)
+                            </h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="is_recurring" name="is_recurring" value="1"
+                                           class="mr-2 rounded text-ruxchai-primary focus:ring-ruxchai-primary"
+                                           onchange="toggleRecurringTestSettings()">
+                                    <span class="text-sm text-gray-700">เป็นข้อสอบที่ต้องทำซ้ำทุกปี/ทุกรอบ</span>
+                                </label>
+                                <div id="recurring-test-settings" class="ml-6 space-y-4" style="display: none;">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">รูปแบบการทำซ้ำ</label>
+                                        <div class="flex flex-col space-y-3">
+                                            <label class="flex items-start">
+                                                <input type="radio" name="recurrence_type" value="calendar_year" checked
+                                                       class="mr-2 mt-1 text-ruxchai-primary focus:ring-ruxchai-primary"
+                                                       onchange="toggleTestRecurrenceType()">
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-700">ประจำปี (1 ม.ค. - 31 ธ.ค.)</span>
+                                                    <p class="text-xs text-gray-500">ต้องทำข้อสอบภายในแต่ละปีปฏิทิน เมื่อขึ้นปีใหม่ต้องทำใหม่</p>
+                                                </div>
+                                            </label>
+                                            <label class="flex items-start">
+                                                <input type="radio" name="recurrence_type" value="custom_months"
+                                                       class="mr-2 mt-1 text-ruxchai-primary focus:ring-ruxchai-primary"
+                                                       onchange="toggleTestRecurrenceType()">
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-700">กำหนดระยะเวลา (นับจากวันที่ทำสอบผ่าน)</span>
+                                                    <p class="text-xs text-gray-500">เช่น ทุก 6 เดือน หรือ ทุก 2 ปี</p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div id="test-recurrence-months-container">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">รอบการทำซ้ำ</label>
+                                        <select id="recurrence_months" name="recurrence_months"
+                                                class="w-full md:w-1/2 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                            <option value="6">ทุก 6 เดือน</option>
+                                            <option value="12" selected>ทุกปี (12 เดือน)</option>
+                                            <option value="24">ทุก 2 ปี (24 เดือน)</option>
+                                            <option value="36">ทุก 3 ปี (36 เดือน)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">แจ้งเตือนล่วงหน้า</label>
+                                        <select id="notify_days_before" name="notify_days_before"
+                                                class="w-full md:w-1/2 rounded-md border-gray-300 shadow-sm focus:border-ruxchai-primary focus:ring-ruxchai-primary">
+                                            <option value="7">7 วันก่อน</option>
+                                            <option value="14">14 วันก่อน</option>
+                                            <option value="30" selected>30 วันก่อน</option>
+                                            <option value="60">60 วันก่อน</option>
+                                        </select>
+                                    </div>
+                                    <div class="p-3 bg-blue-50 rounded-lg">
+                                        <p class="text-sm text-blue-800">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            เมื่อพนักงานทำข้อสอบผ่าน ระบบจะคำนวณวันหมดอายุและแจ้งเตือนให้ทำใหม่เมื่อถึงรอบ
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -745,6 +804,24 @@ function handleTestTypeChange() {
     const positionSelection = document.getElementById('position-selection');
     const positionSelect = document.getElementById('position_id');
 
+    // Show hint text based on test type
+    const hintElement = document.getElementById('test-type-hint');
+    const testTypeHints = {
+        'pre_training_assessment': '💡 ทดสอบความรู้พื้นฐานก่อนเริ่มเรียน เพื่อประเมินระดับผู้เรียน',
+        'post_training_assessment': '💡 ทดสอบหลังเรียนจบ เพื่อวัดผลการเรียนรู้และออกใบรับรอง',
+        'chapter_test': '💡 ข้อสอบท้ายบท ต้องผ่านก่อนเรียนบทถัดไป',
+        'final_assessment': '💡 ข้อสอบปลายหลักสูตร ใช้ตัดสินผ่าน/ไม่ผ่าน',
+        'knowledge_check': '💡 แบบทดสอบความรู้ทั่วไป ไม่จำเป็นต้องผูกกับหลักสูตร',
+        'practice_exercise': '💡 แบบฝึกหัดให้ทำซ้ำได้ ไม่นับคะแนน',
+        'assessment': '💡 แบบประเมินทั่วไป',
+        'job_application_test': '💡 ข้อสอบสำหรับผู้สมัครงานตำแหน่งนี้',
+        'aptitude_test': '💡 วัดความถนัดและทักษะที่จำเป็นสำหรับตำแหน่ง',
+        'certification_assessment': '💡 ข้อสอบรับรองคุณวุฒิวิชาชีพ'
+    };
+    if (hintElement) {
+        hintElement.textContent = testTypeHints[testType] || '';
+    }
+
     // Field containers
     const courseField = document.getElementById('course-field');
     const chapterField = document.getElementById('chapter-field');
@@ -817,10 +894,10 @@ function handleTestTypeChange() {
      */
 
     // Types that REQUIRE course (ต้องเลือกหลักสูตร)
-    const courseRequiredTypes = ['chapter_test', 'lesson_test', 'midcourse_assessment', 'final_assessment'];
+    const courseRequiredTypes = ['chapter_test', 'lesson_test', 'midcourse_assessment', 'final_assessment', 'pre_training_assessment', 'post_training_assessment'];
 
     // Types that REQUIRE position and hide course (ข้อสอบที่ต้องเลือกตำแหน่ง ไม่ต้องเลือกหลักสูตร)
-    const positionRequiredTypes = ['job_application_test', 'aptitude_test', 'personality_test', 'pre_training_assessment', 'post_training_assessment'];
+    const positionRequiredTypes = ['job_application_test', 'aptitude_test', 'personality_test'];
 
     // Types that can use EITHER course OR position (เลือกได้ทั้งหลักสูตรและตำแหน่ง)
     const flexibleTypes = ['knowledge_check', 'progress_assessment', 'assessment', 'certification_assessment'];
@@ -2035,6 +2112,11 @@ async function submitTest() {
         questions_to_show: formData.get('questions_to_show') ? parseInt(formData.get('questions_to_show')) : null,
         access_code: formData.get('access_code') || null,
         status: formData.get('status'),
+        // Recurring test settings
+        is_recurring: formData.get('is_recurring') ? true : false,
+        recurrence_type: formData.get('recurrence_type') || 'calendar_year',
+        recurrence_months: formData.get('recurrence_months') ? parseInt(formData.get('recurrence_months')) : null,
+        notify_days_before: formData.get('notify_days_before') ? parseInt(formData.get('notify_days_before')) : 30,
         questions: questions.map(q => ({
             question_type: q.question_type,
             question_text: q.question_text,
@@ -2468,5 +2550,25 @@ function showError(message) {
     setTimeout(() => {
         toast.remove();
     }, 5000);
+}
+
+// Recurring test settings toggle functions
+function toggleRecurringTestSettings() {
+    const isRecurring = document.getElementById('is_recurring').checked;
+    const settingsDiv = document.getElementById('recurring-test-settings');
+    if (settingsDiv) {
+        settingsDiv.style.display = isRecurring ? 'block' : 'none';
+        if (isRecurring) {
+            toggleTestRecurrenceType();
+        }
+    }
+}
+
+function toggleTestRecurrenceType() {
+    const recurrenceType = document.querySelector('input[name="recurrence_type"]:checked');
+    const monthsContainer = document.getElementById('test-recurrence-months-container');
+    if (monthsContainer && recurrenceType) {
+        monthsContainer.style.display = recurrenceType.value === 'custom_months' ? 'block' : 'none';
+    }
 }
 </script>

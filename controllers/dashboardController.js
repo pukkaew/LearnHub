@@ -172,12 +172,38 @@ const dashboardController = {
                                  AND status IN ('enrolled', 'in_progress')) as enrolled_courses,
                                 (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id
                                  AND status = 'completed') as completed_courses,
-                                0 as total_badges,
-                                0 as total_points,
-                                1 as user_level,
-                                (SELECT COUNT(*) FROM test_results WHERE user_id = @user_id) as total_tests
+                                (SELECT COUNT(*) FROM TestAttempts WHERE user_id = @user_id
+                                 AND status = 'Completed') as total_tests,
+                                (SELECT ISNULL(AVG(CAST(percentage AS FLOAT)), 0) FROM TestAttempts
+                                 WHERE user_id = @user_id AND status = 'Completed') as avg_test_score,
+                                (SELECT ISNULL(SUM(time_spent_seconds), 0) FROM user_material_progress
+                                 WHERE user_id = @user_id) as total_learning_time,
+                                (SELECT COUNT(*) FROM user_courses WHERE user_id = @user_id
+                                 AND status = 'completed') as certificates_earned
                         `);
-                    stats = learnerStats.recordset[0];
+
+                    const rawStats = learnerStats.recordset[0];
+
+                    // Calculate points: 100 per completed course + avg test score * 10
+                    const completedCourses = rawStats.completed_courses || 0;
+                    const avgScore = rawStats.avg_test_score || 0;
+                    const testsCompleted = rawStats.total_tests || 0;
+                    const calculatedPoints = (completedCourses * 100) + Math.round(avgScore * testsCompleted);
+
+                    // Calculate level: every 500 points = 1 level
+                    const calculatedLevel = Math.max(1, Math.floor(calculatedPoints / 500) + 1);
+
+                    stats = {
+                        enrolled_courses: rawStats.enrolled_courses || 0,
+                        completed_courses: completedCourses,
+                        total_tests: testsCompleted,
+                        avg_test_score: Math.round(avgScore),
+                        total_learning_time: rawStats.total_learning_time || 0,
+                        certificates_earned: rawStats.certificates_earned || 0,
+                        total_points: calculatedPoints,
+                        user_level: calculatedLevel,
+                        total_badges: Math.min(completedCourses, 5) // Badge per completed course, max 5
+                    };
                     break;
             }
 
@@ -597,7 +623,7 @@ const dashboardController = {
                     INNER JOIN courses c ON uc.course_id = c.course_id
                     LEFT JOIN users u ON c.instructor_id = u.user_id
                     WHERE uc.user_id = @user_id
-                        AND uc.status IN ('enrolled', 'in_progress')
+                        AND uc.status IN ('enrolled', 'in_progress', 'active')
                     ORDER BY uc.last_access_date DESC, uc.enrollment_date DESC
                 `);
 
@@ -640,10 +666,10 @@ const dashboardController = {
                     FROM user_courses uc
                     INNER JOIN courses c ON uc.course_id = c.course_id
                     WHERE uc.user_id = @user_id
-                        AND uc.status IN ('enrolled', 'in_progress', 'completed')
+                        AND uc.status IN ('enrolled', 'in_progress', 'completed', 'active')
                     ORDER BY
-                        CASE WHEN uc.status = 'in_progress' THEN 1
-                             WHEN uc.status = 'enrolled' THEN 2
+                        CASE WHEN uc.status IN ('in_progress', 'active') AND uc.progress > 0 THEN 1
+                             WHEN uc.status IN ('enrolled', 'active') AND uc.progress = 0 THEN 2
                              ELSE 3 END,
                         uc.progress DESC
                 `);
@@ -676,8 +702,8 @@ const dashboardController = {
                     a.article_id,
                     a.title,
                     a.excerpt,
-                    a.thumbnail,
-                    a.view_count,
+                    a.featured_image as thumbnail,
+                    a.views_count as view_count,
                     a.published_at,
                     a.created_at,
                     CONCAT(u.first_name, ' ', u.last_name) as author_name
@@ -803,6 +829,86 @@ const dashboardController = {
             res.status(500).json({
                 success: false,
                 message: req.t('errorLoadingTopCourses')
+            });
+        }
+    },
+
+    // Get expiring/due training courses for the current user
+    async getExpiringCourses(req, res) {
+        try {
+            const userId = req.user.user_id;
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('userId', require('mssql').Int, userId)
+                .query(`
+                    SELECT
+                        uc.enrollment_id,
+                        uc.course_id,
+                        c.title as course_name,
+                        c.thumbnail,
+                        uc.completion_date,
+                        uc.certificate_expiry_date,
+                        uc.renewal_status,
+                        uc.training_year,
+                        DATEDIFF(day, GETDATE(), uc.certificate_expiry_date) as days_until_expiry,
+                        c.recurrence_type,
+                        c.recurrence_months
+                    FROM user_courses uc
+                    JOIN courses c ON uc.course_id = c.course_id
+                    WHERE uc.user_id = @userId
+                    AND c.is_recurring = 1
+                    AND uc.status = 'completed'
+                    AND uc.certificate_expiry_date IS NOT NULL
+                    AND uc.renewal_status IN ('due_soon', 'expired')
+                    ORDER BY uc.certificate_expiry_date ASC
+                `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+        } catch (error) {
+            console.error('Get expiring courses error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error loading expiring courses'
+            });
+        }
+    },
+
+    // Get recurring training compliance stats (for Admin/HR)
+    async getComplianceStats(req, res) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request().query(`
+                SELECT
+                    c.course_id,
+                    c.title as course_name,
+                    c.recurrence_type,
+                    c.recurrence_months,
+                    COUNT(DISTINCT uc.user_id) as total_trained,
+                    SUM(CASE WHEN uc.renewal_status = 'valid' THEN 1 ELSE 0 END) as valid_certificates,
+                    SUM(CASE WHEN uc.renewal_status = 'due_soon' THEN 1 ELSE 0 END) as expiring_soon,
+                    SUM(CASE WHEN uc.renewal_status = 'expired' THEN 1 ELSE 0 END) as expired
+                FROM courses c
+                LEFT JOIN user_courses uc ON c.course_id = uc.course_id AND uc.status = 'completed'
+                WHERE c.is_recurring = 1
+                AND c.is_published = 1
+                GROUP BY c.course_id, c.title, c.recurrence_type, c.recurrence_months
+                ORDER BY expired DESC, expiring_soon DESC
+            `);
+
+            res.json({
+                success: true,
+                data: result.recordset
+            });
+        } catch (error) {
+            console.error('Get compliance stats error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error loading compliance stats'
             });
         }
     }

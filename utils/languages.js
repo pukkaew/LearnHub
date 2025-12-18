@@ -82,6 +82,8 @@ const translations = {
         enrolled: 'ลงทะเบียนแล้ว',
         startLearning: 'เริ่มเรียน',
         continueLearn: 'เรียนต่อ',
+        learningTime: 'เวลาเรียน',
+        hrs: 'ชม.',
 
         // Sections
         recentCourses: 'คอร์สล่าสุด',
@@ -113,6 +115,9 @@ const translations = {
         loadingShort: 'กำลังโหลด...',
         errorLoading: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
         noTitle: 'ไม่มีชื่อ',
+        untitled: 'ไม่มีชื่อ',
+        unknown: 'ไม่ทราบ',
+        badge: 'เหรียญรางวัล',
         instructor: 'ผู้สอน',
         noAuthor: 'ไม่ระบุผู้เขียน',
         reports: 'รายงาน',
@@ -578,7 +583,21 @@ const translations = {
         minutesAgo: 'นาทีที่แล้ว',
         hoursAgo: 'ชั่วโมงที่แล้ว',
         daysAgo: 'วันที่แล้ว',
+        weeksAgo: 'สัปดาห์ที่แล้ว',
+        yesterday: 'เมื่อวาน',
         justNow: 'เมื่อสักครู่',
+        viewAllArticles: 'ดูบทความทั้งหมด',
+
+        // Dashboard User
+        notEnrolledYet: 'ยังไม่ได้ลงทะเบียนหลักสูตร',
+        chooseInterestingCourse: 'เลือกหลักสูตรที่สนใจเพื่อเริ่มเรียนรู้',
+        by: 'โดย',
+        enrollToTrackProgress: 'ลงทะเบียนหลักสูตรเพื่อติดตามความคืบหน้า',
+        startLearningCourse: 'เริ่มเรียนหลักสูตร',
+        statusCompleted: 'เรียนจบแล้ว',
+        statusInProgress: 'กำลังเรียน',
+        statusStarted: 'เริ่มแล้ว',
+        statusNotStarted: 'ยังไม่เริ่ม',
 
         // Department
         noDepartment: 'ไม่ระบุแผนก',
@@ -2374,6 +2393,8 @@ const translations = {
         minutesAgo: 'นาทีที่แล้ว',
         hoursAgo: 'ชั่วโมงที่แล้ว',
         daysAgo: 'วันที่แล้ว',
+        weeksAgo: 'สัปดาห์ที่แล้ว',
+        yesterday: 'เมื่อวาน',
 
         // Controller Error Messages - Course
         errorLoadingCourseList: 'เกิดข้อผิดพลาดในการโหลดรายการหลักสูตร',
@@ -3588,6 +3609,8 @@ const translations = {
         enrolled: 'Enrolled',
         startLearning: 'Start Learning',
         continueLearn: 'Continue',
+        learningTime: 'Learning Time',
+        hrs: 'hrs',
 
         // Sections
         recentCourses: 'Recent Courses',
@@ -3619,6 +3642,9 @@ const translations = {
         loadingShort: 'Loading...',
         errorLoading: 'Error loading data',
         noTitle: 'No Title',
+        untitled: 'Untitled',
+        unknown: 'Unknown',
+        badge: 'Badge',
         instructor: 'Instructor',
         noAuthor: 'No Author',
         reports: 'Reports',
@@ -4084,7 +4110,21 @@ const translations = {
         minutesAgo: 'minutes ago',
         hoursAgo: 'hours ago',
         daysAgo: 'days ago',
+        weeksAgo: 'weeks ago',
+        yesterday: 'Yesterday',
         justNow: 'just now',
+        viewAllArticles: 'View All Articles',
+
+        // Dashboard User
+        notEnrolledYet: 'Not enrolled in any course yet',
+        chooseInterestingCourse: 'Choose an interesting course to start learning',
+        by: 'by',
+        enrollToTrackProgress: 'Enroll in a course to track your progress',
+        startLearningCourse: 'Start Learning',
+        statusCompleted: 'Completed',
+        statusInProgress: 'In Progress',
+        statusStarted: 'Started',
+        statusNotStarted: 'Not Started',
 
         // Department
         noDepartment: 'No Department',
@@ -5893,6 +5933,8 @@ const translations = {
         minutesAgo: 'minutes ago',
         hoursAgo: 'hours ago',
         daysAgo: 'days ago',
+        weeksAgo: 'weeks ago',
+        yesterday: 'Yesterday',
 
         // Controller Error Messages - Course
         errorLoadingCourseList: 'Error loading course list',

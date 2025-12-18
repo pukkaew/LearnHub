@@ -158,11 +158,13 @@ class SecurityMiddleware {
                 '/api/create',
                 '/api/update',
                 '/questions/',  // Question content may contain educational text like "select", "delete"
-                '/api/questions'
+                '/api/questions',
+                '/questions'  // Also match paths ending with /questions (without trailing slash)
             ];
 
             const fullPath = req.baseUrl + req.path;
-            const shouldSkip = skipPaths.some(path => req.path.startsWith(path) || fullPath.includes(path));
+            // Also skip paths that end with /questions for test question APIs
+            const shouldSkip = skipPaths.some(path => req.path.startsWith(path) || fullPath.includes(path) || fullPath.endsWith('/questions'));
 
             if (shouldSkip) {
                 console.log(`✅ Security validation SKIPPED for path: ${req.path} (full: ${fullPath})`);

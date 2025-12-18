@@ -35,6 +35,11 @@ class Test {
         this.score_weight = data.score_weight;
         this.show_score_breakdown = data.show_score_breakdown;
         this.language = data.language;
+        // Recurring test fields
+        this.is_recurring = data.is_recurring;
+        this.recurrence_type = data.recurrence_type;
+        this.recurrence_months = data.recurrence_months;
+        this.notify_days_before = data.notify_days_before;
     }
 
     // Create new test
@@ -77,6 +82,10 @@ class Test {
                 .input('randomizeOptions', sql.Bit, testData.randomize_options ? 1 : 0)
                 .input('questionsToShow', sql.Int, testData.questions_to_show || null)
                 .input('positionId', sql.Int, testData.position_id || null)
+                .input('isRecurring', sql.Bit, testData.is_recurring ? 1 : 0)
+                .input('recurrenceType', sql.NVarChar(50), testData.recurrence_type || null)
+                .input('recurrenceMonths', sql.Int, testData.recurrence_months || null)
+                .input('notifyDaysBefore', sql.Int, testData.notify_days_before || 30)
                 .query(`
                     INSERT INTO tests (
                         course_id, instructor_id, title, description, type,
@@ -88,7 +97,8 @@ class Test {
                         weight_in_course, available_from, available_until,
                         is_graded, is_required, is_passing_required,
                         score_weight, show_score_breakdown, language,
-                        randomize_options, questions_to_show, position_id
+                        randomize_options, questions_to_show, position_id,
+                        is_recurring, recurrence_type, recurrence_months, notify_days_before
                     ) VALUES (
                         @courseId, @instructorId, @title, @description, @type,
                         @timeLimit, @totalMarks, @passingMarks, @attemptsAllowed,
@@ -99,7 +109,8 @@ class Test {
                         @weightInCourse, @availableFrom, @availableUntil,
                         @isGraded, @isRequired, @isPassingRequired,
                         @scoreWeight, @showScoreBreakdown, @language,
-                        @randomizeOptions, @questionsToShow, @positionId
+                        @randomizeOptions, @questionsToShow, @positionId,
+                        @isRecurring, @recurrenceType, @recurrenceMonths, @notifyDaysBefore
                     );
                     SELECT SCOPE_IDENTITY() as test_id
                 `);
@@ -675,6 +686,23 @@ class Test {
             if (updateData.show_results !== undefined) {
                 updateFields.push('show_results = @showResults');
                 request.input('showResults', sql.Bit, updateData.show_results ? 1 : 0);
+            }
+            // Recurring test fields
+            if (updateData.is_recurring !== undefined) {
+                updateFields.push('is_recurring = @isRecurring');
+                request.input('isRecurring', sql.Bit, updateData.is_recurring ? 1 : 0);
+            }
+            if (updateData.recurrence_type !== undefined) {
+                updateFields.push('recurrence_type = @recurrenceType');
+                request.input('recurrenceType', sql.NVarChar(50), updateData.recurrence_type);
+            }
+            if (updateData.recurrence_months !== undefined) {
+                updateFields.push('recurrence_months = @recurrenceMonths');
+                request.input('recurrenceMonths', sql.Int, updateData.recurrence_months);
+            }
+            if (updateData.notify_days_before !== undefined) {
+                updateFields.push('notify_days_before = @notifyDaysBefore');
+                request.input('notifyDaysBefore', sql.Int, updateData.notify_days_before);
             }
 
             if (updateFields.length === 0) {

@@ -541,6 +541,9 @@ app.set('broadcastNotification', broadcastNotification);
 app.set('broadcastDepartmentUpdate', broadcastDepartmentUpdate);
 app.set('broadcastTestUpdate', broadcastTestUpdate);
 
+// Import recurring course scheduler
+const { scheduler: recurringCourseScheduler } = require('./utils/recurringCourseScheduler');
+
 // Start server
 server.listen(PORT, () => {
     console.log(`🚀 Rukchai Hongyen LearnHub Server is running on port ${PORT}`);
@@ -555,11 +558,15 @@ server.listen(PORT, () => {
         console.log(`   - Test DB: node test-db-connection.js`);
         console.log(`   - Seed DB: npm run seed`);
     }
+
+    // Start recurring course scheduler
+    recurringCourseScheduler.start();
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
     console.log('🛑 SIGTERM received. Shutting down gracefully...');
+    recurringCourseScheduler.stop();
     io.close(() => {
         server.close(() => {
             console.log('✅ Process terminated');
@@ -570,6 +577,7 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
     console.log('\n🛑 SIGINT received. Shutting down gracefully...');
+    recurringCourseScheduler.stop();
     io.close(() => {
         server.close(() => {
             console.log('✅ Process terminated');

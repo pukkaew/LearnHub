@@ -42,4 +42,8 @@ router.get('/api/system-health', authMiddleware.requireRole(['Admin']), dashboar
 router.get('/api/recent-registrations', authMiddleware.requireRole(['Admin', 'HR']), dashboardController.getRecentRegistrations);
 router.get('/api/top-courses', authMiddleware.requireRole(['Admin', 'HR']), dashboardController.getTopCourses);
 
+// Recurring training / Annual training routes
+router.get('/api/expiring-courses', dashboardController.getExpiringCourses);
+router.get('/api/compliance-stats', authMiddleware.requireRole(['Admin', 'HR']), dashboardController.getComplianceStats);
+
 module.exports = router;

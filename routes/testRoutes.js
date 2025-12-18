@@ -80,6 +80,15 @@ router.put('/api/position-test-config/:position_id', authMiddleware.requireRole(
 router.post('/api/questions/upload-image', authMiddleware.requireRole(['Admin', 'Instructor']), questionImageUpload.single('image'), testController.uploadQuestionImage);
 
 // Question API endpoints for a specific test (MUST come before :test_id routes)
+router.post('/api/:test_id/questions', (req, res, next) => {
+    console.log('>>> BEFORE AUTH - question create route:', req.params, 'body:', JSON.stringify(req.body).substring(0, 200));
+    console.log('>>> User:', req.user ? { user_id: req.user.user_id, role: req.user.role } : 'NOT SET');
+    next();
+}, authMiddleware.requireRole(['Admin', 'Instructor']), (req, res, next) => {
+    console.log('>>> AFTER AUTH - question create route:', req.params);
+    next();
+}, testController.createQuestion);
+
 router.put('/api/:test_id/questions/:question_id', (req, res, next) => {
     console.log('>>> BEFORE AUTH - question update route:', req.params, req.body);
     next();

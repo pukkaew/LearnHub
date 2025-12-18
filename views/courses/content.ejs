@@ -1067,6 +1067,59 @@ function renderContent(material) {
         document.getElementById('content-duration').innerHTML =
             `<i class="fas fa-hourglass-half mr-2"></i><%= t('duration') %>: ${material.duration}`;
     }
+
+    // Append lesson documents if any
+    appendLessonDocuments(material, viewer);
+}
+
+// Get and display lesson-specific documents
+function appendLessonDocuments(material, viewer) {
+    // Find documents attached to this lesson (parent_material_id matches current material)
+    const lessonDocs = allMaterials.filter(m => {
+        const type = (m.material_type || m.file_type || '').toLowerCase();
+        return type === 'lesson_document' && m.parent_material_id === material.material_id;
+    });
+
+    if (lessonDocs.length === 0) return;
+
+    // Create documents section HTML
+    const docsHtml = `
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-paperclip mr-2 text-gray-400"></i><%= t('lessonDocuments') || 'เอกสารประกอบบทเรียน' %>
+            </h3>
+            <div class="space-y-3">
+                ${lessonDocs.map(doc => {
+                    const fileSize = doc.file_size ? formatFileSize(doc.file_size) : '';
+                    const fileIcon = getFileIcon(doc.file_url || doc.title);
+
+                    return `
+                        <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                            <div class="w-12 h-12 ${fileIcon.bgColor} rounded-lg flex items-center justify-center mr-4">
+                                <i class="${fileIcon.icon} ${fileIcon.color} text-xl"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-900 truncate">${doc.title}</h4>
+                                <p class="text-sm text-gray-500">${fileSize}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="window.open('${doc.file_url}', '_blank')"
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="<%= t('view') %>">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <a href="${doc.file_url}" download
+                                   class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="<%= t('download') %>">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+
+    viewer.innerHTML += docsHtml;
 }
 
 // Video Player Setup with Progress Tracking and Anti-Skip Protection
@@ -1897,15 +1950,16 @@ function switchTab(tabName) {
     if (tabName === 'resources') loadResources();
 }
 
-// Resources - Load document attachments for this course
+// Resources - Load document attachments for this course (Course-level only)
 function loadResources() {
     const container = document.getElementById('resources-list');
 
-    // Filter documents from allMaterials array (not filtered materials)
-    // Include both 'document' (course docs) and 'lesson_document' (lesson attachments)
+    // Filter ONLY course-level documents (type === 'document', no parent)
+    // Lesson documents are shown in the lesson content, not here
     const documents = allMaterials.filter(m => {
         const type = (m.material_type || m.file_type || '').toLowerCase();
-        return type === 'document' || type === 'lesson_document';
+        // Only show course-level documents (not lesson_document)
+        return type === 'document' && !m.parent_material_id;
     });
 
     if (documents.length === 0) {

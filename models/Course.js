@@ -26,6 +26,11 @@ class Course {
         this.show_correct_answers = data.show_correct_answers;
         this.is_published = data.is_published;
         this.is_active = data.is_active;
+        // Recurring course fields
+        this.is_recurring = data.is_recurring;
+        this.recurrence_type = data.recurrence_type;
+        this.recurrence_months = data.recurrence_months;
+        this.notify_days_before = data.notify_days_before;
     }
 
     // Find course by ID with full details
@@ -276,6 +281,11 @@ class Course {
                 .input('showCorrectAnswers', sql.Bit, courseData.show_correct_answers || false)
                 .input('isPublished', sql.Bit, courseData.is_published !== false)
                 .input('certificateValidity', sql.NVarChar(50), courseData.certificate_validity ? String(courseData.certificate_validity) : null)
+                // Recurring course fields
+                .input('isRecurring', sql.Bit, courseData.is_recurring || false)
+                .input('recurrenceType', sql.NVarChar(50), courseData.recurrence_type || null)
+                .input('recurrenceMonths', sql.Int, courseData.recurrence_months ? parseInt(courseData.recurrence_months) : null)
+                .input('notifyDaysBefore', sql.Int, courseData.notify_days_before ? parseInt(courseData.notify_days_before) : 30)
                 .query(`
                     INSERT INTO courses (
                         course_code, title, description, category, difficulty_level, course_type, language,
@@ -283,6 +293,7 @@ class Course {
                         enrollment_limit, max_students, start_date, end_date,
                         learning_objectives, target_audience, prerequisite_knowledge, intro_video_url,
                         passing_score, max_attempts, show_correct_answers, is_published, certificate_validity,
+                        is_recurring, recurrence_type, recurrence_months, notify_days_before,
                         created_at, updated_at
                     ) VALUES (
                         @courseCode, @title, @description, @category, @difficultyLevel, @courseType, @language,
@@ -290,6 +301,7 @@ class Course {
                         @enrollmentLimit, @maxStudents, @startDate, @endDate,
                         @learningObjectives, @targetAudience, @prerequisiteKnowledge, @introVideoUrl,
                         @passingScore, @maxAttempts, @showCorrectAnswers, @isPublished, @certificateValidity,
+                        @isRecurring, @recurrenceType, @recurrenceMonths, @notifyDaysBefore,
                         GETDATE(), GETDATE()
                     );
                     SELECT SCOPE_IDENTITY() AS course_id;
@@ -509,6 +521,23 @@ class Course {
             if (updateData.certificate_validity !== undefined) {
                 updateFields.push('certificate_validity = @certificateValidity');
                 request.input('certificateValidity', sql.NVarChar(50), updateData.certificate_validity ? String(updateData.certificate_validity) : null);
+            }
+            // Recurring course fields
+            if (updateData.is_recurring !== undefined) {
+                updateFields.push('is_recurring = @isRecurring');
+                request.input('isRecurring', sql.Bit, updateData.is_recurring === true || updateData.is_recurring === '1' || updateData.is_recurring === 1);
+            }
+            if (updateData.recurrence_type !== undefined) {
+                updateFields.push('recurrence_type = @recurrenceType');
+                request.input('recurrenceType', sql.NVarChar(50), updateData.recurrence_type || null);
+            }
+            if (updateData.recurrence_months !== undefined) {
+                updateFields.push('recurrence_months = @recurrenceMonths');
+                request.input('recurrenceMonths', sql.Int, updateData.recurrence_months ? parseInt(updateData.recurrence_months) : null);
+            }
+            if (updateData.notify_days_before !== undefined) {
+                updateFields.push('notify_days_before = @notifyDaysBefore');
+                request.input('notifyDaysBefore', sql.Int, updateData.notify_days_before ? parseInt(updateData.notify_days_before) : 30);
             }
             if (updateData.status !== undefined) {
                 updateFields.push('status = @status');
