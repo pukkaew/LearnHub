@@ -314,6 +314,52 @@ video::-webkit-media-controls-playback-rate-button {
     color: #3b82f6;
     font-weight: 600;
 }
+
+/* Facebook-style Comments */
+.reaction-popup {
+    animation: popIn 0.15s ease-out;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.group:hover .reaction-popup,
+.reaction-popup:hover {
+    display: flex !important;
+}
+
+.comment-item .bg-gray-100:hover {
+    background-color: #e4e6eb;
+}
+
+.reply-connector::before {
+    content: '↳';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.comment-item, .reply-item {
+    transition: all 0.2s ease;
+}
+
+.comment-item button, .reply-item button {
+    transition: color 0.15s, transform 0.1s;
+}
+
+#comments-list [id^="replies-container-"] {
+    transition: all 0.3s ease;
+}
+#comments-list [id^="replies-container-"]:not(.hidden) {
+    animation: slideDown 0.2s ease-out;
+}
+@keyframes slideDown {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
 </style>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -505,27 +551,57 @@ video::-webkit-media-controls-playback-rate-button {
                         </div>
                     </div>
 
-                    <!-- Discussion Panel -->
+                    <!-- Discussion Panel - Facebook Style -->
                     <div id="panel-discussion" class="tab-panel hidden p-6">
-                        <form id="comment-form" class="mb-6">
-                            <div class="flex space-x-4">
+                        <!-- Comment Form -->
+                        <div class="mb-6">
+                            <div class="flex items-start gap-3">
                                 <img src="<%= user.profile_image || '/images/default-avatar.png' %>"
-                                     class="w-10 h-10 rounded-full" alt="">
+                                     class="w-10 h-10 rounded-full flex-shrink-0" alt="">
                                 <div class="flex-1">
-                                    <textarea id="comment-text" rows="3"
-                                              class="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                              placeholder="<%= t('shareYourThoughts') %>"></textarea>
-                                    <div class="flex justify-end mt-2">
-                                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                                            <i class="fas fa-paper-plane mr-2"></i><%= t('post') %>
+                                    <div class="bg-gray-100 rounded-2xl px-4 py-3">
+                                        <textarea id="comment-text" rows="2"
+                                                  class="w-full bg-transparent resize-none outline-none text-[15px]"
+                                                  placeholder="<%= t('shareYourThoughts') %>"
+                                                  oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';updateCharCount()"></textarea>
+                                    </div>
+                                    <div class="flex justify-between items-center mt-2 px-2">
+                                        <span id="char-count" class="text-xs text-gray-400">0/2000</span>
+                                        <button id="submit-comment" onclick="submitComment()" class="px-4 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                            <i class="fas fa-paper-plane mr-1.5"></i><%= t('post') %>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        </form>
+                        </div>
 
+                        <!-- Sort & Comments Header -->
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold text-gray-900" id="comments-count">ความคิดเห็น</h4>
+                            <div class="relative">
+                                <button onclick="toggleSortDropdown()" class="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+                                    <i class="fas fa-sort-amount-down text-xs"></i>
+                                    <span id="sort-label">ใหม่ล่าสุด</span>
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </button>
+                                <div id="sort-dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border py-1 z-50">
+                                    <button onclick="sortComments('newest')" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">ใหม่ล่าสุด</button>
+                                    <button onclick="sortComments('oldest')" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">เก่าสุด</button>
+                                    <button onclick="sortComments('popular')" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">ยอดนิยม</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comments List -->
                         <div id="comments-list" class="space-y-4">
                             <!-- Comments will be loaded here -->
+                        </div>
+
+                        <!-- Load More Button -->
+                        <div id="load-more-container" class="hidden mt-4 text-center">
+                            <button onclick="loadMoreComments()" class="text-blue-500 hover:text-blue-600 font-medium text-sm">
+                                <i class="fas fa-chevron-down mr-1"></i> โหลดความคิดเห็นเพิ่มเติม
+                            </button>
                         </div>
                     </div>
 
@@ -2048,36 +2124,430 @@ async function saveNotes() {
     showToast(i18n.notesSaved, 'success');
 }
 
-// Comments
-async function loadComments() {
+// Comments - Facebook Style
+let comments = [];
+let commentsPage = 1;
+let commentSort = 'newest';
+let hasMoreComments = false;
+const currentUserId = <%= user?.user_id || 0 %>;
+const userAvatar = '<%= user?.profile_image || "/images/default-avatar.png" %>';
+const userName = '<%= user ? (user.first_name + " " + user.last_name) : "User" %>';
+
+async function loadComments(append = false) {
     try {
-        const response = await fetch(`/courses/api/${courseId}/discussions`);
+        const response = await fetch(`/courses/api/${courseId}/discussions?page=${commentsPage}&limit=10&sort=${commentSort}`);
         const result = await response.json();
 
-        const container = document.getElementById('comments-list');
-        if (result.success && result.data?.length > 0) {
-            container.innerHTML = result.data.map(c => `
-                <div class="flex space-x-4 p-4 bg-gray-50 rounded-lg">
-                    <img src="${c.profile_image || '/images/default-avatar.png'}" class="w-10 h-10 rounded-full" alt="">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2">
-                            <span class="font-medium text-gray-900">${c.author_name || 'User'}</span>
-                            <span class="text-xs text-gray-500">${formatDate(c.created_at)}</span>
-                        </div>
-                        <p class="mt-1 text-gray-700">${c.comment}</p>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            container.innerHTML = `
+        if (!append) {
+            comments = [];
+        }
+
+        if (result.success && result.comments?.length > 0) {
+            comments = append ? [...comments, ...result.comments] : result.comments;
+            hasMoreComments = result.pagination?.has_next || false;
+            displayComments();
+            document.getElementById('comments-count').textContent = `ความคิดเห็น (${result.pagination?.total || comments.length})`;
+            document.getElementById('load-more-container').classList.toggle('hidden', !hasMoreComments);
+        } else if (!append) {
+            document.getElementById('comments-list').innerHTML = `
                 <div class="text-center py-8 text-gray-500">
                     <i class="fas fa-comments text-gray-300 text-4xl mb-3"></i>
                     <p>${i18n.noComments}</p>
                 </div>
             `;
+            document.getElementById('comments-count').textContent = 'ความคิดเห็น';
+            document.getElementById('load-more-container').classList.add('hidden');
         }
     } catch (error) {
         console.error('Error loading comments:', error);
+    }
+}
+
+function displayComments() {
+    const container = document.getElementById('comments-list');
+    container.innerHTML = comments.map(comment => createCommentItem(comment)).join('');
+}
+
+function createCommentItem(comment) {
+    const reactions = comment.reactions || { total: 0, like: 0, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
+    const userReaction = comment.user_reaction;
+    const reactionIcons = getReactionIcons(reactions);
+    const hasReplies = comment.replies && comment.replies.length > 0;
+
+    return `
+        <div class="comment-item mb-4" data-comment-id="${comment.comment_id}">
+            ${comment.is_pinned ? '<div class="flex items-center text-xs text-amber-600 mb-2 ml-12"><i class="fas fa-thumbtack mr-1"></i> ปักหมุดโดยผู้สอน</div>' : ''}
+            <div class="flex items-start gap-2">
+                <img src="${comment.user_avatar || '/images/default-avatar.png'}" alt="${comment.user_name}" class="w-10 h-10 rounded-full flex-shrink-0 mt-0.5">
+                <div class="flex-1 min-w-0">
+                    <div class="inline-block max-w-[85%]">
+                        <div class="bg-gray-100 rounded-2xl px-3 py-2 relative ${comment.is_pinned ? 'ring-2 ring-amber-200' : ''}">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-semibold text-[13px] text-gray-900">${comment.user_name}</span>
+                                ${comment.is_instructor ? '<span class="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">ผู้สอน</span>' : ''}
+                            </div>
+                            <div id="comment-display-${comment.comment_id}">
+                                <p class="text-[15px] text-gray-900 whitespace-pre-wrap break-words">${comment.content}</p>
+                            </div>
+                            <div id="comment-edit-${comment.comment_id}" class="hidden">
+                                <textarea id="comment-edit-textarea-${comment.comment_id}" class="w-full p-2 border rounded-lg text-sm resize-none" rows="2">${comment.content}</textarea>
+                                <div class="flex gap-2 mt-2">
+                                    <button onclick="cancelEditComment(${comment.comment_id})" class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded">ยกเลิก</button>
+                                    <button onclick="saveEditComment(${comment.comment_id})" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">บันทึก</button>
+                                </div>
+                            </div>
+                            ${reactions.total > 0 ? `
+                                <div class="absolute -bottom-2.5 right-2 flex items-center bg-white rounded-full shadow px-1 py-0.5 border text-xs">
+                                    ${reactionIcons}<span class="ml-0.5 text-gray-500">${reactions.total}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1 mt-1 ml-3 text-xs">
+                        <div class="relative group">
+                            <button onclick="toggleReaction(${comment.comment_id}, '${userReaction || 'like'}')"
+                                    class="${userReaction ? getReactionColor(userReaction) : 'text-gray-500 hover:text-gray-700'} font-semibold">
+                                ${userReaction ? getReactionText(userReaction) : 'ถูกใจ'}
+                            </button>
+                            <div class="reaction-popup absolute bottom-full left-0 mb-2 hidden group-hover:flex bg-white rounded-full shadow-xl px-2 py-1.5 gap-1 border z-50">
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'like')" class="text-xl hover:scale-125 transition-transform" title="ถูกใจ">👍</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'love')" class="text-xl hover:scale-125 transition-transform" title="รัก">❤️</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'haha')" class="text-xl hover:scale-125 transition-transform" title="ฮ่าๆ">😂</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'wow')" class="text-xl hover:scale-125 transition-transform" title="ว้าว">😮</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'sad')" class="text-xl hover:scale-125 transition-transform" title="เศร้า">😢</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${comment.comment_id}, 'angry')" class="text-xl hover:scale-125 transition-transform" title="โกรธ">😡</button>
+                            </div>
+                        </div>
+                        <span class="text-gray-400">·</span>
+                        <button onclick="toggleReplyForm(${comment.comment_id}, '${comment.user_name}', ${comment.user_id})" class="text-gray-500 hover:text-gray-700 font-semibold">ตอบกลับ</button>
+                        <span class="text-gray-400">·</span>
+                        <span class="text-gray-400">${formatTimeAgo(comment.created_at)}</span>
+                        ${comment.can_edit ? `<span class="text-gray-400">·</span><button onclick="editComment(${comment.comment_id})" class="text-gray-500 hover:text-blue-500">แก้ไข</button>` : ''}
+                        ${comment.can_delete ? `<span class="text-gray-400">·</span><button onclick="deleteComment(${comment.comment_id})" class="text-gray-500 hover:text-red-500">ลบ</button>` : ''}
+                        ${comment.can_pin ? `<span class="text-gray-400">·</span><button onclick="pinComment(${comment.comment_id})" class="text-gray-500 hover:text-amber-500">${comment.is_pinned ? 'เลิกปักหมุด' : 'ปักหมุด'}</button>` : ''}
+                    </div>
+
+                    <div id="reply-form-${comment.comment_id}" class="hidden mt-3">
+                        <div class="flex items-start gap-2">
+                            <img src="${userAvatar}" class="w-8 h-8 rounded-full flex-shrink-0">
+                            <div class="flex-1">
+                                <div class="bg-gray-100 rounded-2xl px-3 py-2">
+                                    <span id="reply-to-name-${comment.comment_id}" class="text-blue-500 font-medium text-sm"></span>
+                                    <textarea id="reply-textarea-${comment.comment_id}" class="w-full bg-transparent text-sm resize-none outline-none" placeholder="เขียนตอบกลับ..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                                </div>
+                                <div class="flex justify-end gap-2 mt-1">
+                                    <button onclick="cancelReply(${comment.comment_id})" class="px-3 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded-full">ยกเลิก</button>
+                                    <button onclick="submitReply(${comment.comment_id})" class="px-3 py-1 text-xs bg-blue-500 text-white rounded-full hover:bg-blue-600">ตอบกลับ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${hasReplies ? `
+                        <div class="mt-1">
+                            <button onclick="toggleReplies(${comment.comment_id})" class="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 font-medium ml-1 py-1">
+                                <i class="fas fa-reply fa-flip-horizontal text-xs"></i>
+                                <span id="toggle-replies-text-${comment.comment_id}">${comment.replies.length} การตอบกลับ</span>
+                                <i id="toggle-replies-icon-${comment.comment_id}" class="fas fa-chevron-down text-[10px] transition-transform duration-200"></i>
+                            </button>
+                            <div id="replies-container-${comment.comment_id}" class="hidden mt-2 space-y-2 pl-4 border-l-2 border-gray-200">
+                                ${comment.replies.map(reply => createReplyItem(reply, comment)).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function createReplyItem(reply, parentComment) {
+    const reactions = reply.reactions || { total: 0, like: 0, love: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
+    const userReaction = reply.user_reaction;
+    const reactionIcons = getReactionIcons(reactions);
+
+    return `
+        <div class="reply-item" data-comment-id="${reply.comment_id}">
+            <div class="flex items-start gap-2">
+                <img src="${reply.user_avatar || '/images/default-avatar.png'}" alt="${reply.user_name}" class="w-8 h-8 rounded-full flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                    <div class="inline-block max-w-[85%]">
+                        <div class="bg-gray-100 rounded-2xl px-3 py-2 relative">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-semibold text-[13px] text-gray-900">${reply.user_name}</span>
+                                ${reply.is_instructor ? '<span class="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">ผู้สอน</span>' : ''}
+                            </div>
+                            <p class="text-[14px] text-gray-900 whitespace-pre-wrap break-words">
+                                ${reply.reply_to_name ? `<span class="text-blue-600 font-semibold">@${reply.reply_to_name}</span> ` : ''}${reply.content}
+                            </p>
+                            ${reactions.total > 0 ? `
+                                <div class="absolute -bottom-2 right-2 flex items-center bg-white rounded-full shadow px-1 py-0.5 border text-[10px]">
+                                    ${reactionIcons}<span class="ml-0.5 text-gray-600">${reactions.total}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1 mt-0.5 ml-3 text-[11px]">
+                        <div class="relative group">
+                            <button onclick="toggleReaction(${reply.comment_id}, '${userReaction || 'like'}')"
+                                    class="${userReaction ? getReactionColor(userReaction) : 'text-gray-500 hover:text-gray-700'} font-semibold">
+                                ${userReaction ? getReactionText(userReaction) : 'ถูกใจ'}
+                            </button>
+                            <div class="reaction-popup absolute bottom-full left-0 mb-2 hidden group-hover:flex bg-white rounded-full shadow-xl px-2 py-1.5 gap-1 border z-50">
+                                <button onclick="event.stopPropagation(); toggleReaction(${reply.comment_id}, 'like')" class="text-lg hover:scale-125 transition-transform">👍</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${reply.comment_id}, 'love')" class="text-lg hover:scale-125 transition-transform">❤️</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${reply.comment_id}, 'haha')" class="text-lg hover:scale-125 transition-transform">😂</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${reply.comment_id}, 'wow')" class="text-lg hover:scale-125 transition-transform">😮</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${reply.comment_id}, 'sad')" class="text-lg hover:scale-125 transition-transform">😢</button>
+                                <button onclick="event.stopPropagation(); toggleReaction(${reply.comment_id}, 'angry')" class="text-lg hover:scale-125 transition-transform">😡</button>
+                            </div>
+                        </div>
+                        <span class="text-gray-400">·</span>
+                        <button onclick="toggleReplyForm(${parentComment.comment_id}, '${reply.user_name}', ${reply.user_id}, ${reply.comment_id})" class="text-gray-500 hover:text-gray-700 font-semibold">ตอบกลับ</button>
+                        <span class="text-gray-400">·</span>
+                        <span class="text-gray-400">${formatTimeAgo(reply.created_at)}</span>
+                        ${reply.can_edit ? `<span class="text-gray-400">·</span><button onclick="editComment(${reply.comment_id})" class="text-gray-500 hover:text-blue-500">แก้ไข</button>` : ''}
+                        ${reply.can_delete ? `<span class="text-gray-400">·</span><button onclick="deleteComment(${reply.comment_id})" class="text-gray-500 hover:text-red-500">ลบ</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Reaction helpers
+function getReactionIcons(reactions) {
+    let icons = [];
+    if (reactions.like > 0) icons.push('<span class="text-sm">👍</span>');
+    if (reactions.love > 0) icons.push('<span class="text-sm">❤️</span>');
+    if (reactions.haha > 0) icons.push('<span class="text-sm">😂</span>');
+    if (reactions.wow > 0) icons.push('<span class="text-sm">😮</span>');
+    if (reactions.sad > 0) icons.push('<span class="text-sm">😢</span>');
+    if (reactions.angry > 0) icons.push('<span class="text-sm">😡</span>');
+    return icons.slice(0, 3).join('');
+}
+
+function getReactionColor(type) {
+    const colors = { like: 'text-blue-500', love: 'text-red-500', haha: 'text-yellow-500', wow: 'text-yellow-500', sad: 'text-yellow-500', angry: 'text-orange-500' };
+    return colors[type] || 'text-gray-500';
+}
+
+function getReactionText(type) {
+    const texts = { like: 'ถูกใจ', love: 'รักเลย', haha: 'ฮ่าๆ', wow: 'ว้าว', sad: 'เศร้า', angry: 'โกรธ' };
+    return texts[type] || 'ถูกใจ';
+}
+
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+
+    if (diff < 60) return 'เมื่อสักครู่';
+    if (diff < 3600) return Math.floor(diff / 60) + ' นาที';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' ชม.';
+    if (diff < 604800) return Math.floor(diff / 86400) + ' วัน';
+    return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+}
+
+// Toggle functions
+function toggleSortDropdown() {
+    document.getElementById('sort-dropdown').classList.toggle('hidden');
+}
+
+function sortComments(sortType) {
+    commentSort = sortType;
+    commentsPage = 1;
+    const labels = { newest: 'ใหม่ล่าสุด', oldest: 'เก่าสุด', popular: 'ยอดนิยม' };
+    document.getElementById('sort-label').textContent = labels[sortType];
+    document.getElementById('sort-dropdown').classList.add('hidden');
+    loadComments();
+}
+
+function loadMoreComments() {
+    commentsPage++;
+    loadComments(true);
+}
+
+function toggleReplies(commentId) {
+    const container = document.getElementById(`replies-container-${commentId}`);
+    const icon = document.getElementById(`toggle-replies-icon-${commentId}`);
+    container.classList.toggle('hidden');
+    icon.style.transform = container.classList.contains('hidden') ? '' : 'rotate(180deg)';
+}
+
+// Reply form
+let currentReplyToUserId = null;
+let currentReplyToCommentId = null;
+
+function toggleReplyForm(parentId, replyToName, replyToUserId, replyToCommentId = null) {
+    const form = document.getElementById(`reply-form-${parentId}`);
+    const nameSpan = document.getElementById(`reply-to-name-${parentId}`);
+
+    if (form.classList.contains('hidden')) {
+        form.classList.remove('hidden');
+        nameSpan.textContent = `@${replyToName} `;
+        currentReplyToUserId = replyToUserId;
+        currentReplyToCommentId = replyToCommentId;
+        document.getElementById(`reply-textarea-${parentId}`).focus();
+    } else {
+        form.classList.add('hidden');
+        currentReplyToUserId = null;
+        currentReplyToCommentId = null;
+    }
+}
+
+function cancelReply(parentId) {
+    document.getElementById(`reply-form-${parentId}`).classList.add('hidden');
+    document.getElementById(`reply-textarea-${parentId}`).value = '';
+    currentReplyToUserId = null;
+    currentReplyToCommentId = null;
+}
+
+async function submitReply(parentId) {
+    const textarea = document.getElementById(`reply-textarea-${parentId}`);
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions/${parentId}/reply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                comment_text: text,
+                reply_to_user_id: currentReplyToUserId,
+                reply_to_comment_id: currentReplyToCommentId
+            })
+        });
+
+        if (response.ok) {
+            textarea.value = '';
+            cancelReply(parentId);
+            loadComments();
+            showToast('ตอบกลับสำเร็จ', 'success');
+        }
+    } catch (error) {
+        console.error('Error submitting reply:', error);
+        showToast('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Submit comment
+function updateCharCount() {
+    const text = document.getElementById('comment-text').value;
+    const count = text.length;
+    document.getElementById('char-count').textContent = `${count}/2000`;
+    document.getElementById('submit-comment').disabled = count === 0 || count > 2000;
+}
+
+async function submitComment() {
+    const textarea = document.getElementById('comment-text');
+    const text = textarea.value.trim();
+    if (!text || text.length > 2000) return;
+
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comment: text, material_id: currentMaterial?.material_id })
+        });
+
+        if (response.ok) {
+            textarea.value = '';
+            updateCharCount();
+            loadComments();
+            showToast(i18n.commentPosted, 'success');
+        }
+    } catch (error) {
+        console.error('Error posting comment:', error);
+        showToast('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Reaction
+async function toggleReaction(commentId, reactionType) {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions/${commentId}/react`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reaction_type: reactionType })
+        });
+
+        if (response.ok) {
+            loadComments();
+        }
+    } catch (error) {
+        console.error('Error toggling reaction:', error);
+    }
+}
+
+// Edit comment
+function editComment(commentId) {
+    document.getElementById(`comment-display-${commentId}`).classList.add('hidden');
+    document.getElementById(`comment-edit-${commentId}`).classList.remove('hidden');
+}
+
+function cancelEditComment(commentId) {
+    document.getElementById(`comment-display-${commentId}`).classList.remove('hidden');
+    document.getElementById(`comment-edit-${commentId}`).classList.add('hidden');
+}
+
+async function saveEditComment(commentId) {
+    const textarea = document.getElementById(`comment-edit-textarea-${commentId}`);
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions/${commentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comment_text: text })
+        });
+
+        if (response.ok) {
+            loadComments();
+            showToast('แก้ไขสำเร็จ', 'success');
+        }
+    } catch (error) {
+        console.error('Error editing comment:', error);
+        showToast('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Delete comment
+async function deleteComment(commentId) {
+    if (!confirm('ต้องการลบความคิดเห็นนี้หรือไม่?')) return;
+
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions/${commentId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            loadComments();
+            showToast('ลบสำเร็จ', 'success');
+        }
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        showToast('เกิดข้อผิดพลาด', 'error');
+    }
+}
+
+// Pin comment
+async function pinComment(commentId) {
+    try {
+        const response = await fetch(`/courses/api/${courseId}/discussions/${commentId}/pin`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            loadComments();
+            showToast('ปักหมุดสำเร็จ', 'success');
+        }
+    } catch (error) {
+        console.error('Error pinning comment:', error);
+        showToast('เกิดข้อผิดพลาด', 'error');
     }
 }
 
@@ -2158,29 +2628,6 @@ function startQuiz(quizId) {
 
 // Event Listeners
 function setupEventListeners() {
-    // Comment form
-    document.getElementById('comment-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const text = document.getElementById('comment-text').value.trim();
-        if (!text) return;
-
-        try {
-            const response = await fetch(`/courses/api/${courseId}/discussions`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ comment: text, material_id: currentMaterial?.material_id })
-            });
-
-            if (response.ok) {
-                document.getElementById('comment-text').value = '';
-                loadComments();
-                showToast(i18n.commentPosted, 'success');
-            }
-        } catch (error) {
-            console.error('Error posting comment:', error);
-        }
-    });
-
     // Notes auto-save
     let saveTimeout;
     document.getElementById('notes-text').addEventListener('input', () => {

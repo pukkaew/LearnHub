@@ -1,0 +1,367 @@
+const { poolPromise, sql } = require('../config/database');
+
+class Enrollment {
+    constructor(data) {
+        this.enrollment_id = data.enrollment_id;
+        this.user_id = data.user_id;
+        this.course_id = data.course_id;
+        this.enrollment_date = data.enrollment_date;
+        this.progress = data.progress;
+        this.status = data.status;
+        this.completion_date = data.completion_date;
+        this.certificate_issued = data.certificate_issued;
+        this.certificate_number = data.certificate_number;
+    }
+
+    // Enroll user in course
+    static async enroll(enrollmentData) {
+        try {
+            const pool = await poolPromise;
+
+            // Check if already enrolled
+            const existingCheck = await pool.request()
+                .input('userId', sql.Int, enrollmentData.user_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
+                .query(`
+                    SELECT enrollment_id, status
+                    FROM user_courses
+                    WHERE user_id = @userId AND course_id = @courseId
+                `);
+
+            if (existingCheck.recordset.length > 0) {
+                const existing = existingCheck.recordset[0];
+                if (existing.status !== 'cancelled') {
+                    return {
+                        success: false,
+                        message: 'User is already enrolled in this course'
+                    };
+                }
+                // Re-enroll if previously cancelled
+                await pool.request()
+                    .input('enrollmentId', sql.Int, existing.enrollment_id)
+                    .query(`
+                        UPDATE user_courses
+                        SET enrollment_date = GETDATE(),
+                            progress = 0,
+                            status = 'active',
+                            certificate_issued = 0,
+                            last_access_date = GETDATE()
+                        WHERE enrollment_id = @enrollmentId
+                    `);
+
+                return {
+                    success: true,
+                    enrollmentId: existing.enrollment_id,
+                    message: 'Successfully re-enrolled in the course'
+                };
+            }
+
+            // Create enrollment
+            const result = await pool.request()
+                .input('userId', sql.Int, enrollmentData.user_id)
+                .input('courseId', sql.Int, enrollmentData.course_id)
+                .query(`
+                    INSERT INTO user_courses (
+                        user_id, course_id, enrollment_date,
+                        progress, status, certificate_issued, last_access_date
+                    ) VALUES (
+                        @userId, @courseId, GETDATE(),
+                        0, 'active', 0, GETDATE()
+                    );
+                    SELECT SCOPE_IDENTITY() as enrollment_id;
+                `);
+
+            return {
+                success: true,
+                enrollmentId: result.recordset[0]?.enrollment_id
+            };
+        } catch (error) {
+            throw new Error(`Error enrolling in course: ${error.message}`);
+        }
+    }
+
+    // Get enrollment by ID
+    static async findById(enrollmentId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .query(`
+                    SELECT e.*,
+                           c.title as course_name, c.thumbnail, c.duration_hours,
+                           CONCAT(u.first_name, ' ', u.last_name) as student_name,
+                           CONCAT(i.first_name, ' ', i.last_name) as instructor_name
+                    FROM user_courses e
+                    JOIN courses c ON e.course_id = c.course_id
+                    JOIN users u ON e.user_id = u.user_id
+                    LEFT JOIN users i ON c.instructor_id = i.user_id
+                    WHERE e.enrollment_id = @enrollmentId
+                `);
+
+            return result.recordset[0] || null;
+        } catch (error) {
+            throw new Error(`Error finding enrollment: ${error.message}`);
+        }
+    }
+
+    // Find enrollment by user and course
+    static async findByUserAndCourse(userId, courseId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('userId', sql.Int, userId)
+                .input('courseId', sql.Int, courseId)
+                .query(`
+                    SELECT e.*,
+                           e.progress AS progress_percentage,
+                           e.status as completion_status
+                    FROM user_courses e
+                    WHERE e.user_id = @userId AND e.course_id = @courseId
+                `);
+
+            return result.recordset[0] || null;
+        } catch (error) {
+            throw new Error(`Error finding enrollment: ${error.message}`);
+        }
+    }
+
+    // Get user's enrollments
+    static async getUserEnrollments(userId, status = null) {
+        try {
+            const pool = await poolPromise;
+
+            let whereClause = 'WHERE e.user_id = @userId';
+            const request = pool.request()
+                .input('userId', sql.Int, userId);
+
+            if (status) {
+                whereClause += ' AND e.status = @status';
+                request.input('status', sql.NVarChar(20), status);
+            }
+
+            const result = await request.query(`
+                SELECT e.enrollment_id,
+                       e.user_id,
+                       e.course_id,
+                       e.enrollment_date,
+                       e.progress,
+                       e.status,
+                       e.completion_date,
+                       e.certificate_issued,
+                       e.last_access_date,
+                       c.title as course_name,
+                       c.thumbnail,
+                       c.duration_hours,
+                       c.difficulty_level,
+                       c.category,
+                       CONCAT(i.first_name, ' ', i.last_name) as instructor_name,
+                       ISNULL(e.progress, 0) as progress_percentage
+                FROM user_courses e
+                JOIN courses c ON e.course_id = c.course_id
+                LEFT JOIN users i ON c.instructor_id = i.user_id
+                ${whereClause}
+                ORDER BY e.enrollment_date DESC
+            `);
+
+            return result.recordset;
+        } catch (error) {
+            throw new Error(`Error fetching user enrollments: ${error.message}`);
+        }
+    }
+
+    // Get course enrollments
+    static async getCourseEnrollments(courseId, page = 1, limit = 50) {
+        try {
+            const pool = await poolPromise;
+            const offset = (page - 1) * limit;
+
+            const request = pool.request()
+                .input('courseId', sql.Int, courseId)
+                .input('offset', sql.Int, offset)
+                .input('limit', sql.Int, limit);
+
+            // Get total count
+            const countResult = await request.query(`
+                SELECT COUNT(*) as total
+                FROM user_courses
+                WHERE course_id = @courseId
+            `);
+
+            // Get paginated enrollments
+            const result = await request.query(`
+                SELECT e.*,
+                       u.employee_id, u.first_name, u.last_name, u.email
+                FROM user_courses e
+                JOIN users u ON e.user_id = u.user_id
+                WHERE e.course_id = @courseId
+                ORDER BY e.enrollment_date DESC
+                OFFSET @offset ROWS
+                FETCH NEXT @limit ROWS ONLY
+            `);
+
+            return {
+                data: result.recordset,
+                total: countResult.recordset[0].total,
+                page: page,
+                totalPages: Math.ceil(countResult.recordset[0].total / limit)
+            };
+        } catch (error) {
+            throw new Error(`Error fetching course enrollments: ${error.message}`);
+        }
+    }
+
+    // Update progress
+    static async updateProgress(enrollmentId, progressPercentage) {
+        try {
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .input('progress', sql.Decimal(5,2), progressPercentage)
+                .query(`
+                    UPDATE user_courses
+                    SET progress = @progress,
+                        status = CASE
+                            WHEN @progress = 0 THEN 'pending'
+                            WHEN @progress >= 100 THEN 'completed'
+                            ELSE 'active'
+                        END,
+                        completion_date = CASE
+                            WHEN @progress >= 100 AND completion_date IS NULL THEN GETDATE()
+                            ELSE completion_date
+                        END,
+                        last_access_date = GETDATE()
+                    WHERE enrollment_id = @enrollmentId
+                `);
+
+            // Generate certificate if completed
+            if (progressPercentage >= 100) {
+                await this.generateCertificate(enrollmentId);
+            }
+
+            return {
+                success: result.rowsAffected[0] > 0,
+                progress: progressPercentage
+            };
+        } catch (error) {
+            throw new Error(`Error updating progress: ${error.message}`);
+        }
+    }
+
+    // Generate certificate
+    static async generateCertificate(enrollmentId) {
+        try {
+            const pool = await poolPromise;
+
+            // Check if already has certificate
+            const checkResult = await pool.request()
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .query(`
+                    SELECT certificate_issued
+                    FROM user_courses
+                    WHERE enrollment_id = @enrollmentId
+                `);
+
+            if (checkResult.recordset.length > 0 && checkResult.recordset[0].certificate_issued) {
+                return { success: true, message: 'Certificate already issued' };
+            }
+
+            // Generate certificate number
+            const year = new Date().getFullYear();
+            const countResult = await pool.request()
+                .query(`
+                    SELECT COUNT(*) as count
+                    FROM user_courses
+                    WHERE certificate_number LIKE 'CERT-${year}-%'
+                `);
+
+            const count = countResult.recordset[0].count + 1;
+            const certificateNumber = `CERT-${year}-${String(count).padStart(6, '0')}`;
+
+            // Update enrollment with certificate
+            const result = await pool.request()
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .input('certificateNumber', sql.NVarChar(50), certificateNumber)
+                .query(`
+                    UPDATE user_courses
+                    SET certificate_issued = 1,
+                        certificate_number = @certificateNumber,
+                        certificate_date = GETDATE()
+                    WHERE enrollment_id = @enrollmentId
+                    AND status = 'completed'
+                `);
+
+            return {
+                success: result.rowsAffected[0] > 0,
+                certificateNumber: result.rowsAffected[0] > 0 ? certificateNumber : null
+            };
+        } catch (error) {
+            throw new Error(`Error generating certificate: ${error.message}`);
+        }
+    }
+
+    // Drop enrollment
+    static async drop(enrollmentId) {
+        try {
+            const pool = await poolPromise;
+            const result = await pool.request()
+                .input('enrollmentId', sql.Int, enrollmentId)
+                .query(`
+                    UPDATE user_courses
+                    SET status = 'cancelled',
+                        completion_date = GETDATE()
+                    WHERE enrollment_id = @enrollmentId
+                    AND status IN ('pending', 'active')
+                `);
+
+            return {
+                success: result.rowsAffected[0] > 0,
+                message: result.rowsAffected[0] > 0 ? 'Successfully dropped from course' : 'Cannot drop this enrollment'
+            };
+        } catch (error) {
+            throw new Error(`Error dropping enrollment: ${error.message}`);
+        }
+    }
+
+    // Get enrollment statistics
+    static async getStatistics(courseId = null, userId = null) {
+        try {
+            const pool = await poolPromise;
+            const request = pool.request();
+
+            let whereClause = 'WHERE 1=1';
+            if (courseId) {
+                whereClause += ' AND course_id = @courseId';
+                request.input('courseId', sql.Int, courseId);
+            }
+            if (userId) {
+                whereClause += ' AND user_id = @userId';
+                request.input('userId', sql.Int, userId);
+            }
+
+            const result = await request.query(`
+                SELECT
+                    COUNT(*) as total_enrollments,
+                    COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed,
+                    COUNT(CASE WHEN status = 'active' THEN 1 END) as in_progress,
+                    COUNT(CASE WHEN status = 'pending' THEN 1 END) as not_started,
+                    COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as dropped,
+                    AVG(CAST(progress AS FLOAT)) as avg_progress,
+                    COUNT(CASE WHEN certificate_issued = 1 THEN 1 END) as certificates_issued
+                FROM user_courses
+                ${whereClause}
+            `);
+
+            return result.recordset[0];
+        } catch (error) {
+            throw new Error(`Error fetching enrollment statistics: ${error.message}`);
+        }
+    }
+
+    // Find by user - alias for getUserEnrollments
+    static async findByUser(userId, status = null) {
+        return this.getUserEnrollments(userId, status);
+    }
+}
+
+module.exports = Enrollment;

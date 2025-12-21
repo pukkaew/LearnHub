@@ -60,6 +60,12 @@ router.post('/api/:course_id/materials/:material_id/track-time', materialProgres
 router.post('/api/:course_id/materials/:material_id/track-video', materialProgressController.trackVideoProgress);
 
 router.get('/api/:course_id/discussions', courseController.getCourseDiscussions);
+router.post('/api/:course_id/discussions', courseController.postCourseDiscussion);
+router.post('/api/:course_id/discussions/:discussion_id/reply', courseController.replyToDiscussion);
+router.put('/api/:course_id/discussions/:discussion_id', courseController.editDiscussion);
+router.delete('/api/:course_id/discussions/:discussion_id', courseController.deleteDiscussion);
+router.post('/api/:course_id/discussions/:discussion_id/react', courseController.reactToDiscussion);
+router.post('/api/:course_id/discussions/:discussion_id/pin', courseController.pinDiscussion);
 router.get('/api/:course_id/reviews', courseController.getCourseReviews);
 router.post('/api/:course_id/reviews', courseController.submitCourseReview);
 router.get('/api/:course_id/related', courseController.getRelatedCourses);

@@ -1,0 +1,189 @@
+/**
+ * LearnHub Theme Variables
+ * Dynamic CSS Variables System
+ * Version: 1.0.0
+ *
+ * Usage: Set these variables in your root element or via JavaScript
+ * All theme customization flows from these variables
+ */
+
+:root {
+    /* ============================================
+       PRIMARY COLORS
+       ============================================ */
+    --primary-color: #0090D3;
+    --secondary-color: #3AAA35;
+    --accent-color: #3b82f6;
+
+    /* ============================================
+       BACKGROUND COLORS
+       ============================================ */
+    --background-color: #f9fafb;
+    --sidebar-color: #1f2937;
+    --card-color: #ffffff;
+    --hover-color: #f3f4f6;
+
+    /* ============================================
+       TEXT COLORS
+       ============================================ */
+    --text-color: #111827;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
+    --text-inverse: #ffffff;
+
+    /* ============================================
+       BORDER & SHADOW
+       ============================================ */
+    --border-color: #e5e7eb;
+    --border-radius: 0.5rem;
+    --border-radius-lg: 1rem;
+    --border-radius-full: 9999px;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+    /* ============================================
+       TYPOGRAPHY
+       ============================================ */
+    --font-family: 'Sarabun', 'Prompt', 'Noto Sans Thai', sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height: 1.5;
+    --line-height-tight: 1.25;
+    --line-height-loose: 1.75;
+
+    /* ============================================
+       LAYOUT
+       ============================================ */
+    --header-height: 64px;
+    --sidebar-width: 256px;
+    --sidebar-collapsed-width: 64px;
+    --container-max-width: 1280px;
+
+    /* ============================================
+       SPACING
+       ============================================ */
+    --spacing-unit: 1rem;
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* ============================================
+       Z-INDEX SCALE
+       ============================================ */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-tooltip: 600;
+    --z-toast: 700;
+
+    /* ============================================
+       TRANSITIONS
+       ============================================ */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-slow: 0.35s ease;
+
+    /* ============================================
+       FEATURE FLAGS
+       ============================================ */
+    --enable-animations: 1;
+    --enable-shadows: 1;
+    --compact-mode: 0;
+
+    /* ============================================
+       STATUS COLORS
+       ============================================ */
+    --success-color: #22c55e;
+    --success-bg: #f0fdf4;
+    --warning-color: #f59e0b;
+    --warning-bg: #fffbeb;
+    --error-color: #ef4444;
+    --error-bg: #fef2f2;
+    --info-color: #3b82f6;
+    --info-bg: #eff6ff;
+
+    /* ============================================
+       GRADIENT
+       ============================================ */
+    --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    --gradient-accent: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+}
+
+/* ============================================
+   DARK MODE OVERRIDES
+   ============================================ */
+[data-theme="dark"],
+.dark-mode {
+    --background-color: #1f2937;
+    --sidebar-color: #111827;
+    --card-color: #374151;
+    --hover-color: #4b5563;
+
+    --text-color: #f3f4f6;
+    --text-muted: #9ca3af;
+    --text-light: #6b7280;
+
+    --border-color: #4b5563;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   COMPACT MODE OVERRIDES
+   ============================================ */
+[data-compact="true"],
+.compact-mode {
+    --spacing-unit: 0.75rem;
+    --spacing-sm: 0.375rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --font-size-base: 0.875rem;
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+[data-high-contrast="true"] {
+    --text-color: #000000;
+    --text-muted: #374151;
+    --border-color: #000000;
+}
+
+/* ============================================
+   ANIMATIONS DISABLED
+   ============================================ */
+[data-animations="false"] * {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* ============================================
+   SHADOWS DISABLED
+   ============================================ */
+[data-shadows="false"] {
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+}

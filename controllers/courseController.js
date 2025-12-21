@@ -1,6 +1,7 @@
 const Course = require('../models/Course');
 const Enrollment = require('../models/Enrollment');
 const ActivityLog = require('../models/ActivityLog');
+const CourseDiscussion = require('../models/CourseDiscussion');
 const { poolPromise, sql } = require('../config/database');
 const validationService = require('../utils/validation');
 
@@ -2154,14 +2155,307 @@ const { t } = require('../utils/languages');
         }
     },
 
-    // Get course discussions
+    // Get course discussions (Facebook-style with reactions & replies)
     async getCourseDiscussions(req, res) {
         try {
             const { course_id } = req.params;
-            // TODO: Implement when discussions table is ready
-            res.json({ success: true, data: [] });
+            const { page = 1, limit = 20, sort = 'newest' } = req.query;
+            const userId = req.user?.user_id;
+
+            const result = await CourseDiscussion.getByCourse(
+                parseInt(course_id),
+                parseInt(page),
+                parseInt(limit),
+                userId,
+                sort
+            );
+
+            // Get course instructor for permission flags
+            const pool = await poolPromise;
+            const courseCheck = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .query(`SELECT instructor_id FROM courses WHERE course_id = @courseId`);
+
+            const instructorId = courseCheck.recordset[0]?.instructor_id;
+            const isInstructor = instructorId === userId;
+            const isAdmin = req.user?.role_name === 'Admin';
+
+            // Add permission flags and format data
+            const comments = await Promise.all(result.data.map(async (discussion) => {
+                const reactions = await CourseDiscussion.getReactionsSummary(discussion.discussion_id);
+
+                return {
+                    comment_id: discussion.discussion_id,
+                    course_id: discussion.course_id,
+                    user_id: discussion.user_id,
+                    content: discussion.comment_text,
+                    created_at: discussion.created_at,
+                    updated_at: discussion.updated_at,
+                    user_name: discussion.author_name,
+                    user_avatar: discussion.author_image || '/images/default-avatar.png',
+                    is_instructor: discussion.user_id === instructorId,
+                    is_pinned: discussion.is_pinned || false,
+                    can_edit: discussion.user_id === userId,
+                    can_delete: discussion.user_id === userId || isAdmin,
+                    can_pin: isInstructor || isAdmin,
+                    user_reaction: discussion.user_reaction || null,
+                    reactions: reactions,
+                    replies: await Promise.all((discussion.replies || []).map(async (reply) => {
+                        const replyReactions = await CourseDiscussion.getReactionsSummary(reply.discussion_id);
+                        return {
+                            comment_id: reply.discussion_id,
+                            user_id: reply.user_id,
+                            content: reply.comment_text,
+                            created_at: reply.created_at,
+                            user_name: reply.author_name,
+                            user_avatar: reply.author_image || '/images/default-avatar.png',
+                            is_instructor: reply.user_id === instructorId,
+                            reply_to_name: reply.reply_to_name || null,
+                            reply_to_user_id: reply.reply_to_user_id || null,
+                            reply_to_comment_id: reply.reply_to_discussion_id || null,
+                            can_edit: reply.user_id === userId,
+                            can_delete: reply.user_id === userId || isAdmin,
+                            user_reaction: reply.user_reaction || null,
+                            reactions: replyReactions
+                        };
+                    }))
+                };
+            }));
+
+            res.json({
+                success: true,
+                comments: comments,
+                pagination: {
+                    page: result.page,
+                    total: result.total,
+                    totalPages: result.totalPages,
+                    has_next: result.has_next
+                }
+            });
         } catch (error) {
             console.error('Get discussions error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Post course discussion
+    async postCourseDiscussion(req, res) {
+        try {
+            const { course_id } = req.params;
+            const { comment, material_id, parent_id } = req.body;
+            const userId = req.user.user_id;
+
+            if (!comment || comment.trim().length === 0) {
+                return res.status(400).json({ success: false, message: 'กรุณากรอกความคิดเห็น' });
+            }
+
+            if (comment.length > 2000) {
+                return res.status(400).json({ success: false, message: 'ความคิดเห็นต้องไม่เกิน 2000 ตัวอักษร' });
+            }
+
+            const pool = await poolPromise;
+
+            const result = await pool.request()
+                .input('courseId', sql.Int, parseInt(course_id))
+                .input('userId', sql.Int, userId)
+                .input('materialId', sql.Int, material_id || null)
+                .input('parentId', sql.Int, parent_id || null)
+                .input('commentText', sql.NVarChar(sql.MAX), comment.trim())
+                .query(`
+                    INSERT INTO CourseDiscussions (
+                        course_id, user_id, material_id, parent_id, comment_text, status, created_at, updated_at
+                    ) VALUES (
+                        @courseId, @userId, @materialId, @parentId, @commentText, 'active', GETDATE(), GETDATE()
+                    );
+                    SELECT SCOPE_IDENTITY() AS discussion_id;
+                `);
+
+            const discussionId = result.recordset[0].discussion_id;
+
+            // Get the created discussion with user info
+            const newDiscussion = await pool.request()
+                .input('discussionId', sql.Int, discussionId)
+                .query(`
+                    SELECT
+                        d.discussion_id,
+                        d.course_id,
+                        d.user_id,
+                        d.material_id,
+                        d.parent_id,
+                        d.comment_text,
+                        d.status,
+                        d.created_at,
+                        CONCAT(u.first_name, ' ', u.last_name) as author_name,
+                        u.profile_image as author_image
+                    FROM CourseDiscussions d
+                    LEFT JOIN users u ON d.user_id = u.user_id
+                    WHERE d.discussion_id = @discussionId
+                `);
+
+            res.status(201).json({
+                success: true,
+                message: 'โพสต์ความคิดเห็นสำเร็จ',
+                data: newDiscussion.recordset[0]
+            });
+        } catch (error) {
+            console.error('Post discussion error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Reply to course discussion
+    async replyToDiscussion(req, res) {
+        try {
+            const { course_id, discussion_id } = req.params;
+            const { comment_text, reply_to_user_id, reply_to_comment_id } = req.body;
+            const userId = req.user.user_id;
+
+            if (!comment_text || comment_text.trim().length === 0) {
+                return res.status(400).json({ success: false, message: 'กรุณากรอกความคิดเห็น' });
+            }
+
+            const result = await CourseDiscussion.create({
+                course_id: parseInt(course_id),
+                user_id: userId,
+                parent_id: parseInt(discussion_id),
+                comment_text: comment_text.trim(),
+                reply_to_user_id: reply_to_user_id || null,
+                reply_to_discussion_id: reply_to_comment_id || null
+            });
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            res.status(201).json({
+                success: true,
+                message: 'ตอบกลับสำเร็จ',
+                data: result.data
+            });
+        } catch (error) {
+            console.error('Reply to discussion error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Edit course discussion
+    async editDiscussion(req, res) {
+        try {
+            const { discussion_id } = req.params;
+            const { comment_text } = req.body;
+            const userId = req.user.user_id;
+
+            if (!comment_text || comment_text.trim().length === 0) {
+                return res.status(400).json({ success: false, message: 'กรุณากรอกความคิดเห็น' });
+            }
+
+            const result = await CourseDiscussion.update(
+                parseInt(discussion_id),
+                userId,
+                comment_text.trim()
+            );
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            res.json({
+                success: true,
+                message: 'แก้ไขความคิดเห็นสำเร็จ'
+            });
+        } catch (error) {
+            console.error('Edit discussion error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Delete course discussion
+    async deleteDiscussion(req, res) {
+        try {
+            const { discussion_id } = req.params;
+            const userId = req.user.user_id;
+            const isAdmin = req.user?.role_name === 'Admin';
+
+            const result = await CourseDiscussion.delete(
+                parseInt(discussion_id),
+                userId,
+                isAdmin
+            );
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            res.json({
+                success: true,
+                message: 'ลบความคิดเห็นสำเร็จ'
+            });
+        } catch (error) {
+            console.error('Delete discussion error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // React to course discussion
+    async reactToDiscussion(req, res) {
+        try {
+            const { discussion_id } = req.params;
+            const { reaction_type } = req.body;
+            const userId = req.user.user_id;
+
+            if (!reaction_type) {
+                return res.status(400).json({ success: false, message: 'Reaction type is required' });
+            }
+
+            const result = await CourseDiscussion.addReaction(
+                parseInt(discussion_id),
+                userId,
+                reaction_type
+            );
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            const summary = await CourseDiscussion.getReactionsSummary(parseInt(discussion_id));
+
+            res.json({
+                success: true,
+                action: result.action,
+                user_reaction: result.reaction_type,
+                reactions: summary
+            });
+        } catch (error) {
+            console.error('React to discussion error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    // Pin/Unpin course discussion
+    async pinDiscussion(req, res) {
+        try {
+            const { course_id, discussion_id } = req.params;
+            const userId = req.user.user_id;
+            const isAdmin = req.user?.role_name === 'Admin';
+
+            const result = await CourseDiscussion.togglePin(
+                parseInt(discussion_id),
+                parseInt(course_id),
+                userId,
+                isAdmin
+            );
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            res.json({
+                success: true,
+                is_pinned: result.is_pinned,
+                message: result.message
+            });
+        } catch (error) {
+            console.error('Pin discussion error:', error);
             res.status(500).json({ success: false, message: error.message });
         }
     },

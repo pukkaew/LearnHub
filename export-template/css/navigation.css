@@ -1,0 +1,430 @@
+/**
+ * LearnHub Navigation CSS
+ * Modern responsive navigation with gradient styling
+ * Version: 1.0.0
+ */
+
+/* ============================================
+   NAVIGATION CONTAINER
+   ============================================ */
+.nav-main {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height, 64px);
+    background: var(--gradient-primary);
+    z-index: var(--z-fixed, 300);
+    box-shadow: var(--shadow-lg);
+}
+
+.nav-container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ============================================
+   LOGO SECTION
+   ============================================ */
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    text-decoration: none;
+    color: var(--text-inverse);
+}
+
+.nav-logo-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 4px;
+}
+
+.nav-logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-logo-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-inverse);
+    line-height: var(--line-height-tight);
+}
+
+.nav-logo-subtitle {
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================
+   MENU ITEMS
+   ============================================ */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.nav-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-fast);
+    white-space: nowrap;
+}
+
+.nav-menu-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-inverse);
+}
+
+.nav-menu-item.active {
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--text-inverse);
+}
+
+.nav-menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   DROPDOWN MENU
+   ============================================ */
+.nav-dropdown-wrapper {
+    position: relative;
+}
+
+.nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background: var(--card-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--transition-normal);
+    z-index: var(--z-dropdown);
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+}
+
+.nav-dropdown-wrapper:hover .nav-dropdown,
+.nav-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    transition: var(--transition-fast);
+}
+
+.nav-dropdown-item:hover {
+    background: var(--hover-color);
+    color: var(--primary-color);
+}
+
+.nav-dropdown-item i {
+    width: 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.nav-dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: var(--spacing-sm) 0;
+}
+
+/* ============================================
+   USER SECTION
+   ============================================ */
+.nav-user-section {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.nav-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--text-inverse);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+}
+
+.nav-action-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.nav-notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    background: var(--error-color);
+    border-radius: var(--border-radius-full);
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+.nav-user-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: var(--border-radius-lg);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.nav-user-profile:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.nav-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-user-info {
+    text-align: left;
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .nav-user-info {
+        display: block;
+    }
+}
+
+.nav-user-name {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-inverse);
+    line-height: var(--line-height-tight);
+}
+
+.nav-user-role {
+    font-size: var(--font-size-xs);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ============================================
+   LANGUAGE SWITCHER
+   ============================================ */
+.nav-language-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--text-inverse);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    transition: var(--transition-fast);
+}
+
+.nav-language-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.nav-language-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 160px;
+    background: var(--card-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    z-index: var(--z-dropdown);
+}
+
+.nav-language-option {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    text-align: left;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.nav-language-option:hover {
+    background: var(--hover-color);
+}
+
+.nav-language-option.active {
+    background: var(--info-bg);
+    color: var(--primary-color);
+}
+
+/* ============================================
+   MOBILE MENU
+   ============================================ */
+.nav-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--text-inverse);
+    cursor: pointer;
+    font-size: var(--font-size-xl);
+}
+
+@media (min-width: 1024px) {
+    .nav-mobile-toggle {
+        display: none;
+    }
+}
+
+.nav-mobile-menu {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-primary);
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    transition: var(--transition-normal);
+    z-index: var(--z-fixed);
+}
+
+.nav-mobile-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    color: var(--text-inverse);
+    text-decoration: none;
+    border-radius: var(--border-radius-lg);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: var(--spacing-sm);
+    transition: var(--transition-fast);
+}
+
+.nav-mobile-menu-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.nav-mobile-menu-item.active {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.nav-mobile-submenu {
+    margin-left: var(--spacing-xl);
+    margin-top: var(--spacing-sm);
+}
+
+.nav-mobile-submenu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    background: rgba(255, 255, 255, 0.08);
+    margin-bottom: var(--spacing-xs);
+    transition: var(--transition-fast);
+}
+
+.nav-mobile-submenu-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   HIDE DESKTOP MENU ON MOBILE
+   ============================================ */
+.nav-menu {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .nav-menu {
+        display: flex;
+    }
+}
+
+/* ============================================
+   BODY OFFSET FOR FIXED NAV
+   ============================================ */
+body.has-fixed-nav {
+    padding-top: var(--header-height);
+}
