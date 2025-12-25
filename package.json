@@ -8,6 +8,8 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "seed": "node seeds/seedData.js",
+    "reset-db": "node scripts/resetDatabase.js",
+    "reindex": "node scripts/reIndex.js",
     "build-css": "tailwindcss -i ./src/input.css -o ./public/css/tailwind.css --watch",
     "build-css-prod": "tailwindcss -i ./src/input.css -o ./public/css/tailwind.css --minify",
     "lint": "eslint .",

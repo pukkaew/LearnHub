@@ -1,7 +1,10 @@
 const { poolPromise, sql } = require('../config/database');
 const bcrypt = require('bcrypt');
-const { faker } = require('@faker-js/faker');
-const { v4: uuidv4 } = require('uuid');
+
+/**
+ * Seed Data Script - Updated for current table structure
+ * Creates initial data for the LearnHub system
+ */
 
 class SeedData {
     constructor() {
@@ -18,37 +21,41 @@ class SeedData {
         try {
             console.log('Clearing existing data...');
 
-            // List of tables to clear (order matters due to foreign keys)
+            // Disable constraints
+            await this.pool.request().query(`
+                DECLARE @sql NVARCHAR(MAX) = '';
+                SELECT @sql = @sql + 'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + '.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + ' NOCHECK CONSTRAINT ' + QUOTENAME(name) + ';'
+                FROM sys.foreign_keys;
+                EXEC sp_executesql @sql;
+            `);
+
+            // Tables to clear in order
             const tables = [
-                'TestResults',
-                'TestQuestions',
-                'user_courses',
-                'CourseProgress',
-                'Certificates',
-                'TestAttempts',
-                'UserActivities',
-                'Notifications',
-                'Comments',
-                'Articles',
-                'Tests',
-                'Courses',
-                'CourseCategories',
-                'Users',
-                'Applicants',
-                'JobPositions',
-                'Departments',
-                'Positions',
-                'Roles'
+                'UserAnswers', 'TestAttempts', 'TestQuestions', 'AnswerOptions', 'QuestionBank',
+                'ApplicantTestResults', 'ApplicantTestAssignments', 'ApplicantTestProgress', 'ApplicantNotes', 'Applicants',
+                'PositionTestSets', 'lesson_progress', 'lessons', 'chapters',
+                'user_courses', 'courses', 'CourseCategories', 'tests',
+                'Comments', 'articles', 'notifications', 'badges', 'Settings',
+                'SystemSettings', 'OrganizationUnits', 'OrganizationLevels',
+                'users', 'positions', 'departments', 'roles'
             ];
 
             for (const table of tables) {
                 try {
-                    await this.pool.request().query(`DELETE FROM ${table}`);
-                    console.log(`Cleared table: ${table}`);
-                } catch (error) {
-                    console.log(`Table ${table} might not exist or already empty: ${error.message}`);
-                }
+                    await this.pool.request().query(`DELETE FROM [${table}]`);
+                    try {
+                        await this.pool.request().query(`DBCC CHECKIDENT ('[${table}]', RESEED, 0)`);
+                    } catch (e) { }
+                } catch (error) { }
             }
+
+            // Re-enable constraints
+            await this.pool.request().query(`
+                DECLARE @sql NVARCHAR(MAX) = '';
+                SELECT @sql = @sql + 'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + '.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + ' WITH CHECK CHECK CONSTRAINT ' + QUOTENAME(name) + ';'
+                FROM sys.foreign_keys;
+                EXEC sp_executesql @sql;
+            `);
 
             console.log('All data cleared successfully');
         } catch (error) {
@@ -62,12 +69,12 @@ class SeedData {
             console.log('Seeding roles...');
 
             const roles = [
-                { role_id: uuidv4(), role_name: 'Admin', description: 'System Administrator' },
-                { role_id: uuidv4(), role_name: 'HR', description: 'Human Resources' },
-                { role_id: uuidv4(), role_name: 'Manager', description: 'Department Manager' },
-                { role_id: uuidv4(), role_name: 'Supervisor', description: 'Team Supervisor' },
-                { role_id: uuidv4(), role_name: 'Employee', description: 'Regular Employee' },
-                { role_id: uuidv4(), role_name: 'Instructor', description: 'Course Instructor' }
+                { role_id: 1, role_name: 'Admin', description: 'System Administrator' },
+                { role_id: 2, role_name: 'HR', description: 'Human Resources' },
+                { role_id: 3, role_name: 'Manager', description: 'Department Manager' },
+                { role_id: 4, role_name: 'Supervisor', description: 'Team Supervisor' },
+                { role_id: 5, role_name: 'Employee', description: 'Regular Employee' },
+                { role_id: 6, role_name: 'Instructor', description: 'Course Instructor' }
             ];
 
             for (const role of roles) {
@@ -76,8 +83,10 @@ class SeedData {
                     .input('roleName', sql.NVarChar(50), role.role_name)
                     .input('description', sql.NVarChar(255), role.description)
                     .query(`
-                        INSERT INTO Roles (role_id, role_name, description, created_date, is_active)
-                        VALUES (@roleId, @roleName, @description, GETDATE(), 1)
+                        SET IDENTITY_INSERT roles ON;
+                        INSERT INTO roles (role_id, role_name, description, is_active, created_at)
+                        VALUES (@roleId, @roleName, @description, 1, GETDATE());
+                        SET IDENTITY_INSERT roles OFF;
                     `);
             }
 
@@ -94,22 +103,24 @@ class SeedData {
             console.log('Seeding departments...');
 
             const departments = [
-                { department_id: uuidv4(), department_name: 'Information Technology', department_code: 'IT' },
-                { department_id: uuidv4(), department_name: 'Human Resources', department_code: 'HR' },
-                { department_id: uuidv4(), department_name: 'Finance', department_code: 'FIN' },
-                { department_id: uuidv4(), department_name: 'Marketing', department_code: 'MKT' },
-                { department_id: uuidv4(), department_name: 'Operations', department_code: 'OPS' },
-                { department_id: uuidv4(), department_name: 'Sales', department_code: 'SALES' }
+                { department_id: 1, department_name: 'Information Technology', description: 'IT Department' },
+                { department_id: 2, department_name: 'Human Resources', description: 'HR Department' },
+                { department_id: 3, department_name: 'Finance', description: 'Finance Department' },
+                { department_id: 4, department_name: 'Marketing', description: 'Marketing Department' },
+                { department_id: 5, department_name: 'Operations', description: 'Operations Department' },
+                { department_id: 6, department_name: 'Sales', description: 'Sales Department' }
             ];
 
             for (const dept of departments) {
                 await this.pool.request()
                     .input('departmentId', sql.Int, dept.department_id)
                     .input('departmentName', sql.NVarChar(100), dept.department_name)
-                    .input('departmentCode', sql.NVarChar(10), dept.department_code)
+                    .input('description', sql.NVarChar(500), dept.description)
                     .query(`
-                        INSERT INTO Departments (department_id, department_name, department_code, created_date, is_active)
-                        VALUES (@departmentId, @departmentName, @departmentCode, GETDATE(), 1)
+                        SET IDENTITY_INSERT departments ON;
+                        INSERT INTO departments (department_id, department_name, description, is_active, created_at)
+                        VALUES (@departmentId, @departmentName, @description, 1, GETDATE());
+                        SET IDENTITY_INSERT departments OFF;
                     `);
             }
 
@@ -126,26 +137,29 @@ class SeedData {
             console.log('Seeding positions...');
 
             const positions = [
-                { position_id: uuidv4(), position_name: 'CEO', level: 1 },
-                { position_id: uuidv4(), position_name: 'CTO', level: 2 },
-                { position_id: uuidv4(), position_name: 'Department Manager', level: 3 },
-                { position_id: uuidv4(), position_name: 'Team Lead', level: 4 },
-                { position_id: uuidv4(), position_name: 'Senior Developer', level: 5 },
-                { position_id: uuidv4(), position_name: 'Developer', level: 6 },
-                { position_id: uuidv4(), position_name: 'Junior Developer', level: 7 },
-                { position_id: uuidv4(), position_name: 'Analyst', level: 6 },
-                { position_id: uuidv4(), position_name: 'Specialist', level: 5 },
-                { position_id: uuidv4(), position_name: 'Assistant', level: 7 }
+                { position_id: 1, position_name: 'CEO', department_id: null, level: 1 },
+                { position_id: 2, position_name: 'CTO', department_id: 1, level: 2 },
+                { position_id: 3, position_name: 'Department Manager', department_id: null, level: 3 },
+                { position_id: 4, position_name: 'Team Lead', department_id: null, level: 4 },
+                { position_id: 5, position_name: 'Senior Developer', department_id: 1, level: 5 },
+                { position_id: 6, position_name: 'Developer', department_id: 1, level: 6 },
+                { position_id: 7, position_name: 'Junior Developer', department_id: 1, level: 7 },
+                { position_id: 8, position_name: 'HR Manager', department_id: 2, level: 3 },
+                { position_id: 9, position_name: 'HR Specialist', department_id: 2, level: 5 },
+                { position_id: 10, position_name: 'Accountant', department_id: 3, level: 5 }
             ];
 
             for (const pos of positions) {
                 await this.pool.request()
                     .input('positionId', sql.Int, pos.position_id)
                     .input('positionName', sql.NVarChar(100), pos.position_name)
+                    .input('departmentId', sql.Int, pos.department_id)
                     .input('level', sql.Int, pos.level)
                     .query(`
-                        INSERT INTO Positions (position_id, position_name, level, created_date, is_active)
-                        VALUES (@positionId, @positionName, @level, GETDATE(), 1)
+                        SET IDENTITY_INSERT positions ON;
+                        INSERT INTO positions (position_id, position_name, department_id, level, is_active, created_at)
+                        VALUES (@positionId, @positionName, @departmentId, @level, 1, GETDATE());
+                        SET IDENTITY_INSERT positions OFF;
                     `);
             }
 
@@ -161,113 +175,95 @@ class SeedData {
         try {
             console.log('Seeding users...');
 
-            const adminRoleId = this.roles.find(r => r.role_name === 'Admin').role_id;
-            const hrRoleId = this.roles.find(r => r.role_name === 'HR').role_id;
-            const managerRoleId = this.roles.find(r => r.role_name === 'Manager').role_id;
-            const employeeRoleId = this.roles.find(r => r.role_name === 'Employee').role_id;
-            const instructorRoleId = this.roles.find(r => r.role_name === 'Instructor').role_id;
-
             const passwordHash = await bcrypt.hash('password123', this.saltRounds);
 
             const users = [
                 {
-                    user_id: uuidv4(),
+                    user_id: 1,
                     employee_id: 'ADM001',
                     username: 'admin',
                     first_name: 'System',
                     last_name: 'Administrator',
-                    email: 'admin@rukchaihongyen.com',
-                    role_id: adminRoleId,
-                    department_id: this.departments[0].department_id,
-                    position_id: this.positions[0].position_id
+                    email: 'admin@learnhub.com',
+                    role_id: 1,
+                    department_id: 1,
+                    position_id: 1
                 },
                 {
-                    user_id: uuidv4(),
+                    user_id: 2,
                     employee_id: 'HR001',
                     username: 'hr.manager',
-                    first_name: 'Human',
-                    last_name: 'Resources',
-                    email: 'hr@rukchaihongyen.com',
-                    role_id: hrRoleId,
-                    department_id: this.departments[1].department_id,
-                    position_id: this.positions[2].position_id
+                    first_name: 'HR',
+                    last_name: 'Manager',
+                    email: 'hr@learnhub.com',
+                    role_id: 2,
+                    department_id: 2,
+                    position_id: 8
                 },
                 {
-                    user_id: uuidv4(),
+                    user_id: 3,
                     employee_id: 'MGR001',
                     username: 'it.manager',
                     first_name: 'IT',
                     last_name: 'Manager',
-                    email: 'it.manager@rukchaihongyen.com',
-                    role_id: managerRoleId,
-                    department_id: this.departments[0].department_id,
-                    position_id: this.positions[2].position_id
+                    email: 'it.manager@learnhub.com',
+                    role_id: 3,
+                    department_id: 1,
+                    position_id: 3
                 },
                 {
-                    user_id: uuidv4(),
+                    user_id: 4,
                     employee_id: 'INS001',
                     username: 'instructor1',
                     first_name: 'John',
                     last_name: 'Smith',
-                    email: 'instructor1@rukchaihongyen.com',
-                    role_id: instructorRoleId,
-                    department_id: this.departments[0].department_id,
-                    position_id: this.positions[4].position_id
+                    email: 'instructor1@learnhub.com',
+                    role_id: 6,
+                    department_id: 1,
+                    position_id: 5
+                },
+                {
+                    user_id: 5,
+                    employee_id: 'EMP001',
+                    username: 'employee1',
+                    first_name: 'Jane',
+                    last_name: 'Doe',
+                    email: 'employee1@learnhub.com',
+                    role_id: 5,
+                    department_id: 1,
+                    position_id: 6
                 }
             ];
-
-            // Add random employees
-            for (let i = 0; i < 20; i++) {
-                const dept = faker.helpers.arrayElement(this.departments);
-                const pos = faker.helpers.arrayElement(this.positions.slice(4)); // Non-executive positions
-
-                users.push({
-                    user_id: uuidv4(),
-                    employee_id: `EMP${String(i + 1).padStart(3, '0')}`,
-                    username: faker.internet.userName().toLowerCase(),
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email().toLowerCase(),
-                    role_id: employeeRoleId,
-                    department_id: dept.department_id,
-                    position_id: pos.position_id,
-                    phone_mobile: faker.phone.number()
-                });
-            }
 
             for (const user of users) {
                 await this.pool.request()
                     .input('userId', sql.Int, user.user_id)
                     .input('employeeId', sql.NVarChar(20), user.employee_id)
                     .input('username', sql.NVarChar(50), user.username)
-                    .input('passwordHash', sql.NVarChar(255), passwordHash)
+                    .input('password', sql.NVarChar(255), passwordHash)
                     .input('email', sql.NVarChar(100), user.email)
                     .input('firstName', sql.NVarChar(100), user.first_name)
                     .input('lastName', sql.NVarChar(100), user.last_name)
                     .input('departmentId', sql.Int, user.department_id)
                     .input('positionId', sql.Int, user.position_id)
                     .input('roleId', sql.Int, user.role_id)
-                    .input('phoneMobile', sql.NVarChar(20), user.phone_mobile || null)
                     .query(`
-                        INSERT INTO Users (
-                            user_id, employee_id, username, password_hash, email,
+                        SET IDENTITY_INSERT users ON;
+                        INSERT INTO users (
+                            user_id, employee_id, username, password, email,
                             first_name, last_name, department_id, position_id, role_id,
-                            phone_mobile, created_date, is_active, must_change_password
+                            is_active, email_verified, created_at
                         ) VALUES (
-                            @userId, @employeeId, @username, @passwordHash, @email,
+                            @userId, @employeeId, @username, @password, @email,
                             @firstName, @lastName, @departmentId, @positionId, @roleId,
-                            @phoneMobile, GETDATE(), 1, 0
-                        )
+                            1, 1, GETDATE()
+                        );
+                        SET IDENTITY_INSERT users OFF;
                     `);
             }
 
             this.users = users;
             console.log(`Seeded ${users.length} users`);
-            console.log('Test login credentials:');
-            console.log('Admin: admin / password123');
-            console.log('HR: hr.manager / password123');
-            console.log('Manager: it.manager / password123');
-            console.log('Instructor: instructor1 / password123');
         } catch (error) {
             console.error('Error seeding users:', error);
             throw error;
@@ -279,22 +275,25 @@ class SeedData {
             console.log('Seeding course categories...');
 
             const categories = [
-                { category_id: uuidv4(), category_name: 'Programming', description: 'Programming and Software Development' },
-                { category_id: uuidv4(), category_name: 'Management', description: 'Management and Leadership' },
-                { category_id: uuidv4(), category_name: 'HR', description: 'Human Resources Training' },
-                { category_id: uuidv4(), category_name: 'Safety', description: 'Workplace Safety Training' },
-                { category_id: uuidv4(), category_name: 'Compliance', description: 'Compliance and Regulatory Training' },
-                { category_id: uuidv4(), category_name: 'Communication', description: 'Communication Skills' }
+                { category_id: 1, category_name: 'Programming', category_name_en: 'Programming', description: 'Programming and Software Development' },
+                { category_id: 2, category_name: 'Management', category_name_en: 'Management', description: 'Management and Leadership' },
+                { category_id: 3, category_name: 'HR', category_name_en: 'Human Resources', description: 'Human Resources Training' },
+                { category_id: 4, category_name: 'Safety', category_name_en: 'Safety', description: 'Workplace Safety Training' },
+                { category_id: 5, category_name: 'Compliance', category_name_en: 'Compliance', description: 'Compliance and Regulatory Training' },
+                { category_id: 6, category_name: 'Communication', category_name_en: 'Communication', description: 'Communication Skills' }
             ];
 
             for (const cat of categories) {
                 await this.pool.request()
                     .input('categoryId', sql.Int, cat.category_id)
                     .input('categoryName', sql.NVarChar(100), cat.category_name)
+                    .input('categoryNameEn', sql.NVarChar(100), cat.category_name_en)
                     .input('description', sql.NVarChar(500), cat.description)
                     .query(`
-                        INSERT INTO CourseCategories (category_id, category_name, description, created_date, is_active)
-                        VALUES (@categoryId, @categoryName, @description, GETDATE(), 1)
+                        SET IDENTITY_INSERT CourseCategories ON;
+                        INSERT INTO CourseCategories (category_id, category_name, category_name_en, description, is_active, created_at)
+                        VALUES (@categoryId, @categoryName, @categoryNameEn, @description, 1, GETDATE());
+                        SET IDENTITY_INSERT CourseCategories OFF;
                     `);
             }
 
@@ -310,60 +309,55 @@ class SeedData {
         try {
             console.log('Seeding courses...');
 
-            const instructorId = this.users.find(u => u.username === 'instructor1').user_id;
-
             const courses = [
                 {
-                    course_id: uuidv4(),
+                    course_id: 1,
                     course_code: 'JS101',
-                    course_name: 'JavaScript Fundamentals',
-                    course_name_en: 'JavaScript Fundamentals',
-                    category_id: this.categories[0].category_id,
+                    title: 'JavaScript Fundamentals',
+                    category: 'Programming',
                     course_type: 'Online',
                     difficulty_level: 'Beginner',
                     language: 'TH',
                     description: 'Learn the fundamentals of JavaScript programming',
-                    objectives: 'Understand variables, functions, and basic programming concepts',
+                    learning_objectives: 'Understand variables, functions, and basic programming concepts',
                     target_audience: 'Developers, Students',
                     duration_hours: 40,
                     max_students: 30,
-                    instructor_id: instructorId,
+                    instructor_id: 4,
                     passing_score: 70,
                     max_attempts: 3
                 },
                 {
-                    course_id: uuidv4(),
+                    course_id: 2,
                     course_code: 'MGT101',
-                    course_name: 'Leadership Fundamentals',
-                    course_name_en: 'Leadership Fundamentals',
-                    category_id: this.categories[1].category_id,
+                    title: 'Leadership Fundamentals',
+                    category: 'Management',
                     course_type: 'Classroom',
                     difficulty_level: 'Intermediate',
                     language: 'TH',
                     description: 'Essential leadership skills for managers',
-                    objectives: 'Develop leadership and team management skills',
+                    learning_objectives: 'Develop leadership and team management skills',
                     target_audience: 'Managers, Team Leads',
                     duration_hours: 24,
                     max_students: 20,
-                    instructor_id: instructorId,
+                    instructor_id: 4,
                     passing_score: 75,
                     max_attempts: 2
                 },
                 {
-                    course_id: uuidv4(),
+                    course_id: 3,
                     course_code: 'SAFE101',
-                    course_name: 'Workplace Safety Training',
-                    course_name_en: 'Workplace Safety Training',
-                    category_id: this.categories[3].category_id,
+                    title: 'Workplace Safety Training',
+                    category: 'Safety',
                     course_type: 'Online',
                     difficulty_level: 'Beginner',
                     language: 'TH',
                     description: 'Basic workplace safety guidelines and procedures',
-                    objectives: 'Understand safety protocols and emergency procedures',
+                    learning_objectives: 'Understand safety protocols and emergency procedures',
                     target_audience: 'All Employees',
                     duration_hours: 8,
                     max_students: 100,
-                    instructor_id: instructorId,
+                    instructor_id: 4,
                     passing_score: 80,
                     max_attempts: 5
                 }
@@ -373,32 +367,33 @@ class SeedData {
                 await this.pool.request()
                     .input('courseId', sql.Int, course.course_id)
                     .input('courseCode', sql.NVarChar(20), course.course_code)
-                    .input('courseName', sql.NVarChar(200), course.course_name)
-                    .input('courseNameEn', sql.NVarChar(200), course.course_name_en)
-                    .input('categoryId', sql.Int, course.category_id)
+                    .input('title', sql.NVarChar(200), course.title)
+                    .input('category', sql.NVarChar(100), course.category)
                     .input('courseType', sql.NVarChar(50), course.course_type)
                     .input('difficultyLevel', sql.NVarChar(50), course.difficulty_level)
                     .input('language', sql.NVarChar(10), course.language)
-                    .input('description', sql.Text, course.description)
-                    .input('objectives', sql.Text, course.objectives)
+                    .input('description', sql.NVarChar(sql.MAX), course.description)
+                    .input('learningObjectives', sql.NVarChar(sql.MAX), course.learning_objectives)
                     .input('targetAudience', sql.NVarChar(500), course.target_audience)
-                    .input('durationHours', sql.Int, course.duration_hours)
+                    .input('durationHours', sql.Decimal(5, 2), course.duration_hours)
                     .input('maxStudents', sql.Int, course.max_students)
                     .input('instructorId', sql.Int, course.instructor_id)
                     .input('passingScore', sql.Int, course.passing_score)
                     .input('maxAttempts', sql.Int, course.max_attempts)
                     .query(`
-                        INSERT INTO Courses (
-                            course_id, course_code, course_name, course_name_en, category_id,
-                            course_type, difficulty_level, language, description, objectives,
+                        SET IDENTITY_INSERT courses ON;
+                        INSERT INTO courses (
+                            course_id, course_code, title, category,
+                            course_type, difficulty_level, language, description, learning_objectives,
                             target_audience, duration_hours, max_students, instructor_id,
-                            passing_score, max_attempts, created_date, is_published, is_active
+                            passing_score, max_attempts, status, is_published, is_active, created_at
                         ) VALUES (
-                            @courseId, @courseCode, @courseName, @courseNameEn, @categoryId,
-                            @courseType, @difficultyLevel, @language, @description, @objectives,
+                            @courseId, @courseCode, @title, @category,
+                            @courseType, @difficultyLevel, @language, @description, @learningObjectives,
                             @targetAudience, @durationHours, @maxStudents, @instructorId,
-                            @passingScore, @maxAttempts, GETDATE(), 1, 1
-                        )
+                            @passingScore, @maxAttempts, 'active', 1, 1, GETDATE()
+                        );
+                        SET IDENTITY_INSERT courses OFF;
                     `);
             }
 
@@ -410,206 +405,73 @@ class SeedData {
         }
     }
 
-    async seedJobPositions() {
-        try {
-            console.log('Seeding job positions...');
-
-            const jobPositions = [
-                {
-                    position_id: uuidv4(),
-                    position_title: 'Senior Software Engineer',
-                    department_id: this.departments[0].department_id,
-                    description: 'Design and develop software applications',
-                    requirements: 'Bachelor degree in Computer Science, 5+ years experience',
-                    salary_range: '50000-80000',
-                    employment_type: 'Full-time',
-                    location: 'Bangkok',
-                    is_active: 1
-                },
-                {
-                    position_id: uuidv4(),
-                    position_title: 'Marketing Specialist',
-                    department_id: this.departments[3].department_id,
-                    description: 'Develop marketing strategies and campaigns',
-                    requirements: 'Bachelor degree in Marketing, 2+ years experience',
-                    salary_range: '30000-50000',
-                    employment_type: 'Full-time',
-                    location: 'Bangkok',
-                    is_active: 1
-                },
-                {
-                    position_id: uuidv4(),
-                    position_title: 'HR Generalist',
-                    department_id: this.departments[1].department_id,
-                    description: 'Handle HR operations and employee relations',
-                    requirements: 'Bachelor degree in HR or related field, 3+ years experience',
-                    salary_range: '35000-55000',
-                    employment_type: 'Full-time',
-                    location: 'Bangkok',
-                    is_active: 1
-                }
-            ];
-
-            for (const position of jobPositions) {
-                await this.pool.request()
-                    .input('positionId', sql.Int, position.position_id)
-                    .input('positionTitle', sql.NVarChar(200), position.position_title)
-                    .input('departmentId', sql.Int, position.department_id)
-                    .input('description', sql.Text, position.description)
-                    .input('requirements', sql.Text, position.requirements)
-                    .input('salaryRange', sql.NVarChar(100), position.salary_range)
-                    .input('employmentType', sql.NVarChar(50), position.employment_type)
-                    .input('location', sql.NVarChar(100), position.location)
-                    .input('isActive', sql.Bit, position.is_active)
-                    .query(`
-                        INSERT INTO JobPositions (
-                            position_id, position_title, department_id, description,
-                            requirements, salary_range, employment_type, location,
-                            created_date, is_active
-                        ) VALUES (
-                            @positionId, @positionTitle, @departmentId, @description,
-                            @requirements, @salaryRange, @employmentType, @location,
-                            GETDATE(), @isActive
-                        )
-                    `);
-            }
-
-            this.jobPositions = jobPositions;
-            console.log(`Seeded ${jobPositions.length} job positions`);
-        } catch (error) {
-            console.error('Error seeding job positions:', error);
-            throw error;
-        }
-    }
-
-    async seedApplicants() {
-        try {
-            console.log('Seeding applicants...');
-
-            const applicants = [];
-            for (let i = 0; i < 10; i++) {
-                applicants.push({
-                    applicant_id: uuidv4(),
-                    application_code: `APP${new Date().getFullYear()}${String(i + 1).padStart(4, '0')}`,
-                    position_id: faker.helpers.arrayElement(this.jobPositions).position_id,
-                    first_name: faker.person.firstName(),
-                    last_name: faker.person.lastName(),
-                    email: faker.internet.email().toLowerCase(),
-                    phone: faker.phone.number(),
-                    birth_date: faker.date.birthdate({ min: 22, max: 45, mode: 'age' }),
-                    education_level: faker.helpers.arrayElement(['Bachelor', 'Master', 'PhD']),
-                    work_experience: faker.number.int({ min: 0, max: 15 }),
-                    application_status: faker.helpers.arrayElement(['Applied', 'Screening', 'Interview', 'Testing']),
-                    resume_url: `resumes/resume_${i + 1}.pdf`
-                });
-            }
-
-            for (const applicant of applicants) {
-                await this.pool.request()
-                    .input('applicantId', sql.Int, applicant.applicant_id)
-                    .input('applicationCode', sql.NVarChar(50), applicant.application_code)
-                    .input('positionId', sql.Int, applicant.position_id)
-                    .input('firstName', sql.NVarChar(100), applicant.first_name)
-                    .input('lastName', sql.NVarChar(100), applicant.last_name)
-                    .input('email', sql.NVarChar(100), applicant.email)
-                    .input('phone', sql.NVarChar(20), applicant.phone)
-                    .input('birthDate', sql.Date, applicant.birth_date)
-                    .input('educationLevel', sql.NVarChar(50), applicant.education_level)
-                    .input('workExperience', sql.Int, applicant.work_experience)
-                    .input('applicationStatus', sql.NVarChar(50), applicant.application_status)
-                    .input('resumeUrl', sql.NVarChar(500), applicant.resume_url)
-                    .query(`
-                        INSERT INTO Applicants (
-                            applicant_id, application_code, position_id, first_name, last_name,
-                            email, phone, birth_date, education_level, work_experience,
-                            application_status, resume_url, application_date, is_active
-                        ) VALUES (
-                            @applicantId, @applicationCode, @positionId, @firstName, @lastName,
-                            @email, @phone, @birthDate, @educationLevel, @workExperience,
-                            @applicationStatus, @resumeUrl, GETDATE(), 1
-                        )
-                    `);
-            }
-
-            this.applicants = applicants;
-            console.log(`Seeded ${applicants.length} applicants`);
-        } catch (error) {
-            console.error('Error seeding applicants:', error);
-            throw error;
-        }
-    }
-
     async seedTests() {
         try {
             console.log('Seeding tests...');
 
-            const instructorId = this.users.find(u => u.username === 'instructor1').user_id;
-
             const tests = [
                 {
-                    test_id: uuidv4(),
-                    test_code: 'JST001',
-                    test_name: 'JavaScript Fundamentals Test',
+                    test_id: 1,
+                    title: 'JavaScript Fundamentals Test',
                     description: 'Test knowledge of JavaScript basics',
-                    test_type: 'Assessment',
-                    duration_minutes: 60,
-                    total_questions: 20,
-                    passing_score: 70,
-                    max_attempts: 3,
-                    created_by: instructorId,
-                    is_published: 1
+                    course_id: 1,
+                    instructor_id: 4,
+                    type: 'Assessment',
+                    time_limit: 60,
+                    total_marks: 100,
+                    passing_marks: 70,
+                    attempts_allowed: 3
                 },
                 {
-                    test_id: uuidv4(),
-                    test_code: 'MGT001',
-                    test_name: 'Leadership Assessment',
+                    test_id: 2,
+                    title: 'Leadership Assessment',
                     description: 'Evaluate leadership capabilities',
-                    test_type: 'Assessment',
-                    duration_minutes: 45,
-                    total_questions: 15,
-                    passing_score: 75,
-                    max_attempts: 2,
-                    created_by: instructorId,
-                    is_published: 1
+                    course_id: 2,
+                    instructor_id: 4,
+                    type: 'Assessment',
+                    time_limit: 45,
+                    total_marks: 100,
+                    passing_marks: 75,
+                    attempts_allowed: 2
                 },
                 {
-                    test_id: uuidv4(),
-                    test_code: 'PRE001',
-                    test_name: 'Pre-employment Test',
+                    test_id: 3,
+                    title: 'Pre-employment Test',
                     description: 'General aptitude test for job applicants',
-                    test_type: 'Pre-employment',
-                    duration_minutes: 90,
-                    total_questions: 30,
-                    passing_score: 65,
-                    max_attempts: 1,
-                    created_by: instructorId,
-                    is_published: 1
+                    course_id: null,
+                    instructor_id: 4,
+                    type: 'Pre-employment',
+                    time_limit: 90,
+                    total_marks: 100,
+                    passing_marks: 65,
+                    attempts_allowed: 1
                 }
             ];
 
             for (const test of tests) {
                 await this.pool.request()
                     .input('testId', sql.Int, test.test_id)
-                    .input('testCode', sql.NVarChar(20), test.test_code)
-                    .input('testName', sql.NVarChar(200), test.test_name)
-                    .input('description', sql.Text, test.description)
-                    .input('testType', sql.NVarChar(50), test.test_type)
-                    .input('durationMinutes', sql.Int, test.duration_minutes)
-                    .input('totalQuestions', sql.Int, test.total_questions)
-                    .input('passingScore', sql.Int, test.passing_score)
-                    .input('maxAttempts', sql.Int, test.max_attempts)
-                    .input('createdBy', sql.Int, test.created_by)
-                    .input('isPublished', sql.Bit, test.is_published)
+                    .input('title', sql.NVarChar(200), test.title)
+                    .input('description', sql.NVarChar(sql.MAX), test.description)
+                    .input('courseId', sql.Int, test.course_id)
+                    .input('instructorId', sql.Int, test.instructor_id)
+                    .input('type', sql.NVarChar(50), test.type)
+                    .input('timeLimit', sql.Int, test.time_limit)
+                    .input('totalMarks', sql.Int, test.total_marks)
+                    .input('passingMarks', sql.Int, test.passing_marks)
+                    .input('attemptsAllowed', sql.Int, test.attempts_allowed)
                     .query(`
-                        INSERT INTO Tests (
-                            test_id, test_code, test_name, description, test_type,
-                            duration_minutes, total_questions, passing_score, max_attempts,
-                            created_by, created_date, is_published, is_active
+                        SET IDENTITY_INSERT tests ON;
+                        INSERT INTO tests (
+                            test_id, title, description, course_id, instructor_id,
+                            type, time_limit, total_marks, passing_marks, attempts_allowed,
+                            status, created_at
                         ) VALUES (
-                            @testId, @testCode, @testName, @description, @testType,
-                            @durationMinutes, @totalQuestions, @passingScore, @maxAttempts,
-                            @createdBy, GETDATE(), @isPublished, 1
-                        )
+                            @testId, @title, @description, @courseId, @instructorId,
+                            @type, @timeLimit, @totalMarks, @passingMarks, @attemptsAllowed,
+                            'published', GETDATE()
+                        );
+                        SET IDENTITY_INSERT tests OFF;
                     `);
             }
 
@@ -625,44 +487,33 @@ class SeedData {
         try {
             console.log('Seeding articles...');
 
-            const authorId = this.users.find(u => u.username === 'instructor1').user_id;
-
             const articles = [
                 {
-                    article_id: uuidv4(),
+                    article_id: 1,
                     title: 'Getting Started with JavaScript ES6',
+                    slug: 'getting-started-with-javascript-es6',
                     content: 'ES6 introduced many new features that make JavaScript development more efficient...',
-                    excerpt: 'Learn about the essential ES6 features every developer should know',
-                    featured_image: 'articles/js-es6.jpg',
-                    author_id: authorId,
                     category: 'Programming',
-                    tags: 'javascript,es6,programming',
-                    is_published: 1,
-                    view_count: faker.number.int({ min: 50, max: 500 })
+                    author_id: 4,
+                    status: 'published'
                 },
                 {
-                    article_id: uuidv4(),
+                    article_id: 2,
                     title: 'Effective Team Leadership Strategies',
+                    slug: 'effective-team-leadership-strategies',
                     content: 'Leadership is not about being in charge, it is about taking care of those in your charge...',
-                    excerpt: 'Discover proven strategies for leading teams effectively',
-                    featured_image: 'articles/leadership.jpg',
-                    author_id: authorId,
                     category: 'Management',
-                    tags: 'leadership,management,team',
-                    is_published: 1,
-                    view_count: faker.number.int({ min: 30, max: 300 })
+                    author_id: 4,
+                    status: 'published'
                 },
                 {
-                    article_id: uuidv4(),
+                    article_id: 3,
                     title: 'Workplace Safety Best Practices',
-                    content: 'Creating a safe work environment is everyone\'s responsibility...',
-                    excerpt: 'Essential safety practices every employee should follow',
-                    featured_image: 'articles/safety.jpg',
-                    author_id: authorId,
+                    slug: 'workplace-safety-best-practices',
+                    content: 'Creating a safe work environment is everyones responsibility...',
                     category: 'Safety',
-                    tags: 'safety,workplace,guidelines',
-                    is_published: 1,
-                    view_count: faker.number.int({ min: 100, max: 600 })
+                    author_id: 4,
+                    status: 'published'
                 }
             ];
 
@@ -670,24 +521,16 @@ class SeedData {
                 await this.pool.request()
                     .input('articleId', sql.Int, article.article_id)
                     .input('title', sql.NVarChar(300), article.title)
-                    .input('content', sql.Text, article.content)
-                    .input('excerpt', sql.NVarChar(500), article.excerpt)
-                    .input('featuredImage', sql.NVarChar(500), article.featured_image)
-                    .input('authorId', sql.Int, article.author_id)
+                    .input('slug', sql.NVarChar(300), article.slug)
+                    .input('content', sql.NVarChar(sql.MAX), article.content)
                     .input('category', sql.NVarChar(100), article.category)
-                    .input('tags', sql.NVarChar(500), article.tags)
-                    .input('isPublished', sql.Bit, article.is_published)
-                    .input('viewCount', sql.Int, article.view_count)
+                    .input('authorId', sql.Int, article.author_id)
+                    .input('status', sql.NVarChar(50), article.status)
                     .query(`
-                        INSERT INTO Articles (
-                            article_id, title, content, excerpt, featured_image,
-                            author_id, category, tags, is_published, view_count,
-                            created_date, is_active
-                        ) VALUES (
-                            @articleId, @title, @content, @excerpt, @featuredImage,
-                            @authorId, @category, @tags, @isPublished, @viewCount,
-                            GETDATE(), 1
-                        )
+                        SET IDENTITY_INSERT articles ON;
+                        INSERT INTO articles (article_id, title, slug, content, category, author_id, status, created_at)
+                        VALUES (@articleId, @title, @slug, @content, @category, @authorId, @status, GETDATE());
+                        SET IDENTITY_INSERT articles OFF;
                     `);
             }
 
@@ -695,6 +538,170 @@ class SeedData {
             console.log(`Seeded ${articles.length} articles`);
         } catch (error) {
             console.error('Error seeding articles:', error);
+            throw error;
+        }
+    }
+
+    async seedSystemSettings() {
+        try {
+            console.log('Seeding system settings...');
+
+            const settings = [
+                // General Settings
+                { setting_id: 1, setting_category: 'general', setting_key: 'company_name', setting_value: 'LearnHub', setting_type: 'text', setting_label: 'Company Name', setting_description: 'Company name displayed in the system', default_value: 'LearnHub', display_order: 1, group_name: 'company' },
+                { setting_id: 2, setting_category: 'general', setting_key: 'company_name_en', setting_value: 'LearnHub Learning Management System', setting_type: 'text', setting_label: 'Company Name (English)', setting_description: 'Company name in English', default_value: 'LearnHub LMS', display_order: 2, group_name: 'company' },
+                { setting_id: 3, setting_category: 'general', setting_key: 'company_logo', setting_value: '/images/logo.png', setting_type: 'file', setting_label: 'Company Logo', setting_description: 'Logo displayed in the header', default_value: '/images/logo.png', display_order: 3, group_name: 'company' },
+                { setting_id: 4, setting_category: 'general', setting_key: 'company_address', setting_value: 'Bangkok, Thailand', setting_type: 'textarea', setting_label: 'Company Address', setting_description: 'Company address', default_value: '', display_order: 4, group_name: 'company' },
+                { setting_id: 5, setting_category: 'general', setting_key: 'company_phone', setting_value: '+66 2 123 4567', setting_type: 'text', setting_label: 'Company Phone', setting_description: 'Company phone number', default_value: '', display_order: 5, group_name: 'company' },
+                { setting_id: 6, setting_category: 'general', setting_key: 'company_email', setting_value: 'info@learnhub.com', setting_type: 'email', setting_label: 'Company Email', setting_description: 'Company contact email', default_value: '', display_order: 6, group_name: 'company' },
+                { setting_id: 7, setting_category: 'general', setting_key: 'timezone', setting_value: 'Asia/Bangkok', setting_type: 'select', setting_label: 'Timezone', setting_description: 'System timezone', default_value: 'Asia/Bangkok', display_order: 7, group_name: 'localization' },
+                { setting_id: 8, setting_category: 'general', setting_key: 'date_format', setting_value: 'DD/MM/YYYY', setting_type: 'select', setting_label: 'Date Format', setting_description: 'Date display format', default_value: 'DD/MM/YYYY', display_order: 8, group_name: 'localization' },
+                { setting_id: 9, setting_category: 'general', setting_key: 'time_format', setting_value: 'HH:mm', setting_type: 'select', setting_label: 'Time Format', setting_description: 'Time display format', default_value: 'HH:mm', display_order: 9, group_name: 'localization' },
+                { setting_id: 10, setting_category: 'general', setting_key: 'default_language', setting_value: 'th', setting_type: 'select', setting_label: 'Default Language', setting_description: 'System default language', default_value: 'th', display_order: 10, group_name: 'localization' },
+
+                // Email Settings
+                { setting_id: 11, setting_category: 'email', setting_key: 'smtp_host', setting_value: 'smtp.gmail.com', setting_type: 'text', setting_label: 'SMTP Host', setting_description: 'SMTP server hostname', default_value: '', display_order: 1, group_name: 'smtp' },
+                { setting_id: 12, setting_category: 'email', setting_key: 'smtp_port', setting_value: '587', setting_type: 'number', setting_label: 'SMTP Port', setting_description: 'SMTP server port', default_value: '587', display_order: 2, group_name: 'smtp' },
+                { setting_id: 13, setting_category: 'email', setting_key: 'smtp_user', setting_value: '', setting_type: 'text', setting_label: 'SMTP Username', setting_description: 'SMTP authentication username', default_value: '', display_order: 3, group_name: 'smtp' },
+                { setting_id: 14, setting_category: 'email', setting_key: 'smtp_password', setting_value: '', setting_type: 'password', setting_label: 'SMTP Password', setting_description: 'SMTP authentication password', default_value: '', display_order: 4, group_name: 'smtp', is_sensitive: true },
+                { setting_id: 15, setting_category: 'email', setting_key: 'smtp_secure', setting_value: 'true', setting_type: 'boolean', setting_label: 'Use TLS/SSL', setting_description: 'Enable TLS/SSL encryption', default_value: 'true', display_order: 5, group_name: 'smtp' },
+                { setting_id: 16, setting_category: 'email', setting_key: 'email_from_name', setting_value: 'LearnHub', setting_type: 'text', setting_label: 'From Name', setting_description: 'Email sender name', default_value: 'LearnHub', display_order: 6, group_name: 'sender' },
+                { setting_id: 17, setting_category: 'email', setting_key: 'email_from_address', setting_value: 'noreply@learnhub.com', setting_type: 'email', setting_label: 'From Address', setting_description: 'Email sender address', default_value: '', display_order: 7, group_name: 'sender' },
+
+                // Security Settings
+                { setting_id: 18, setting_category: 'security', setting_key: 'password_min_length', setting_value: '8', setting_type: 'number', setting_label: 'Minimum Password Length', setting_description: 'Minimum characters required for password', default_value: '8', display_order: 1, group_name: 'password' },
+                { setting_id: 19, setting_category: 'security', setting_key: 'password_require_uppercase', setting_value: 'true', setting_type: 'boolean', setting_label: 'Require Uppercase', setting_description: 'Password must contain uppercase letter', default_value: 'true', display_order: 2, group_name: 'password' },
+                { setting_id: 20, setting_category: 'security', setting_key: 'password_require_lowercase', setting_value: 'true', setting_type: 'boolean', setting_label: 'Require Lowercase', setting_description: 'Password must contain lowercase letter', default_value: 'true', display_order: 3, group_name: 'password' },
+                { setting_id: 21, setting_category: 'security', setting_key: 'password_require_number', setting_value: 'true', setting_type: 'boolean', setting_label: 'Require Number', setting_description: 'Password must contain number', default_value: 'true', display_order: 4, group_name: 'password' },
+                { setting_id: 22, setting_category: 'security', setting_key: 'password_require_special', setting_value: 'false', setting_type: 'boolean', setting_label: 'Require Special Character', setting_description: 'Password must contain special character', default_value: 'false', display_order: 5, group_name: 'password' },
+                { setting_id: 23, setting_category: 'security', setting_key: 'session_timeout', setting_value: '480', setting_type: 'number', setting_label: 'Session Timeout (minutes)', setting_description: 'Session expiration time in minutes', default_value: '480', display_order: 6, group_name: 'session' },
+                { setting_id: 24, setting_category: 'security', setting_key: 'max_login_attempts', setting_value: '5', setting_type: 'number', setting_label: 'Max Login Attempts', setting_description: 'Maximum failed login attempts before lockout', default_value: '5', display_order: 7, group_name: 'session' },
+                { setting_id: 25, setting_category: 'security', setting_key: 'lockout_duration', setting_value: '30', setting_type: 'number', setting_label: 'Lockout Duration (minutes)', setting_description: 'Account lockout duration in minutes', default_value: '30', display_order: 8, group_name: 'session' },
+                { setting_id: 26, setting_category: 'security', setting_key: 'two_factor_enabled', setting_value: 'false', setting_type: 'boolean', setting_label: 'Enable Two-Factor Authentication', setting_description: 'Enable 2FA for all users', default_value: 'false', display_order: 9, group_name: 'authentication' },
+
+                // Appearance Settings
+                { setting_id: 27, setting_category: 'appearance', setting_key: 'primary_color', setting_value: '#1976D2', setting_type: 'color', setting_label: 'Primary Color', setting_description: 'Primary theme color', default_value: '#1976D2', display_order: 1, group_name: 'theme' },
+                { setting_id: 28, setting_category: 'appearance', setting_key: 'secondary_color', setting_value: '#424242', setting_type: 'color', setting_label: 'Secondary Color', setting_description: 'Secondary theme color', default_value: '#424242', display_order: 2, group_name: 'theme' },
+                { setting_id: 29, setting_category: 'appearance', setting_key: 'accent_color', setting_value: '#FF5722', setting_type: 'color', setting_label: 'Accent Color', setting_description: 'Accent theme color', default_value: '#FF5722', display_order: 3, group_name: 'theme' },
+                { setting_id: 30, setting_category: 'appearance', setting_key: 'sidebar_style', setting_value: 'expanded', setting_type: 'select', setting_label: 'Sidebar Style', setting_description: 'Default sidebar display style', default_value: 'expanded', display_order: 4, group_name: 'layout' },
+                { setting_id: 31, setting_category: 'appearance', setting_key: 'items_per_page', setting_value: '10', setting_type: 'select', setting_label: 'Items Per Page', setting_description: 'Default pagination size', default_value: '10', display_order: 5, group_name: 'layout' },
+
+                // Notification Settings
+                { setting_id: 32, setting_category: 'notification', setting_key: 'email_notifications_enabled', setting_value: 'true', setting_type: 'boolean', setting_label: 'Enable Email Notifications', setting_description: 'Send email notifications to users', default_value: 'true', display_order: 1, group_name: 'email' },
+                { setting_id: 33, setting_category: 'notification', setting_key: 'course_enrollment_notification', setting_value: 'true', setting_type: 'boolean', setting_label: 'Course Enrollment Notification', setting_description: 'Notify when enrolled in course', default_value: 'true', display_order: 2, group_name: 'email' },
+                { setting_id: 34, setting_category: 'notification', setting_key: 'test_reminder_notification', setting_value: 'true', setting_type: 'boolean', setting_label: 'Test Reminder Notification', setting_description: 'Send test reminder notifications', default_value: 'true', display_order: 3, group_name: 'email' },
+                { setting_id: 35, setting_category: 'notification', setting_key: 'certificate_notification', setting_value: 'true', setting_type: 'boolean', setting_label: 'Certificate Notification', setting_description: 'Notify when certificate is issued', default_value: 'true', display_order: 4, group_name: 'email' },
+
+                // Course Settings
+                { setting_id: 36, setting_category: 'course', setting_key: 'default_passing_score', setting_value: '70', setting_type: 'number', setting_label: 'Default Passing Score (%)', setting_description: 'Default passing score for courses', default_value: '70', display_order: 1, group_name: 'default' },
+                { setting_id: 37, setting_category: 'course', setting_key: 'default_max_attempts', setting_value: '3', setting_type: 'number', setting_label: 'Default Max Attempts', setting_description: 'Default max test attempts', default_value: '3', display_order: 2, group_name: 'default' },
+                { setting_id: 38, setting_category: 'course', setting_key: 'certificate_enabled', setting_value: 'true', setting_type: 'boolean', setting_label: 'Enable Certificates', setting_description: 'Issue certificates on course completion', default_value: 'true', display_order: 3, group_name: 'default' },
+                { setting_id: 39, setting_category: 'course', setting_key: 'allow_course_reviews', setting_value: 'true', setting_type: 'boolean', setting_label: 'Allow Course Reviews', setting_description: 'Allow users to review courses', default_value: 'true', display_order: 4, group_name: 'default' },
+                { setting_id: 40, setting_category: 'course', setting_key: 'show_course_progress', setting_value: 'true', setting_type: 'boolean', setting_label: 'Show Course Progress', setting_description: 'Display progress bar in courses', default_value: 'true', display_order: 5, group_name: 'default' }
+            ];
+
+            for (const setting of settings) {
+                await this.pool.request()
+                    .input('settingId', sql.Int, setting.setting_id)
+                    .input('settingCategory', sql.NVarChar(50), setting.setting_category)
+                    .input('settingKey', sql.NVarChar(100), setting.setting_key)
+                    .input('settingValue', sql.NVarChar(sql.MAX), setting.setting_value)
+                    .input('settingType', sql.NVarChar(50), setting.setting_type)
+                    .input('settingLabel', sql.NVarChar(200), setting.setting_label)
+                    .input('settingDescription', sql.NVarChar(500), setting.setting_description || '')
+                    .input('defaultValue', sql.NVarChar(sql.MAX), setting.default_value || '')
+                    .input('displayOrder', sql.Int, setting.display_order)
+                    .input('isSensitive', sql.Bit, setting.is_sensitive ? 1 : 0)
+                    .query(`
+                        SET IDENTITY_INSERT SystemSettings ON;
+                        INSERT INTO SystemSettings (
+                            setting_id, setting_category, setting_key, setting_value,
+                            setting_type, setting_label, setting_description, default_value,
+                            display_order, is_sensitive, is_editable, is_active, created_date
+                        ) VALUES (
+                            @settingId, @settingCategory, @settingKey, @settingValue,
+                            @settingType, @settingLabel, @settingDescription, @defaultValue,
+                            @displayOrder, @isSensitive, 1, 1, GETDATE()
+                        );
+                        SET IDENTITY_INSERT SystemSettings OFF;
+                    `);
+            }
+
+            console.log(`Seeded ${settings.length} system settings`);
+        } catch (error) {
+            console.error('Error seeding system settings:', error);
+            throw error;
+        }
+    }
+
+    async seedOrganizationLevels() {
+        try {
+            console.log('Seeding organization levels...');
+
+            const levels = [
+                { level_id: 1, level_code: 'COMPANY', level_name_th: 'บริษัท', level_name_en: 'Company', level_order: 1 },
+                { level_id: 2, level_code: 'DIVISION', level_name_th: 'ฝ่าย', level_name_en: 'Division', level_order: 2 },
+                { level_id: 3, level_code: 'DEPARTMENT', level_name_th: 'แผนก', level_name_en: 'Department', level_order: 3 },
+                { level_id: 4, level_code: 'SECTION', level_name_th: 'หน่วยงาน', level_name_en: 'Section', level_order: 4 },
+                { level_id: 5, level_code: 'TEAM', level_name_th: 'ทีม', level_name_en: 'Team', level_order: 5 }
+            ];
+
+            for (const level of levels) {
+                await this.pool.request()
+                    .input('levelId', sql.Int, level.level_id)
+                    .input('levelCode', sql.NVarChar(50), level.level_code)
+                    .input('levelNameTh', sql.NVarChar(100), level.level_name_th)
+                    .input('levelNameEn', sql.NVarChar(100), level.level_name_en)
+                    .input('levelOrder', sql.Int, level.level_order)
+                    .query(`
+                        SET IDENTITY_INSERT OrganizationLevels ON;
+                        INSERT INTO OrganizationLevels (level_id, level_code, level_name_th, level_name_en, level_order, is_active, created_at)
+                        VALUES (@levelId, @levelCode, @levelNameTh, @levelNameEn, @levelOrder, 1, GETDATE());
+                        SET IDENTITY_INSERT OrganizationLevels OFF;
+                    `);
+            }
+
+            console.log(`Seeded ${levels.length} organization levels`);
+        } catch (error) {
+            console.error('Error seeding organization levels:', error);
+            throw error;
+        }
+    }
+
+    async seedOrganizationUnits() {
+        try {
+            console.log('Seeding organization units...');
+
+            const units = [
+                { unit_id: 1, unit_code: 'LH', unit_name_th: 'LearnHub', unit_name_en: 'LearnHub', level_id: 1, parent_id: null },
+                { unit_id: 2, unit_code: 'IT-DIV', unit_name_th: 'ฝ่ายเทคโนโลยีสารสนเทศ', unit_name_en: 'IT Division', level_id: 2, parent_id: 1 },
+                { unit_id: 3, unit_code: 'HR-DIV', unit_name_th: 'ฝ่ายทรัพยากรบุคคล', unit_name_en: 'HR Division', level_id: 2, parent_id: 1 },
+                { unit_id: 4, unit_code: 'FIN-DIV', unit_name_th: 'ฝ่ายการเงิน', unit_name_en: 'Finance Division', level_id: 2, parent_id: 1 },
+                { unit_id: 5, unit_code: 'DEV-DEPT', unit_name_th: 'แผนกพัฒนาระบบ', unit_name_en: 'Development Department', level_id: 3, parent_id: 2 },
+                { unit_id: 6, unit_code: 'INFRA-DEPT', unit_name_th: 'แผนกโครงสร้างพื้นฐาน', unit_name_en: 'Infrastructure Department', level_id: 3, parent_id: 2 },
+                { unit_id: 7, unit_code: 'REC-DEPT', unit_name_th: 'แผนกสรรหา', unit_name_en: 'Recruitment Department', level_id: 3, parent_id: 3 },
+                { unit_id: 8, unit_code: 'TRAIN-DEPT', unit_name_th: 'แผนกฝึกอบรม', unit_name_en: 'Training Department', level_id: 3, parent_id: 3 }
+            ];
+
+            for (const unit of units) {
+                await this.pool.request()
+                    .input('unitId', sql.Int, unit.unit_id)
+                    .input('unitCode', sql.NVarChar(50), unit.unit_code)
+                    .input('unitNameTh', sql.NVarChar(200), unit.unit_name_th)
+                    .input('unitNameEn', sql.NVarChar(200), unit.unit_name_en)
+                    .input('levelId', sql.Int, unit.level_id)
+                    .input('parentId', sql.Int, unit.parent_id)
+                    .query(`
+                        SET IDENTITY_INSERT OrganizationUnits ON;
+                        INSERT INTO OrganizationUnits (unit_id, unit_code, unit_name_th, unit_name_en, level_id, parent_id, is_active, created_at)
+                        VALUES (@unitId, @unitCode, @unitNameTh, @unitNameEn, @levelId, @parentId, 1, GETDATE());
+                        SET IDENTITY_INSERT OrganizationUnits OFF;
+                    `);
+            }
+
+            console.log(`Seeded ${units.length} organization units`);
+        } catch (error) {
+            console.error('Error seeding organization units:', error);
             throw error;
         }
     }
@@ -712,17 +719,19 @@ class SeedData {
             await this.seedUsers();
             await this.seedCourseCategories();
             await this.seedCourses();
-            await this.seedJobPositions();
-            await this.seedApplicants();
             await this.seedTests();
             await this.seedArticles();
+            await this.seedSystemSettings();
+            await this.seedOrganizationLevels();
+            await this.seedOrganizationUnits();
 
-            console.log('Database seeding completed successfully!');
+            console.log('\nDatabase seeding completed successfully!');
             console.log('\n=== LOGIN CREDENTIALS ===');
             console.log('Admin: admin / password123');
             console.log('HR Manager: hr.manager / password123');
             console.log('IT Manager: it.manager / password123');
             console.log('Instructor: instructor1 / password123');
+            console.log('Employee: employee1 / password123');
             console.log('========================\n');
 
         } catch (error) {
