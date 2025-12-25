@@ -677,6 +677,122 @@ const authController = {
         });
     },
 
+    renderForceChangePassword(req, res) {
+        // User must be logged in to access this page
+        if (!req.session || !req.session.user) {
+            return res.redirect('/auth/login');
+        }
+
+        const { getCurrentLanguage } = require('../utils/languages');
+        const currentLang = getCurrentLanguage(req);
+        const expiryInfo = req.session.passwordExpiryInfo || null;
+
+        res.render('auth/force-change-password', {
+            title: `${req.t('forceChangePasswordTitle')} - Rukchai Hongyen LearnHub`,
+            expiryInfo: expiryInfo,
+            currentLanguage: currentLang
+        });
+    },
+
+    async forceChangePassword(req, res) {
+        try {
+            const { current_password, new_password, confirm_password } = req.body;
+            const userId = req.session?.user?.user_id;
+
+            if (!userId) {
+                return res.status(401).json({
+                    success: false,
+                    message: req.t('authSessionExpired')
+                });
+            }
+
+            if (!current_password || !new_password || !confirm_password) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('authPleaseEnterAllFields')
+                });
+            }
+
+            if (new_password !== confirm_password) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('authNewPasswordMismatch')
+                });
+            }
+
+            // Validate new password strength
+            const passwordValidation = await passwordValidator.validate(new_password);
+            if (!passwordValidation.valid) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('authNewPasswordDoesNotMeetRequirements'),
+                    errors: passwordValidation.errors,
+                    requirements: await passwordValidator.getRequirements()
+                });
+            }
+
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: req.t('authUserNotFound')
+                });
+            }
+
+            const isCurrentPasswordValid = await bcrypt.compare(current_password, user.password);
+            if (!isCurrentPasswordValid) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('authCurrentPasswordIncorrect')
+                });
+            }
+
+            // Check if new password is same as current
+            const isSamePassword = await bcrypt.compare(new_password, user.password);
+            if (isSamePassword) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.t('authNewPasswordMustBeDifferent')
+                });
+            }
+
+            const result = await User.updatePassword(userId, new_password);
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            // Clear password expired flags from session
+            delete req.session.passwordExpired;
+            delete req.session.passwordExpiryInfo;
+
+            await ActivityLog.create({
+                user_id: userId,
+                action: 'Force_Password_Change',
+                table_name: 'users',
+                record_id: userId,
+                ip_address: req.ip,
+                user_agent: req.get('User-Agent'),
+                session_id: req.sessionID,
+                description: 'Password changed due to expiry policy',
+                severity: 'Info',
+                module: 'Authentication'
+            });
+
+            res.json({
+                success: true,
+                message: req.t('authPasswordChangeSuccess'),
+                redirectTo: '/dashboard'
+            });
+
+        } catch (error) {
+            console.error('Force change password error:', error);
+            res.status(500).json({
+                success: false,
+                message: req.t('authPasswordChangeError')
+            });
+        }
+    },
+
     // JWT-specific methods
     async refreshToken(req, res) {
         try {

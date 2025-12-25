@@ -9,6 +9,7 @@ router.get('/login', authController.renderLogin);
 router.get('/register', authController.renderRegister);
 router.get('/forgot-password', authController.renderForgotPassword);
 router.get('/reset-password', authController.renderResetPassword);
+router.get('/force-change-password', authController.renderForceChangePassword);
 
 // API endpoints
 router.post('/login', authController.login);
@@ -18,6 +19,7 @@ router.post('/logout', authController.logout);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 router.post('/change-password', authMiddleware.requireAuth, authController.changePassword);
+router.post('/force-change-password', authController.forceChangePassword);
 router.get('/verify-token', authMiddleware.requireAuth, authController.verifyToken);
 
 // JWT specific endpoints
