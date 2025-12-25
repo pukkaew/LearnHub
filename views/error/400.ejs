@@ -12,65 +12,212 @@
         const companyNameTh = typeof getSetting === 'function' ? getSetting('company_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
         const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
         const companyName = isEnglish ? companyNameEn : companyNameTh;
+        const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/logo.png') : '/images/logo.png';
+        const primaryColor = typeof getSetting === 'function' ? getSetting('primary_color', '#0090D3') : '#0090D3';
+        const secondaryColor = typeof getSetting === 'function' ? getSetting('secondary_color', '#3AAA35') : '#3AAA35';
     %>
     <title><%= t('badRequest') || 'Bad Request' %> - <%= siteName %></title>
     <link href="/css/tailwind.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
+        :root {
+            --primary-color: <%= primaryColor %>;
+            --secondary-color: <%= secondaryColor %>;
+        }
+        body { font-family: 'Sarabun', sans-serif; }
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ff9a9e 100%);
+        }
+        .branding-section {
+            display: none;
+            flex: 1;
+            background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 100%);
+            padding: 3rem;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        .form-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .error-container {
+            width: 100%;
+            max-width: 28rem;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            padding: 2.5rem;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f97316, #facc15);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            background: rgba(255,255,255,0.5);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #9a3412;
+        }
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .btn-secondary {
+            width: 100%;
+            background: #4b5563;
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        .btn-secondary:hover { background: #374151; }
+        @keyframes pulse-warning {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .pulsing { animation: pulse-warning 2s ease-in-out infinite; }
+        @media (min-width: 1024px) {
+            .branding-section { display: flex; }
+            .form-section {
+                flex: 1;
+                max-width: 50%;
+                background: rgba(255,255,255,0.3);
+                backdrop-filter: blur(20px);
+            }
+            .error-container { max-width: 32rem; }
+        }
+        @media (min-width: 1440px) {
+            .branding-section { padding: 4rem; }
+            .form-section { padding: 3rem; }
+            .error-container { max-width: 36rem; padding: 3rem; }
+            .error-code { font-size: 10rem; }
+        }
+        @media (min-width: 1920px) {
+            .branding-section { padding: 5rem; }
+            .form-section { padding: 4rem; }
+            .error-container { max-width: 40rem; padding: 3.5rem; }
+            .error-code { font-size: 12rem; }
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center">
-    <div class="max-w-md w-full mx-auto">
-        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
-            <!-- Error Icon -->
-            <div class="mx-auto flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-6">
-                <i class="fas fa-exclamation-triangle text-orange-600 text-2xl"></i>
+<body>
+    <div class="page-wrapper">
+        <!-- Branding Section -->
+        <div class="branding-section">
+            <div class="mb-8">
+                <div class="bg-white p-4 rounded-2xl shadow-2xl inline-block">
+                    <img src="<%= logoUrl %>" alt="<%= siteName %>" class="h-20 w-auto">
+                </div>
             </div>
-
-            <!-- Error Title -->
-            <h1 class="text-2xl font-bold text-gray-900 mb-4">
-                <%= t('badRequest') || 'Bad Request' %>
-            </h1>
-
-            <!-- Error Message -->
-            <p class="text-gray-600 mb-6">
-                <%= typeof message !== 'undefined' ? message : (t('badRequestMessage') || 'The request could not be processed.') %>
-            </p>
-
-            <!-- Action Buttons -->
-            <div class="space-y-3">
-                <button onclick="history.back()"
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    <%= t('goBack') %>
-                </button>
-
-                <a href="/dashboard"
-                   class="block w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                    <i class="fas fa-home mr-2"></i>
-                    <%= t('goHome') %>
-                </a>
+            <h1 class="text-4xl font-bold mb-4 text-gray-800"><%= siteName %></h1>
+            <p class="text-xl text-gray-600 mb-8"><%= companyName %></p>
+            <div class="pulsing mb-8">
+                <i class="fas fa-exclamation-triangle text-8xl text-orange-500"></i>
             </div>
-
-            <!-- Help Contact -->
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <p class="text-sm text-gray-500">
-                    <%= t('ifProblemPersists') %>
-                    <a href="mailto:support@rukchaihongyen.com" class="text-blue-600 hover:text-blue-800">
-                        <%= t('supportTeam') %>
-                    </a>
-                </p>
+            <div class="w-full max-w-md">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-redo"></i></div>
+                    <div class="text-left">
+                        <div class="font-semibold"><%= isEnglish ? 'Try Again' : 'ลองอีกครั้ง' %></div>
+                        <div class="text-sm text-gray-500"><%= isEnglish ? 'Refresh and retry' : 'รีเฟรชแล้วลองใหม่' %></div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="text-left">
+                        <div class="font-semibold"><%= isEnglish ? 'Check Input' : 'ตรวจสอบข้อมูล' %></div>
+                        <div class="text-sm text-gray-500"><%= isEnglish ? 'Verify your data' : 'ตรวจสอบข้อมูลที่กรอก' %></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="text-center mt-6">
-            <p class="text-sm text-gray-500">
-                &copy; <%= new Date().getFullYear() %> <%= companyName %>. <%= t('allRightsReserved') %>.
-            </p>
+        <!-- Error Section -->
+        <div class="form-section">
+            <div class="error-container text-center">
+                <div class="error-code">400</div>
+                <div class="mx-auto flex items-center justify-center w-20 h-20 bg-orange-100 rounded-full mb-6">
+                    <i class="fas fa-exclamation-triangle text-orange-600 text-3xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-4"><%= t('badRequest') || 'Bad Request' %></h1>
+                <p class="text-gray-600 mb-8"><%= typeof message !== 'undefined' ? message : (t('badRequestMessage') || 'The request could not be processed.') %></p>
+                <div class="space-y-3">
+                    <button onclick="history.back()" class="btn-primary">
+                        <i class="fas fa-arrow-left"></i>
+                        <%= t('goBack') %>
+                    </button>
+                    <a href="/dashboard" class="btn-secondary">
+                        <i class="fas fa-home"></i>
+                        <%= t('goHome') %>
+                    </a>
+                </div>
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <p class="text-sm text-gray-500">
+                        <%= t('ifProblemPersists') %>
+                        <a href="mailto:support@rukchaihongyen.com" class="text-blue-600 hover:text-blue-800">
+                            <%= t('supportTeam') %>
+                        </a>
+                    </p>
+                </div>
+                <div class="text-center mt-6">
+                    <p class="text-xs text-gray-400">&copy; <%= new Date().getFullYear() %> <%= companyName %></p>
+                </div>
+            </div>
         </div>
     </div>
 </body>

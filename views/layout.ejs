@@ -486,6 +486,86 @@
             .lg\:col-span-2 { grid-column: span 2 / span 2; }
         }
 
+        /* ========================================
+           LARGE SCREEN RESPONSIVE (1440px+)
+           ======================================== */
+        @media (min-width: 1440px) {
+            .max-w-7xl { max-width: 90rem; }
+            .xl\:px-12 { padding-left: 3rem; padding-right: 3rem; }
+            .xl\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+            .xl\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+            .xl\:gap-8 { gap: 2rem; }
+            .xl\:text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+            .xl\:text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+            .xl\:text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+            .xl\:p-8 { padding: 2rem; }
+            .xl\:p-10 { padding: 2.5rem; }
+            .xl\:py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+            .xl\:mb-10 { margin-bottom: 2.5rem; }
+            .xl\:space-y-8 > * + * { margin-top: 2rem; }
+
+            /* Footer improvements for large screens */
+            footer .max-w-7xl { max-width: 90rem; }
+            footer .grid { gap: 3rem; }
+
+            /* Card improvements */
+            .ruxchai-card { padding: 1.75rem; }
+
+            /* Navigation spacing */
+            .nav-main-container { padding: 0 2rem; }
+            .nav-menu { gap: 0.75rem; }
+        }
+
+        /* ========================================
+           EXTRA LARGE SCREEN RESPONSIVE (1920px+)
+           ======================================== */
+        @media (min-width: 1920px) {
+            .max-w-7xl { max-width: 100rem; }
+            .\32xl\:px-16 { padding-left: 4rem; padding-right: 4rem; }
+            .\32xl\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+            .\32xl\:gap-10 { gap: 2.5rem; }
+            .\32xl\:text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+            .\32xl\:text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .\32xl\:text-5xl { font-size: 3rem; line-height: 1; }
+            .\32xl\:p-12 { padding: 3rem; }
+            .\32xl\:py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+            .\32xl\:mb-12 { margin-bottom: 3rem; }
+
+            /* Footer improvements for 4K screens */
+            footer .max-w-7xl { max-width: 100rem; }
+            footer .grid { gap: 4rem; }
+            footer .py-8 { padding-top: 3rem; padding-bottom: 3rem; }
+
+            /* Enhanced card spacing */
+            .ruxchai-card { padding: 2rem; }
+
+            /* Navigation spacing */
+            .nav-main-container { padding: 0 3rem; }
+            .nav-menu { gap: 1rem; }
+            .nav-menu-item { padding: 14px 24px !important; font-size: 1rem; }
+
+            /* Main content area */
+            main > .max-w-7xl { max-width: 100rem; }
+            main .px-4 { padding-left: 2rem; padding-right: 2rem; }
+        }
+
+        /* ========================================
+           ULTRA WIDE SCREEN RESPONSIVE (2560px+)
+           ======================================== */
+        @media (min-width: 2560px) {
+            .max-w-7xl { max-width: 120rem; }
+            .\33xl\:px-20 { padding-left: 5rem; padding-right: 5rem; }
+            .\33xl\:grid-cols-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+            .\33xl\:gap-12 { gap: 3rem; }
+            .\33xl\:text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .\33xl\:p-16 { padding: 4rem; }
+
+            /* Ultra-wide optimizations */
+            footer .max-w-7xl { max-width: 120rem; }
+            .nav-main-container { padding: 0 4rem; }
+            .ruxchai-card { padding: 2.5rem; border-radius: 1rem; }
+        }
+
         .min-w-0 { min-width: 0; }
         .last\:border-0:last-child { border-width: 0; }
         .last\:pb-0:last-child { padding-bottom: 0; }

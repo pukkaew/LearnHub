@@ -1,150 +1,110 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="<%= currentLanguage || 'th' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%
-        // Get system settings for colors
+        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
+        const isEnglish = currentLang === 'en';
         const primaryColor = typeof getSetting === 'function' ? getSetting('primary_color', '#0090D3') : '#0090D3';
         const secondaryColor = typeof getSetting === 'function' ? getSetting('secondary_color', '#3AAA35') : '#3AAA35';
-        const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/rukchai-logo.png') : '/images/rukchai-logo.png';
+        const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/logo.png') : '/images/logo.png';
         const faviconUrl = typeof getSetting === 'function' ? getSetting('favicon_url', '/favicon.ico') : '/favicon.ico';
-        const siteName = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
-        const companyName = typeof getSetting === 'function' ? getSetting('company_name', 'บริษัท รักชัยห้องเย็น จำกัด') : 'บริษัท รักชัยห้องเย็น จำกัด';
+        const siteNameTh = typeof getSetting === 'function' ? getSetting('system_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteNameEn = typeof getSetting === 'function' ? getSetting('system_name_en', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+        const siteName = isEnglish ? siteNameEn : siteNameTh;
+        const companyNameTh = typeof getSetting === 'function' ? getSetting('company_name', 'บริษัท รักชัยห้องเย็น จำกัด') : 'บริษัท รักชัยห้องเย็น จำกัด';
+        const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
+        const companyName = isEnglish ? companyNameEn : companyNameTh;
     %>
-    <title><%= title %></title>
+    <title><%= title || (isEnglish ? 'Applicant Test Login' : 'เข้าสู่ระบบแบบทดสอบผู้สมัคร') %></title>
     <link rel="icon" href="<%= faviconUrl %>" type="image/x-icon">
-
-    <!-- Tailwind CSS -->
     <link href="/css/tailwind.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: <%= primaryColor %>;
             --primary-color-dark: color-mix(in srgb, <%= primaryColor %> 80%, #000 20%);
-            --primary-color-light: color-mix(in srgb, <%= primaryColor %> 90%, #fff 10%);
             --secondary-color: <%= secondaryColor %>;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Noto Sans Thai', sans-serif;
-            background: #f0f4f8;
+            font-family: 'Sarabun', sans-serif;
+        }
+        .page-wrapper {
             min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        .branding-section {
+            display: none;
+            flex: 1;
+            background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
+            padding: 3rem;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        .form-section {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 2rem;
         }
-
         .login-container {
             width: 100%;
-            max-width: 400px;
+            max-width: 28rem;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            padding: 2.5rem;
             animation: slideUp 0.5s ease-out;
         }
-
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1rem;
         }
-
-        .logo {
-            width: 100%;
-            max-width: 200px;
-            margin: 0 auto 1rem;
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
         }
-
-        .logo img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            color: #6b7280;
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-
-        .label i {
-            color: var(--primary-color);
-            margin-right: 0.5rem;
-        }
-
         .input {
             width: 100%;
             padding: 0.875rem 1rem;
             border: 2px solid #e5e7eb;
             border-radius: 0.75rem;
             font-size: 1rem;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
             background: white;
         }
-
         .input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 10%, transparent);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
         }
-
-        .input-hint {
-            margin-top: 0.5rem;
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-
-        .input-hint i {
-            margin-right: 0.25rem;
-        }
-
         .submit-btn {
             width: 100%;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             border: none;
             border-radius: 0.75rem;
@@ -152,25 +112,21 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
-
         .submit-btn:hover {
-            background: var(--primary-color-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 40%, transparent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-
         .submit-btn:disabled {
             background: #9ca3af;
             cursor: not-allowed;
             transform: none;
         }
-
         .alert {
             padding: 1rem;
             border-radius: 0.75rem;
@@ -180,194 +136,184 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .alert.show {
-            display: flex;
-        }
-
+        .alert.show { display: flex; }
         .alert-error {
             background: #fef2f2;
             border: 1px solid #fecaca;
             color: #dc2626;
         }
-
         .alert-success {
             background: #f0fdf4;
             border: 1px solid #bbf7d0;
             color: #16a34a;
         }
-
-        .help-section {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .help-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.75rem;
-        }
-
-        .help-title i {
-            color: var(--primary-color);
-            margin-right: 0.5rem;
-        }
-
-        .help-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .help-list li {
-            display: flex;
-            align-items: start;
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
-        }
-
-        .help-list li i {
-            color: #22c55e;
-            margin-right: 0.5rem;
-            margin-top: 0.125rem;
-        }
-
-        .footer-link {
-            margin-top: 1.5rem;
-            text-align: center;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        .footer-link a {
-            color: var(--primary-color);
-            font-weight: 500;
-            text-decoration: none;
-        }
-
-        .footer-link a:hover {
-            opacity: 0.8;
-        }
-
-        .footer {
-            margin-top: 2rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #9ca3af;
-        }
-
         .loading-spinner {
             width: 1rem;
             height: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255,255,255,0.3);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
+        .floating { animation: float 3s ease-in-out infinite; }
 
-        /* Mobile optimizations */
-        @media (max-width: 640px) {
-            body {
-                padding: 1rem 0.75rem;
+        @media (min-width: 1024px) {
+            .branding-section { display: flex; }
+            .form-section {
+                flex: 1;
+                max-width: 50%;
+                background: rgba(255,255,255,0.1);
+                backdrop-filter: blur(20px);
             }
-
-            .login-container {
-                padding: 1.5rem;
-                border-radius: 12px;
-            }
-
-            .title {
-                font-size: 1.5rem;
-            }
+            .login-container { max-width: 32rem; }
+        }
+        @media (min-width: 1440px) {
+            .branding-section { padding: 4rem; }
+            .form-section { padding: 3rem; }
+            .login-container { max-width: 36rem; padding: 3rem; }
+            .feature-item { padding: 1.25rem; }
+        }
+        @media (min-width: 1920px) {
+            .branding-section { padding: 5rem; }
+            .form-section { padding: 4rem; }
+            .login-container { max-width: 40rem; padding: 3.5rem; }
+            .input { padding: 1rem 1.25rem; font-size: 1.1rem; }
+            .submit-btn { padding: 1.125rem; font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- Logo and Title -->
-        <div class="header">
-            <div class="logo">
-                <img src="<%= logoUrl %>" alt="<%= siteName %>">
+    <div class="page-wrapper">
+        <!-- Branding Section -->
+        <div class="branding-section">
+            <div class="mb-8">
+                <div class="bg-white p-4 rounded-2xl shadow-2xl inline-block">
+                    <img src="<%= logoUrl %>" alt="<%= siteName %>" class="h-20 w-auto">
+                </div>
             </div>
-            <h1 class="title"><%= t('applicantTestLoginTitle') %></h1>
-            <p class="subtitle"><%= t('applicantTestLoginSubtitle') %></p>
-        </div>
-
-        <!-- Error Message -->
-        <div id="errorMessage" class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span id="errorText"></span>
-        </div>
-
-        <!-- Success Message -->
-        <div id="successMessage" class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span id="successText"></span>
-        </div>
-
-        <!-- Login Form -->
-        <form id="testLoginForm">
-            <div class="form-group">
-                <label for="test_code" class="label">
-                    <i class="fas fa-key"></i><%= t('applicantTestLoginCodeLabel') %>
-                </label>
-                <input type="text"
-                       id="test_code"
-                       name="test_code"
-                       class="input"
-                       placeholder="<%= t('applicantTestLoginCodePlaceholder') %>"
-                       required>
-                <p class="input-hint">
-                    <i class="fas fa-info-circle"></i>
-                    <%= t('applicantTestLoginCodeHint') %>
-                </p>
+            <h1 class="text-4xl font-bold mb-4"><%= siteName %></h1>
+            <p class="text-xl text-white/80 mb-8"><%= companyName %></p>
+            <div class="floating mb-8">
+                <i class="fas fa-clipboard-check text-8xl text-white/60"></i>
             </div>
-
-            <button type="submit" class="submit-btn" id="submitBtn">
-                <i class="fas fa-sign-in-alt"></i>
-                <span id="btnText"><%= t('applicantTestLoginButton') %></span>
-                <span id="btnLoading" style="display: none;">
-                    <div class="loading-spinner"></div>
-                    <%= t('applicantTestLoginValidating') %>
-                </span>
-            </button>
-        </form>
-
-        <!-- Help Section -->
-        <div class="help-section">
-            <h3 class="help-title">
-                <i class="fas fa-question-circle"></i><%= t('applicantTestLoginInfo') %>
-            </h3>
-            <ul class="help-list">
-                <li>
-                    <i class="fas fa-check"></i>
-                    <span><%= t('applicantTestLoginInfo1') %></span>
-                </li>
-                <li>
-                    <i class="fas fa-check"></i>
-                    <span><%= t('applicantTestLoginInfo2') %></span>
-                </li>
-                <li>
-                    <i class="fas fa-check"></i>
-                    <span><%= t('applicantTestLoginInfo3') %></span>
-                </li>
-            </ul>
+            <div class="w-full max-w-md">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-key"></i></div>
+                    <div class="text-left">
+                        <div class="font-semibold"><%= isEnglish ? 'Enter Test Code' : 'กรอกรหัสทดสอบ' %></div>
+                        <div class="text-sm text-white/70"><%= isEnglish ? 'Use the code from HR' : 'ใช้รหัสที่ได้รับจาก HR' %></div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-laptop"></i></div>
+                    <div class="text-left">
+                        <div class="font-semibold"><%= isEnglish ? 'Take the Test' : 'ทำแบบทดสอบ' %></div>
+                        <div class="text-sm text-white/70"><%= isEnglish ? 'Complete all questions' : 'ทำให้ครบทุกข้อ' %></div>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div class="text-left">
+                        <div class="font-semibold"><%= isEnglish ? 'View Results' : 'ดูผลสอบ' %></div>
+                        <div class="text-sm text-white/70"><%= isEnglish ? 'See your score immediately' : 'ดูคะแนนได้ทันที' %></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p>&copy; <%= new Date().getFullYear() %> <%= companyName %>. All rights reserved.</p>
+        <!-- Login Form Section -->
+        <div class="form-section">
+            <div class="login-container">
+                <!-- Logo and Title -->
+                <div class="text-center mb-8">
+                    <div class="inline-block mb-4 lg:hidden">
+                        <img src="<%= logoUrl %>" alt="<%= siteName %>" class="h-16 w-auto mx-auto">
+                    </div>
+                    <h1 class="text-2xl font-bold" style="color: var(--primary-color);">
+                        <%= t('applicantTestLoginTitle') %>
+                    </h1>
+                    <p class="text-gray-500 mt-2"><%= t('applicantTestLoginSubtitle') %></p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText"></span>
+                </div>
+
+                <!-- Login Form -->
+                <form id="testLoginForm">
+                    <div class="mb-6">
+                        <label for="test_code" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-key mr-2" style="color: var(--primary-color);"></i>
+                            <%= t('applicantTestLoginCodeLabel') %>
+                        </label>
+                        <input type="text"
+                               id="test_code"
+                               name="test_code"
+                               class="input"
+                               placeholder="<%= t('applicantTestLoginCodePlaceholder') %>"
+                               required>
+                        <p class="mt-2 text-xs text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <%= t('applicantTestLoginCodeHint') %>
+                        </p>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span id="btnText"><%= t('applicantTestLoginButton') %></span>
+                        <span id="btnLoading" style="display: none;" class="flex items-center gap-2">
+                            <div class="loading-spinner"></div>
+                            <%= t('applicantTestLoginValidating') %>
+                        </span>
+                    </button>
+                </form>
+
+                <!-- Help Section -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3">
+                        <i class="fas fa-question-circle mr-2" style="color: var(--primary-color);"></i>
+                        <%= t('applicantTestLoginInfo') %>
+                    </h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-check text-green-500 mr-2 mt-0.5"></i>
+                            <span><%= t('applicantTestLoginInfo1') %></span>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-check text-green-500 mr-2 mt-0.5"></i>
+                            <span><%= t('applicantTestLoginInfo2') %></span>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-check text-green-500 mr-2 mt-0.5"></i>
+                            <span><%= t('applicantTestLoginInfo3') %></span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-gray-400">
+                        &copy; <%= new Date().getFullYear() %> <%= companyName %>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // i18n translations for JavaScript
         const i18n = {
             errorCode: '<%= t('applicantTestLoginErrorCode') %>',
             errorNotFound: '<%= t('applicantTestLoginErrorNotFound') %>',
@@ -387,23 +333,19 @@
             const btnText = document.getElementById('btnText');
             const btnLoading = document.getElementById('btnLoading');
 
-            // Hide messages
             errorDiv.classList.remove('show');
             successDiv.classList.remove('show');
 
-            // Validate test code format
             if (!testCode) {
                 showError(i18n.errorCode);
                 return;
             }
 
-            // Disable submit button
             submitBtn.disabled = true;
             btnText.style.display = 'none';
             btnLoading.style.display = 'flex';
 
             try {
-                // Check if test code exists
                 const checkResponse = await fetch(`/applicants/api/${testCode}/info`);
                 const checkData = await checkResponse.json();
 
@@ -415,7 +357,6 @@
                     return;
                 }
 
-                // Check application status - only block if status is not Pending
                 if (checkData.data.status && checkData.data.status !== 'Pending') {
                     showError(checkData.data.test_status_message || 'สถานะใบสมัครไม่อนุญาตให้ทำแบบทดสอบ');
                     submitBtn.disabled = false;
@@ -424,9 +365,7 @@
                     return;
                 }
 
-                // Show success and redirect
                 showSuccess(i18n.success);
-
                 setTimeout(() => {
                     window.location.href = `/applicants/dashboard/${testCode}`;
                 }, 1000);
@@ -442,15 +381,13 @@
 
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-            errorText.textContent = message;
+            document.getElementById('errorText').textContent = message;
             errorDiv.classList.add('show');
         }
 
         function showSuccess(message) {
             const successDiv = document.getElementById('successMessage');
-            const successText = document.getElementById('successText');
-            successText.textContent = message;
+            document.getElementById('successText').textContent = message;
             successDiv.classList.add('show');
         }
     </script>

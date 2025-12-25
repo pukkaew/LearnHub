@@ -86,6 +86,75 @@
             background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
         }
 
+        /* ========================================
+           RESPONSIVE STYLES FOR LARGE SCREENS
+           ======================================== */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 960px;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            body {
+                font-size: 1.05rem;
+            }
+            .container {
+                max-width: 1200px;
+            }
+            .test-content {
+                padding: 2.5rem;
+            }
+            .question-card {
+                padding: 2rem;
+            }
+            .nav-bar {
+                padding: 1.25rem 2.5rem;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            body {
+                font-size: 1.1rem;
+            }
+            .container {
+                max-width: 1400px;
+            }
+            .test-content {
+                padding: 3rem;
+            }
+            .question-card {
+                padding: 2.5rem;
+                font-size: 1.125rem;
+            }
+            .nav-bar {
+                padding: 1.5rem 3rem;
+            }
+            .security-overlay {
+                top: 30px;
+                right: 30px;
+                max-width: 500px;
+                padding: 20px 28px;
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 2560px) {
+            body {
+                font-size: 1.15rem;
+            }
+            .container {
+                max-width: 1800px;
+            }
+            .test-content {
+                padding: 4rem;
+            }
+            .question-card {
+                padding: 3rem;
+                font-size: 1.25rem;
+            }
+        }
+
         /* Full screen mode styles */
         .fullscreen-mode {
             position: fixed !important;
