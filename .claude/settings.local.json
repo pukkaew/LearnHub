@@ -102,7 +102,9 @@
       "Bash(git checkout:*)",
       "Bash(perl -i -pe:*)",
       "WebFetch(domain:www.facebook.com)",
-      "Bash(git -C \"D:/App/LearnHub\" status)"
+      "Bash(git -C \"D:/App/LearnHub\" status)",
+      "Bash(npm install)",
+      "Bash(npm run build-css-prod:*)"
     ],
     "deny": [],
     "ask": []

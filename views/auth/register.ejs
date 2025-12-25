@@ -1,928 +1,295 @@
-<!DOCTYPE html>
-<html lang="<%= typeof currentLanguage !== 'undefined' ? currentLanguage : 'th' %>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <%
-        const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
-        const companyName = typeof getSetting === 'function' ? getSetting('company_name', 'บริษัท รักชัยห้องเย็น จำกัด') : 'บริษัท รักชัยห้องเย็น จำกัด';
-        const companyNameEn = typeof getSetting === 'function' ? getSetting('company_name_en', 'Rukchai Hongyen Co., Ltd.') : 'Rukchai Hongyen Co., Ltd.';
-        const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/logo.png') : '/images/logo.png';
-        const primaryColor = typeof getSetting === 'function' ? getSetting('primary_color', '#0090D3') : '#0090D3';
-        const secondaryColor = typeof getSetting === 'function' ? getSetting('secondary_color', '#3AAA35') : '#3AAA35';
-        const currentLang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'th';
-    %>
-    <title><%= currentLang === 'en' ? 'Register' : 'สมัครสมาชิก' %> - <%= siteName %></title>
-    <link href="/css/tailwind.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
-
-        :root {
-            --primary-color: <%= primaryColor %>;
-            --primary-color-dark: color-mix(in srgb, <%= primaryColor %> 80%, #000 20%);
-            --secondary-color: <%= secondaryColor %>;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans Thai', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-
-        .page-wrapper {
-            min-height: 100vh;
-            display: flex;
-            align-items: stretch;
-        }
-
-        /* Branding Section */
-        .branding-section {
-            display: none;
-            flex: 0 0 400px;
-            background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
-            padding: 3rem;
-            color: white;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-        }
-
-        .branding-logo {
-            width: 100px;
-            height: 100px;
-            background: white;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-
-        .branding-logo img {
-            width: 80%;
-            height: 80%;
-            object-fit: contain;
-        }
-
-        .branding-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .branding-subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            max-width: 320px;
-        }
-
-        .branding-features {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            text-align: left;
-        }
-
-        .branding-feature {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 0.95rem;
-            opacity: 0.95;
-        }
-
-        .branding-feature i {
-            width: 36px;
-            height: 36px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-
-        /* Form Section */
-        .form-section {
-            flex: 1;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 2rem 1rem;
-            overflow-y: auto;
-        }
-
-        .register-container {
-            width: 100%;
-            max-width: 600px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem 2rem;
-            position: relative;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        /* Language Selector */
-        .language-selector {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 10;
-        }
-
-        .auth-language-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            border-radius: 10px;
-            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-            border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
-            color: var(--primary-color);
-            transition: all 0.25s ease;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .auth-language-button:hover {
-            background: color-mix(in srgb, var(--primary-color) 15%, transparent);
-            transform: translateY(-1px);
-        }
-
-        .auth-language-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            min-width: 160px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            padding: 6px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.25s ease;
-        }
-
-        .auth-language-dropdown.open {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .auth-language-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border-radius: 6px;
-            color: #374151;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-        }
-
-        .auth-language-option:hover {
-            background: #f8fafc;
-            color: var(--primary-color);
-        }
-
-        .auth-language-option.active {
-            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-            color: var(--primary-color);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            margin-top: 2.5rem;
-        }
-
-        .logo {
-            width: 100%;
-            max-width: 180px;
-            margin: 0 auto 1rem;
-        }
-
-        .logo img {
-            width: 100%;
-            height: auto;
-        }
-
-        .title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            color: #6b7280;
-            font-size: 0.95rem;
-        }
-
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #374151;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        @media (min-width: 480px) {
-            .form-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .form-grid .full-width {
-                grid-column: span 2;
-            }
-        }
-
-        .form-group {
-            margin-bottom: 0;
-        }
-
-        .label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.35rem;
-        }
-
-        .input, .select {
-            width: 100%;
-            padding: 0.7rem 0.9rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.6rem;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-            background: white;
-        }
-
-        .input:focus, .select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 10%, transparent);
-        }
-
-        .hint {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            margin-top: 0.25rem;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .checkbox {
-            width: 1.1rem;
-            height: 1.1rem;
-            accent-color: var(--primary-color);
-            margin-top: 0.1rem;
-        }
-
-        .checkbox-label {
-            color: #4b5563;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .checkbox-label a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .checkbox-label a:hover {
-            text-decoration: underline;
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 0.6rem;
-            padding: 0.85rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .submit-btn:hover {
-            background: var(--primary-color-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 40%, transparent);
-        }
-
-        .submit-btn:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .login-link {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-
-        .login-link a {
-            color: var(--primary-color);
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        .error-alert {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 0.6rem;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            color: #dc2626;
-            font-size: 0.85rem;
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .error-alert.show {
-            display: flex;
-        }
-
-        .loading-spinner {
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Large screen responsive */
-        @media (min-width: 1024px) {
-            .branding-section {
-                display: flex;
-            }
-
-            .form-section {
-                background: rgba(255,255,255,0.1);
-                backdrop-filter: blur(10px);
-            }
-
-            .register-container {
-                max-width: 650px;
-            }
-        }
-
-        @media (min-width: 1440px) {
-            .branding-section {
-                flex: 0 0 450px;
-                padding: 4rem;
-            }
-
-            .branding-logo {
-                width: 120px;
-                height: 120px;
-            }
-
-            .branding-title {
-                font-size: 2.5rem;
-            }
-
-            .register-container {
-                max-width: 700px;
-                padding: 2rem 2.5rem;
-            }
-        }
-
-        @media (min-width: 1920px) {
-            .branding-section {
-                flex: 0 0 550px;
-                padding: 5rem;
-            }
-
-            .branding-logo {
-                width: 150px;
-                height: 150px;
-                border-radius: 28px;
-            }
-
-            .branding-title {
-                font-size: 3rem;
-            }
-
-            .branding-subtitle {
-                font-size: 1.25rem;
-            }
-
-            .register-container {
-                max-width: 800px;
-                padding: 2.5rem 3rem;
-            }
-
-            .title {
-                font-size: 2rem;
-            }
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 640px) {
-            .form-section {
-                padding: 1rem 0.75rem;
-            }
-
-            .register-container {
-                padding: 1rem 1.25rem;
-                border-radius: 12px;
-            }
-
-            .header {
-                margin-top: 2rem;
-            }
-
-            .title {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="page-wrapper">
-        <!-- Branding Section -->
-        <div class="branding-section">
-            <div class="branding-logo">
-                <img src="<%= logoUrl %>" alt="<%= siteName %>">
+<%
+    const siteName = typeof getSetting === 'function' ? getSetting('site_name', 'Rukchai Hongyen LearnHub') : 'Rukchai Hongyen LearnHub';
+    const companyName = typeof getSetting === 'function' ? getSetting('company_name', 'บริษัท รักชัยห้องเย็น จำกัด') : 'บริษัท รักชัยห้องเย็น จำกัด';
+    const logoUrl = typeof getSetting === 'function' ? getSetting('logo_url', '/images/rukchai-logo.png') : '/images/rukchai-logo.png';
+%>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full space-y-8">
+        <div>
+            <div class="mx-auto h-12 w-auto flex justify-center">
+                <img class="h-12 w-auto" src="<%= logoUrl %>" alt="<%= siteName %>">
             </div>
-            <h1 class="branding-title"><%= siteName.replace('Rukchai Hongyen ', '') %></h1>
-            <p class="branding-subtitle">
-                <span data-th="ระบบการเรียนรู้ออนไลน์ พัฒนาทักษะบุคลากร" data-en="Online Learning System for Staff Development">
-                    <%= currentLang === 'en' ? 'Online Learning System for Staff Development' : 'ระบบการเรียนรู้ออนไลน์ พัฒนาทักษะบุคลากร' %>
-                </span>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                สมัครสมาชิก <%= siteName.replace('Rukchai Hongyen ', '') %>
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                สร้างบัญชีผู้ใช้สำหรับพนักงาน <%= companyName %>
             </p>
-            <div class="branding-features">
-                <div class="branding-feature">
-                    <i class="fas fa-user-plus"></i>
-                    <span data-th="สมัครสมาชิกง่าย รวดเร็ว" data-en="Easy & Fast Registration">
-                        <%= currentLang === 'en' ? 'Easy & Fast Registration' : 'สมัครสมาชิกง่าย รวดเร็ว' %>
-                    </span>
-                </div>
-                <div class="branding-feature">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span data-th="เข้าถึงหลักสูตรทันที" data-en="Instant Course Access">
-                        <%= currentLang === 'en' ? 'Instant Course Access' : 'เข้าถึงหลักสูตรทันที' %>
-                    </span>
-                </div>
-                <div class="branding-feature">
-                    <i class="fas fa-certificate"></i>
-                    <span data-th="รับใบประกาศนียบัตรออนไลน์" data-en="Get Online Certificates">
-                        <%= currentLang === 'en' ? 'Get Online Certificates' : 'รับใบประกาศนียบัตรออนไลน์' %>
-                    </span>
-                </div>
-            </div>
         </div>
 
-        <!-- Form Section -->
-        <div class="form-section">
-            <div class="register-container">
-                <!-- Language Selector -->
-                <div class="language-selector">
-                    <button id="auth-language-switcher" class="auth-language-button">
-                        <span id="auth-current-language-text"><%= currentLang === 'en' ? 'EN' : 'TH' %></span>
-                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
-                    </button>
-                    <div id="auth-language-menu" class="auth-language-dropdown">
-                        <button class="auth-language-option <%= currentLang === 'th' ? 'active' : '' %>" data-lang="th">ไทย</button>
-                        <button class="auth-language-option <%= currentLang === 'en' ? 'active' : '' %>" data-lang="en">English</button>
-                    </div>
+        <form id="register-form" class="mt-8 space-y-6" action="/auth/register" method="POST">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <!-- Personal Information -->
+                <div class="sm:col-span-2">
+                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">ข้อมูลส่วนตัว</h3>
                 </div>
 
-                <!-- Header -->
-                <div class="header">
-                    <div class="logo">
-                        <img src="<%= logoUrl %>" alt="<%= siteName %>">
-                    </div>
-                    <h1 class="title" data-th="สมัครสมาชิก" data-en="Register"><%= currentLang === 'en' ? 'Register' : 'สมัครสมาชิก' %></h1>
-                    <p class="subtitle" data-th="สร้างบัญชีผู้ใช้สำหรับพนักงาน" data-en="Create employee account">
-                        <%= currentLang === 'en' ? 'Create employee account' : 'สร้างบัญชีผู้ใช้สำหรับพนักงาน' %>
-                    </p>
+                <div>
+                    <label for="employee_id" class="block text-sm font-medium text-gray-700">รหัสพนักงาน *</label>
+                    <input type="text" name="employee_id" id="employee_id" required
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
                 </div>
 
-                <!-- Error Alert -->
-                <div id="error-alert" class="error-alert">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span id="error-text"></span>
+                <div>
+                    <label for="national_id" class="block text-sm font-medium text-gray-700">เลขบัตรประชาชน *</label>
+                    <input type="text" name="national_id" id="national_id" required pattern="[0-9]{13}" maxlength="13"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
                 </div>
 
-                <!-- Register Form -->
-                <form id="register-form" action="/auth/register" method="POST">
-                    <!-- Personal Information -->
-                    <h3 class="section-title" data-th="ข้อมูลส่วนตัว" data-en="Personal Information">
-                        <%= currentLang === 'en' ? 'Personal Information' : 'ข้อมูลส่วนตัว' %>
-                    </h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="employee_id" class="label" data-th="รหัสพนักงาน *" data-en="Employee ID *">
-                                <%= currentLang === 'en' ? 'Employee ID *' : 'รหัสพนักงาน *' %>
-                            </label>
-                            <input type="text" id="employee_id" name="employee_id" class="input" required
-                                   data-th-placeholder="กรอกรหัสพนักงาน" data-en-placeholder="Enter employee ID"
-                                   placeholder="<%= currentLang === 'en' ? 'Enter employee ID' : 'กรอกรหัสพนักงาน' %>">
-                        </div>
-                        <div class="form-group">
-                            <label for="national_id" class="label" data-th="เลขบัตรประชาชน *" data-en="National ID *">
-                                <%= currentLang === 'en' ? 'National ID *' : 'เลขบัตรประชาชน *' %>
-                            </label>
-                            <input type="text" id="national_id" name="national_id" class="input" required pattern="[0-9]{13}" maxlength="13"
-                                   data-th-placeholder="13 หลัก" data-en-placeholder="13 digits"
-                                   placeholder="<%= currentLang === 'en' ? '13 digits' : '13 หลัก' %>">
-                        </div>
-                        <div class="form-group">
-                            <label for="first_name" class="label" data-th="ชื่อ *" data-en="First Name *">
-                                <%= currentLang === 'en' ? 'First Name *' : 'ชื่อ *' %>
-                            </label>
-                            <input type="text" id="first_name" name="first_name" class="input" required
-                                   data-th-placeholder="กรอกชื่อ" data-en-placeholder="Enter first name"
-                                   placeholder="<%= currentLang === 'en' ? 'Enter first name' : 'กรอกชื่อ' %>">
-                        </div>
-                        <div class="form-group">
-                            <label for="last_name" class="label" data-th="นามสกุล *" data-en="Last Name *">
-                                <%= currentLang === 'en' ? 'Last Name *' : 'นามสกุล *' %>
-                            </label>
-                            <input type="text" id="last_name" name="last_name" class="input" required
-                                   data-th-placeholder="กรอกนามสกุล" data-en-placeholder="Enter last name"
-                                   placeholder="<%= currentLang === 'en' ? 'Enter last name' : 'กรอกนามสกุล' %>">
-                        </div>
-                        <div class="form-group">
-                            <label for="email" class="label" data-th="อีเมล *" data-en="Email *">
-                                <%= currentLang === 'en' ? 'Email *' : 'อีเมล *' %>
-                            </label>
-                            <input type="email" id="email" name="email" class="input" required
-                                   data-th-placeholder="example@email.com" data-en-placeholder="example@email.com"
-                                   placeholder="example@email.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone" class="label" data-th="เบอร์โทรศัพท์" data-en="Phone Number">
-                                <%= currentLang === 'en' ? 'Phone Number' : 'เบอร์โทรศัพท์' %>
-                            </label>
-                            <input type="tel" id="phone" name="phone" class="input" pattern="[0-9]{10}" maxlength="10"
-                                   data-th-placeholder="0812345678" data-en-placeholder="0812345678"
-                                   placeholder="0812345678">
-                        </div>
-                    </div>
+                <div>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700">ชื่อ *</label>
+                    <input type="text" name="first_name" id="first_name" required
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                </div>
 
-                    <!-- Work Information -->
-                    <h3 class="section-title" data-th="ข้อมูลการทำงาน" data-en="Work Information">
-                        <%= currentLang === 'en' ? 'Work Information' : 'ข้อมูลการทำงาน' %>
-                    </h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="department_id" class="label" data-th="แผนก *" data-en="Department *">
-                                <%= currentLang === 'en' ? 'Department *' : 'แผนก *' %>
-                            </label>
-                            <select id="department_id" name="department_id" class="select" required>
-                                <option value="" data-th="เลือกแผนก" data-en="Select department">
-                                    <%= currentLang === 'en' ? 'Select department' : 'เลือกแผนก' %>
-                                </option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="position_id" class="label" data-th="ตำแหน่ง *" data-en="Position *">
-                                <%= currentLang === 'en' ? 'Position *' : 'ตำแหน่ง *' %>
-                            </label>
-                            <select id="position_id" name="position_id" class="select" required>
-                                <option value="" data-th="เลือกตำแหน่ง" data-en="Select position">
-                                    <%= currentLang === 'en' ? 'Select position' : 'เลือกตำแหน่ง' %>
-                                </option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="supervisor_id" class="label" data-th="หัวหน้างาน" data-en="Supervisor">
-                                <%= currentLang === 'en' ? 'Supervisor' : 'หัวหน้างาน' %>
-                            </label>
-                            <select id="supervisor_id" name="supervisor_id" class="select">
-                                <option value="" data-th="เลือกหัวหน้างาน" data-en="Select supervisor">
-                                    <%= currentLang === 'en' ? 'Select supervisor' : 'เลือกหัวหน้างาน' %>
-                                </option>
-                            </select>
-                        </div>
-                    </div>
+                <div>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700">นามสกุล *</label>
+                    <input type="text" name="last_name" id="last_name" required
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                </div>
 
-                    <!-- Password Information -->
-                    <h3 class="section-title" data-th="ข้อมูลรหัสผ่าน" data-en="Password Information">
-                        <%= currentLang === 'en' ? 'Password Information' : 'ข้อมูลรหัสผ่าน' %>
-                    </h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="password" class="label" data-th="รหัสผ่าน *" data-en="Password *">
-                                <%= currentLang === 'en' ? 'Password *' : 'รหัสผ่าน *' %>
-                            </label>
-                            <input type="password" id="password" name="password" class="input" required minlength="8"
-                                   data-th-placeholder="อย่างน้อย 8 ตัวอักษร" data-en-placeholder="At least 8 characters"
-                                   placeholder="<%= currentLang === 'en' ? 'At least 8 characters' : 'อย่างน้อย 8 ตัวอักษร' %>">
-                            <p class="hint" data-th="รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร" data-en="Password must be at least 8 characters">
-                                <%= currentLang === 'en' ? 'Password must be at least 8 characters' : 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร' %>
-                            </p>
-                        </div>
-                        <div class="form-group">
-                            <label for="confirm_password" class="label" data-th="ยืนยันรหัสผ่าน *" data-en="Confirm Password *">
-                                <%= currentLang === 'en' ? 'Confirm Password *' : 'ยืนยันรหัสผ่าน *' %>
-                            </label>
-                            <input type="password" id="confirm_password" name="confirm_password" class="input" required minlength="8"
-                                   data-th-placeholder="กรอกรหัสผ่านอีกครั้ง" data-en-placeholder="Re-enter password"
-                                   placeholder="<%= currentLang === 'en' ? 'Re-enter password' : 'กรอกรหัสผ่านอีกครั้ง' %>">
-                        </div>
-                    </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">อีเมล *</label>
+                    <input type="email" name="email" id="email" required
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                </div>
 
-                    <!-- Terms -->
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="terms" name="terms" class="checkbox" required>
-                        <label for="terms" class="checkbox-label">
-                            <span data-th="ยอมรับ" data-en="Accept"><%= currentLang === 'en' ? 'Accept' : 'ยอมรับ' %></span>
-                            <a href="#" data-th="ข้อกำหนดและเงื่อนไข" data-en="Terms and Conditions">
-                                <%= currentLang === 'en' ? 'Terms and Conditions' : 'ข้อกำหนดและเงื่อนไข' %>
-                            </a>
-                            <span data-th="และ" data-en="and"><%= currentLang === 'en' ? 'and' : 'และ' %></span>
-                            <a href="#" data-th="นโยบายความเป็นส่วนตัว" data-en="Privacy Policy">
-                                <%= currentLang === 'en' ? 'Privacy Policy' : 'นโยบายความเป็นส่วนตัว' %>
-                            </a>
-                        </label>
-                    </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700">เบอร์โทรศัพท์</label>
+                    <input type="tel" name="phone" id="phone" pattern="[0-9]{10}" maxlength="10"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                </div>
 
-                    <button type="submit" class="submit-btn" id="submit-btn">
-                        <i class="fas fa-user-plus"></i>
-                        <span id="btn-text" data-th="สมัครสมาชิก" data-en="Register">
-                            <%= currentLang === 'en' ? 'Register' : 'สมัครสมาชิก' %>
-                        </span>
-                        <span id="btn-loading" style="display: none;">
-                            <div class="loading-spinner"></div>
-                            <span data-th="กำลังสมัครสมาชิก..." data-en="Registering...">
-                                <%= currentLang === 'en' ? 'Registering...' : 'กำลังสมัครสมาชิก...' %>
-                            </span>
-                        </span>
-                    </button>
-                </form>
+                <!-- Department Information -->
+                <div class="sm:col-span-2">
+                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2 mt-6">ข้อมูลการทำงาน</h3>
+                </div>
 
-                <div class="login-link">
-                    <span data-th="มีบัญชีผู้ใช้แล้ว?" data-en="Already have an account?">
-                        <%= currentLang === 'en' ? 'Already have an account?' : 'มีบัญชีผู้ใช้แล้ว?' %>
+                <div>
+                    <label for="department_id" class="block text-sm font-medium text-gray-700">แผนก *</label>
+                    <select name="department_id" id="department_id" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                        <option value="">เลือกแผนก</option>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label for="position_id" class="block text-sm font-medium text-gray-700">ตำแหน่ง *</label>
+                    <select name="position_id" id="position_id" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                        <option value="">เลือกตำแหน่ง</option>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label for="supervisor_id" class="block text-sm font-medium text-gray-700">หัวหน้างาน</label>
+                    <select name="supervisor_id" id="supervisor_id"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                        <option value="">เลือกหัวหน้างาน</option>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                </div>
+
+                <!-- Password Information -->
+                <div class="sm:col-span-2">
+                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2 mt-6">ข้อมูลรหัสผ่าน</h3>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">รหัสผ่าน *</label>
+                    <input type="password" name="password" id="password" required minlength="8"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                    <p class="mt-1 text-xs text-gray-500">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</p>
+                </div>
+
+                <div>
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">ยืนยันรหัสผ่าน *</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required minlength="8"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-ruxchai-primary focus:border-ruxchai-primary sm:text-sm">
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="flex items-center">
+                <input id="terms" name="terms" type="checkbox" required
+                       class="h-4 w-4 text-ruxchai-primary focus:ring-ruxchai-primary border-gray-300 rounded">
+                <label for="terms" class="ml-2 block text-sm text-gray-900">
+                    ยอมรับ
+                    <a href="#" class="text-ruxchai-primary hover:text-ruxchai-blue-700">ข้อกำหนดและเงื่อนไข</a>
+                    และ
+                    <a href="#" class="text-ruxchai-primary hover:text-ruxchai-blue-700">นโยบายความเป็นส่วนตัว</a>
+                </label>
+            </div>
+
+            <div>
+                <button type="submit" id="register-btn"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white ruxchai-gradient hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ruxchai-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-user-plus text-blue-300 group-hover:text-blue-200"></i>
                     </span>
-                    <a href="/auth/login" data-th="เข้าสู่ระบบ" data-en="Sign In">
-                        <%= currentLang === 'en' ? 'Sign In' : 'เข้าสู่ระบบ' %>
+                    <span id="register-text">สมัครสมาชิก</span>
+                    <span id="register-loading" class="hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>กำลังสมัครสมาชิก...
+                    </span>
+                </button>
+            </div>
+
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    มีบัญชีผู้ใช้แล้ว?
+                    <a href="/auth/login" class="font-medium text-ruxchai-primary hover:text-ruxchai-blue-700">
+                        เข้าสู่ระบบ
                     </a>
+                </p>
+            </div>
+        </form>
+
+        <!-- Error Display -->
+        <div id="register-error" class="hidden mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div class="flex">
+                <div class="py-1">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                </div>
+                <div>
+                    <p id="error-message" class="text-sm"></p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        let currentLang = '<%= currentLang %>';
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('register-form');
+    const registerBtn = document.getElementById('register-btn');
+    const registerText = document.getElementById('register-text');
+    const registerLoading = document.getElementById('register-loading');
+    const errorDiv = document.getElementById('register-error');
+    const errorMessage = document.getElementById('error-message');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
 
-        // Language Manager
-        const LanguageManager = {
-            init() {
-                this.bindEvents();
-            },
+    // Load departments and positions
+    loadDepartments();
+    loadSupervisors();
 
-            bindEvents() {
-                const switcher = document.getElementById('auth-language-switcher');
-                const menu = document.getElementById('auth-language-menu');
-                const options = document.querySelectorAll('.auth-language-option');
+    // Password confirmation validation
+    confirmPassword.addEventListener('input', function() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('รหัสผ่านไม่ตรงกัน');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    });
 
-                if (switcher && menu) {
-                    switcher.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        menu.classList.toggle('open');
-                    });
+    // National ID validation
+    document.getElementById('national_id').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        e.target.value = value;
+    });
 
-                    document.addEventListener('click', () => menu.classList.remove('open'));
-                    menu.addEventListener('click', (e) => e.stopPropagation());
-                }
+    // Phone validation
+    document.getElementById('phone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        e.target.value = value;
+    });
 
-                options.forEach(opt => {
-                    opt.addEventListener('click', () => this.changeLanguage(opt.dataset.lang));
-                });
-            },
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-            async changeLanguage(lang) {
-                if (lang === currentLang) return;
+        // Validate passwords match
+        if (password.value !== confirmPassword.value) {
+            showError('รหัสผ่านไม่ตรงกัน');
+            return;
+        }
 
-                currentLang = lang;
-                localStorage.setItem('ruxchai_language', lang);
+        // Show loading state
+        registerBtn.disabled = true;
+        registerText.classList.add('hidden');
+        registerLoading.classList.remove('hidden');
+        errorDiv.classList.add('hidden');
 
-                try {
-                    await fetch('/language/switch', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ language: lang })
-                    });
-                } catch (e) {}
+        try {
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
 
-                this.updateUI();
-                document.getElementById('auth-language-menu').classList.remove('open');
-            },
-
-            updateUI() {
-                document.getElementById('auth-current-language-text').textContent = currentLang === 'en' ? 'EN' : 'TH';
-
-                document.querySelectorAll('.auth-language-option').forEach(opt => {
-                    opt.classList.toggle('active', opt.dataset.lang === currentLang);
-                });
-
-                document.querySelectorAll('[data-th][data-en]').forEach(el => {
-                    el.textContent = currentLang === 'th' ? el.dataset.th : el.dataset.en;
-                });
-
-                document.querySelectorAll('[data-th-placeholder][data-en-placeholder]').forEach(el => {
-                    el.placeholder = currentLang === 'th' ? el.dataset.thPlaceholder : el.dataset.enPlaceholder;
-                });
-
-                document.documentElement.lang = currentLang;
-            }
-        };
-
-        // Form handling
-        document.addEventListener('DOMContentLoaded', function() {
-            LanguageManager.init();
-
-            const form = document.getElementById('register-form');
-            const submitBtn = document.getElementById('submit-btn');
-            const btnText = document.getElementById('btn-text');
-            const btnLoading = document.getElementById('btn-loading');
-            const errorAlert = document.getElementById('error-alert');
-            const errorText = document.getElementById('error-text');
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirm_password');
-
-            // Load departments and supervisors
-            loadDepartments();
-            loadSupervisors();
-
-            // Validation
-            confirmPassword.addEventListener('input', function() {
-                if (password.value !== confirmPassword.value) {
-                    confirmPassword.setCustomValidity(currentLang === 'en' ? 'Passwords do not match' : 'รหัสผ่านไม่ตรงกัน');
-                } else {
-                    confirmPassword.setCustomValidity('');
-                }
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             });
 
-            document.getElementById('national_id').addEventListener('input', function(e) {
-                e.target.value = e.target.value.replace(/\D/g, '');
-            });
+            const result = await response.json();
 
-            document.getElementById('phone').addEventListener('input', function(e) {
-                e.target.value = e.target.value.replace(/\D/g, '');
-            });
-
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                if (password.value !== confirmPassword.value) {
-                    showError(currentLang === 'en' ? 'Passwords do not match' : 'รหัสผ่านไม่ตรงกัน');
-                    return;
-                }
-
-                submitBtn.disabled = true;
-                btnText.style.display = 'none';
-                btnLoading.style.display = 'flex';
-                errorAlert.classList.remove('show');
-
-                try {
-                    const formData = new FormData(form);
-                    const data = Object.fromEntries(formData.entries());
-
-                    const response = await fetch('/auth/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        window.location.href = '/auth/login?message=' + encodeURIComponent(
-                            currentLang === 'en' ? 'Registration successful. Please sign in.' : 'สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ'
-                        );
-                    } else {
-                        throw new Error(result.message || (currentLang === 'en' ? 'Registration failed' : 'เกิดข้อผิดพลาดในการสมัครสมาชิก'));
-                    }
-                } catch (error) {
-                    showError(error.message);
-                } finally {
-                    submitBtn.disabled = false;
-                    btnText.style.display = 'inline';
-                    btnLoading.style.display = 'none';
-                }
-            });
-
-            function showError(message) {
-                errorText.textContent = message;
-                errorAlert.classList.add('show');
+            if (result.success) {
+                window.location.href = '/auth/login?message=สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ';
+            } else {
+                throw new Error(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
             }
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            // Reset loading state
+            registerBtn.disabled = false;
+            registerText.classList.remove('hidden');
+            registerLoading.classList.add('hidden');
+        }
+    });
 
-            async function loadDepartments() {
-                try {
-                    const response = await fetch('/api/departments');
-                    const data = await response.json();
-                    const select = document.getElementById('department_id');
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
 
-                    if (data.success && data.data) {
-                        data.data.forEach(dept => {
-                            const option = document.createElement('option');
-                            option.value = dept.department_id;
-                            option.textContent = dept.department_name;
-                            select.appendChild(option);
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error loading departments:', error);
-                }
+    async function loadDepartments() {
+        try {
+            const response = await fetch('/api/departments');
+            const data = await response.json();
+
+            const select = document.getElementById('department_id');
+            select.innerHTML = '<option value="">เลือกแผนก</option>';
+
+            if (data.success && data.data) {
+                data.data.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.department_id;
+                    option.textContent = dept.department_name;
+                    select.appendChild(option);
+                });
             }
+        } catch (error) {
+            console.error('Error loading departments:', error);
+        }
+    }
 
-            async function loadSupervisors() {
-                try {
-                    const response = await fetch('/api/users/supervisors');
-                    const data = await response.json();
-                    const select = document.getElementById('supervisor_id');
+    async function loadSupervisors() {
+        try {
+            const response = await fetch('/api/users/supervisors');
+            const data = await response.json();
 
-                    if (data.success && data.data) {
-                        data.data.forEach(sup => {
-                            const option = document.createElement('option');
-                            option.value = sup.user_id;
-                            option.textContent = `${sup.first_name} ${sup.last_name}`;
-                            select.appendChild(option);
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error loading supervisors:', error);
-                }
+            const select = document.getElementById('supervisor_id');
+            select.innerHTML = '<option value="">เลือกหัวหน้างาน</option>';
+
+            if (data.success && data.data) {
+                data.data.forEach(supervisor => {
+                    const option = document.createElement('option');
+                    option.value = supervisor.user_id;
+                    option.textContent = `${supervisor.first_name} ${supervisor.last_name}`;
+                    select.appendChild(option);
+                });
             }
+        } catch (error) {
+            console.error('Error loading supervisors:', error);
+        }
+    }
 
-            form.addEventListener('input', () => errorAlert.classList.remove('show'));
-        });
-    </script>
-</body>
-</html>
+    // Hide error on input change
+    form.addEventListener('input', function() {
+        errorDiv.classList.add('hidden');
+    });
+});
+</script>

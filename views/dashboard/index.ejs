@@ -29,59 +29,6 @@ const isInstructor = user.role_name === 'Instructor';
 .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #e0e0e0, #c0c0c0); border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #d0d0d0, #a0a0a0); }
-
-/* RESPONSIVE STYLES FOR LARGE SCREENS - 16:10 aspect ratio and above */
-@media (min-width: 1440px) {
-    .stat-card { padding: 1.75rem; border-radius: 1rem; }
-    .stat-card p.text-3xl { font-size: 2.25rem; }
-    .icon-box { width: 56px; height: 56px; border-radius: 14px; }
-    .icon-box svg { width: 1.75rem; height: 1.75rem; }
-    .rounded-2xl { border-radius: 1.25rem; }
-    .rounded-xl { border-radius: 1rem; }
-    .text-2xl { font-size: 1.75rem; }
-    .gap-6 { gap: 1.75rem; }
-    .p-6 { padding: 1.75rem; }
-    .mb-8 { margin-bottom: 2.5rem; }
-}
-
-@media (min-width: 1920px) {
-    .stat-card { padding: 2rem; border-radius: 1.25rem; }
-    .stat-card p.text-3xl { font-size: 2.5rem; }
-    .stat-card p.text-sm { font-size: 0.95rem; }
-    .stat-card p.text-xs { font-size: 0.85rem; }
-    .icon-box { width: 64px; height: 64px; border-radius: 16px; }
-    .icon-box svg { width: 2rem; height: 2rem; }
-    .rounded-2xl { border-radius: 1.5rem; }
-    .rounded-xl { border-radius: 1.25rem; }
-    .text-2xl { font-size: 2rem; }
-    .text-lg { font-size: 1.25rem; }
-    .gap-6 { gap: 2rem; }
-    .p-6 { padding: 2rem; }
-    .px-4 { padding-left: 1.5rem; padding-right: 1.5rem; }
-    .py-8 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
-    .mb-8 { margin-bottom: 3rem; }
-    .action-card { padding: 1.5rem; }
-}
-
-@media (min-width: 2560px) {
-    .stat-card { padding: 2.5rem; border-radius: 1.5rem; }
-    .stat-card p.text-3xl { font-size: 3rem; }
-    .stat-card p.text-sm { font-size: 1rem; }
-    .stat-card p.text-xs { font-size: 0.9rem; }
-    .icon-box { width: 72px; height: 72px; border-radius: 18px; }
-    .icon-box svg { width: 2.25rem; height: 2.25rem; }
-    .rounded-2xl { border-radius: 1.75rem; }
-    .rounded-xl { border-radius: 1.5rem; }
-    .text-2xl { font-size: 2.25rem; }
-    .text-lg { font-size: 1.375rem; }
-    .text-base { font-size: 1.125rem; }
-    .gap-6 { gap: 2.5rem; }
-    .p-6 { padding: 2.5rem; }
-    .px-4 { padding-left: 2rem; padding-right: 2rem; }
-    .py-8 { padding-top: 3rem; padding-bottom: 3rem; }
-    .mb-8 { margin-bottom: 3.5rem; }
-    .action-card { padding: 2rem; }
-}
 </style>
 
 <div class="min-h-screen bg-gray-50">
